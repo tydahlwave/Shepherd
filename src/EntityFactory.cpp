@@ -7,11 +7,11 @@
 //
 
 #include "EntityFactory.h"
-#include "Transform.h"
-#include "Collider.h"
-#include "Camera.h"
-#include "MeshRenderer.h"
-#include "RigidBody.h"
+#include "Components/Transform.h"
+#include "Components/Collider.h"
+#include "Components/Camera.h"
+#include "Components/MeshRenderer.h"
+#include "Components/RigidBody.h"
 
 GameObject *EntityFactory::createMainCamera(World *world) {
     GameObject *gameObject = world->CreateGameObject("MainCamera");

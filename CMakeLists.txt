@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 # Name of the project
-project(SimpleGame)
+project(Shepherd)
 
 # Use glob to get the list of all source files.
 file(GLOB_RECURSE SOURCES "src/*.cpp")
@@ -13,14 +13,6 @@ file(GLOB_RECURSE GLSL "resources/*.glsl")
 
 # Set the executable.
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES} ${HEADERS} ${GLSL})
-
-# Get the Eigen environment variable. Since Eigen is a header-only library, we
-# just need to add it to the include directory.
-set(EIGEN3_INCLUDE_DIR "$ENV{EIGEN3_INCLUDE_DIR}")
-if(NOT EIGEN3_INCLUDE_DIR)
-  MESSAGE(FATAL_ERROR "Please point the environment variable EIGEN3_INCLUDE_DIR to the include directory of your Eigen3 installation.")
-endif()
-include_directories(${EIGEN3_INCLUDE_DIR})
 
 # Get the GLM environment variable. Since GLM is a header-only library, we
 # just need to add it to the include directory.

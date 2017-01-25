@@ -10,8 +10,8 @@
 #include <GLFW/glfw3.h>
 
 #include "CameraController.h"
-#include "Camera.h"
-#include "RigidBody.h"
+#include "Components/Camera.h"
+#include "Components/RigidBody.h"
 
 //#ifndef M_PI
 //#define M_PI 3.14159265358979323846

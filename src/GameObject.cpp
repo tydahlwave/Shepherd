@@ -9,11 +9,11 @@
 #include <iostream>
 
 #include "GameObject.h"
-#include "Camera.h"
-#include "MeshRenderer.h"
-#include "RigidBody.h"
-#include "BoxCollider.h"
-#include "SphereCollider.h"
+#include "Components/Camera.h"
+#include "Components/MeshRenderer.h"
+#include "Components/RigidBody.h"
+#include "Components/BoxCollider.h"
+#include "Components/SphereCollider.h"
 
 GameObject::GameObject() :components() {
     name = "GameObject";

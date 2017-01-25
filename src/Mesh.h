@@ -12,7 +12,7 @@
 #include <string>
 
 #include "Bounds.h"
-#include "../Shape.h"
+#include "Shape.h"
 
 class Mesh {
 public:

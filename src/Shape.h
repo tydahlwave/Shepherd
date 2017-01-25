@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "MatrixStack.h"
-#include "ECS2/Bounds.h"
+#include "Bounds.h"
 
 class Program;
 

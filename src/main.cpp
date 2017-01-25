@@ -20,7 +20,7 @@
 #include "Physics.h"
 #include "Renderer.h"
 #include "CameraController.h"
-#include "RigidBody.h"
+#include "Components/RigidBody.h"
 #include "BunnySpawnSystem.h"
 
 static std::string resourceDir;

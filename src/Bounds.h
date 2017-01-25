@@ -10,7 +10,7 @@
 #define Bounds_h
 
 #include "glm/glm.hpp"
-#include "Transform.h"
+#include "Components/Transform.h"
 
 class Bounds {
 public:

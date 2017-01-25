@@ -11,7 +11,7 @@
 
 #include <string>
 
-#include "../Program.h"
+#include "Program.h"
 
 class Shader {
 public:

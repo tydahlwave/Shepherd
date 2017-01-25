@@ -9,11 +9,11 @@
 // value_ptr for glm
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
-#include "../GLSL.h"
+#include "GLSL.h"
 
 #include "Renderer.h"
-#include "MeshRenderer.h"
-#include "Camera.h"
+#include "Components/MeshRenderer.h"
+#include "Components/Camera.h"
 
 Renderer::Renderer() {
     Initialize();

@@ -15,12 +15,12 @@
 
 #include "Object.h"
 #include "World.h"
-#include "Transform.h"
-#include "Component.h"
+#include "Components/Component.h"
+#include "Components/Transform.h"
 
 class World;
-class Transform;
 class Component;
+class Transform;
 
 class GameObject : public Object {
 public:

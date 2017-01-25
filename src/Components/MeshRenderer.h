@@ -10,9 +10,9 @@
 #define MeshRenderer_h
 
 #include "Component.h"
-#include "Mesh.h"
-#include "Material.h"
-#include "Shader.h"
+#include "../Mesh.h"
+#include "../Material.h"
+#include "../Shader.h"
 
 class MeshRenderer : public Component {
 public:

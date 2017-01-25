@@ -8,7 +8,7 @@
 
 #include "BunnySpawnSystem.h"
 #include "EntityFactory.h"
-#include "RigidBody.h"
+#include "Components/RigidBody.h"
 
 void BunnySpawnSystem::Update(float deltaTime, World *world) {
     if (bunnies.size() >= maxEntities) return;

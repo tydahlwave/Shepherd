@@ -12,8 +12,8 @@
 #include <stdio.h>
 #include <cmath>
 
-#include "Camera.h"
-#include "RigidBody.h"
+#include "Components/Camera.h"
+#include "Components/RigidBody.h"
 
 #define CAMERA_SPEED 0.2
 #define CAMERA_STOPPED_THRESHOLD 0.1

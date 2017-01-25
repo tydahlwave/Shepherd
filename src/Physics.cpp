@@ -9,10 +9,10 @@
 #include <iostream>
 
 #include "Physics.h"
-#include "RigidBody.h"
-#include "BoxCollider.h"
-#include "SphereCollider.h"
-#include "MeshRenderer.h"
+#include "Components/RigidBody.h"
+#include "Components/BoxCollider.h"
+#include "Components/SphereCollider.h"
+#include "Components/MeshRenderer.h"
 
 void Physics::Update(float deltaTime, World &world) {
     for (GameObject *gameObject : world.GetGameObjects()) {

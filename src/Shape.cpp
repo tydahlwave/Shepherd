@@ -2,17 +2,11 @@
 #include <iostream>
 #include <cfloat>
 
-#define EIGEN_DONT_ALIGN_STATICALLY
-#include <Eigen/Dense>
-
 #include "GLSL.h"
 #include "Program.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
-
-using namespace Eigen;
-using namespace std;
 
 Shape::Shape() :
 	eleBufID(0),
@@ -24,17 +18,17 @@ Shape::Shape() :
 
 Shape::~Shape() {}
 
-void Shape::loadMesh(const string &meshName)
+void Shape::loadMesh(const std::string &meshName)
 {
 	// Load geometry
 	// Some obj files contain material information.
 	// We'll ignore them for this assignment.
-	vector<tinyobj::shape_t> shapes;
-	vector<tinyobj::material_t> objMaterials;
-	string errStr;
+	std::vector<tinyobj::shape_t> shapes;
+	std::vector<tinyobj::material_t> objMaterials;
+	std::string errStr;
 	bool rc = tinyobj::LoadObj(shapes, objMaterials, errStr, meshName.c_str());
 	if(!rc) {
-		cerr << errStr << endl;
+        std::cerr << errStr << std::endl;
 	} else {
 		posBuf = shapes[0].mesh.positions;
 		// norBuf = shapes[0].mesh.normals;
@@ -205,14 +199,14 @@ void Shape::computeNormals() {
         int idx2 = eleBuf[3*v+1];
         int idx3 = eleBuf[3*v+2];
         
-        Vector3d p1(posBuf[3*idx1+0], posBuf[3*idx1+1], posBuf[3*idx1+2]);
-        Vector3d p2(posBuf[3*idx2+0], posBuf[3*idx2+1], posBuf[3*idx2+2]);
-        Vector3d p3(posBuf[3*idx3+0], posBuf[3*idx3+1], posBuf[3*idx3+2]);
+        glm::vec3 p1(posBuf[3*idx1+0], posBuf[3*idx1+1], posBuf[3*idx1+2]);
+        glm::vec3 p2(posBuf[3*idx2+0], posBuf[3*idx2+1], posBuf[3*idx2+2]);
+        glm::vec3 p3(posBuf[3*idx3+0], posBuf[3*idx3+1], posBuf[3*idx3+2]);
         
-        Vector3d vec1 = p2 - p1;
-        Vector3d vec2 = p3 - p1;
+        glm::vec3 vec1 = p2 - p1;
+        glm::vec3 vec2 = p3 - p1;
         
-        Vector3d normal = vec1.cross(vec2);
+        glm::vec3 normal = cross(vec1, vec2);
         
         // Add this normal to all of the vertices
         norBuf[3*idx1+0] += normal[0];
@@ -231,13 +225,13 @@ void Shape::computeNormals() {
         int idx2 = eleBuf[3*v+1];
         int idx3 = eleBuf[3*v+2];
         
-        Vector3d n1(norBuf[3*idx1+0], norBuf[3*idx1+1], norBuf[3*idx1+2]);
-        Vector3d n2(norBuf[3*idx2+0], norBuf[3*idx2+1], norBuf[3*idx2+2]);
-        Vector3d n3(norBuf[3*idx3+0], norBuf[3*idx3+1], norBuf[3*idx3+2]);
+        glm::vec3 n1(norBuf[3*idx1+0], norBuf[3*idx1+1], norBuf[3*idx1+2]);
+        glm::vec3 n2(norBuf[3*idx2+0], norBuf[3*idx2+1], norBuf[3*idx2+2]);
+        glm::vec3 n3(norBuf[3*idx3+0], norBuf[3*idx3+1], norBuf[3*idx3+2]);
         
-        Vector3d normalized1 = n1.normalized();
-        Vector3d normalized2 = n2.normalized();
-        Vector3d normalized3 = n3.normalized();
+        glm::vec3 normalized1 = normalize(n1);
+        glm::vec3 normalized2 = normalize(n2);
+        glm::vec3 normalized3 = normalize(n3);
         
         norBuf[3*idx1+0] = normalized1[0];
         norBuf[3*idx1+1] = normalized1[1];

@@ -11,8 +11,8 @@
 
 #include "glm/glm.hpp"
 
-#include "Object.h"
-#include "GameObject.h"
+#include "../Object.h"
+#include "../GameObject.h"
 
 class GameObject;
 
