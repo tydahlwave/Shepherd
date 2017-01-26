@@ -9,6 +9,7 @@
 #ifndef Transform_h
 #define Transform_h
 
+#include "MathDef.h"
 #include "Component.h"
 #include "../MatrixStack.h"
 

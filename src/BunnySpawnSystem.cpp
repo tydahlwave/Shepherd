@@ -11,7 +11,7 @@
 #include "Components/RigidBody.h"
 
 void BunnySpawnSystem::Update(float deltaTime, World *world) {
-    if (bunnies.size() >= maxEntities) return;
+    if (world->GetGameObjects().size() >= maxEntities) return;
     
     elapsedTime += deltaTime;
     if (elapsedTime > spawnRate) {

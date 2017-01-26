@@ -10,6 +10,7 @@
 #define BunnySpawnSystem_h
 
 #include "World.h"
+//static const int maxEntities = 20;
 
 class BunnySpawnSystem {
 public:
@@ -18,7 +19,7 @@ public:
     
     void Update(float deltaTime, World *world);
 private:
-    int maxEntities = 20;
+    static const int maxEntities = 20;
     float elapsedTime = 0;
     float spawnRate = 2.0; // 2 second per spawn
     std::vector<GameObject*> bunnies;
