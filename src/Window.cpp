@@ -85,14 +85,16 @@ int Window::Initialize() {
     if(!glfwInit()) {
         return -1;
     }
-    //request the highest possible version of OGL - important for mac
+#ifndef WIN32
+    request the highest possible version of OGL - important for mac
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    
+#endif
+
     // Create a windowed mode window and its OpenGL context.
-    window = glfwCreateWindow(960, 720, "Tyler's Awesome Window", NULL, NULL);
+    window = glfwCreateWindow(640, 480, "Tyler's Awesome Window", NULL, NULL);
     if(!window) {
         glfwTerminate();
         return -1;
