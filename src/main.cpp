@@ -22,6 +22,7 @@
 #include "CameraController.h"
 #include "Components/RigidBody.h"
 #include "BunnySpawnSystem.h"
+#include "../bullet/btBulletDynamicsCommon.h"
 
 static std::string resourceDir;
 
