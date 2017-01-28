@@ -50,7 +50,7 @@ GameObject *EntityFactory::createBarrier(World *world) {
     return gameObject;
 }
 
-GameObject *EntityFactory::createCube(World *world, float width, float height, float depth, float mass) {
+GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::vec3 position, float mass) {
     GameObject *gameObject = world->CreateGameObject("Cube");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->mesh = Mesh::cube;
@@ -59,8 +59,8 @@ GameObject *EntityFactory::createCube(World *world, float width, float height, f
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     btTransform t;
     t.setIdentity();
-    t.setOrigin(btVector3(0,0,0));
-    btBoxShape* cube = new btBoxShape(btVector3(width/2.0,height/2.0,depth/2.0));
+    t.setOrigin(btVector3(position.x,position.y,position.z));
+    btBoxShape* cube = new btBoxShape(btVector3(dimensions.x/2.0,dimensions.y/2.0,dimensions.z/2.0));
     btVector3 inertia(0,0,0);
     if(mass != 0)
         cube->calculateLocalInertia(mass, inertia);

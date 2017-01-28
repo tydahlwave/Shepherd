@@ -101,13 +101,10 @@ int main(int argc, char **argv) {
     barrier4->transform->scale = glm::vec3(1, 5, 50);
     
     // Create Cube (with bullet physics)
-    GameObject *cube = EntityFactory::createCube(&world, 5.0,5.0,5.0,2.0);
-    cube->transform->position = glm::vec3(0,10,0);
+    GameObject *cube1 = EntityFactory::createCube(&world, glm::vec3(2.0,2.0,2.0), glm::vec3(5,50,0),2.0);
     
     // Create Physics Ground (above previous ground)
-    GameObject *physGround = EntityFactory::createPhysicsGround(&world);
-    physGround->transform->position = glm::vec3(0,-1,0);
-    physGround->transform->scale = glm::vec3(10,1,10);
+    GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(2.0,2.0,2.0), glm::vec3(5,0,1.5),0.0);
     
     // Seed random generator
     srand(time(0));
@@ -125,7 +122,7 @@ int main(int argc, char **argv) {
         world.dynamicsWorld->stepSimulation(deltaTime);
         for(GameObject* go : world.GetGameObjects()) {
             RigidBody* rb = (RigidBody*)go->GetComponent("RigidBody");
-            if(rb->bulletRigidBody) {
+            if(rb && rb->bulletRigidBody) {
                 btTransform *form = new btTransform();
                 rb->bulletRigidBody->getMotionState()->getWorldTransform(*form);
                 go->transform->position.x = form->getOrigin().x();

@@ -18,7 +18,7 @@ public:
     static GameObject *createBunny(World *world);
     static GameObject *createGround(World *world);
     static GameObject *createBarrier(World *world);
-    static GameObject *createCube(World *world, float width, float height, float depth, float mass);
+    static GameObject *createCube(World *world, glm::vec3 dimensions, glm::vec3 position, float mass);
     static GameObject *createPhysicsGround(World *world);
 };
 
