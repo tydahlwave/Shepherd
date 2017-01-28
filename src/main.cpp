@@ -10,9 +10,6 @@
 #include <vector>
 
 #include "Time.h"
-#include "Window.h"
-#include "World.h"
-#include "GameObject.h"
 #include "Mesh.h"
 #include "Material.h"
 #include "Shader.h"
@@ -22,7 +19,7 @@
 #include "CameraController.h"
 #include "Components/RigidBody.h"
 #include "BunnySpawnSystem.h"
-#include "../bullet/btBulletDynamicsCommon.h"
+#include <BulletDynamics/btBulletDynamicsCommon.h>
 
 static std::string resourceDir;
 
@@ -103,6 +100,15 @@ int main(int argc, char **argv) {
     barrier4->transform->position = glm::vec3(30, 0, 0);
     barrier4->transform->scale = glm::vec3(1, 5, 50);
     
+    // Create Cube (with bullet physics)
+    GameObject *cube = EntityFactory::createCube(&world, 5.0,5.0,5.0,2.0);
+    cube->transform->position = glm::vec3(0,10,0);
+    
+    // Create Physics Ground (above previous ground)
+    GameObject *physGround = EntityFactory::createPhysicsGround(&world);
+    physGround->transform->position = glm::vec3(0,-1,0);
+    physGround->transform->scale = glm::vec3(10,1,10);
+    
     // Seed random generator
     srand(time(0));
     
@@ -111,16 +117,31 @@ int main(int argc, char **argv) {
     
     std::cout << "Bunnies Collected: 0" << std::endl;
     
+    
     // Game loop
     while (!window.ShouldClose()) {
         long curTime = Time::Now();
         float deltaTime = (curTime - oldTime) / 1000.0f;
+        world.dynamicsWorld->stepSimulation(deltaTime);
+        for(GameObject* go : world.GetGameObjects()) {
+            RigidBody* rb = (RigidBody*)go->GetComponent("RigidBody");
+            if(rb->bulletRigidBody) {
+                btTransform *form = new btTransform();
+                rb->bulletRigidBody->getMotionState()->getWorldTransform(*form);
+                go->transform->position.x = form->getOrigin().x();
+                go->transform->position.y = form->getOrigin().y();
+                go->transform->position.z = form->getOrigin().z();
+                
+            }
+            
+        }
+        
         
         displayStats(deltaTime, world, physics);
         
         cameraController.Update(world);
         bunnySpawnSystem.Update(deltaTime, &world);
-        physics.Update(deltaTime, world);
+        //physics.Update(deltaTime, world);
         renderer.Render(world, window);
         window.Update();
         

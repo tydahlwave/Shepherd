@@ -11,10 +11,10 @@
 
 #include "glm/glm.hpp"
 
+class GameObject;
+
 #include "../Object.h"
 #include "../GameObject.h"
-
-class GameObject;
 
 class Component : public Object {
 public:

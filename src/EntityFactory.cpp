@@ -49,3 +49,44 @@ GameObject *EntityFactory::createBarrier(World *world) {
     gameObject->AddComponent("BoxCollider");
     return gameObject;
 }
+
+GameObject *EntityFactory::createCube(World *world, float width, float height, float depth, float mass) {
+    GameObject *gameObject = world->CreateGameObject("Cube");
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->mesh = Mesh::cube;
+    meshRenderer->shader = Shader::phong;
+    meshRenderer->material = Material::ruby;
+    RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
+    btTransform t;
+    t.setIdentity();
+    t.setOrigin(btVector3(0,0,0));
+    btBoxShape* cube = new btBoxShape(btVector3(width/2.0,height/2.0,depth/2.0));
+    btVector3 inertia(0,0,0);
+    if(mass != 0)
+        cube->calculateLocalInertia(mass, inertia);
+    btMotionState* motion = new btDefaultMotionState(t);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, cube);
+    rigidBody->bulletRigidBody = new btRigidBody(info);
+
+    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    return gameObject;
+}
+
+GameObject *EntityFactory::createPhysicsGround(World *world) {
+    GameObject *gameObject = world->CreateGameObject("PhysicsGround");
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->mesh = Mesh::plane;
+    meshRenderer->shader = Shader::phong;
+    meshRenderer->material = Material::polishedGold;
+    RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
+    btTransform t;
+    t.setIdentity();
+    t.setOrigin(btVector3(0,0,0));
+    btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(0,1,0),0);
+    btMotionState* motion = new btDefaultMotionState(t);
+    btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, plane);
+    rigidBody->bulletRigidBody = new btRigidBody(info);
+    
+    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    return gameObject;
+}

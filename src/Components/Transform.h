@@ -10,8 +10,8 @@
 #define Transform_h
 
 #include "../MathDef.h"
-#include "Component.h"
 #include "../MatrixStack.h"
+#include "Component.h"
 
 class Transform : public Component {
 public:

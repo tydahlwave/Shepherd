@@ -11,9 +11,10 @@
 
 #include <vector>
 
-#include "GameObject.h"
-
 class GameObject;
+
+#include "GameObject.h"
+#include <BulletDynamics/btBulletDynamicsCommon.h>
 
 class World {
 public:
@@ -21,6 +22,8 @@ public:
     virtual ~World() {};
     
     GameObject *mainCamera = nullptr;
+    
+    btDiscreteDynamicsWorld *dynamicsWorld;
     
     std::vector<GameObject*> GetGameObjects();
     GameObject *CreateGameObject(std::string name);

@@ -13,14 +13,12 @@
 #include <vector>
 #include <map>
 
-#include "Object.h"
-#include "World.h"
-#include "Components/Component.h"
-#include "Components/Transform.h"
-
 class World;
-class Component;
 class Transform;
+class Component;
+
+#include "World.h"
+#include "Components/Transform.h"
 
 class GameObject : public Object {
 public:
