@@ -14,6 +14,13 @@ file(GLOB_RECURSE GLSL "resources/*.glsl")
 # Set the executable.
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES} ${HEADERS} ${GLSL})
 
+# Get the BulletPhysics environment variable
+set(BULLET_INCLUDE_DIR "$ENV{BULLET_INCLUDE_DIR}")
+if(NOT BULLET_INCLUDE_DIR)
+MESSAGE(FATAL_ERROR "Please point the environment variable BULLET_INCLUDE_DIR to the include directory of your BulletPhysics installation.")
+endif()
+include_directories(${BULLET_INCLUDE_DIR})
+
 # Get the GLM environment variable. Since GLM is a header-only library, we
 # just need to add it to the include directory.
 set(GLM_INCLUDE_DIR "$ENV{GLM_INCLUDE_DIR}")
