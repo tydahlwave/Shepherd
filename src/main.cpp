@@ -19,8 +19,11 @@
 #include "CameraController.h"
 #include "Components/RigidBody.h"
 #include "BunnySpawnSystem.h"
+#ifdef WIN32
+#include <btBulletDynamicsCommon.h>
+#else
 #include <BulletDynamics/btBulletDynamicsCommon.h>
-
+#endif
 static std::string resourceDir;
 
 void handleInput(int argc, char **argv) {
