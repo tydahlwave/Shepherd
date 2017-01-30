@@ -20,25 +20,25 @@
 void CameraController::Update(World &world) {
     Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
     RigidBody *rigidBody = (RigidBody*)world.mainCamera->GetComponent("RigidBody");
-    glm::vec3 gaze = camera->lookAt - world.mainCamera->transform->position;
+    glm::vec3 gaze = camera->lookAt - world.mainCamera->transform->GetPosition();
     glm::vec3 w = normalize(-gaze);
     glm::vec3 u = normalize(cross(camera->up, w));
     if (abs(rigidBody->velocity[2]) > cameraStoppedThreshold) {
-        world.mainCamera->transform->position += rigidBody->velocity[2] * w;
+        world.mainCamera->transform->SetPosition(world.mainCamera->transform->GetPosition() + rigidBody->velocity[2] * w);
         camera->lookAt += rigidBody->velocity[2] * w;
     }
     if (abs(rigidBody->velocity[0]) > cameraStoppedThreshold) {
-        if ((world.mainCamera->transform->position.y + rigidBody->velocity[0] * u.y) > -1.99) {
+        if ((world.mainCamera->transform->GetPosition().y + rigidBody->velocity[0] * u.y) > -1.99) {
             u.y = 0;
             //world.mainCamera->transform->position += rigidBody->velocity[0] * u;
             //camera->lookAt += rigidBody->velocity[0] * u;
         }
-        world.mainCamera->transform->position += rigidBody->velocity[0] * u;
+        world.mainCamera->transform->SetPosition(world.mainCamera->transform->GetPosition() + rigidBody->velocity[0] * u);
         camera->lookAt += rigidBody->velocity[0] * u;
     }
     
-    if (world.mainCamera->transform->position.y < -1.99) {
-        world.mainCamera->transform->position.y = -1.99;
+    if (world.mainCamera->transform->GetPosition().y < -1.99) {
+        world.mainCamera->transform->SetPosition(glm::vec3(world.mainCamera->transform->GetPosition().x,-1.99,world.mainCamera->transform->GetPosition().z));
     }
 }
 
@@ -114,9 +114,9 @@ void CameraController::MouseMoved(World *world, int windowWidth, int windowHeigh
 
     // Compute camera lookat point
     Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
-    camera->lookAt[0] = world->mainCamera->transform->position[0] + cos(alpha2) * cos(beta2);
-    camera->lookAt[1] = world->mainCamera->transform->position[1] + -sin(alpha2);
-    camera->lookAt[2] = world->mainCamera->transform->position[2] + cos(alpha2) * cos(M_PI/2 - beta2);
+    camera->lookAt[0] = world->mainCamera->transform->GetPosition().x + cos(alpha2) * cos(beta2);
+    camera->lookAt[1] = world->mainCamera->transform->GetPosition().y + -sin(alpha2);
+    camera->lookAt[2] = world->mainCamera->transform->GetPosition().z + cos(alpha2) * cos(M_PI/2 - beta2);
     //std::cout << camera->lookAt.x << ", " << camera->lookAt.y << ", " << camera->lookAt.z << std::endl;
 }
 

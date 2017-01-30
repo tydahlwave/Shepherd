@@ -19,7 +19,7 @@ GameObject *EntityFactory::createMainCamera(World *world) {
     rigidBody->isKinematic = true;
     gameObject->AddComponent("Camera");
     gameObject->AddComponent("BoxCollider");
-    gameObject->transform->scale = glm::vec3(0.2, 0.2, 0.2);
+    gameObject->transform->SetScale(glm::vec3(0.2, 0.2, 0.2));
     return gameObject;
 }
 
@@ -83,7 +83,7 @@ GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::v
     t.setIdentity();
     t.setOrigin(btVector3(position.x,position.y,position.z));
     btBoxShape* cube = new btBoxShape(btVector3(dimensions.x/2.0,dimensions.y/2.0,dimensions.z/2.0));
-    gameObject->transform->scale = dimensions/2.0f;
+    gameObject->transform->SetScale(dimensions/2.0f);
     btVector3 inertia(0,0,0);
     if(mass != 0)
         cube->calculateLocalInertia(mass, inertia);
@@ -107,7 +107,7 @@ GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 po
     t.setIdentity();
     t.setOrigin(btVector3(position.x,position.y,position.z));
     btSphereShape* sphere = new btSphereShape(radius);
-    gameObject->transform->scale = glm::vec3(radius);
+    gameObject->transform->SetScale(glm::vec3(radius));
     btVector3 inertia(0,0,0);
     if(mass != 0)
         sphere->calculateLocalInertia(mass, inertia);

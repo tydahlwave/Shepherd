@@ -32,8 +32,8 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                 Camera* cam = (Camera*)world->mainCamera->GetComponent("Camera");
                 RigidBody* rb = (RigidBody*)go->GetComponent("RigidBody");
                 if(rb && rb->bulletRigidBody) {
-                    btVector3 camPos = btVector3(world->mainCamera->transform->position.x,world->mainCamera->transform->position.y,world->mainCamera->transform->position.z);
-                    btVector3 objPos = btVector3(go->transform->position.x, go->transform->position.y, go->transform->position.z);
+                    btVector3 camPos = btVector3(world->mainCamera->transform->GetPosition().x,world->mainCamera->transform->GetPosition().y,world->mainCamera->transform->GetPosition().z);
+                    btVector3 objPos = btVector3(go->transform->GetPosition().x, go->transform->GetPosition().y, go->transform->GetPosition().z);
                     btVector3 camLookAt = btVector3(cam->lookAt.x,cam->lookAt.y,cam->lookAt.z);
                     
                     btVector3 End = (camLookAt - camPos)*1000.0;

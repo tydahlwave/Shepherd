@@ -35,7 +35,7 @@ void BunnySpawnSystem::Update(float deltaTime, World *world) {
         //collect positions
         int i = 0;
         for(auto &obj : world->GetGameObjects()){
-            randPosition = obj->transform->position;
+            randPosition = obj->transform->GetPosition();
             floatX[i] = randPosition.x;
             floatZ[i] = randPosition.z;
             i++;
@@ -67,10 +67,10 @@ void BunnySpawnSystem::Update(float deltaTime, World *world) {
             }
         }
 
-        bunny->transform->position = randPosition;
+        bunny->transform->SetPosition(randPosition);
         rigidBody->velocity -= vel;
         rigidBody->useGravity = true;
-        bunny->transform->rotation = vec3(0, -randomAngle, 0);
+        bunny->transform->SetRotation(vec3(0, -randomAngle, 0));
         bunnies.push_back(bunny);
     }
 }

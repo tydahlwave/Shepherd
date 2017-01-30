@@ -36,13 +36,9 @@ void Physics::UpdateBulletPhysics(float deltaTime, World &world) {
         if(rb && rb->bulletRigidBody) {
             btTransform *form = new btTransform();
             rb->bulletRigidBody->getMotionState()->getWorldTransform(*form);
-            go->transform->position.x = form->getOrigin().x();
-            go->transform->position.y = form->getOrigin().y();
-            go->transform->position.z = form->getOrigin().z();
+            go->transform->SetPosition(glm::vec3(form->getOrigin().x(), form->getOrigin().y(), form->getOrigin().z()));
             btVector3 rot = form->getRotation().getAngle() * (form->getRotation().getAxis());
-            go->transform->rotation.x = rot.x();
-            go->transform->rotation.y = rot.y();
-            go->transform->rotation.z = rot.z();
+            go->transform->SetRotation(glm::vec3(rot.x(),rot.y(),rot.z()));
         }
         
     }
@@ -110,13 +106,13 @@ void Physics::ResolveCollisions(std::vector<Collision> collisions) {
         } else if (collision.gameObject1->name.compare("Barrier") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
             rigidBody2->velocity.x *= -1;
             rigidBody2->velocity.z *= -1;
-            collision.gameObject2->transform->position += rigidBody2->velocity / 5.0f;
-            collision.gameObject2->transform->rotation.y -= 180;
+            collision.gameObject2->transform->SetPosition(collision.gameObject2->transform->GetPosition() + rigidBody2->velocity / 5.0f);
+            collision.gameObject2->transform->SetRotation(glm::vec3(collision.gameObject2->transform->GetPosition().x, collision.gameObject2->transform->GetPosition().y - 180, collision.gameObject2->transform->GetPosition().z));
         } else if (collision.gameObject2->name.compare("Barrier") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
             rigidBody1->velocity.x *= -1;
             rigidBody1->velocity.z *= -1;
-            collision.gameObject1->transform->position += rigidBody1->velocity / 5.0f;
-            collision.gameObject1->transform->rotation.y -= 180;
+            collision.gameObject1->transform->SetPosition(collision.gameObject1->transform->GetPosition() + rigidBody2->velocity / 5.0f);
+            collision.gameObject1->transform->SetRotation(glm::vec3(collision.gameObject1->transform->GetPosition().x, collision.gameObject1->transform->GetPosition().y - 180, collision.gameObject1->transform->GetPosition().z));
         } else {
         
         if (rigidBody1 && rigidBody2 && !rigidBody1->isKinematic && !rigidBody2->isKinematic) {
@@ -124,14 +120,14 @@ void Physics::ResolveCollisions(std::vector<Collision> collisions) {
             float dy;
             if (bounds2->max.y > bounds1->max.y) {
                 dy = bounds1->max.y - bounds2->min.y;
-                collision.gameObject2->transform->position += glm::vec3(0, dy, 0);
+                collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetPosition() + glm::vec3(0, dy, 0));
                 rigidBody1->velocity.y = rigidBody1->velocity.y/2;
                 rigidBody1->acceleration = glm::vec3(0, 0, 0);
                 rigidBody2->velocity.y = 0;
                 rigidBody2->acceleration = glm::vec3(0, 0, 0);
             } else {
                 dy = bounds2->max.y - bounds1->min.y;
-                collision.gameObject1->transform->position += glm::vec3(0, dy, 0);
+                collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetPosition() + glm::vec3(0, dy, 0));
                 rigidBody2->velocity.y = -rigidBody2->velocity.y/2;
                 rigidBody2->acceleration = glm::vec3(0, 0, 0);
                 rigidBody1->velocity.y = 0;
@@ -150,7 +146,7 @@ void Physics::ResolveCollisions(std::vector<Collision> collisions) {
         } else if (rigidBody1 && !rigidBody1->isKinematic) {
             // TODO: don't just move up
             float dy = bounds2->max.y - bounds1->min.y;
-            collision.gameObject1->transform->position += glm::vec3(0, dy, 0);
+            collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetPosition() + glm::vec3(0, dy, 0));
             rigidBody1->velocity.y = 0;
             rigidBody1->acceleration = glm::vec3(0, 0, 0);
 //            rigidBody1->acceleration = rigidBody1->acceleration / glm::vec3(2, 2, 2);
@@ -158,7 +154,7 @@ void Physics::ResolveCollisions(std::vector<Collision> collisions) {
         } else if (rigidBody2 && !rigidBody2->isKinematic) {
             // TODO: don't just move up
             float dy = bounds1->max.y - bounds2->min.y;
-            collision.gameObject2->transform->position += glm::vec3(0, dy, 0);
+            collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetPosition() + glm::vec3(0, dy, 0));
             rigidBody2->velocity.y = 0;
             rigidBody2->acceleration = glm::vec3(0, 0, 0);
 //            rigidBody2->acceleration = rigidBody2->acceleration / glm::vec3(2, 2, 2);

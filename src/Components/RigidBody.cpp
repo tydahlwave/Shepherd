@@ -6,8 +6,8 @@
 //
 //
 
-#include "Components/RigidBody.h"
-#include "GameObject.h"
+#include "RigidBody.h"
+#include "../GameObject.h"
 
 RigidBody::RigidBody() {
     name = "RigidBody";

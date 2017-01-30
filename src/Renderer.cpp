@@ -75,7 +75,7 @@ void Renderer::Render(World &world, Window &window) {
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, world.mainCamera->transform->position);
+            applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
             applyTransformMatrix(shader, gameObject->transform);
             
             mesh->draw(shader);
