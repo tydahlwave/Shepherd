@@ -25,12 +25,27 @@ GameObject *EntityFactory::createMainCamera(World *world) {
 
 GameObject *EntityFactory::createBunny(World *world) {
     GameObject *gameObject = world->CreateGameObject("Bunny");
-    gameObject->AddComponent("RigidBody");
+    RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
+    rigidBody->useGravity = true;
+    rigidBody->isKinematic = true;
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->mesh = Mesh::bunny;
     meshRenderer->shader = Shader::phong;
     meshRenderer->material = Material::emerald;
+    btTransform t;
+    t.setIdentity();
+    t.setOrigin(btVector3(0, 0, 0));
+    btSphereShape* sphere = new btSphereShape(1);
+    btVector3 inertia(0,0,0);
+    float mass = 1.0f;
+    if(mass != 0)
+        sphere->calculateLocalInertia(mass, inertia);
+    btMotionState* motion = new btDefaultMotionState(t);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
+    rigidBody->bulletRigidBody = new btRigidBody(info);
+    
+    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
 }
 
@@ -38,11 +53,25 @@ GameObject *EntityFactory::createWolf(World *world) {
     GameObject *gameObject = world->CreateGameObject("Wolf");
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->useGravity = true;
+    rigidBody->isKinematic = true;
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->mesh = Mesh::bunny;
     meshRenderer->shader = Shader::phong;
     meshRenderer->material = Material::ruby;
+    btTransform t;
+    t.setIdentity();
+    t.setOrigin(btVector3(0, 0, 0));
+    btSphereShape* sphere = new btSphereShape(2);
+    btVector3 inertia(0,0,0);
+    float mass = 1.0f;
+    if(mass != 0)
+        sphere->calculateLocalInertia(mass, inertia);
+    btMotionState* motion = new btDefaultMotionState(t);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
+    rigidBody->bulletRigidBody = new btRigidBody(info);
+    
+    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
 }
 
@@ -88,7 +117,7 @@ GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::v
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->mesh = Mesh::cube;
     meshRenderer->shader = Shader::phong;
-    meshRenderer->material = Material::ruby;
+    meshRenderer->material = Material::bronze;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->isKinematic = false;
     btTransform t;

@@ -27,23 +27,22 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
             coef = 1.0;
         }
         for(GameObject* go : world->GetGameObjects()) {
-            if(go->name == "Sphere")
+            RigidBody* rb = (RigidBody*)go->GetComponent("RigidBody");
+            if(rb && rb->bulletRigidBody)// go->name == "Sphere")
             {
                 Camera* cam = (Camera*)world->mainCamera->GetComponent("Camera");
-                RigidBody* rb = (RigidBody*)go->GetComponent("RigidBody");
-                if(rb && rb->bulletRigidBody) {
-                    btVector3 camPos = btVector3(world->mainCamera->transform->GetPosition().x,world->mainCamera->transform->GetPosition().y,world->mainCamera->transform->GetPosition().z);
-                    btVector3 objPos = btVector3(go->transform->GetPosition().x, go->transform->GetPosition().y, go->transform->GetPosition().z);
-                    btVector3 camLookAt = btVector3(cam->lookAt.x,cam->lookAt.y,cam->lookAt.z);
-                    
-                    btVector3 End = (camLookAt - camPos)*1000.0;
-                    btCollisionWorld::ClosestRayResultCallback RayCallback(camPos, End);
-                    world->dynamicsWorld->rayTest(camPos, End, RayCallback);
-                    
-                    if(RayCallback.m_collisionObject == rb->bulletRigidBody) {
-                        rb->bulletRigidBody->activate();
-                        rb->bulletRigidBody->applyForce(coef*200.0*(camLookAt - camPos), camPos - objPos);
-                    }
+                
+                btVector3 camPos = btVector3(world->mainCamera->transform->GetPosition().x,world->mainCamera->transform->GetPosition().y,world->mainCamera->transform->GetPosition().z);
+                btVector3 objPos = btVector3(go->transform->GetPosition().x, go->transform->GetPosition().y, go->transform->GetPosition().z);
+                btVector3 camLookAt = btVector3(cam->lookAt.x,cam->lookAt.y,cam->lookAt.z);
+                
+                btVector3 End = (camLookAt - camPos)*1000.0;
+                btCollisionWorld::ClosestRayResultCallback RayCallback(camPos, End);
+                world->dynamicsWorld->rayTest(camPos, End, RayCallback);
+                
+                if(RayCallback.m_collisionObject == rb->bulletRigidBody) {
+                    rb->bulletRigidBody->activate();
+                    rb->bulletRigidBody->applyForce(coef*200.0*(camLookAt - camPos), camPos - objPos);
                 }
             }
         }

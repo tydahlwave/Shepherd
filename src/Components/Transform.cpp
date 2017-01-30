@@ -15,9 +15,10 @@ void Transform::SetPosition(glm::vec3 pos) {
     position = pos;
     RigidBody* rb = (RigidBody*)gameObject->GetComponent("RigidBody");
     if(rb && rb->bulletRigidBody) {
-        btTransform *form = new btTransform();
-        rb->bulletRigidBody->getMotionState()->getWorldTransform(*form);
-        form->setOrigin(btVector3(pos.x,pos.y,pos.z));
+        btTransform form = btTransform();
+        rb->bulletRigidBody->getMotionState()->getWorldTransform(form);
+        form.setOrigin(btVector3(pos.x,pos.y,pos.z));
+        rb->bulletRigidBody->getMotionState()->setWorldTransform(form);
     }
 }
 void Transform::SetRotation(glm::vec3 rot) {
@@ -26,9 +27,10 @@ void Transform::SetRotation(glm::vec3 rot) {
     // Below might be wonky
     RigidBody* rb = (RigidBody*)gameObject->GetComponent("RigidBody");
     if(rb && rb->bulletRigidBody) {
-        btTransform *form = new btTransform();
-        rb->bulletRigidBody->getMotionState()->getWorldTransform(*form);
-        form->setRotation(btQuaternion(rot.x, rot.y, rot.z));
+        btTransform form = btTransform();
+        rb->bulletRigidBody->getMotionState()->getWorldTransform(form);
+        form.setRotation(btQuaternion(rot.x, rot.y, rot.z));
+        rb->bulletRigidBody->getMotionState()->setWorldTransform(form);
     }
 }
 void Transform::SetScale(glm::vec3 sc) {

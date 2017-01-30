@@ -96,30 +96,30 @@ int main(int argc, char **argv) {
 	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem);
     
     // Create ground
-    GameObject *ground = EntityFactory::createGround(&world);
-    ground->transform->SetPosition(glm::vec3(ground->transform->GetPosition().x,ground->transform->GetPosition().y - 2,ground->transform->GetPosition().z));
-    ground->transform->SetScale(glm::vec3(30, 1, 30));
+//    GameObject *ground = EntityFactory::createGround(&world);
+//    ground->transform->SetPosition(glm::vec3(ground->transform->GetPosition().x,ground->transform->GetPosition().y - 2,ground->transform->GetPosition().z));
+//    ground->transform->SetScale(glm::vec3(30, 1, 30));
     
-    GameObject *barrier1 = EntityFactory::createBarrier(&world);
-    barrier1->transform->SetPosition(glm::vec3(0, 0, -30));
-    barrier1->transform->SetScale(glm::vec3(50, 5, 1));
-    GameObject *barrier2 = EntityFactory::createBarrier(&world);
-    barrier2->transform->SetPosition(glm::vec3(0, 0, 30));
-    barrier2->transform->SetScale(glm::vec3(50, 5, 1));
-    GameObject *barrier3 = EntityFactory::createBarrier(&world);
-    barrier3->transform->SetPosition(glm::vec3(-30, 0, 0));
-    barrier3->transform->SetScale(glm::vec3(1, 5, 50));
-    GameObject *barrier4 = EntityFactory::createBarrier(&world);
-    barrier4->transform->SetPosition(glm::vec3(30, 0, 0));
-    barrier4->transform->SetScale(glm::vec3(1, 5, 50));
+//    GameObject *barrier1 = EntityFactory::createBarrier(&world);
+//    barrier1->transform->SetPosition(glm::vec3(0, 0, -30));
+//    barrier1->transform->SetScale(glm::vec3(50, 5, 1));
+//    GameObject *barrier2 = EntityFactory::createBarrier(&world);
+//    barrier2->transform->SetPosition(glm::vec3(0, 0, 30));
+//    barrier2->transform->SetScale(glm::vec3(50, 5, 1));
+//    GameObject *barrier3 = EntityFactory::createBarrier(&world);
+//    barrier3->transform->SetPosition(glm::vec3(-30, 0, 0));
+//    barrier3->transform->SetScale(glm::vec3(1, 5, 50));
+//    GameObject *barrier4 = EntityFactory::createBarrier(&world);
+//    barrier4->transform->SetPosition(glm::vec3(30, 0, 0));
+//    barrier4->transform->SetScale(glm::vec3(1, 5, 50));
     
-    GameObject *sphere = EntityFactory::createTexturedSphere(&world);
-    sphere->transform->SetPosition(glm::vec3(0, 0, -5));
+//    GameObject *sphere = EntityFactory::createTexturedSphere(&world);
+//    sphere->transform->SetPosition(glm::vec3(0, 0, -5));
     
     // Create Cube (with bullet physics)
-    GameObject *sphere1 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,20,2.0), 2.0);
+    GameObject *sphere1 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,20,2.0), 4.0);
     GameObject *sphere2 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,15,2.0), 2.0);
-    GameObject *sphere3 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,10,2.0), 2.0);
+    GameObject *sphere3 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,10,2.0), 1.0);
     
     // Create Physics Ground (below previous ground)
     GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(50.,1.0,50.), glm::vec3(5.5,-4,2.0),0);
