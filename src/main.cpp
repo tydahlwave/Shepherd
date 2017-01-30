@@ -89,6 +89,7 @@ int main(int argc, char **argv) {
     Material::InitializeMaterials();
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
+	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem);
     
     // Create ground
 //    GameObject *ground = EntityFactory::createGround(&world);
@@ -137,7 +138,7 @@ int main(int argc, char **argv) {
         displayStats(deltaTime, world, physics);
         
         cameraController.Update(world);
-        //bunnySpawnSystem.Update(deltaTime, &world);
+        bunnySpawnSystem.Update(deltaTime, &world);
         physics.Update(deltaTime, world);
         renderer.Render(world, window);
         window.Update();
