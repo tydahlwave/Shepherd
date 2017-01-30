@@ -23,6 +23,7 @@ public:
 	void resize();
 	void draw(Program *prog) const;
 	void computeBoundingBox();
+    void ComputeTex();
 private:
 	void computeNormals();
     void computeBounds();

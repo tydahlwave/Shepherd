@@ -65,11 +65,13 @@ void Renderer::Render(World &world, Window &window) {
             auto mesh = meshRenderer->mesh->shape;
             shader->bind();
             
-            applyMaterial(shader, meshRenderer->material);
-            glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
-            glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
-            glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
-            glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
+            if (meshRenderer->material) {
+                applyMaterial(shader, meshRenderer->material);
+            }
+            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
+            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
+            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
+            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);

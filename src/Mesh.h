@@ -26,6 +26,7 @@ public:
     static Mesh *bunny;
     static Mesh *cube;
     static Mesh *plane;
+    static Mesh *sphere_textured;
 };
 
 #endif /* Mesh_h */

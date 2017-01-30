@@ -9,6 +9,7 @@
 #include "Shader.h"
 
 Shader *Shader::phong = nullptr;
+Shader *Shader::textured = nullptr;
 
 void Shader::LoadShaders(std::string resourceDir) {
     Program *program = new Program();
@@ -29,4 +30,17 @@ void Shader::LoadShaders(std::string resourceDir) {
     program->addUniform("matAmbientColor");
     program->addUniform("matShine");
     phong = new Shader(program);
+    
+    program = new Program();
+    program->setVerbose(true);
+    program->setShaderNames(resourceDir + "tex_vert.glsl", resourceDir + "tex_frag.glsl");
+    program->init();
+    program->addUniform("P");
+    program->addUniform("M");
+    program->addUniform("V");
+    program->addUniform("Texture");
+    program->addAttribute("vertPos");
+    program->addAttribute("vertNor");
+    program->addAttribute("vertTex");
+    textured = new Shader(program);
 }
