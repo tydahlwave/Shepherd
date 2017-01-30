@@ -9,9 +9,9 @@
 #ifndef Transform_h
 #define Transform_h
 
+#include "Component.h"
 #include "../MathDef.h"
 #include "../MatrixStack.h"
-#include "Component.h"
 
 class Transform : public Component {
 public:

@@ -101,6 +101,18 @@ void Shape::resize() {
 	}
 }
 
+/* Note this is fairly dorky - */
+void Shape::ComputeTex() {
+    float u, v;
+    
+    for (size_t n = 0; n < norBuf.size()/3; n++) {
+        u = norBuf[n*3+0]/2.0 + 0.5;
+        v = norBuf[n*3+1]/2.0 + 0.5;
+        texBuf[n*3+0] = u;
+        texBuf[n*3+1] = v;
+    }
+}
+
 void Shape::init()
 {
     // Compute bounds
@@ -124,9 +136,14 @@ void Shape::init()
 		glBufferData(GL_ARRAY_BUFFER, norBuf.size()*sizeof(float), &norBuf[0], GL_STATIC_DRAW);
 	}
 	
-	// Send the texture array to the GPU
-	if(texBuf.empty()) {
-		texBufID = 0;
+    // Send the texture array to the GPU
+    if(texBuf.empty()) {
+        //texBufID = 0;
+        //send in spherical constructed
+        for (size_t v = 0; v < posBuf.size(); v++) {
+            texBuf.push_back(0);
+        }
+        ComputeTex();
 	} else {
 		glGenBuffers(1, &texBufID);
 		glBindBuffer(GL_ARRAY_BUFFER, texBufID);

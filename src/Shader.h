@@ -23,6 +23,7 @@ public:
     
     static void LoadShaders(std::string resourceDir);
     static Shader *phong;
+    static Shader *textured;
 };
 
 #endif /* Shader_h */

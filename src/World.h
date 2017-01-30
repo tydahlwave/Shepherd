@@ -14,7 +14,11 @@
 class GameObject;
 
 #include "GameObject.h"
+#ifdef WIN32
+#include <btBulletDynamicsCommon.h>
+#else
 #include <BulletDynamics/btBulletDynamicsCommon.h>
+#endif
 
 class World {
 public:

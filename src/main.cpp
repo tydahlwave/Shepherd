@@ -11,6 +11,7 @@
 
 #include "Time.h"
 #include "Mesh.h"
+#include "Texture.h"
 #include "Material.h"
 #include "Shader.h"
 #include "EntityFactory.h"
@@ -20,8 +21,11 @@
 #include "PhysicsController.h"
 #include "Components/RigidBody.h"
 #include "BunnySpawnSystem.h"
+#ifdef WIN32
+#include <btBulletDynamicsCommon.h>
+#else
 #include <BulletDynamics/btBulletDynamicsCommon.h>
-
+#endif
 static std::string resourceDir;
 
 void handleInput(int argc, char **argv) {
@@ -81,6 +85,7 @@ int main(int argc, char **argv) {
     // Static Initializers
     Mesh::LoadMeshes(resourceDir);
     Shader::LoadShaders(resourceDir);
+    Texture::LoadTextures(resourceDir);
     Material::InitializeMaterials();
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
@@ -102,6 +107,9 @@ int main(int argc, char **argv) {
     GameObject *barrier4 = EntityFactory::createBarrier(&world);
     barrier4->transform->position = glm::vec3(30, 0, 0);
     barrier4->transform->scale = glm::vec3(1, 5, 50);
+    
+    GameObject *sphere = EntityFactory::createTexturedSphere(&world);
+    sphere->transform->position = glm::vec3(0, 0, -5);
     
     // Create Cube (with bullet physics)
     GameObject *sphere1 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,20,2.0), 2.0);

@@ -16,6 +16,7 @@ class EntityFactory {
 public:
     static GameObject *createMainCamera(World *world);
     static GameObject *createBunny(World *world);
+    static GameObject *createTexturedSphere(World *world);
     static GameObject *createGround(World *world);
     static GameObject *createBarrier(World *world);
     static GameObject *createCube(World *world, glm::vec3 dimensions, glm::vec3 position, float mass);

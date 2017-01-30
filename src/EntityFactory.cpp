@@ -34,6 +34,19 @@ GameObject *EntityFactory::createBunny(World *world) {
     return gameObject;
 }
 
+GameObject *EntityFactory::createTexturedSphere(World *world) {
+    GameObject *gameObject = world->CreateGameObject("Bunny");
+    gameObject->AddComponent("RigidBody");
+    gameObject->AddComponent("BoxCollider");
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->mesh = Mesh::sphere_textured;
+    meshRenderer->shader = Shader::textured;
+    meshRenderer->texture = Texture::hair;
+    // IMPORTANT: Must link texture with shader for it to render correctly!!
+    meshRenderer->shader->program->addTexture(meshRenderer->texture->texture);
+    return gameObject;
+}
+
 GameObject *EntityFactory::createGround(World *world) {
     GameObject *gameObject = world->CreateGameObject("Ground");
     gameObject->AddComponent("BoxCollider");

@@ -7,6 +7,7 @@
 //
 
 #include "Components/RigidBody.h"
+#include "GameObject.h"
 
 RigidBody::RigidBody() {
     name = "RigidBody";
@@ -19,3 +20,4 @@ RigidBody::RigidBody(glm::vec3 v, glm::vec3 a, bool useG) : RigidBody() {
     acceleration = a;
     useGravity = useG;
 }
+

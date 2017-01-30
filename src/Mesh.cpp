@@ -12,6 +12,7 @@ Mesh *Mesh::bunny = nullptr;
 Mesh *Mesh::cube = nullptr;
 Mesh *Mesh::plane = nullptr;
 Mesh *Mesh::sphere = nullptr;
+Mesh *Mesh::sphere_textured = nullptr;
 
 void Mesh::LoadMeshes(std::string resourceDir) {
     Shape *shape = new Shape();
@@ -37,4 +38,10 @@ void Mesh::LoadMeshes(std::string resourceDir) {
     shape->resize();
     shape->init();
     sphere = new Mesh(shape);
+
+    shape = new Shape();
+    shape->loadMesh(resourceDir + "sphere_textured.obj");
+    shape->resize();
+    shape->init();
+    sphere_textured = new Mesh(shape);
 }
