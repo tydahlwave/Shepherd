@@ -63,3 +63,21 @@ Component *GameObject::AddComponent(std::string name) {
 Component *GameObject::GetComponent(std::string name) {
     return components[name];
 }
+
+void GameObject::RemoveComponent(std::string name) {
+    components[name] = nullptr;
+}
+
+void GameObject::Destroy() {
+//    for(std::map<std::string, Component*>::iterator it = components.begin(); it != components.end(); it++) {
+        // iterator->first = key
+        // iterator->second = value
+        // Repeat if you also want to iterate through the second map.
+//        if (components[it->first]) {
+//            components[it->first]->gameObject = nullptr;
+//            components[it->first] = nullptr;
+//        }
+//        world->GetGameObjects()
+//        delete this;
+//    }
+}

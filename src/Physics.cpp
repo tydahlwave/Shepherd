@@ -15,14 +15,15 @@
 #include "Components/MeshRenderer.h"
 
 void Physics::Update(float deltaTime, World &world) {
-     for (GameObject *gameObject : world.GetGameObjects()) {
-         RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
-         if (rigidBody && rigidBody->useGravity && !rigidBody->isKinematic) {
+    for (GameObject *gameObject : world.GetGameObjects()) {
+        RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
+        if (rigidBody && rigidBody->useGravity && !rigidBody->isKinematic) {
             glm::vec3 accel = rigidBody->acceleration * deltaTime;
             glm::vec3 vel = rigidBody->velocity * deltaTime;
             rigidBody->acceleration += gravity * deltaTime;
             rigidBody->velocity += accel;
-             gameObject->transform->SetPosition(gameObject->transform->GetPosition()+vel);
+            gameObject->transform->SetPosition(gameObject->transform->GetPosition()+vel);
+            gameObject->transform->position += vel;
         }
     }
     ComputeCollisions(world);
@@ -107,12 +108,20 @@ void Physics::ResolveCollisions(std::vector<Collision> collisions) {
             rigidBody2->velocity.x *= -1;
             rigidBody2->velocity.z *= -1;
             collision.gameObject2->transform->SetPosition(collision.gameObject2->transform->GetPosition() + rigidBody2->velocity / 5.0f);
-            collision.gameObject2->transform->SetRotation(glm::vec3(collision.gameObject2->transform->GetPosition().x, collision.gameObject2->transform->GetPosition().y - 180, collision.gameObject2->transform->GetPosition().z));
+            collision.gameObject2->transform->SetRotation(collision.gameObject2->tranform->GetRotation() - glm::vec3(0, 180, 0));
         } else if (collision.gameObject2->name.compare("Barrier") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
             rigidBody1->velocity.x *= -1;
             rigidBody1->velocity.z *= -1;
-            collision.gameObject1->transform->SetPosition(collision.gameObject1->transform->GetPosition() + rigidBody2->velocity / 5.0f);
-            collision.gameObject1->transform->SetRotation(glm::vec3(collision.gameObject1->transform->GetPosition().x, collision.gameObject1->transform->GetPosition().y - 180, collision.gameObject1->transform->GetPosition().z));
+            collision.gameObject1->transform->SetPosition(collision.gameObject1->transform->GetPosition() + rigidBody1->velocity / 5.0f);
+            collision.gameObject1->transform->SetRotation(collision.gameObject1->tranform->GetRotation() - glm::vec3(0, 180, 0));
+        } else if (collision.gameObject1->name.compare("Wolf") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
+//            collision.gameObject2->Destroy();
+            collision.gameObject2->RemoveComponent("MeshRenderer");
+            collision.gameObject2->RemoveComponent("RigidBody");
+        } else if (collision.gameObject2->name.compare("Wolf") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
+//            collision.gameObject1->Destroy();
+            collision.gameObject1->RemoveComponent("MeshRenderer");
+            collision.gameObject1->RemoveComponent("RigidBody");
         } else {
         
         if (rigidBody1 && rigidBody2 && !rigidBody1->isKinematic && !rigidBody2->isKinematic) {

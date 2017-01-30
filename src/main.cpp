@@ -21,6 +21,7 @@
 #include "PhysicsController.h"
 #include "Components/RigidBody.h"
 #include "BunnySpawnSystem.h"
+#include "WolfSystem.h"
 #ifdef WIN32
 #include <btBulletDynamicsCommon.h>
 #else
@@ -55,10 +56,12 @@ void displayStats(float deltaTime, World &world, Physics &physics) {
         }
         for (GameObject *gameObject : world.GetGameObjects()) {
             if (gameObject->name.compare("Bunny") == 0) {
-                bunnyCount++;
                 RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
-                if (abs(rigidBody->velocity.y) < 0.01) {
-                    groundedObjectsCount++;
+                if (rigidBody) {
+                    bunnyCount++;
+                    if (abs(rigidBody->velocity.y) < 0.01) {
+                        groundedObjectsCount++;
+                    }
                 }
             }
         }
@@ -81,6 +84,7 @@ int main(int argc, char **argv) {
     CameraController cameraController = CameraController();
     PhysicsController physicsController = PhysicsController();
     BunnySpawnSystem bunnySpawnSystem = BunnySpawnSystem();
+    WolfSystem wolfSystem = WolfSystem();
     
     // Static Initializers
     Mesh::LoadMeshes(resourceDir);
@@ -118,7 +122,7 @@ int main(int argc, char **argv) {
     GameObject *sphere3 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,10,2.0), 2.0);
     
     // Create Physics Ground (below previous ground)
-    GameObject *cube = EntityFactory::createCube(&world, glm::vec3(50,1.0,50), glm::vec3(0,-2,0),0);
+    GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(50.,1.0,50.), glm::vec3(5.5,-4,2.0),0);
     
     EntityFactory::createHUD(&world);
     
@@ -139,6 +143,7 @@ int main(int argc, char **argv) {
         
         cameraController.Update(world);
         bunnySpawnSystem.Update(deltaTime, &world);
+        wolfSystem.Update(deltaTime, &world);
         physics.Update(deltaTime, world);
         renderer.Render(world, window);
         window.Update();

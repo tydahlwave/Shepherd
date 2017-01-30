@@ -34,6 +34,18 @@ GameObject *EntityFactory::createBunny(World *world) {
     return gameObject;
 }
 
+GameObject *EntityFactory::createWolf(World *world) {
+    GameObject *gameObject = world->CreateGameObject("Wolf");
+    RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
+    rigidBody->useGravity = true;
+    gameObject->AddComponent("BoxCollider");
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->mesh = Mesh::bunny;
+    meshRenderer->shader = Shader::phong;
+    meshRenderer->material = Material::ruby;
+    return gameObject;
+}
+
 GameObject *EntityFactory::createHUD(World *world) {
     GameObject *gameObject = world->CreateGameObject("HUD");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
