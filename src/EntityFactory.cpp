@@ -57,10 +57,12 @@ GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::v
     meshRenderer->shader = Shader::phong;
     meshRenderer->material = Material::ruby;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
+    rigidBody->isKinematic = false;
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(position.x,position.y,position.z));
     btBoxShape* cube = new btBoxShape(btVector3(dimensions.x/2.0,dimensions.y/2.0,dimensions.z/2.0));
+    gameObject->transform->scale = dimensions/2.0f;
     btVector3 inertia(0,0,0);
     if(mass != 0)
         cube->calculateLocalInertia(mass, inertia);
@@ -68,6 +70,30 @@ GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::v
     btRigidBody::btRigidBodyConstructionInfo info(mass, motion, cube);
     rigidBody->bulletRigidBody = new btRigidBody(info);
 
+    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    return gameObject;
+}
+
+GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 position, float mass) {
+    GameObject *gameObject = world->CreateGameObject("Sphere");
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->mesh = Mesh::sphere;
+    meshRenderer->shader = Shader::phong;
+    meshRenderer->material = Material::polishedGold;
+    RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
+    rigidBody->isKinematic = true;
+    btTransform t;
+    t.setIdentity();
+    t.setOrigin(btVector3(position.x,position.y,position.z));
+    btSphereShape* sphere = new btSphereShape(radius);
+    gameObject->transform->scale = glm::vec3(radius);
+    btVector3 inertia(0,0,0);
+    if(mass != 0)
+        sphere->calculateLocalInertia(mass, inertia);
+    btMotionState* motion = new btDefaultMotionState(t);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
+    rigidBody->bulletRigidBody = new btRigidBody(info);
+    
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
 }

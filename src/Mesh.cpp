@@ -11,6 +11,7 @@
 Mesh *Mesh::bunny = nullptr;
 Mesh *Mesh::cube = nullptr;
 Mesh *Mesh::plane = nullptr;
+Mesh *Mesh::sphere = nullptr;
 
 void Mesh::LoadMeshes(std::string resourceDir) {
     Shape *shape = new Shape();
@@ -30,4 +31,10 @@ void Mesh::LoadMeshes(std::string resourceDir) {
     shape->resize();
     shape->init();
     plane = new Mesh(shape);
+    
+    shape = new Shape();
+    shape->loadMesh(resourceDir + "sphere.obj");
+    shape->resize();
+    shape->init();
+    sphere = new Mesh(shape);
 }

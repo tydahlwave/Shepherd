@@ -17,6 +17,7 @@
 #include "Physics.h"
 #include "Renderer.h"
 #include "CameraController.h"
+#include "PhysicsController.h"
 #include "Components/RigidBody.h"
 #include "BunnySpawnSystem.h"
 #include <BulletDynamics/btBulletDynamicsCommon.h>
@@ -74,6 +75,7 @@ int main(int argc, char **argv) {
     Physics physics = Physics();
     Renderer renderer = Renderer();
     CameraController cameraController = CameraController();
+    PhysicsController physicsController = PhysicsController();
     BunnySpawnSystem bunnySpawnSystem = BunnySpawnSystem();
     
     // Static Initializers
@@ -81,6 +83,7 @@ int main(int argc, char **argv) {
     Shader::LoadShaders(resourceDir);
     Material::InitializeMaterials();
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController);
+    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
     
     // Create ground
     GameObject *ground = EntityFactory::createGround(&world);
@@ -101,10 +104,12 @@ int main(int argc, char **argv) {
     barrier4->transform->scale = glm::vec3(1, 5, 50);
     
     // Create Cube (with bullet physics)
-    GameObject *cube1 = EntityFactory::createCube(&world, glm::vec3(2.0,2.0,2.0), glm::vec3(5,50,0),2.0);
+    GameObject *sphere1 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,20,2.0), 2.0);
+    GameObject *sphere2 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,15,2.0), 2.0);
+    GameObject *sphere3 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,10,2.0), 2.0);
     
-    // Create Physics Ground (above previous ground)
-    GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(2.0,2.0,2.0), glm::vec3(5,0,1.5),0.0);
+    // Create Physics Ground (below previous ground)
+    GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(50.,1.0,50.), glm::vec3(5.5,0,2.0),0);
     
     // Seed random generator
     srand(time(0));
@@ -119,26 +124,11 @@ int main(int argc, char **argv) {
     while (!window.ShouldClose()) {
         long curTime = Time::Now();
         float deltaTime = (curTime - oldTime) / 1000.0f;
-        world.dynamicsWorld->stepSimulation(deltaTime);
-        for(GameObject* go : world.GetGameObjects()) {
-            RigidBody* rb = (RigidBody*)go->GetComponent("RigidBody");
-            if(rb && rb->bulletRigidBody) {
-                btTransform *form = new btTransform();
-                rb->bulletRigidBody->getMotionState()->getWorldTransform(*form);
-                go->transform->position.x = form->getOrigin().x();
-                go->transform->position.y = form->getOrigin().y();
-                go->transform->position.z = form->getOrigin().z();
-                
-            }
-            
-        }
-        
-        
         displayStats(deltaTime, world, physics);
         
         cameraController.Update(world);
-        bunnySpawnSystem.Update(deltaTime, &world);
-        //physics.Update(deltaTime, world);
+        //bunnySpawnSystem.Update(deltaTime, &world);
+        physics.Update(deltaTime, world);
         renderer.Render(world, window);
         window.Update();
         

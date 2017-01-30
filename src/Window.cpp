@@ -74,6 +74,16 @@ void Window::MouseMoveCallback(GLFWwindow *window, double posX, double posY) {
     }
 }
 
+void Window::MouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
+    double xPos, yPos;
+    glfwGetCursorPos(window, &xPos, &yPos);
+    
+    // Execute all registered callbacks
+    for (WindowCallbackDelegate *delegate : windowCallbackDelegates) {
+        delegate->MouseClicked(world, xPos, yPos, button, action);
+    }
+}
+
 static void resize_callback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
 }
@@ -120,7 +130,7 @@ int Window::Initialize() {
     // Set keyboard callback.
     glfwSetKeyCallback(window, Window::KeyCallback);
     //set the mouse call back
-    // glfwSetMouseButtonCallback(window, mouse_callback);
+    glfwSetMouseButtonCallback(window, Window::MouseButtonCallback);
     // Set the mouse move call back
     glfwSetCursorPosCallback(window, Window::MouseMoveCallback);
     //set the window resize call back

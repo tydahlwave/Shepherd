@@ -15,17 +15,37 @@
 #include "Components/MeshRenderer.h"
 
 void Physics::Update(float deltaTime, World &world) {
-    for (GameObject *gameObject : world.GetGameObjects()) {
-        RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
-        if (rigidBody && rigidBody->useGravity && !rigidBody->isKinematic) {
-            glm::vec3 accel = rigidBody->acceleration * deltaTime;
-            glm::vec3 vel = rigidBody->velocity * deltaTime;
-            rigidBody->acceleration += gravity * deltaTime;
-            rigidBody->velocity += accel;
-            gameObject->transform->position += vel;
+//    for (GameObject *gameObject : world.GetGameObjects()) {
+//        RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
+//        if (rigidBody && rigidBody->useGravity && !rigidBody->isKinematic) {
+//            glm::vec3 accel = rigidBody->acceleration * deltaTime;
+//            glm::vec3 vel = rigidBody->velocity * deltaTime;
+//            rigidBody->acceleration += gravity * deltaTime;
+//            rigidBody->velocity += accel;
+//            gameObject->transform->position += vel;
+//        }
+//    }
+//    ComputeCollisions(world);
+    UpdateBulletPhysics(deltaTime, world);
+}
+
+void Physics::UpdateBulletPhysics(float deltaTime, World &world) {
+    world.dynamicsWorld->stepSimulation(deltaTime);
+    for(GameObject* go : world.GetGameObjects()) {
+        RigidBody* rb = (RigidBody*)go->GetComponent("RigidBody");
+        if(rb && rb->bulletRigidBody) {
+            btTransform *form = new btTransform();
+            rb->bulletRigidBody->getMotionState()->getWorldTransform(*form);
+            go->transform->position.x = form->getOrigin().x();
+            go->transform->position.y = form->getOrigin().y();
+            go->transform->position.z = form->getOrigin().z();
+            btVector3 rot = form->getRotation().getAngle() * (form->getRotation().getAxis());
+            go->transform->rotation.x = rot.x();
+            go->transform->rotation.y = rot.y();
+            go->transform->rotation.z = rot.z();
         }
+        
     }
-    ComputeCollisions(world);
 }
 
 void Physics::ComputeCollisions(World &world) {

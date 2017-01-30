@@ -42,6 +42,7 @@ void CameraController::Update(World &world) {
     }
 }
 
+
 void CameraController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
     RigidBody *rigidBody = (RigidBody*)world->mainCamera->GetComponent("RigidBody");
     
@@ -116,5 +117,9 @@ void CameraController::MouseMoved(World *world, int windowWidth, int windowHeigh
     camera->lookAt[0] = world->mainCamera->transform->position[0] + cos(alpha2) * cos(beta2);
     camera->lookAt[1] = world->mainCamera->transform->position[1] + -sin(alpha2);
     camera->lookAt[2] = world->mainCamera->transform->position[2] + cos(alpha2) * cos(M_PI/2 - beta2);
-//    std::cout << camera->lookAt.x << ", " << camera->lookAt.y << ", " << camera->lookAt.z << std::endl;
+    //std::cout << camera->lookAt.x << ", " << camera->lookAt.y << ", " << camera->lookAt.z << std::endl;
+}
+
+void CameraController::MouseClicked(World *world, double mouseX, double mouseY, int key, int action) {
+    
 }
