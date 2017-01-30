@@ -34,6 +34,14 @@ GameObject *EntityFactory::createBunny(World *world) {
     return gameObject;
 }
 
+GameObject *EntityFactory::createHUD(World *world) {
+    GameObject *gameObject = world->CreateGameObject("HUD");
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->mesh = Mesh::cube;
+    meshRenderer->shader = Shader::hud;
+    return gameObject;
+}
+
 GameObject *EntityFactory::createTexturedSphere(World *world) {
     GameObject *gameObject = world->CreateGameObject("Bunny");
     gameObject->AddComponent("RigidBody");

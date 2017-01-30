@@ -119,6 +119,8 @@ int main(int argc, char **argv) {
     // Create Physics Ground (below previous ground)
     GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(50.,1.0,50.), glm::vec3(5.5,0,2.0),0);
     
+    EntityFactory::createHUD(&world);
+    
     // Seed random generator
     srand(time(0));
     
