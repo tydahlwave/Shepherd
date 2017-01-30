@@ -84,7 +84,7 @@ void BunnySpawnSystem::Update(float deltaTime, World *world) {
 }
 
 void BunnySpawnSystem::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
-	if (action = GLFW_PRESS) {
+	if (action == GLFW_PRESS) {
 		if (key == GLFW_KEY_F) {
 			flockToCamera = !flockToCamera;
 		}
