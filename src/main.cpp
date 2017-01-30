@@ -96,9 +96,9 @@ int main(int argc, char **argv) {
 	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem);
     
     // Create ground
-//    GameObject *ground = EntityFactory::createGround(&world);
-//    ground->transform->SetPosition(glm::vec3(ground->transform->GetPosition().x,ground->transform->GetPosition().y - 2,ground->transform->GetPosition().z));
-//    ground->transform->SetScale(glm::vec3(30, 1, 30));
+    GameObject *ground = EntityFactory::createGround(&world);
+    ground->transform->SetPosition(glm::vec3(ground->transform->GetPosition().x,ground->transform->GetPosition().y - 2,ground->transform->GetPosition().z));
+    ground->transform->SetScale(glm::vec3(30, 1, 30));
     
     GameObject *barrier1 = EntityFactory::createBarrier(&world);
     barrier1->transform->SetPosition(glm::vec3(0, 0, -30));

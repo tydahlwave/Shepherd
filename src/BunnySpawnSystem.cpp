@@ -110,18 +110,21 @@ void BunnySpawnSystem::Flock(World *world) {
 void BunnySpawnSystem::Seek(World *world, glm::vec3 target) {
 	for (GameObject *bunny : bunnies) {
 		RigidBody *bunnyRigidBody = (RigidBody*)bunny->GetComponent("RigidBody");
+        
+        if (bunnyRigidBody) {
 
-		float diffX = target.x - bunny->transform->GetPosition().x;
-		float diffZ = target.z - bunny->transform->GetPosition().z;
-		glm::vec3 desiredVel = glm::normalize(glm::vec3(diffX, 0, diffZ)) * maxSpeed;
+            float diffX = target.x - bunny->transform->GetPosition().x;
+            float diffZ = target.z - bunny->transform->GetPosition().z;
+            glm::vec3 desiredVel = glm::normalize(glm::vec3(diffX, 0, diffZ)) * maxSpeed;
 
-		glm::vec3 steering = desiredVel - bunnyRigidBody->velocity;
-		steering.y = 0;
+            glm::vec3 steering = desiredVel - bunnyRigidBody->velocity;
+            steering.y = 0;
 
-		angle = atan2((target - bunny->transform->GetPosition()).x, (target - bunny->transform->GetPosition()).z) * 180.0 / 3.14;
-        bunny->transform->SetRotation(vec3(0, angle, 0));
+            angle = atan2((target - bunny->transform->GetPosition()).x, (target - bunny->transform->GetPosition()).z) * 180.0 / 3.14;
+            bunny->transform->SetRotation(vec3(0, angle, 0));
 
-		bunnyRigidBody->velocity += steering;
+            bunnyRigidBody->velocity += steering;
+        }
 	}
 }
 
@@ -131,32 +134,35 @@ void BunnySpawnSystem::Arrival(World *world, glm::vec3 target) {
 
 	for (GameObject *bunny : bunnies) {
 		RigidBody *bunnyRigidBody = (RigidBody*)bunny->GetComponent("RigidBody");
+        
+        if (bunnyRigidBody) {
+            
+            if (flockToCamera) {
+                position = world->mainCamera->transform->GetPosition();
+            }
+            else {
+                position = target;
+            }
 
-		if (flockToCamera) {
-			position = world->mainCamera->transform->GetPosition();
-		}
-		else {
-			position = target;
-		}
+            distX = position.x - bunny->transform->GetPosition().x;
+            distZ = position.z - bunny->transform->GetPosition().z;
+            angle = atan2((position - bunny->transform->GetPosition()).x, (position - bunny->transform->GetPosition()).z) * 180.0 / 3.14;
+            bunny->transform->SetRotation(vec3(0, angle, 0));
 
-		distX = position.x - bunny->transform->GetPosition().x;
-		distZ = position.z - bunny->transform->GetPosition().z;
-		angle = atan2((position - bunny->transform->GetPosition()).x, (position - bunny->transform->GetPosition()).z) * 180.0 / 3.14;
-		bunny->transform->SetRotation(vec3(0, angle, 0));
+            glm::vec3 desiredVel = glm::normalize(glm::vec3(distX, 0, distZ)) * maxSpeed;
+            float dist = glm::length(desiredVel);
+            desiredVel = glm::normalize(desiredVel);
 
-		glm::vec3 desiredVel = glm::normalize(glm::vec3(distX, 0, distZ)) * maxSpeed;
-		float dist = glm::length(desiredVel);
-		desiredVel = glm::normalize(desiredVel);
+            if (dist < 10.0f) {
+                desiredVel *= maxSpeed * (dist / 10.0f);
+            }
+            else {
+                desiredVel *= maxSpeed;
+            }
 
-		if (dist < 10.0f) {
-			desiredVel *= maxSpeed * (dist / 10.0f);
-		}
-		else {
-			desiredVel *= maxSpeed;
-		}
-
-		glm::vec3 steering = desiredVel - bunnyRigidBody->velocity;
-		bunnyRigidBody->velocity += steering;
+            glm::vec3 steering = desiredVel - bunnyRigidBody->velocity;
+            bunnyRigidBody->velocity += steering;
+        }
 	}
 }
 
@@ -169,27 +175,29 @@ void BunnySpawnSystem::Separation() {
 
 	for (it = bunnies.begin(); it != bunnies.end(); ++it) {
 		RigidBody *rigidBody = (RigidBody*)(*it)->GetComponent("RigidBody");
-		neighborCount = 0;
-		steering = glm::vec3(0, 0, 0);
-		for (it2 = bunnies.begin(); it2 != bunnies.end(); ++it2) {
-			float distX = (*it)->transform->GetPosition().x - (*it2)->transform->GetPosition().x;
-			float distZ = (*it)->transform->GetPosition().z - (*it2)->transform->GetPosition().z;
-			if ((sqrt(pow(distX, 2) + pow(distZ, 2)) > 0) && (sqrt(pow(distX, 2) + pow(distZ, 2)) < 5.0)) {
-				float diffX = (*it)->transform->GetPosition().x - (*it2)->transform->GetPosition().x;
-				float diffZ = (*it)->transform->GetPosition().z - (*it2)->transform->GetPosition().z;
-				glm::vec3 diff = glm::normalize(glm::vec3(diffX, 0, diffZ));
-				steering.x += diff.x;
-				steering.z += diff.z;
-				neighborCount++;
-			}
-		}
+        if (rigidBody) {
+            neighborCount = 0;
+            steering = glm::vec3(0, 0, 0);
+            for (it2 = bunnies.begin(); it2 != bunnies.end(); ++it2) {
+                float distX = (*it)->transform->GetPosition().x - (*it2)->transform->GetPosition().x;
+                float distZ = (*it)->transform->GetPosition().z - (*it2)->transform->GetPosition().z;
+                if ((sqrt(pow(distX, 2) + pow(distZ, 2)) > 0) && (sqrt(pow(distX, 2) + pow(distZ, 2)) < 5.0)) {
+                    float diffX = (*it)->transform->GetPosition().x - (*it2)->transform->GetPosition().x;
+                    float diffZ = (*it)->transform->GetPosition().z - (*it2)->transform->GetPosition().z;
+                    glm::vec3 diff = glm::normalize(glm::vec3(diffX, 0, diffZ));
+                    steering.x += diff.x;
+                    steering.z += diff.z;
+                    neighborCount++;
+                }
+            }
 
-		if (neighborCount > 0) {
-			steering.x /= (float)neighborCount;
-			steering.z /= (float)neighborCount;
-		}
+            if (neighborCount > 0) {
+                steering.x /= (float)neighborCount;
+                steering.z /= (float)neighborCount;
+            }
 
-		rigidBody->velocity += steering * 6.0f;
+            rigidBody->velocity += steering * 6.0f;
+        }
 	}
 }
 
@@ -202,25 +210,29 @@ void BunnySpawnSystem::Alignment() {
 
 	for (it = bunnies.begin(); it != bunnies.end(); ++it) {
 		RigidBody *rigidBody = (RigidBody*)(*it)->GetComponent("RigidBody");
-		neighborCount = 0;
-		sum = glm::vec3(0, 0, 0);
-		for (it2 = bunnies.begin(); it2 != bunnies.end(); ++it2) {
-			RigidBody *rigidBody2 = (RigidBody*)(*it2)->GetComponent("RigidBody");
-			float distX = (*it)->transform->GetPosition().x - (*it2)->transform->GetPosition().x;
-			float distZ = (*it)->transform->GetPosition().z - (*it2)->transform->GetPosition().z;
-			if ((sqrt(pow(distX, 2) + pow(distZ, 2)) > 0) && (sqrt(pow(distX, 2) + pow(distZ, 2)) < 50)) {
-				sum.x += rigidBody2->velocity.x;
-				sum.z += rigidBody2->velocity.z;
-				neighborCount++;
-			}
-		}
+        if (rigidBody) {
+            neighborCount = 0;
+            sum = glm::vec3(0, 0, 0);
+            for (it2 = bunnies.begin(); it2 != bunnies.end(); ++it2) {
+                RigidBody *rigidBody2 = (RigidBody*)(*it2)->GetComponent("RigidBody");
+                if (rigidBody2) {
+                    float distX = (*it)->transform->GetPosition().x - (*it2)->transform->GetPosition().x;
+                    float distZ = (*it)->transform->GetPosition().z - (*it2)->transform->GetPosition().z;
+                    if ((sqrt(pow(distX, 2) + pow(distZ, 2)) > 0) && (sqrt(pow(distX, 2) + pow(distZ, 2)) < 50)) {
+                        sum.x += rigidBody2->velocity.x;
+                        sum.z += rigidBody2->velocity.z;
+                        neighborCount++;
+                    }
+                }
+            }
 
-		if (neighborCount > 0) {
-			sum.x /= (float)neighborCount;
-			sum.z /= (float)neighborCount;
-		}
+            if (neighborCount > 0) {
+                sum.x /= (float)neighborCount;
+                sum.z /= (float)neighborCount;
+            }
 
-		rigidBody->velocity += sum;
+            rigidBody->velocity += sum;
+        }
 	}
 }
 
@@ -233,27 +245,29 @@ void BunnySpawnSystem::Cohesion() {
 
 	for (it = bunnies.begin(); it != bunnies.end(); ++it) {
 		RigidBody *rigidBody = (RigidBody*)(*it)->GetComponent("RigidBody");
-		neighborCount = 0;
-		sum = glm::vec3(0, 0, 0);
-		for (it2 = bunnies.begin(); it2 != bunnies.end(); ++it2) {
-			float distX = (*it)->transform->GetPosition().x - (*it2)->transform->GetPosition().x;
-			float distZ = (*it)->transform->GetPosition().z - (*it2)->transform->GetPosition().z;
-			if ((sqrt(pow(distX, 2) + pow(distZ, 2)) > 0) && (sqrt(pow(distX, 2) + pow(distZ, 2)) < 50)) {
-				sum.x += (*it2)->transform->GetPosition().x;
-				sum.z += (*it2)->transform->GetPosition().z;
-				neighborCount++;
-			}
-		}
+        if (rigidBody) {
+            neighborCount = 0;
+            sum = glm::vec3(0, 0, 0);
+            for (it2 = bunnies.begin(); it2 != bunnies.end(); ++it2) {
+                float distX = (*it)->transform->GetPosition().x - (*it2)->transform->GetPosition().x;
+                float distZ = (*it)->transform->GetPosition().z - (*it2)->transform->GetPosition().z;
+                if ((sqrt(pow(distX, 2) + pow(distZ, 2)) > 0) && (sqrt(pow(distX, 2) + pow(distZ, 2)) < 50)) {
+                    sum.x += (*it2)->transform->GetPosition().x;
+                    sum.z += (*it2)->transform->GetPosition().z;
+                    neighborCount++;
+                }
+            }
 
-		if (neighborCount > 0) {
-			sum.x /= (float)neighborCount;
-			sum.z /= (float)neighborCount;
+            if (neighborCount > 0) {
+                sum.x /= (float)neighborCount;
+                sum.z /= (float)neighborCount;
 
-			glm::vec3 steering = glm::normalize(sum - (*it)->transform->GetPosition());
-			rigidBody->velocity += steering;
-		}
-		else {
-			rigidBody->velocity += sum;
-		}
+                glm::vec3 steering = glm::normalize(sum - (*it)->transform->GetPosition());
+                rigidBody->velocity += steering;
+            }
+            else {
+                rigidBody->velocity += sum;
+            }
+        }
 	}
 }

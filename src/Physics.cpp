@@ -23,7 +23,6 @@ void Physics::Update(float deltaTime, World &world) {
             rigidBody->acceleration += gravity * deltaTime;
             rigidBody->velocity += accel;
             gameObject->transform->SetPosition(gameObject->transform->GetPosition()+vel);
-            gameObject->transform->position += vel;
         }
     }
     ComputeCollisions(world);
@@ -108,20 +107,22 @@ void Physics::ResolveCollisions(std::vector<Collision> collisions) {
             rigidBody2->velocity.x *= -1;
             rigidBody2->velocity.z *= -1;
             collision.gameObject2->transform->SetPosition(collision.gameObject2->transform->GetPosition() + rigidBody2->velocity / 5.0f);
-            collision.gameObject2->transform->SetRotation(collision.gameObject2->tranform->GetRotation() - glm::vec3(0, 180, 0));
+            collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetRotation() - glm::vec3(0, 180, 0));
         } else if (collision.gameObject2->name.compare("Barrier") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
             rigidBody1->velocity.x *= -1;
             rigidBody1->velocity.z *= -1;
             collision.gameObject1->transform->SetPosition(collision.gameObject1->transform->GetPosition() + rigidBody1->velocity / 5.0f);
-            collision.gameObject1->transform->SetRotation(collision.gameObject1->tranform->GetRotation() - glm::vec3(0, 180, 0));
+            collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetRotation() - glm::vec3(0, 180, 0));
         } else if (collision.gameObject1->name.compare("Wolf") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
 //            collision.gameObject2->Destroy();
             collision.gameObject2->RemoveComponent("MeshRenderer");
             collision.gameObject2->RemoveComponent("RigidBody");
+            collision.gameObject2->RemoveComponent("BoxCollider");
         } else if (collision.gameObject2->name.compare("Wolf") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
 //            collision.gameObject1->Destroy();
             collision.gameObject1->RemoveComponent("MeshRenderer");
             collision.gameObject1->RemoveComponent("RigidBody");
+            collision.gameObject1->RemoveComponent("BoxCollider");
         } else {
         
         if (rigidBody1 && rigidBody2 && !rigidBody1->isKinematic && !rigidBody2->isKinematic) {

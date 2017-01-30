@@ -21,8 +21,8 @@ public:
     
 	void Update(float deltaTime, World *world);
 	void KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) override;
-	void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY);
-	void MouseClicked(World *world, double mouseX, double mouseY, int key, int action);
+	void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) override;
+	void MouseClicked(World *world, double mouseX, double mouseY, int key, int action) override;
 	void Flock(World *world);
 	void Seek(World *world, glm::vec3 target);
 	void Arrival(World *world, glm::vec3 target);

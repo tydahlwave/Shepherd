@@ -36,7 +36,7 @@ void WolfSystem::Spawn(World *world) {
     direction.x = sin(angle * 180 / M_PI);
     direction.z = sin(angle * 180 / M_PI);
     float distance = 20.0f;
-    wolf->transform->position = center + direction * distance;
+    wolf->transform->SetPosition(center + direction * distance);
     wolves.push_back(wolf);
 }
 
@@ -45,13 +45,14 @@ void WolfSystem::MoveWolf(GameObject *wolf, float deltaTime, World *world) {
     if (rigidBody) {
         GameObject *closestSheep = GetClosestSheep(wolf, world);
         if (closestSheep) {
-            glm::vec3 direction = glm::normalize(closestSheep->transform->position - wolf->transform->position);
+            glm::vec3 direction = glm::normalize(closestSheep->transform->GetPosition() - wolf->transform->GetPosition());
     //        glm::vec3 center = CalculateSheepCenter(world);
     //        glm::vec3 direction = glm::normalize(center - wolf->transform->position);
             rigidBody->velocity.x = direction.x * maxSpeed;
             rigidBody->velocity.z = direction.z * maxSpeed;
             float angle = atan2(direction.x, direction.z);
-            wolf->transform->rotation.y = (angle * 180 / M_PI) + 90;
+            glm::vec3 rotation = glm::vec3(wolf->transform->GetRotation().x, (angle * 180 / M_PI) + 90, wolf->transform->GetRotation().z);
+            wolf->transform->SetRotation(rotation);
         } else {
             rigidBody->velocity.x = 0;
             rigidBody->velocity.z = 0;
@@ -65,7 +66,7 @@ glm::vec3 WolfSystem::CalculateSheepCenter(World *world) {
     for (GameObject *go : world->GetGameObjects()) {
         // if the game object is a sheep
         if (go->name.compare("Bunny") == 0 && go->GetComponent("MeshRenderer")) {
-            center += go->transform->position;
+            center += go->transform->GetPosition();
             sheepCount++;
         }
     }
@@ -79,7 +80,7 @@ GameObject *WolfSystem::GetClosestSheep(GameObject *wolf, World *world) {
     for (GameObject *go : world->GetGameObjects()) {
         // if the game object is a sheep
         if (go->name.compare("Bunny") == 0 && go->GetComponent("MeshRenderer")) {
-            float dist = glm::distance(go->transform->position, wolf->transform->position);
+            float dist = glm::distance(go->transform->GetPosition(), wolf->transform->GetPosition());
             if (dist < minDist) {
                 minDist = dist;
                 closest = go;

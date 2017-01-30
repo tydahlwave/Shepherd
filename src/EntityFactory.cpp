@@ -55,7 +55,7 @@ GameObject *EntityFactory::createHUD(World *world) {
 }
 
 GameObject *EntityFactory::createTexturedSphere(World *world) {
-    GameObject *gameObject = world->CreateGameObject("Bunny");
+    GameObject *gameObject = world->CreateGameObject("TexSphere");
     gameObject->AddComponent("RigidBody");
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
