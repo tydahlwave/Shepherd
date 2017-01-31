@@ -80,6 +80,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
     for (Collision collision : collisions) {
         RigidBody *rigidBody1 = (RigidBody*)collision.gameObject1->GetComponent("RigidBody");
         RigidBody *rigidBody2 = (RigidBody*)collision.gameObject2->GetComponent("RigidBody");
+        if(!rigidBody1 || !rigidBody2) continue;
         // Recompute bounds - they could have changed since last resolved collision
         Bounds *bounds1 = BoundsForGameObject(collision.gameObject1);
         Bounds *bounds2 = BoundsForGameObject(collision.gameObject2);

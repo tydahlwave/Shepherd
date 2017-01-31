@@ -28,7 +28,7 @@ void CameraController::Update(World &world) {
         camera->lookAt += rigidBody->velocity[2] * w;
     }
     if (abs(rigidBody->velocity[0]) > cameraStoppedThreshold) {
-        if ((world.mainCamera->transform->GetPosition().y + rigidBody->velocity[0] * u.y) > -1.99) {
+        if ((world.mainCamera->transform->GetPosition().y + rigidBody->velocity[0] * u.y) > -3.99) {
             u.y = 0;
             //world.mainCamera->transform->position += rigidBody->velocity[0] * u;
             //camera->lookAt += rigidBody->velocity[0] * u;

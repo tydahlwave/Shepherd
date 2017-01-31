@@ -144,6 +144,7 @@ GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 po
     meshRenderer->material = Material::polishedGold;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->isKinematic = true;
+    rigidBody->useGravity = true;
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(position.x,position.y,position.z));
