@@ -27,7 +27,7 @@ GameObject *EntityFactory::createBunny(World *world) {
     GameObject *gameObject = world->CreateGameObject("Bunny");
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->useGravity = true;
-    rigidBody->isKinematic = true;
+//    rigidBody->isKinematic = true;
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->mesh = Mesh::bunny;
@@ -53,7 +53,7 @@ GameObject *EntityFactory::createWolf(World *world) {
     GameObject *gameObject = world->CreateGameObject("Wolf");
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->useGravity = true;
-    rigidBody->isKinematic = true;
+//    rigidBody->isKinematic = true;
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->mesh = Mesh::bunny;
@@ -62,7 +62,7 @@ GameObject *EntityFactory::createWolf(World *world) {
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 0, 0));
-    btSphereShape* sphere = new btSphereShape(2);
+    btSphereShape* sphere = new btSphereShape(1);
     btVector3 inertia(0,0,0);
     float mass = 1.0f;
     if(mass != 0)
