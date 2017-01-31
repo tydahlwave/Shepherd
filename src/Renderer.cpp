@@ -71,9 +71,9 @@ void Renderer::Render(World &world, Window &window) {
             glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
             glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
             
-            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+            Camera *camera = (Camera*)world.mainCharacter->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, world.mainCamera->transform->position);
+            applyCameraMatrix(shader, camera, world.mainCharacter->transform->position + (camera->offset*glm::vec3(1, 0, 1)));
             applyTransformMatrix(shader, gameObject->transform);
             
             mesh->draw(shader);

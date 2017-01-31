@@ -85,6 +85,10 @@ int main(int argc, char **argv) {
     Material::InitializeMaterials();
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController);
     
+	//Create main character
+
+	world.mainCharacter = EntityFactory::createMainCharacter(&world);
+
     // Create ground
     GameObject *ground = EntityFactory::createGround(&world);
     ground->transform->position.y -= 2;

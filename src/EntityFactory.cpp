@@ -23,6 +23,18 @@ GameObject *EntityFactory::createMainCamera(World *world) {
     return gameObject;
 }
 
+GameObject *EntityFactory::createMainCharacter(World *world) {
+	GameObject *gameObject = world->CreateGameObject("MainCharacter");
+	((RigidBody*)gameObject->AddComponent("RigidBody"))->isKinematic = true;
+	gameObject->AddComponent("BoxCollider");
+	gameObject->AddComponent("Camera");
+	MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->AddComponent("MeshRenderer");
+	meshRenderer->mesh = Mesh::bunny;
+	meshRenderer->shader = Shader::phong;
+	meshRenderer->material = Material::emerald;
+	return gameObject;
+}
+
 GameObject *EntityFactory::createBunny(World *world) {
     GameObject *gameObject = world->CreateGameObject("Bunny");
     gameObject->AddComponent("RigidBody");
