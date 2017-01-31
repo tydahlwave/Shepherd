@@ -32,7 +32,7 @@ GameObject *EntityFactory::createBunny(World *world) {
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->mesh = Mesh::bunny;
     meshRenderer->shader = Shader::phong;
-    meshRenderer->material = Material::emerald;
+    meshRenderer->material = Material::pearl;
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 0, 0));

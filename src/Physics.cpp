@@ -73,10 +73,10 @@ void Physics::ComputeCollisions(World &world) {
             }
         }
     }
-    ResolveCollisions(collisions);
+    ResolveCollisions(world, collisions);
 }
 
-void Physics::ResolveCollisions(std::vector<Collision> collisions) {
+void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions) {
     for (Collision collision : collisions) {
         RigidBody *rigidBody1 = (RigidBody*)collision.gameObject1->GetComponent("RigidBody");
         RigidBody *rigidBody2 = (RigidBody*)collision.gameObject2->GetComponent("RigidBody");
@@ -89,16 +89,16 @@ void Physics::ResolveCollisions(std::vector<Collision> collisions) {
         
         if (collision.gameObject1->name.compare("MainCamera") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
             MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject2->GetComponent("MeshRenderer");
-            if (meshRenderer->material != Material::pearl) {
-                meshRenderer->material = Material::pearl;
+            if (meshRenderer->material != Material::polishedGold) {
+                meshRenderer->material = Material::polishedGold;
                 rigidBody2->isKinematic = true;
                 bunniesCollected += 1;
 //                std::cout << "Bunnies Collected: " << bunniesCollected << std::endl;
             }
         } else if (collision.gameObject2->name.compare("MainCamera") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
             MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject1->GetComponent("MeshRenderer");
-            if (meshRenderer->material != Material::pearl) {
-                meshRenderer->material = Material::pearl;
+            if (meshRenderer->material != Material::polishedGold) {
+                meshRenderer->material = Material::polishedGold;
                 rigidBody2->isKinematic = true;
                 bunniesCollected += 1;
 //                std::cout << "Bunnies Collected: " << bunniesCollected << std::endl;
@@ -116,13 +116,25 @@ void Physics::ResolveCollisions(std::vector<Collision> collisions) {
         } else if (collision.gameObject1->name.compare("Wolf") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
 //            collision.gameObject2->Destroy();
             collision.gameObject2->RemoveComponent("MeshRenderer");
-            collision.gameObject2->RemoveComponent("RigidBody");
             collision.gameObject2->RemoveComponent("BoxCollider");
+            RigidBody *rb = (RigidBody*) collision.gameObject2->GetComponent("RigidBody");
+            if (rb) {
+                collision.gameObject2->RemoveComponent("RigidBody");
+                if (rb->bulletRigidBody) {
+                    world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
+                }
+            }
         } else if (collision.gameObject2->name.compare("Wolf") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
 //            collision.gameObject1->Destroy();
             collision.gameObject1->RemoveComponent("MeshRenderer");
-            collision.gameObject1->RemoveComponent("RigidBody");
             collision.gameObject1->RemoveComponent("BoxCollider");
+            RigidBody *rb = (RigidBody*) collision.gameObject1->GetComponent("RigidBody");
+            if (rb) {
+                collision.gameObject1->RemoveComponent("RigidBody");
+                if (rb->bulletRigidBody) {
+                    world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
+                }
+            }
         } else {
         
         if (rigidBody1 && rigidBody2 && !rigidBody1->isKinematic && !rigidBody2->isKinematic) {

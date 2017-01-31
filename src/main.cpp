@@ -122,7 +122,7 @@ int main(int argc, char **argv) {
     GameObject *sphere3 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,10,2.0), 1.0);
     
     // Create Physics Ground (below previous ground)
-    GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(50.,1.0,50.), glm::vec3(5.5,-4,2.0),0);
+    GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(100.0,0.2,100.0), glm::vec3(5.5,-4,2.0),0);
     
     EntityFactory::createHUD(&world);
     
