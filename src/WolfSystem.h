@@ -25,7 +25,7 @@ private:
     static const int maxEntities = 10;
     float elapsedTime = 0.0f;
     float spawnRate = 10.0f; // seconds per spawn
-    float maxSpeed = 8.0f;
+    float maxSpeed = 5.0f;
     std::vector<GameObject*> wolves;
     
     void Spawn(World *world);

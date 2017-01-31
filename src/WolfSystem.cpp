@@ -51,7 +51,7 @@ void WolfSystem::MoveWolf(GameObject *wolf, float deltaTime, World *world) {
             rigidBody->velocity.x = direction.x * maxSpeed;
             rigidBody->velocity.z = direction.z * maxSpeed;
             float angle = atan2(direction.x, direction.z);
-            glm::vec3 rotation = glm::vec3(wolf->transform->GetRotation().x, (angle * 180 / M_PI) + 90, wolf->transform->GetRotation().z);
+            glm::vec3 rotation = glm::vec3(0, (angle * 180 / M_PI) + 90, 0);
             wolf->transform->SetRotation(rotation);
         } else {
             rigidBody->velocity.x = 0;
