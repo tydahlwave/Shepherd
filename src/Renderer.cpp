@@ -49,7 +49,7 @@ void applyMaterial(Program *program, Material *material) {
 void Renderer::Initialize() {
     GLSL::checkVersion();
     // Set background color.
-    glClearColor(.12f, .34f, .56f, 1.0f);
+    glClearColor(0.0f, 170/255.0f, 1.0f, 1.0f);
     // Enable z-buffer test.
     glEnable(GL_DEPTH_TEST);
 }

@@ -32,6 +32,7 @@ public:
     static Material *ruby;
     static Material *emerald;
     static Material *polishedGold;
+    static Material *grass;
 };
 
 #endif /* Material_h */

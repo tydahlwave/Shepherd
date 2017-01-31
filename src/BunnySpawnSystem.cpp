@@ -14,17 +14,19 @@
 void BunnySpawnSystem::Update(float deltaTime, World *world) {
 	Flock(world);
 
+//    if (bunnies.size() < maxEntities) {
     if (world->GetGameObjects().size() >= maxEntities) return;
     
-    /*elapsedTime += deltaTime;
+    elapsedTime += deltaTime;
     if (elapsedTime > spawnRate) {
-        elapsedTime = 0;*/
-        GameObject *bunny = EntityFactory::createBunny(world);
+        elapsedTime = 0;
+        GameObject *b = EntityFactory::createBunny(world);
+        RigidBody *rigidBody = (RigidBody*)b->GetComponent("RigidBody");
+        
         int randomAngle = rand() % 360;
         float velX = cos(randomAngle/180.0*M_PI);
         float velY = sin(randomAngle/180.0*M_PI);
         glm::vec3 vel = normalize(glm::vec3(velX, 0, velY)) * 5.0f;
-        RigidBody *rigidBody = (RigidBody*)bunny->GetComponent("RigidBody");
         
         float floatX[maxEntities];
         float floatZ[maxEntities];
@@ -67,7 +69,7 @@ void BunnySpawnSystem::Update(float deltaTime, World *world) {
             if (!(xFound && zFound)) {
                 positionClear = true;
                 randPosition = vec3(randX, 0, randZ);
-				bunny->transform->SetPosition(randPosition);
+				b->transform->SetPosition(randPosition);
             }
         }
 
@@ -76,11 +78,12 @@ void BunnySpawnSystem::Update(float deltaTime, World *world) {
 		}
 		count += 1;
 
-        bunny->transform->SetPosition(randPosition);
+        b->transform->SetPosition(randPosition);
         rigidBody->useGravity = true;
-        bunny->transform->SetRotation(vec3(0, -randomAngle+90, 0));
-        bunnies.push_back(bunny);
-    //}
+        b->transform->SetRotation(vec3(0, -randomAngle+90, 0));
+        bunnies.push_back(b);
+    }
+//    }
 }
 
 void BunnySpawnSystem::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {

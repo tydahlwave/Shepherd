@@ -31,10 +31,10 @@ public:
 	void Cohesion();
 
 private:
-    static const int maxEntities = 20;
+    static const int maxEntities = 200;
 	int count = 0;
     float elapsedTime = 0;
-    float spawnRate = 2.0; // 2 second per spawn
+    float spawnRate = 1.0; // seconds per spawn
 	float maxSpeed = 3.5;
 	float angle = 0.0;
 	bool flockToCamera = false;

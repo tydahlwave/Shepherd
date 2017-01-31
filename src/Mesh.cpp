@@ -13,6 +13,9 @@ Mesh *Mesh::cube = nullptr;
 Mesh *Mesh::plane = nullptr;
 Mesh *Mesh::sphere = nullptr;
 Mesh *Mesh::sphere_textured = nullptr;
+Mesh *Mesh::boulder1 = nullptr;
+Mesh *Mesh::boulder2 = nullptr;
+Mesh *Mesh::boulder3 = nullptr;
 
 void Mesh::LoadMeshes(std::string resourceDir) {
     Shape *shape = new Shape();
@@ -44,4 +47,20 @@ void Mesh::LoadMeshes(std::string resourceDir) {
     shape->resize();
     shape->init();
     sphere_textured = new Mesh(shape);
+    
+    shape = new Shape();
+    shape->loadMesh(resourceDir + "Boulder1.obj");
+    shape->resize();
+    shape->init();
+    boulder1 = new Mesh(shape);
+    shape = new Shape();
+    shape->loadMesh(resourceDir + "Boulder2.obj");
+    shape->resize();
+    shape->init();
+    boulder2 = new Mesh(shape);
+    shape = new Shape();
+    shape->loadMesh(resourceDir + "Boulder3.obj");
+    shape->resize();
+    shape->init();
+    boulder3 = new Mesh(shape);
 }

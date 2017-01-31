@@ -117,7 +117,7 @@ GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::v
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->mesh = Mesh::cube;
     meshRenderer->shader = Shader::phong;
-    meshRenderer->material = Material::bronze;
+    meshRenderer->material = Material::grass;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->isKinematic = false;
     btTransform t;
@@ -165,7 +165,7 @@ GameObject *EntityFactory::createPhysicsGround(World *world) {
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->mesh = Mesh::plane;
     meshRenderer->shader = Shader::phong;
-    meshRenderer->material = Material::polishedGold;
+    meshRenderer->material = Material::emerald;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     btTransform t;
     t.setIdentity();
@@ -174,6 +174,34 @@ GameObject *EntityFactory::createPhysicsGround(World *world) {
     btMotionState* motion = new btDefaultMotionState(t);
     btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, plane);
     rigidBody->bulletRigidBody = new btRigidBody(info);
+    
+    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    return gameObject;
+}
+
+GameObject *EntityFactory::createBoulder(World *world, int boulderType, float radius) {
+    GameObject *gameObject = world->CreateGameObject("Boulder");
+    RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
+    rigidBody->useGravity = true;
+    rigidBody->isKinematic = true;
+    gameObject->AddComponent("BoxCollider");
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+//    meshRenderer->mesh = (boulderType <= 1) ? (boulderType <= 0) ? Mesh::boulder1 : Mesh::boulder2 : Mesh::boulder3;
+    meshRenderer->mesh = Mesh::sphere;
+    meshRenderer->shader = Shader::phong;
+    meshRenderer->material = Material::brass;
+    btTransform t;
+    t.setIdentity();
+    t.setOrigin(btVector3(0, 0, 0));
+    btSphereShape* sphere = new btSphereShape(radius);
+    btVector3 inertia(0,0,0);
+    float mass = 0;
+    if (mass != 0)
+        sphere->calculateLocalInertia(mass, inertia);
+    btMotionState* motion = new btDefaultMotionState(t);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
+    rigidBody->bulletRigidBody = new btRigidBody(info);
+    rigidBody->bulletRigidBody->setCollisionFlags(0); // Make it a static object
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;

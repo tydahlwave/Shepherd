@@ -29,6 +29,8 @@
 #endif
 static std::string resourceDir;
 
+static const float groundSize = 100.0f;
+
 void handleInput(int argc, char **argv) {
     if (argc != 2) {
         std::cout << "Incorrect format" << std::endl;
@@ -71,6 +73,19 @@ void displayStats(float deltaTime, World &world, Physics &physics) {
         std::cout << "Objects on Ground: " << groundedObjectsCount << std::endl;
         std::cout << "Bunnies Collected: " << physics.bunniesCollected << std::endl;
         frames = 0;
+    }
+}
+
+void randomlyPopulateWithBoulders(World *world) {
+    for (int i = 0; i < 15; i++) {
+        int type = rand() % 3;
+        float scale = rand() % 4 + 1;
+        GameObject *boulder = EntityFactory::createBoulder(world, type, 1);
+        float posX = (rand() % (int)groundSize) - groundSize/2;
+        float posZ = (rand() % (int)groundSize) - groundSize/2;
+        boulder->transform->SetPosition(glm::vec3(posX, -4, posZ));
+        boulder->transform->SetRotation(glm::vec3(0, rand() % 360, 0));
+        boulder->transform->SetScale(glm::vec3(scale, scale, scale));
     }
 }
 
@@ -122,7 +137,10 @@ int main(int argc, char **argv) {
 //    GameObject *sphere3 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,10,2.0), 1.0);
     
     // Create Physics Ground (below previous ground)
-    GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(100.0,0.2,100.0), glm::vec3(5.5,-4,2.0),0);
+    GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(groundSize,0.2,groundSize), glm::vec3(5.5,-4,2.0),0);
+    
+    // Create boulders
+    randomlyPopulateWithBoulders(&world);
     
     EntityFactory::createHUD(&world);
     

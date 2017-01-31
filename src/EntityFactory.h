@@ -24,6 +24,7 @@ public:
     static GameObject *createCube(World *world, glm::vec3 dimensions, glm::vec3 position, float mass);
     static GameObject *createSphere(World *world, float radius, glm::vec3 position, float mass);
     static GameObject *createPhysicsGround(World *world);
+    static GameObject *createBoulder(World *world, int boulderType, float radius);
 };
 
 #endif /* EntityFactory_h */

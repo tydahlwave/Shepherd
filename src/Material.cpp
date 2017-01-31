@@ -16,6 +16,7 @@ Material *Material::bronze = nullptr;
 Material *Material::ruby = nullptr;
 Material *Material::emerald = nullptr;
 Material *Material::polishedGold = nullptr;
+Material *Material::grass = nullptr;
 
 void Material::InitializeMaterials() {
     // Shiny blue plastic
@@ -73,4 +74,11 @@ void Material::InitializeMaterials() {
     specular = glm::vec4(0.797357, 0.723991, 0.208006, 1);
     shine = 83.2;
     polishedGold = new Material(new Color(ambient), new Color(diffuse), new Color(specular), shine);
+    
+    // Grassy
+    ambient = glm::vec4(0.0215, 0.1745, 0.0215, 1);
+    diffuse = glm::vec4(0.07568, 0.61424, 0.07568, 1);
+    specular = glm::vec4(0.633, 0.727811, 0.633, 1);
+    shine = 12.0;
+    grass = new Material(new Color(ambient), new Color(diffuse), new Color(specular), shine);
 }
