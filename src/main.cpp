@@ -117,9 +117,9 @@ int main(int argc, char **argv) {
 //    sphere->transform->SetPosition(glm::vec3(0, 0, -5));
     
     // Create Cube (with bullet physics)
-    GameObject *sphere1 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,20,2.0), 4.0);
-    GameObject *sphere2 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,15,2.0), 2.0);
-    GameObject *sphere3 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,10,2.0), 1.0);
+//    GameObject *sphere1 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,20,2.0), 4.0);
+//    GameObject *sphere2 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,15,2.0), 2.0);
+//    GameObject *sphere3 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,10,2.0), 1.0);
     
     // Create Physics Ground (below previous ground)
     GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(100.0,0.2,100.0), glm::vec3(5.5,-4,2.0),0);
