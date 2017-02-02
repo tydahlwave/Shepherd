@@ -88,7 +88,7 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
         float forceScalar = deltaTime /30.;
         if(forceScalar > 400.) forceScalar = 400.;
         
-        forceVector = forceVector*forceScalar;
+        forceVector = coef*forceVector*forceScalar;
         
         
         for(GameObject* go : world->GetGameObjects()) {
@@ -101,10 +101,9 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                 
                 //if(RayCallback.m_collisionObject == rb->bulletRigidBody) {
                 if(isLyingInCone(objPos, camPos, endPoint, M_PI/4.0)) {
-                    //rb->bulletRigidBody->activate(); // maybe for all btRigidBodies just set setActivationState(DISABLE_DEACTIVATION)
-                    //rb->bulletRigidBody->applyForce(coef*forceVector, camPos - objPos);
+                    //rb->bulletRigidBody->applyForce(forceVector, camPos - objPos);
                     
-                    rb->bulletRigidBody->setLinearVelocity(coef*forceVector);
+                    rb->bulletRigidBody->setLinearVelocity(forceVector);
                     
                 }
             }
