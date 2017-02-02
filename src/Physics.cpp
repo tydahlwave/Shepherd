@@ -30,6 +30,8 @@ void Physics::Update(float deltaTime, World &world) {
 }
 
 void Physics::UpdateBulletPhysics(float deltaTime, World &world) {
+//    btScalar fixedTimeStep = 1./60.;
+//    world.dynamicsWorld->stepSimulation((btScalar)(deltaTime), 10, fixedTimeStep);
     world.dynamicsWorld->stepSimulation(deltaTime);
     for(GameObject* go : world.GetGameObjects()) {
         RigidBody* rb = (RigidBody*)go->GetComponent("RigidBody");

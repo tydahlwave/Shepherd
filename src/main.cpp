@@ -153,18 +153,27 @@ int main(int argc, char **argv) {
     std::cout << "Bunnies Collected: 0" << std::endl;
     
     
+    float idealDeltaTime = 1.f/60.f;
+    float fixedDeltaTime;
     // Game loop
     while (!window.ShouldClose()) {
         long curTime = Time::Now();
-        float deltaTime = (curTime - oldTime) / 1000.0f;
-        displayStats(deltaTime, world, physics);
+        float elapsedTime = (curTime - oldTime) / 1000.0f;
+        displayStats(elapsedTime, world, physics);
         
-        cameraController.Update(world);
-        bunnySpawnSystem.Update(deltaTime, &world);
-        wolfSystem.Update(deltaTime, &world);
-        physics.Update(deltaTime, world);
-        renderer.Render(world, window);
-        window.Update();
+        while(elapsedTime > 0) {
+            fixedDeltaTime = min(elapsedTime, idealDeltaTime);
+            //update
+            cameraController.Update(world);
+            bunnySpawnSystem.Update(fixedDeltaTime, &world);
+            wolfSystem.Update(fixedDeltaTime, &world);
+            physics.Update(fixedDeltaTime, world);
+            renderer.Render(world, window);
+            window.Update();
+            //endupdate
+            elapsedTime -= fixedDeltaTime;
+        }
+        
         
         // Reset current frame time
         oldTime = curTime;

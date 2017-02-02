@@ -38,12 +38,13 @@ GameObject *EntityFactory::createBunny(World *world) {
     t.setOrigin(btVector3(0, 0, 0));
     btSphereShape* sphere = new btSphereShape(1);
     btVector3 inertia(0,0,0);
-    float mass = 1.0f;
+    float mass = 100.0f;
     if(mass != 0)
         sphere->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
     btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
     rigidBody->bulletRigidBody = new btRigidBody(info);
+    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
@@ -70,6 +71,7 @@ GameObject *EntityFactory::createWolf(World *world) {
     btMotionState* motion = new btDefaultMotionState(t);
     btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
     rigidBody->bulletRigidBody = new btRigidBody(info);
+    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
@@ -131,6 +133,7 @@ GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::v
     btMotionState* motion = new btDefaultMotionState(t);
     btRigidBody::btRigidBodyConstructionInfo info(mass, motion, cube);
     rigidBody->bulletRigidBody = new btRigidBody(info);
+    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
 
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
@@ -156,6 +159,7 @@ GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 po
     btMotionState* motion = new btDefaultMotionState(t);
     btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
     rigidBody->bulletRigidBody = new btRigidBody(info);
+    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
@@ -175,6 +179,7 @@ GameObject *EntityFactory::createPhysicsGround(World *world) {
     btMotionState* motion = new btDefaultMotionState(t);
     btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, plane);
     rigidBody->bulletRigidBody = new btRigidBody(info);
+    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
@@ -196,12 +201,13 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     t.setOrigin(btVector3(0, 0, 0));
     btSphereShape* sphere = new btSphereShape(radius);
     btVector3 inertia(0,0,0);
-    float mass = 0;
+    float mass = 0.0;
     if (mass != 0)
         sphere->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
     btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
     rigidBody->bulletRigidBody = new btRigidBody(info);
+    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     rigidBody->bulletRigidBody->setCollisionFlags(0); // Make it a static object
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
