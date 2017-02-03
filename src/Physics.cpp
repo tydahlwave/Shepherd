@@ -67,7 +67,7 @@ void Physics::ComputeCollisions(World &world) {
             // If the second object is not collidable, continue
             if (!bounds2) continue;
             // Test for collision
-            Bounds *intersection = bounds1->Intersection(bounds2);
+            Bounds *intersection = Bounds::Intersection(*bounds1, *bounds2);
             if (intersection) {
 //                std::cout << gameObject1->name << " hit " << gameObject2->name << std::endl;
                 Collision collision = Collision(gameObject1, gameObject2, intersection);
@@ -87,7 +87,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
         Bounds *bounds1 = BoundsForGameObject(collision.gameObject1);
         Bounds *bounds2 = BoundsForGameObject(collision.gameObject2);
         // If there is no longer an intersection, continue
-        Bounds *newIntersection = bounds1->Intersection(bounds2);
+        Bounds *newIntersection = Bounds::Intersection(*bounds1, *bounds2);
         if (!newIntersection) continue;
         
         if (collision.gameObject1->name.compare("MainCamera") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
@@ -143,15 +143,15 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
         if (rigidBody1 && rigidBody2 && !rigidBody1->isKinematic && !rigidBody2->isKinematic) {
             // TODO: don't just move up
             float dy;
-            if (bounds2->max.y > bounds1->max.y) {
-                dy = bounds1->max.y - bounds2->min.y;
+            if (bounds2->center.y + bounds2->halfwidths.y > bounds1->center.y + bounds1->halfwidths.y) {
+                dy = (bounds1->center.y + bounds1->halfwidths.y) - (bounds2->center.y - bounds2->halfwidths.y);
                 collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetPosition() + glm::vec3(0, dy, 0));
                 rigidBody1->velocity.y = rigidBody1->velocity.y/2;
                 rigidBody1->acceleration = glm::vec3(0, 0, 0);
                 rigidBody2->velocity.y = 0;
                 rigidBody2->acceleration = glm::vec3(0, 0, 0);
             } else {
-                dy = bounds2->max.y - bounds1->min.y;
+                dy = (bounds2->center.y + bounds2->halfwidths.y) - (bounds1->center.y - bounds1->halfwidths.y);
                 collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetPosition() + glm::vec3(0, dy, 0));
                 rigidBody2->velocity.y = -rigidBody2->velocity.y/2;
                 rigidBody2->acceleration = glm::vec3(0, 0, 0);
@@ -170,7 +170,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
 //            rigidBody2->acceleration.y = -rigidBody2->acceleration.y;
         } else if (rigidBody1 && !rigidBody1->isKinematic) {
             // TODO: don't just move up
-            float dy = bounds2->max.y - bounds1->min.y;
+            float dy =(bounds2->center.y + bounds2->halfwidths.y) - (bounds1->center.y - bounds1->halfwidths.y);
             collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetPosition() + glm::vec3(0, dy, 0));
             rigidBody1->velocity.y = 0;
             rigidBody1->acceleration = glm::vec3(0, 0, 0);
@@ -178,7 +178,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
 //            rigidBody1->acceleration.y = -rigidBody1->acceleration.y;
         } else if (rigidBody2 && !rigidBody2->isKinematic) {
             // TODO: don't just move up
-            float dy = bounds1->max.y - bounds2->min.y;
+            float dy = (bounds1->center.y + bounds1->halfwidths.y) - (bounds2->center.y - bounds2->halfwidths.y);
             collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetPosition() + glm::vec3(0, dy, 0));
             rigidBody2->velocity.y = 0;
             rigidBody2->acceleration = glm::vec3(0, 0, 0);
