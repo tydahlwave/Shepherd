@@ -154,32 +154,31 @@ int main(int argc, char **argv) {
     
     
     float idealDeltaTime = 1.f/60.f;
-    float fixedDeltaTime;
+    float accumulator = 0.0f;
     
     // Game loop
     while (!window.ShouldClose()) {
         long curTime = Time::Now();
         float elapsedTime = (curTime - oldTime) / 1000.0f;
+        // Reset current frame time
+        oldTime = curTime;
         displayStats(elapsedTime, world, physics);
         
-        while(elapsedTime > 0.0001f) {
-            fixedDeltaTime = min(elapsedTime, idealDeltaTime);
+        accumulator += elapsedTime;
+        
+        while(accumulator >= idealDeltaTime) {
             //update
-            
-            bunnySpawnSystem.Update(fixedDeltaTime, &world);
-            wolfSystem.Update(fixedDeltaTime, &world);
-            physics.Update(fixedDeltaTime, world);
-            
+            bunnySpawnSystem.Update(idealDeltaTime, &world);
+            wolfSystem.Update(idealDeltaTime, &world);
+            physics.Update(idealDeltaTime, world);
             
             //endupdate
-            elapsedTime -= fixedDeltaTime;
+            accumulator -= idealDeltaTime;
         }
         cameraController.Update(world);
         renderer.Render(world, window);
         window.Update();
         
-        // Reset current frame time
-        oldTime = curTime;
     }
     
     return 0;
