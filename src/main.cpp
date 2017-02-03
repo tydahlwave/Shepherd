@@ -22,6 +22,8 @@
 #include "Components/RigidBody.h"
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
+#include "Noise/Noise.h"
+
 #ifdef WIN32
 #include <btBulletDynamicsCommon.h>
 #else
