@@ -220,7 +220,9 @@ GameObject *EntityFactory::createTerrain(World *world, int type, int size) {
     GameObject *gameObject = world->CreateGameObject("Terrain");
     TerrainRenderer *renderer = (TerrainRenderer*) gameObject->AddComponent("TerrainRenderer");
     renderer->terrain = new Terrain();
-    renderer->terrain->Generate(size, type);
+    renderer->terrain->size = size;
+    renderer->terrain->type = type;
+    renderer->terrain->Generate();
     renderer->shader = Shader::phong;
     renderer->material = Material::bronze;
     return gameObject;

@@ -14,7 +14,12 @@ public:
     Terrain();
     virtual ~Terrain();
     
-    void Generate(int size, int type);
+    int size = 256;
+    // 0 = Simplex, 1 = Diamond-Square
+    int type = 0;
+    
+    void Generate();
+    void Regenerate();
     void init();
     void draw(Program *prog) const;
 private:
@@ -30,6 +35,7 @@ private:
     
     std::vector<std::vector<float>> heightMap;
     
+    void UpdateBuffers();
     void ComputeNormals();
 };
 

@@ -20,7 +20,7 @@ Terrain::Terrain() :
 
 Terrain::~Terrain() {}
 
-void Terrain::Generate(int size, int type) {
+void Terrain::Generate() {
     srand(time(0));
     switch (type) {
     case 0:
@@ -47,6 +47,51 @@ void Terrain::Generate(int size, int type) {
     for (size_t v = 0; v < totalElements; v++) {
         eleBuf.push_back(0);
     }
+    
+    UpdateBuffers();
+    init();
+}
+
+void Terrain::Regenerate() {
+    srand(time(0));
+    switch (type) {
+    case 0:
+        heightMap = Noise::GenerateSimplex(size);
+        break;
+    default:
+        heightMap = Noise::GenerateDiamondSquare(size);
+        break;
+    }
+    
+    auto width = heightMap[0].size();
+    auto height = heightMap.size();
+    std::cout << "Terrain size: " << width << "x" << height << std::endl;
+    
+    // Reset buffers
+    posBuf.clear();
+    norBuf.clear();
+    eleBuf.clear();
+
+    // Initialize position, normal, and texture buffers to 0s
+    for (size_t v = 0; v < width*height*3; v++) {
+        posBuf.push_back(0);
+        norBuf.push_back(0);
+        // texBuf.push_back(0);
+    }
+    
+    // Initialize the element buffer to 0s
+    int totalElements = 2*(width-1)*width + 2*(width-2); // total vertices + degenerate vertices
+    for (size_t v = 0; v < totalElements; v++) {
+        eleBuf.push_back(0);
+    }
+    
+    UpdateBuffers();
+    init();
+}
+
+void Terrain::UpdateBuffers() {
+    auto width = heightMap[0].size();
+    auto height = heightMap.size();
     
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
@@ -76,7 +121,6 @@ void Terrain::Generate(int size, int type) {
     }
     
     ComputeNormals();
-    init();
 }
 
 void Terrain::init() {

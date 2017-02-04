@@ -9,6 +9,8 @@
 #ifndef WindowCallbackDelegate_h
 #define WindowCallbackDelegate_h
 
+class World;
+
 class WindowCallbackDelegate {
 public:
     virtual void KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) = 0;

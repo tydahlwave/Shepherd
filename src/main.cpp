@@ -19,6 +19,7 @@
 #include "Renderer.h"
 #include "CameraController.h"
 #include "PhysicsController.h"
+#include "TerrainController.h"
 #include "Components/RigidBody.h"
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
@@ -103,6 +104,7 @@ int main(int argc, char **argv) {
     Renderer renderer = Renderer();
     CameraController cameraController = CameraController();
     PhysicsController physicsController = PhysicsController();
+    TerrainController terrainController = TerrainController();
     BunnySpawnSystem bunnySpawnSystem = BunnySpawnSystem();
     WolfSystem wolfSystem = WolfSystem();
     
@@ -113,6 +115,7 @@ int main(int argc, char **argv) {
     Material::InitializeMaterials();
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
+    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController);
 	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem);
     
     // Create ground
@@ -145,8 +148,8 @@ int main(int argc, char **argv) {
     GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(groundSize,0.2,groundSize), glm::vec3(5.5,-4,2.0),0);
     
     // Create Terrain
-    GameObject *terrain = EntityFactory::createTerrain(&world, DIAMOND_SQUARE_TERRAIN, 1025);
-    terrain->transform->SetPosition(glm::vec3(-512, -240, -512));
+    GameObject *terrain = EntityFactory::createTerrain(&world, DIAMOND_SQUARE_TERRAIN, 513);
+    terrain->transform->SetPosition(glm::vec3(-256, -240, -256));
     terrain->transform->SetScale(glm::vec3(1, 1, 1));
     
     // Create boulders
