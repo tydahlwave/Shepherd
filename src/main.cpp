@@ -148,8 +148,8 @@ int main(int argc, char **argv) {
     GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(groundSize,0.2,groundSize), glm::vec3(5.5,-4,2.0),0);
     
     // Create Terrain
-    GameObject *terrain = EntityFactory::createTerrain(&world, DIAMOND_SQUARE_TERRAIN, 513);
-    terrain->transform->SetPosition(glm::vec3(-256, -240, -256));
+    GameObject *terrain = EntityFactory::createTerrain(&world, SIMPLEX_TERRAIN, 513);
+    terrain->transform->SetPosition(glm::vec3(-256, -100, -256));
     terrain->transform->SetScale(glm::vec3(1, 1, 1));
     
     // Create boulders

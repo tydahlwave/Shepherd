@@ -32,13 +32,6 @@ static std::vector<std::vector<float>> GenerateDiamondSquare(int size) {
         map.push_back(rowVector);
     }
     
-    // Clear map
-//    for (int row = 0; row < size; row++) {
-//        for (int col = 0; col < size; col++) {
-//            map[row][col] = 0;
-//        }
-//    }
-    
     // Randomize corners
     for (int row = 0; row < size; row += maxStepSize) { // 256
         for (int col = 0; col < size; col += maxStepSize) { // 256
@@ -132,7 +125,7 @@ static std::vector<std::vector<float>> GenerateDiamondSquare(int size) {
 //}
 
 static std::vector<std::vector<float>> GenerateSimplex(int size) {
-    OSN::Noise<2> noise;
+    OSN::Noise<2> noise(time(0));
     std::vector<std::vector<float>> map;
     
     // Initialize map to all 0s
@@ -145,9 +138,18 @@ static std::vector<std::vector<float>> GenerateSimplex(int size) {
     }
     
     // Set map values
-    for (int row = 0; row < size; row++) {
-        for (int col = 0; col < size; col++) {
-            map[row][col] = noise.eval((float)row, (float)col);
+    float frequency = 1.0f;
+    float octaves = 4;
+    for (int y = 0; y < size; y++) {
+        for (int x = 0; x < size; x++) {
+            float nx = ((float)x/size - 0.5f) * 1.5;
+            float ny = ((float)y/size - 0.5f) * 1.5;
+            // Increase octaves for more detailed terrain
+            for (int oct = 0; oct < octaves; oct++) {
+                float scale = pow(2, oct);
+                map[y][x] += 100.0f/scale * noise.eval(scale * nx, scale * ny);
+            }
+//            map[y][x] = pow(map[y][x], 1.5);
         }
     }
     
