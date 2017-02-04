@@ -19,27 +19,36 @@ public:
 
 /// Generate fractal noise using the Diamond-Square algorithm.
 /// For best results, use sizes in the form of (2^pow)+1.
-static glm::mat2 GenerateDiamondSquare(int size) {
+static std::vector<std::vector<float>> GenerateDiamondSquare(int size) {
     int maxStepSize = 256;
-    glm::mat2 map;
+    std::vector<std::vector<float>> map;
 
-    // Clear map
+    // Initialize map to all 0s
     for (int row = 0; row < size; row++) {
+        std::vector<float> rowVector;
         for (int col = 0; col < size; col++) {
-            map[row][col] = 0;
+            rowVector.push_back(0);
         }
+        map.push_back(rowVector);
     }
+    
+    // Clear map
+//    for (int row = 0; row < size; row++) {
+//        for (int col = 0; col < size; col++) {
+//            map[row][col] = 0;
+//        }
+//    }
     
     // Randomize corners
     for (int row = 0; row < size; row += maxStepSize) { // 256
         for (int col = 0; col < size; col += maxStepSize) { // 256
-            map[row][col] = (rand() % maxStepSize);
+            map[row][col] = (float)(rand() % maxStepSize);
         }
     }
     
     // Perform diamond-square
     //float max = 0;
-    for (int stepSize = maxStepSize; stepSize > 0; stepSize /= 2) {
+    for (int stepSize = maxStepSize; stepSize > 1; stepSize /= 2) {
         int halfStepSize = stepSize/2;
         
         // Squares

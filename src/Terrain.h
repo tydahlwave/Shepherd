@@ -14,7 +14,7 @@ public:
     Terrain();
     virtual ~Terrain();
     
-    void Generate(int size);
+    void Generate(int size, int type);
     void init();
     void draw(Program *prog) const;
 private:

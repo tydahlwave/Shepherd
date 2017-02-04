@@ -20,8 +20,16 @@ Terrain::Terrain() :
 
 Terrain::~Terrain() {}
 
-void Terrain::Generate(int size) {
-    heightMap = Noise::GenerateSimplex(256);
+void Terrain::Generate(int size, int type) {
+    srand(time(0));
+    switch (type) {
+    case 0:
+        heightMap = Noise::GenerateSimplex(size);
+        break;
+    default:
+        heightMap = Noise::GenerateDiamondSquare(size);
+        break;
+    }
     
     auto width = heightMap[0].size();
     auto height = heightMap.size();

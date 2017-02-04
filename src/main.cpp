@@ -28,6 +28,10 @@
 #else
 #include <BulletDynamics/btBulletDynamicsCommon.h>
 #endif
+
+#define SIMPLEX_TERRAIN 0
+#define DIAMOND_SQUARE_TERRAIN 1
+
 static std::string resourceDir;
 
 static const float groundSize = 100.0f;
@@ -141,7 +145,9 @@ int main(int argc, char **argv) {
     GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(groundSize,0.2,groundSize), glm::vec3(5.5,-4,2.0),0);
     
     // Create Terrain
-    EntityFactory::createTerrain(&world, 256);
+    GameObject *terrain = EntityFactory::createTerrain(&world, DIAMOND_SQUARE_TERRAIN, 1025);
+    terrain->transform->SetPosition(glm::vec3(-512, -240, -512));
+    terrain->transform->SetScale(glm::vec3(1, 1, 1));
     
     // Create boulders
     randomlyPopulateWithBoulders(&world);
