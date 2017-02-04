@@ -28,18 +28,18 @@ void CameraController::Update(World &world) {
         camera->lookAt += rigidBody->velocity[2] * w;
     }
     if (abs(rigidBody->velocity[0]) > cameraStoppedThreshold) {
-        if ((world.mainCamera->transform->GetPosition().y + rigidBody->velocity[0] * u.y) > -3.99) {
-            u.y = 0;
-            //world.mainCamera->transform->position += rigidBody->velocity[0] * u;
-            //camera->lookAt += rigidBody->velocity[0] * u;
-        }
+//        if ((world.mainCamera->transform->GetPosition().y + rigidBody->velocity[0] * u.y) > -3.99) {
+//            u.y = 0;
+//            //world.mainCamera->transform->position += rigidBody->velocity[0] * u;
+//            //camera->lookAt += rigidBody->velocity[0] * u;
+//        }
         world.mainCamera->transform->SetPosition(world.mainCamera->transform->GetPosition() + rigidBody->velocity[0] * u);
         camera->lookAt += rigidBody->velocity[0] * u;
     }
     
-    if (world.mainCamera->transform->GetPosition().y < -1.99) {
-        world.mainCamera->transform->SetPosition(glm::vec3(world.mainCamera->transform->GetPosition().x,-1.99,world.mainCamera->transform->GetPosition().z));
-    }
+//    if (world.mainCamera->transform->GetPosition().y < -1.99) {
+//        world.mainCamera->transform->SetPosition(glm::vec3(world.mainCamera->transform->GetPosition().x,-1.99,world.mainCamera->transform->GetPosition().z));
+//    }
 }
 
 
