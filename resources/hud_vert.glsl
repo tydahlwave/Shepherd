@@ -8,4 +8,8 @@ uniform mat4 V;
 
 void main() {
     gl_Position = M * vertPos;
+    
+    // This is useless. It's here to silence runtime warnings.
+    mat4 test = P * V;
+    vec4 test2 = vec4(vertNor, 0);
 }
