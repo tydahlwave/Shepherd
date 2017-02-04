@@ -9,17 +9,17 @@
 #ifndef Noise_h
 #define Noise_h
 
+#include <vector>
+
 #include "OpenSimplexNoise.hh"
 #include "glm/glm.hpp"
 
 class Noise {
 public:
-    static glm::mat2 generateDiamondSquare(int size);
-//    static glm::mat2 generatePerlin(int size);
-    static glm::mat2 generateSimplex(int size);
-};
 
-glm::mat2 Noise::generateDiamondSquare(int size) {
+/// Generate fractal noise using the Diamond-Square algorithm.
+/// For best results, use sizes in the form of (2^pow)+1.
+static glm::mat2 GenerateDiamondSquare(int size) {
     int maxStepSize = 256;
     glm::mat2 map;
 
@@ -122,10 +122,20 @@ glm::mat2 Noise::generateDiamondSquare(int size) {
 //    
 //}
 
-glm::mat2 Noise::generateSimplex(int size) {
+static std::vector<std::vector<float>> GenerateSimplex(int size) {
     OSN::Noise<2> noise;
-    glm::mat2 map;
+    std::vector<std::vector<float>> map;
     
+    // Initialize map to all 0s
+    for (int row = 0; row < size; row++) {
+        std::vector<float> rowVector;
+        for (int col = 0; col < size; col++) {
+            rowVector.push_back(0);
+        }
+        map.push_back(rowVector);
+    }
+    
+    // Set map values
     for (int row = 0; row < size; row++) {
         for (int col = 0; col < size; col++) {
             map[row][col] = noise.eval((float)row, (float)col);
@@ -134,5 +144,6 @@ glm::mat2 Noise::generateSimplex(int size) {
     
     return map;
 }
+};
 
 #endif /* Noise_h */

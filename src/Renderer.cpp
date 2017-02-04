@@ -14,6 +14,7 @@
 #include "Renderer.h"
 #include "Components/MeshRenderer.h"
 #include "Components/Camera.h"
+#include "Components/TerrainRenderer.h"
 
 Renderer::Renderer() {
     Initialize();
@@ -79,6 +80,30 @@ void Renderer::Render(World &world, Window &window) {
             applyTransformMatrix(shader, gameObject->transform);
             
             mesh->draw(shader);
+            
+            shader->unbind();
+        }
+        
+        TerrainRenderer *terrainRenderer = (TerrainRenderer*)gameObject->GetComponent("TerrainRenderer");
+        if (terrainRenderer) {
+            auto shader = terrainRenderer->shader->program;
+            auto terrain = terrainRenderer->terrain;
+            shader->bind();
+            
+            if (terrainRenderer->material) {
+                applyMaterial(shader, terrainRenderer->material);
+            }
+            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
+            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
+            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
+            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
+            
+            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+            applyProjectionMatrix(shader, window, camera);
+            applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            applyTransformMatrix(shader, gameObject->transform);
+            
+            terrain->draw(shader);
             
             shader->unbind();
         }

@@ -22,7 +22,6 @@
 #include "Components/RigidBody.h"
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
-#include "Noise/Noise.h"
 
 #ifdef WIN32
 #include <btBulletDynamicsCommon.h>
@@ -140,6 +139,9 @@ int main(int argc, char **argv) {
     
     // Create Physics Ground (below previous ground)
     GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(groundSize,0.2,groundSize), glm::vec3(5.5,-4,2.0),0);
+    
+    // Create Terrain
+    EntityFactory::createTerrain(&world, 256);
     
     // Create boulders
     randomlyPopulateWithBoulders(&world);

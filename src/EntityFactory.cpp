@@ -12,6 +12,8 @@
 #include "Components/Camera.h"
 #include "Components/MeshRenderer.h"
 #include "Components/RigidBody.h"
+#include "Components/TerrainRenderer.h"
+#include "Terrain.h";
 
 GameObject *EntityFactory::createMainCamera(World *world) {
     GameObject *gameObject = world->CreateGameObject("MainCamera");
@@ -211,5 +213,15 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     rigidBody->bulletRigidBody->setCollisionFlags(0); // Make it a static object
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    return gameObject;
+}
+
+GameObject *EntityFactory::createTerrain(World *world, int size) {
+    GameObject *gameObject = world->CreateGameObject("Terrain");
+    TerrainRenderer *renderer = (TerrainRenderer*) gameObject->AddComponent("TerrainRenderer");
+    renderer->terrain = new Terrain();
+    renderer->terrain->Generate(size);
+    renderer->shader = Shader::phong;
+    renderer->material = Material::bronze;
     return gameObject;
 }
