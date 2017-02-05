@@ -133,9 +133,12 @@ GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::v
     if(mass != 0)
         cube->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
-    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, cube);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, cube, inertia);
     rigidBody->bulletRigidBody = new btRigidBody(info);
     rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+    rigidBody->bulletRigidBody->setFriction(1.f);
+    rigidBody->bulletRigidBody->setRollingFriction(0.3f);
+    rigidBody->bulletRigidBody->setAnisotropicFriction(cube->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
@@ -159,9 +162,13 @@ GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 po
     if(mass != 0)
         sphere->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
-    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere, inertia);
     rigidBody->bulletRigidBody = new btRigidBody(info);
     rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+    rigidBody->bulletRigidBody->setFriction(1.f);
+    rigidBody->bulletRigidBody->setRollingFriction(0.3f);
+    rigidBody->bulletRigidBody->setAnisotropicFriction(sphere->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
