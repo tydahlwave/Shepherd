@@ -59,6 +59,15 @@ else()
   target_link_libraries(${CMAKE_PROJECT_NAME} ${GLEW_DIR}/lib/libGLEW.a)
 endif()
 
+# Get the ASSIMP environment variable.
+set(ASSIMP_INCLUDE_DIR "$ENV{ASSIMP_INCLUDE_DIR}")
+if(NOT ASSIMP_INCLUDE_DIR)
+  message(FATAL_ERROR "Please point the environment variable ASSIMP_INCLUDE_DIR to the root directory of your Assimp installation.")
+endif()
+include_directories(${ASSIMP_INCLUDE_DIR}/include)
+# With prebuilt binaries
+target_link_libraries(${CMAKE_PROJECT_NAME} ${ASSIMP_INCLUDE_DIR}/lib/libassimp.3.3.1.dylib)
+
 # OS specific options and libraries
 if(WIN32)
   # c++0x is enabled by default.
