@@ -15,13 +15,19 @@
 #include "Components/TerrainRenderer.h"
 
 void TerrainController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
+    static bool polygonModeLineEnabled = false;
     // Re-generated Terrain
-    if (action == GLFW_PRESS && key == GLFW_KEY_SPACE) {
-        for (GameObject *go : world->GetGameObjects()) {
-            if (go->name.compare("Terrain") == 0) {
-                TerrainRenderer *terrainRenderer = (TerrainRenderer*) go->GetComponent("TerrainRenderer");
-                terrainRenderer->terrain->Regenerate();
+    if (action == GLFW_PRESS) {
+        if (key == GLFW_KEY_SPACE) {
+            for (GameObject *go : world->GetGameObjects()) {
+                if (go->name.compare("Terrain") == 0) {
+                    TerrainRenderer *terrainRenderer = (TerrainRenderer*) go->GetComponent("TerrainRenderer");
+                    terrainRenderer->terrain->Regenerate();
+                }
             }
+        } else if (key == GLFW_KEY_L) {
+            polygonModeLineEnabled = !polygonModeLineEnabled;
+            glPolygonMode(GL_FRONT_AND_BACK, polygonModeLineEnabled ? GL_LINE : GL_FILL);
         }
     }
 }

@@ -21,8 +21,14 @@
 #include "PhysicsController.h"
 #include "TerrainController.h"
 #include "Components/RigidBody.h"
+#include "Components/TerrainRenderer.h"
+#include "Terrain.h"
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
+#include "TextureLoader.h"
+
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw_gl3.h"
 
 #ifdef WIN32
 #include <btBulletDynamicsCommon.h>
@@ -93,6 +99,62 @@ void randomlyPopulateWithBoulders(World *world) {
         boulder->transform->SetRotation(glm::vec3(0, rand() % 360, 0));
         boulder->transform->SetScale(glm::vec3(scale, scale, scale));
     }
+}
+
+bool show_test_window = true;
+bool show_another_window = true;
+ImVec4 clear_color = ImColor(114, 144, 154);
+
+void drawTerrainWindow(GameObject *terrain) {
+    TerrainRenderer *terrainRenderer = (TerrainRenderer*) terrain->GetComponent("TerrainRenderer");
+    TextureLoader *textureTest = terrainRenderer->terrain->getTexture();
+
+//    TextureLoader *textureTest = new TextureLoader();
+//    textureTest->setFilename("../../resources/crate.bmp");
+//    textureTest->setUnit(123);
+//    textureTest->setName("Terrain");
+//    textureTest->init();
+    
+    ImGui_ImplGlfwGL3_NewFrame();
+    
+    // 1. Show a simple window
+    // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+    {
+        static float f = 0.0f;
+        ImGui::Text("Hello, world!");
+        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+        ImGui::ColorEdit3("clear color", (float*)&clear_color);
+        if (ImGui::Button("Test Window")) show_test_window ^= 1;
+        if (ImGui::Button("Another Window")) show_another_window ^= 1;
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    }
+    
+    // 2. Show another simple window, this time using an explicit Begin/End pair
+    if (show_another_window)
+    {
+        ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
+        ImGui::Begin("Another Window", &show_another_window);
+        ImGui::Text("Hello");
+        ImGui::End();
+    }
+    
+    // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
+    if (show_test_window)
+    {
+        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+        ImGui::ShowTestWindow(&show_test_window);
+    }
+    
+    {
+        ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiSetCond_FirstUseEver);
+        ImGui::Begin("Terrain Settings");
+        ImVec2 uv0 = ImVec2(0, 0);
+        ImVec2 uv1 = ImVec2(1, 1);
+        ImGui::Image((void*)textureTest->getTextureId(), ImVec2(128, 128), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
+        ImGui::End();
+    }
+    
+    ImGui::Render();
 }
 
 int main(int argc, char **argv) {
@@ -188,8 +250,9 @@ int main(int argc, char **argv) {
         }
         cameraController.Update(world);
         renderer.Render(world, window);
-        window.Update();
         
+        drawTerrainWindow(terrain);
+        window.Update();
     }
     
     return 0;

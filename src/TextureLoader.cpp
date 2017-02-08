@@ -118,6 +118,33 @@ TextureLoader::~TextureLoader()
 	
 }
 
+void TextureLoader::init(TextureLoader::Image &image)
+{
+    // Set active texture to texture unit 0
+    glActiveTexture(GL_TEXTURE0);
+    // Generate a texture buffer object
+    glGenTextures(1, &tid);
+    // Bind the current texture to be the newly generated texture object
+    glBindTexture(GL_TEXTURE_2D, tid);
+    // Load the actual texture data
+    // Base level is 0, number of channels is 3, and border is 0.
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.sizeX, image.sizeY,
+                 0, GL_RGB, GL_UNSIGNED_BYTE, (GLubyte*) image.data);
+    
+    // Generate image pyramid
+    glGenerateMipmap(GL_TEXTURE_2D);
+    // Set texture wrap modes for the S and T directions
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // Set filtering mode for magnification and minimification
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    // Unbind
+    glBindTexture(GL_TEXTURE_2D, 0);
+    // Free image, since the data is now on the GPU
+    free(image.data);
+}
+
 void TextureLoader::init()
 {
 	TextureLoader::Image *image0 = (TextureLoader::Image *)malloc(sizeof(TextureLoader::Image));
