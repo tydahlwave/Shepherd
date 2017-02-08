@@ -61,7 +61,7 @@ static std::vector<std::vector<float>> GenerateDiamondSquare(int size) {
                 float h1 = map[row-stepSize][col-stepSize]; // 0, 0
                 float h2 = map[row-stepSize][col]; // 0, 256
                 float h3 = map[row][col-stepSize]; // 256, 0
-                float h4 = map[row][col]; // 256, 256
+//                float h4 = map[row][col]; // 256, 256
                 float middle = map[row-stepSize/2][col-stepSize/2];
                 
                 float topNeighbor = 0;
@@ -138,7 +138,7 @@ static std::vector<std::vector<float>> GenerateSimplex(int size) {
     }
     
     // Set map values
-    float frequency = 1.0f;
+//    float frequency = 1.0f;
     float octaves = 4;
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
