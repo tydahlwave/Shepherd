@@ -205,7 +205,7 @@ int main(int argc, char **argv) {
     EntityFactory::createSphere(&world, 2.0, glm::vec3(5,10,2.0), 1.0);
     
     // Create Physics Ground (below previous ground)
-    EntityFactory::createCube(&world, glm::vec3(groundSize,0.2,groundSize), glm::vec3(5.5,-4,2.0),0);
+    EntityFactory::createCube(&world, glm::vec3(groundSize,0.1,groundSize), glm::vec3(5.5,-4,2.0),0);
     
     // Create Terrain
     GameObject *terrain = EntityFactory::createTerrain(&world, SIMPLEX_TERRAIN, 513);

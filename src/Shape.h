@@ -22,16 +22,16 @@ typedef struct Vertex {
 
 typedef struct MeshEntry {
     MeshEntry() {};
-    
     ~MeshEntry() {};
     
-    void Init(const std::vector<Vertex> &Vertices,
+    void Init(std::vector<Vertex> &Vertices,
               const std::vector<unsigned int> &Indices);
     
     GLuint VB;
     GLuint IB;
     unsigned int NumIndices;
     unsigned int MaterialIndex;
+    Bounds *meshBounds = nullptr;
 } MeshEntry;
 
 class Shape {

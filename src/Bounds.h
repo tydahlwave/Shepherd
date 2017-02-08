@@ -135,6 +135,19 @@ public:
         
         return new Bounds(newMin, newMax);
     }
+    static Bounds *CombinedBounds(Bounds &a, Bounds &b) {
+        glm::vec3 aMin = a.center - a.halfwidths;
+        glm::vec3 aMax = a.center + a.halfwidths;
+        glm::vec3 bMin = b.center - b.halfwidths;
+        glm::vec3 bMax = b.center + b.halfwidths;
+        glm::vec3 min, max;
+        
+        for (int dim = 0; dim < 3; dim++) {
+            min[dim] = (aMin[dim] < bMin[dim]) ? aMin[dim] : bMin[dim];
+            max[dim] = (aMax[dim] > bMax[dim]) ? aMax[dim] : bMax[dim];
+        }
+        return new Bounds(min, max);
+    }
     
     static bool Intersects(Bounds &a, Bounds &b) {
         if (std::fabs(a.center[0] - b.center[0]) > (a.halfwidths[0] + b.halfwidths[0])) return false;
@@ -150,14 +163,13 @@ public:
         glm::vec3 aMax = a.center + a.halfwidths;
         glm::vec3 bMin = b.center - b.halfwidths;
         glm::vec3 bMax = b.center + b.halfwidths;
+        glm::vec3 min, max;
         
-        float minX = (aMin.x > bMin.x) ? aMin.x : bMin.x;
-        float minY = (aMin.y > bMin.y) ? aMin.y : bMin.y;
-        float minZ = (aMin.z > bMin.z) ? aMin.z : bMin.z;
-        float maxX = (aMax.x < bMax.x) ? aMax.x : bMax.x;
-        float maxY = (aMax.y < bMax.y) ? aMax.y : bMax.y;
-        float maxZ = (aMax.z < bMax.z) ? aMax.z : bMax.z;
-        return new Bounds(glm::vec3(minX, minY, minZ), glm::vec3(maxX, maxY, maxZ));
+        for (int dim = 0; dim < 3; dim++) {
+            min[dim] = (aMin[dim] > bMin[dim]) ? aMin[dim] : bMin[dim];
+            max[dim] = (aMax[dim] < bMax[dim]) ? aMax[dim] : bMax[dim];
+        }
+        return new Bounds(min, max);
     }
 };
 

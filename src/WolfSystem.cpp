@@ -37,6 +37,7 @@ void WolfSystem::Spawn(World *world) {
     direction.z = sin(angle * 180 / M_PI);
     float distance = 20.0f;
     wolf->transform->SetPosition(center + direction * distance);
+    wolf->transform->SetScale(glm::vec3(3, 3, 3));
     wolves.push_back(wolf);
 }
 
