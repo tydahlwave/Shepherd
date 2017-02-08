@@ -59,7 +59,7 @@ GameObject *EntityFactory::createWolf(World *world) {
 //    rigidBody->isKinematic = true;
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->mesh = Mesh::bunny;
+    meshRenderer->mesh = Mesh::wolf;
     meshRenderer->shader = Shader::phong;
     meshRenderer->material = Material::ruby;
     btTransform t;

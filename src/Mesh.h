@@ -31,6 +31,7 @@ public:
     static Mesh *boulder1;
     static Mesh *boulder2;
     static Mesh *boulder3;
+    static Mesh *wolf;
 };
 
 #endif /* Mesh_h */

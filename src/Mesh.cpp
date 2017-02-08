@@ -16,6 +16,7 @@ Mesh *Mesh::sphere_textured = nullptr;
 Mesh *Mesh::boulder1 = nullptr;
 Mesh *Mesh::boulder2 = nullptr;
 Mesh *Mesh::boulder3 = nullptr;
+Mesh *Mesh::wolf = nullptr;
 
 void Mesh::LoadMeshes(std::string resourceDir) {
     Shape *shape = new Shape();
@@ -63,4 +64,10 @@ void Mesh::LoadMeshes(std::string resourceDir) {
     shape->resize();
     shape->init();
     boulder3 = new Mesh(shape);
+    
+    shape = new Shape();
+    shape->loadMesh(resourceDir + "wolf.obj");
+    shape->resize();
+    shape->init();
+    wolf = new Mesh(shape);
 }
