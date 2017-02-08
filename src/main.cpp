@@ -42,6 +42,7 @@
 static std::string resourceDir;
 
 static const float groundSize = 100.0f;
+static const bool drawGUI = true;
 
 void handleInput(int argc, char **argv) {
     if (argc != 2) {
@@ -105,45 +106,40 @@ bool show_test_window = true;
 bool show_another_window = true;
 ImVec4 clear_color = ImColor(114, 144, 154);
 
-void drawTerrainWindow(GameObject *terrain) {
+void drawTerrainWindow(Window &window, GameObject *terrain) {
     TerrainRenderer *terrainRenderer = (TerrainRenderer*) terrain->GetComponent("TerrainRenderer");
     TextureLoader *textureTest = terrainRenderer->terrain->getTexture();
 
-//    TextureLoader *textureTest = new TextureLoader();
-//    textureTest->setFilename("../../resources/crate.bmp");
-//    textureTest->setUnit(123);
-//    textureTest->setName("Terrain");
-//    textureTest->init();
+    // Prevent gui from being drawn in wireframe mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
     ImGui_ImplGlfwGL3_NewFrame();
     
     // 1. Show a simple window
     // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
     {
-        static float f = 0.0f;
-        ImGui::Text("Hello, world!");
-        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-        ImGui::ColorEdit3("clear color", (float*)&clear_color);
-        if (ImGui::Button("Test Window")) show_test_window ^= 1;
-        if (ImGui::Button("Another Window")) show_another_window ^= 1;
+        ImGui::SetNextWindowPos(ImVec2(300, 20), ImGuiSetCond_FirstUseEver);
+        ImGui::SetNextWindowContentSize(ImVec2(100, 20));
+        ImGui::Begin("Debug");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-    }
-    
-    // 2. Show another simple window, this time using an explicit Begin/End pair
-    if (show_another_window)
-    {
-        ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
-        ImGui::Begin("Another Window", &show_another_window);
-        ImGui::Text("Hello");
         ImGui::End();
     }
     
+    // 2. Show another simple window, this time using an explicit Begin/End pair
+//    if (show_another_window)
+//    {
+//        ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
+//        ImGui::Begin("Another Window", &show_another_window);
+//        ImGui::Text("Hello");
+//        ImGui::End();
+//    }
+    
     // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
-    if (show_test_window)
-    {
-        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-        ImGui::ShowTestWindow(&show_test_window);
-    }
+//    if (show_test_window)
+//    {
+//        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+//        ImGui::ShowTestWindow(&show_test_window);
+//    }
     
     {
         ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiSetCond_FirstUseEver);
@@ -155,6 +151,9 @@ void drawTerrainWindow(GameObject *terrain) {
     }
     
     ImGui::Render();
+    
+    // Revert wireframe mode to how it was
+    glPolygonMode(GL_FRONT_AND_BACK, window.drawWireframes ? GL_LINE : GL_FILL);
 }
 
 int main(int argc, char **argv) {
@@ -251,7 +250,7 @@ int main(int argc, char **argv) {
         cameraController.Update(world);
         renderer.Render(world, window);
         
-        drawTerrainWindow(terrain);
+        if (window.drawGUI) drawTerrainWindow(window, terrain);
         window.Update();
     }
     

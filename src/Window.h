@@ -29,6 +29,10 @@ public:
     Window(World *w);
     virtual ~Window();
     
+    static bool drawGUI;
+    static bool drawMouse;
+    static bool drawWireframes;
+    
     int Initialize();
     void Terminate();
     void Update();
