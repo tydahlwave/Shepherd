@@ -13,6 +13,7 @@
 #include "Components/MeshRenderer.h"
 #include "Components/RigidBody.h"
 #include "Components/TerrainRenderer.h"
+#include "ModelLibrary.h"
 #include "Terrain.h"
 
 GameObject *EntityFactory::createMainCamera(World *world) {
@@ -32,7 +33,7 @@ GameObject *EntityFactory::createBunny(World *world) {
 //    rigidBody->isKinematic = true;
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->mesh = Mesh::bunny;
+    meshRenderer->model = ModelLibrary::bunny;
     meshRenderer->shader = Shader::phong;
     meshRenderer->material = Material::pearl;
     btTransform t;
@@ -59,7 +60,7 @@ GameObject *EntityFactory::createWolf(World *world) {
 //    rigidBody->isKinematic = true;
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->mesh = Mesh::wolf;
+    meshRenderer->model = ModelLibrary::wolf;
     meshRenderer->shader = Shader::phong;
     meshRenderer->material = Material::ruby;
     btTransform t;
@@ -82,29 +83,29 @@ GameObject *EntityFactory::createWolf(World *world) {
 GameObject *EntityFactory::createHUD(World *world) {
     GameObject *gameObject = world->CreateGameObject("HUD");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->mesh = Mesh::cube;
+    meshRenderer->model = ModelLibrary::cube;
     meshRenderer->shader = Shader::hud;
     return gameObject;
 }
 
-GameObject *EntityFactory::createTexturedSphere(World *world) {
-    GameObject *gameObject = world->CreateGameObject("TexSphere");
-    gameObject->AddComponent("RigidBody");
-    gameObject->AddComponent("BoxCollider");
-    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->mesh = Mesh::sphere_textured;
-    meshRenderer->shader = Shader::textured;
-    meshRenderer->texture = Texture::hair;
-    // IMPORTANT: Must link texture with shader for it to render correctly!!
-    meshRenderer->shader->program->addTexture(meshRenderer->texture->texture);
-    return gameObject;
-}
+//GameObject *EntityFactory::createTexturedSphere(World *world) {
+//    GameObject *gameObject = world->CreateGameObject("TexSphere");
+//    gameObject->AddComponent("RigidBody");
+//    gameObject->AddComponent("BoxCollider");
+//    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+//    meshRenderer->mesh = Mesh::sphere_textured;
+//    meshRenderer->shader = Shader::textured;
+//    meshRenderer->texture = Texture::hair;
+//    // IMPORTANT: Must link texture with shader for it to render correctly!!
+//    meshRenderer->shader->program->addTexture(meshRenderer->texture->texture);
+//    return gameObject;
+//}
 
 GameObject *EntityFactory::createGround(World *world) {
     GameObject *gameObject = world->CreateGameObject("Ground");
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->mesh = Mesh::plane;
+    meshRenderer->model = ModelLibrary::plane;
     meshRenderer->shader = Shader::phong;
     meshRenderer->material = Material::bronze;
     return gameObject;
@@ -119,7 +120,7 @@ GameObject *EntityFactory::createBarrier(World *world) {
 GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::vec3 position, float mass) {
     GameObject *gameObject = world->CreateGameObject("Cube");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->mesh = Mesh::cube;
+    meshRenderer->model = ModelLibrary::cube;
     meshRenderer->shader = Shader::phong;
     meshRenderer->material = Material::grass;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
@@ -147,7 +148,7 @@ GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::v
 GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 position, float mass) {
     GameObject *gameObject = world->CreateGameObject("Sphere");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->mesh = Mesh::sphere;
+    meshRenderer->model = ModelLibrary::sphere;
     meshRenderer->shader = Shader::phong;
     meshRenderer->material = Material::polishedGold;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
@@ -177,7 +178,7 @@ GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 po
 GameObject *EntityFactory::createPhysicsGround(World *world) {
     GameObject *gameObject = world->CreateGameObject("PhysicsGround");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->mesh = Mesh::plane;
+    meshRenderer->model = ModelLibrary::plane;
     meshRenderer->shader = Shader::phong;
     meshRenderer->material = Material::emerald;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
@@ -202,7 +203,7 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
 //    meshRenderer->mesh = (boulderType <= 1) ? (boulderType <= 0) ? Mesh::boulder1 : Mesh::boulder2 : Mesh::boulder3;
-    meshRenderer->mesh = Mesh::sphere;
+    meshRenderer->model = ModelLibrary::sphere;
     meshRenderer->shader = Shader::phong;
     meshRenderer->material = Material::brass;
     btTransform t;

@@ -36,6 +36,8 @@ public:
     
     TextureLoader *getTexture(const std::string &name) const;
     
+    GLuint getPID() { return pid; }
+    
 protected:
     std::string vShaderName;
     std::string fShaderName;

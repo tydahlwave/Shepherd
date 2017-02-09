@@ -63,7 +63,7 @@ void Renderer::Render(World &world, Window &window) {
         MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
         if (meshRenderer) {
             auto shader = meshRenderer->shader->program;
-            auto mesh = meshRenderer->mesh->shape;
+            auto model = meshRenderer->model;
             shader->bind();
             
             if (meshRenderer->material) {
@@ -79,7 +79,7 @@ void Renderer::Render(World &world, Window &window) {
             applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
             applyTransformMatrix(shader, gameObject->transform);
             
-            mesh->draw(shader);
+            model->draw(shader);
             
             shader->unbind();
         }

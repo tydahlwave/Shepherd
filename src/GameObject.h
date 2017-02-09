@@ -19,6 +19,7 @@ class Component;
 
 #include "World.h"
 #include "Components/Transform.h"
+#include "Bounds.h"
 
 class GameObject : public Object {
 public:
@@ -29,6 +30,8 @@ public:
     
     World *world = nullptr;
     Transform *transform = nullptr;
+    
+    Bounds getBounds();
     
     Component *AddComponent(std::string name);
     Component *GetComponent(std::string name);

@@ -10,7 +10,7 @@
 #define MeshRenderer_h
 
 #include "Component.h"
-#include "../Mesh.h"
+#include "../Model.h"
 #include "../Material.h"
 #include "../Shader.h"
 #include "../Texture.h"
@@ -18,10 +18,9 @@
 class MeshRenderer : public Component {
 public:
     MeshRenderer() { name = "MeshRenderer"; };
-    MeshRenderer(Mesh *m, Shader *s, Material *mat, Texture *t) :MeshRenderer() { mesh = m; shader = s; material = mat; texture = t; }
-    virtual ~MeshRenderer() {};
+    MeshRenderer(Model *m, Shader *s, Material *mat, Texture *t) :MeshRenderer() { model = m; shader = s; material = mat; texture = t; }
     
-    Mesh *mesh = nullptr;
+    Model *model = nullptr;
     Shader *shader = nullptr;
     Material *material = nullptr;
     Texture *texture = nullptr;

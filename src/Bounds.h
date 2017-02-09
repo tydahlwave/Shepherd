@@ -102,8 +102,10 @@ public:
     glm::vec3 halfwidths = glm::vec3(0, 0, 0);
     
     float getRadius() { return glm::length(halfwidths); }
+    glm::vec3 getMin() { return center - halfwidths; }
+    glm::vec3 getMax() { return center + halfwidths; }
     
-    Bounds *TransformedBounds(Transform *transform) {
+    Bounds TransformedBounds(Transform *transform) {
         const glm::mat4 &transformMatrix = transform->GetMatrix();
         
         glm::vec3 min = center - halfwidths;
@@ -133,9 +135,9 @@ public:
             }
         }
         
-        return new Bounds(newMin, newMax);
+        return Bounds(newMin, newMax);
     }
-    static Bounds *CombinedBounds(Bounds &a, Bounds &b) {
+    static Bounds CombinedBounds(Bounds &a, Bounds &b) {
         glm::vec3 aMin = a.center - a.halfwidths;
         glm::vec3 aMax = a.center + a.halfwidths;
         glm::vec3 bMin = b.center - b.halfwidths;
@@ -146,7 +148,7 @@ public:
             min[dim] = (aMin[dim] < bMin[dim]) ? aMin[dim] : bMin[dim];
             max[dim] = (aMax[dim] > bMax[dim]) ? aMax[dim] : bMax[dim];
         }
-        return new Bounds(min, max);
+        return Bounds(min, max);
     }
     
     static bool Intersects(Bounds &a, Bounds &b) {

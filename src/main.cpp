@@ -26,9 +26,12 @@
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
 #include "TextureLoader.h"
+#include "ModelLibrary.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
+
+#include "SOIL/Soil.h"
 
 #ifdef WIN32
 #include <btBulletDynamicsCommon.h>
@@ -169,7 +172,7 @@ int main(int argc, char **argv) {
     WolfSystem wolfSystem = WolfSystem();
     
     // Static Initializers
-    Mesh::LoadMeshes(resourceDir);
+    ModelLibrary::LoadModels(resourceDir);
     Shader::LoadShaders(resourceDir);
     Texture::LoadTextures(resourceDir);
     Material::InitializeMaterials();
@@ -224,7 +227,6 @@ int main(int argc, char **argv) {
     long oldTime = Time::Now();
     
     std::cout << "Bunnies Collected: 0" << std::endl;
-    
     
     float idealDeltaTime = 1.f/60.f;
     float accumulator = 0.0f;
