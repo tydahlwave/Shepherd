@@ -29,6 +29,7 @@
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
+#include "Path.h"
 
 #ifdef WIN32
 #include <btBulletDynamicsCommon.h>
@@ -216,7 +217,10 @@ int main(int argc, char **argv) {
     randomlyPopulateWithBoulders(&world);
     
     EntityFactory::createHUD(&world);
-    
+
+	//Create Path
+	GameObject *path = EntityFactory::createPath(&world, 4);
+
     // Seed random generator
     srand(time(0));
     
@@ -241,7 +245,7 @@ int main(int argc, char **argv) {
         
         while(accumulator >= idealDeltaTime) {
             //update
-            bunnySpawnSystem.Update(idealDeltaTime, &world);
+            bunnySpawnSystem.Update(idealDeltaTime, &world, path);
             wolfSystem.Update(idealDeltaTime, &world);
             physics.Update(idealDeltaTime, world);
             accumulator -= idealDeltaTime;

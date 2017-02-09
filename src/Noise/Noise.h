@@ -10,6 +10,7 @@
 #define Noise_h
 
 #include <vector>
+#include <time.h>
 
 #include "OpenSimplexNoise.hh"
 #include "glm/glm.hpp"
