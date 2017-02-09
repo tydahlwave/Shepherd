@@ -13,6 +13,7 @@
 #include "Components/BoxCollider.h"
 #include "Components/SphereCollider.h"
 #include "Components/MeshRenderer.h"
+#include "MaterialLibrary.h"
 
 void Physics::Update(float deltaTime, World &world) {
     for (GameObject *gameObject : world.GetGameObjects()) {
@@ -88,16 +89,16 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
         
         if (collision.gameObject1->name.compare("MainCamera") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
             MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject2->GetComponent("MeshRenderer");
-            if (meshRenderer->material != Material::polishedGold) {
-                meshRenderer->material = Material::polishedGold;
+            if (meshRenderer->material != MaterialLibrary::polishedGold) {
+                meshRenderer->material = MaterialLibrary::polishedGold;
                 rigidBody2->isKinematic = true;
                 bunniesCollected += 1;
 //                std::cout << "Bunnies Collected: " << bunniesCollected << std::endl;
             }
         } else if (collision.gameObject2->name.compare("MainCamera") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
             MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject1->GetComponent("MeshRenderer");
-            if (meshRenderer->material != Material::polishedGold) {
-                meshRenderer->material = Material::polishedGold;
+            if (meshRenderer->material != MaterialLibrary::polishedGold) {
+                meshRenderer->material = MaterialLibrary::polishedGold;
                 rigidBody2->isKinematic = true;
                 bunniesCollected += 1;
 //                std::cout << "Bunnies Collected: " << bunniesCollected << std::endl;

@@ -1,24 +1,24 @@
 //
-//  Material.cpp
-//  SimpleGame
+//  MaterialLibrary.cpp
+//  Shepherd
 //
-//  Created by Tyler Dahl on 1/23/17.
+//  Created by Tyler Dahl on 2/9/17.
 //
 //
 
-#include "Material.h"
+#include "MaterialLibrary.h"
 
-Material *Material::shinyBluePlastic = nullptr;
-Material *Material::pearl = nullptr;
-Material *Material::brass = nullptr;
-Material *Material::copper = nullptr;
-Material *Material::bronze = nullptr;
-Material *Material::ruby = nullptr;
-Material *Material::emerald = nullptr;
-Material *Material::polishedGold = nullptr;
-Material *Material::grass = nullptr;
+Material *MaterialLibrary::shinyBluePlastic = nullptr;
+Material *MaterialLibrary::pearl = nullptr;
+Material *MaterialLibrary::brass = nullptr;
+Material *MaterialLibrary::copper = nullptr;
+Material *MaterialLibrary::bronze = nullptr;
+Material *MaterialLibrary::ruby = nullptr;
+Material *MaterialLibrary::emerald = nullptr;
+Material *MaterialLibrary::polishedGold = nullptr;
+Material *MaterialLibrary::grass = nullptr;
 
-void Material::InitializeMaterials() {
+void MaterialLibrary::InitializeMaterials() {
     // Shiny blue plastic
     glm::vec4 ambient = glm::vec4(0.02, 0.04, 0.2, 1);
     glm::vec4 diffuse = glm::vec4(0, 0.16, 0.9, 1);

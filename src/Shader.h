@@ -20,11 +20,6 @@ public:
     virtual ~Shader() {};
     
     Program *program = nullptr;
-    
-    static void LoadShaders(std::string resourceDir);
-    static Shader *phong;
-    static Shader *textured;
-    static Shader *hud;
 };
 
 #endif /* Shader_h */

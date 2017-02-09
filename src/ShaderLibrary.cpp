@@ -1,18 +1,18 @@
 //
-//  Shader.cpp
-//  SimpleGame
+//  ShaderLibrary.cpp
+//  Shepherd
 //
-//  Created by Tyler Dahl on 1/23/17.
+//  Created by Tyler Dahl on 2/9/17.
 //
 //
 
-#include "Shader.h"
+#include "ShaderLibrary.h"
 
-Shader *Shader::phong = nullptr;
-Shader *Shader::textured = nullptr;
-Shader *Shader::hud = nullptr;
+Shader *ShaderLibrary::phong = nullptr;
+Shader *ShaderLibrary::textured = nullptr;
+Shader *ShaderLibrary::hud = nullptr;
 
-void Shader::LoadShaders(std::string resourceDir) {
+void ShaderLibrary::LoadShaders(std::string resourceDir) {
     Program *program = new Program();
     program->setVerbose(true);
     program->setShaderNames(resourceDir + "phong_vert.glsl", resourceDir + "phong_frag.glsl");

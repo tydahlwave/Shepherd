@@ -27,6 +27,8 @@
 #include "WolfSystem.h"
 #include "TextureLoader.h"
 #include "ModelLibrary.h"
+#include "ShaderLibrary.h"
+#include "MaterialLibrary.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
@@ -173,9 +175,9 @@ int main(int argc, char **argv) {
     
     // Static Initializers
     ModelLibrary::LoadModels(resourceDir);
-    Shader::LoadShaders(resourceDir);
+    ShaderLibrary::LoadShaders(resourceDir);
     Texture::LoadTextures(resourceDir);
-    Material::InitializeMaterials();
+    MaterialLibrary::InitializeMaterials();
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController);

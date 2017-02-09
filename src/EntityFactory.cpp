@@ -14,6 +14,8 @@
 #include "Components/RigidBody.h"
 #include "Components/TerrainRenderer.h"
 #include "ModelLibrary.h"
+#include "ShaderLibrary.h"
+#include "MaterialLibrary.h"
 #include "Terrain.h"
 
 GameObject *EntityFactory::createMainCamera(World *world) {
@@ -34,8 +36,8 @@ GameObject *EntityFactory::createBunny(World *world) {
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::bunny;
-    meshRenderer->shader = Shader::phong;
-    meshRenderer->material = Material::pearl;
+    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->material = MaterialLibrary::pearl;
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 0, 0));
@@ -61,8 +63,8 @@ GameObject *EntityFactory::createWolf(World *world) {
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::wolf;
-    meshRenderer->shader = Shader::phong;
-    meshRenderer->material = Material::ruby;
+    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->material = MaterialLibrary::ruby;
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 0, 0));
@@ -84,7 +86,7 @@ GameObject *EntityFactory::createHUD(World *world) {
     GameObject *gameObject = world->CreateGameObject("HUD");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::cube;
-    meshRenderer->shader = Shader::hud;
+    meshRenderer->shader = ShaderLibrary::hud;
     return gameObject;
 }
 
@@ -106,8 +108,8 @@ GameObject *EntityFactory::createGround(World *world) {
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::plane;
-    meshRenderer->shader = Shader::phong;
-    meshRenderer->material = Material::bronze;
+    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->material = MaterialLibrary::bronze;
     return gameObject;
 }
 
@@ -121,8 +123,8 @@ GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::v
     GameObject *gameObject = world->CreateGameObject("Cube");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::cube;
-    meshRenderer->shader = Shader::phong;
-    meshRenderer->material = Material::grass;
+    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->material = MaterialLibrary::grass;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->isKinematic = false;
     btTransform t;
@@ -149,8 +151,8 @@ GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 po
     GameObject *gameObject = world->CreateGameObject("Sphere");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::sphere;
-    meshRenderer->shader = Shader::phong;
-    meshRenderer->material = Material::polishedGold;
+    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->material = MaterialLibrary::polishedGold;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->isKinematic = true;
     rigidBody->useGravity = true;
@@ -179,8 +181,8 @@ GameObject *EntityFactory::createPhysicsGround(World *world) {
     GameObject *gameObject = world->CreateGameObject("PhysicsGround");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::plane;
-    meshRenderer->shader = Shader::phong;
-    meshRenderer->material = Material::emerald;
+    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->material = MaterialLibrary::emerald;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     btTransform t;
     t.setIdentity();
@@ -204,8 +206,8 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
 //    meshRenderer->mesh = (boulderType <= 1) ? (boulderType <= 0) ? Mesh::boulder1 : Mesh::boulder2 : Mesh::boulder3;
     meshRenderer->model = ModelLibrary::sphere;
-    meshRenderer->shader = Shader::phong;
-    meshRenderer->material = Material::brass;
+    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->material = MaterialLibrary::brass;
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 0, 0));
@@ -231,7 +233,7 @@ GameObject *EntityFactory::createTerrain(World *world, int type, int size) {
     renderer->terrain->size = size;
     renderer->terrain->type = type;
     renderer->terrain->Generate();
-    renderer->shader = Shader::phong;
-    renderer->material = Material::bronze;
+    renderer->shader = ShaderLibrary::phong;
+    renderer->material = MaterialLibrary::bronze;
     return gameObject;
 }

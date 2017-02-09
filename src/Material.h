@@ -22,17 +22,6 @@ public:
     Color *diffuseColor = nullptr;
     Color *specularColor = nullptr;
     float shine = 50.0f;
-    
-    static void InitializeMaterials();
-    static Material *shinyBluePlastic;
-    static Material *pearl;
-    static Material *brass;
-    static Material *copper;
-    static Material *bronze;
-    static Material *ruby;
-    static Material *emerald;
-    static Material *polishedGold;
-    static Material *grass;
 };
 
 #endif /* Material_h */
