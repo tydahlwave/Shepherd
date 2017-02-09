@@ -17,6 +17,10 @@
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
 #include "Terrain.h"
+#include "Components/PathRenderer.h"
+#include  "Path.h"
+
+#include <random>
 
 GameObject *EntityFactory::createMainCamera(World *world) {
     GameObject *gameObject = world->CreateGameObject("MainCamera");
@@ -236,4 +240,17 @@ GameObject *EntityFactory::createTerrain(World *world, int type, int size) {
     renderer->shader = ShaderLibrary::phong;
     renderer->material = MaterialLibrary::bronze;
     return gameObject;
+}
+
+GameObject *EntityFactory::createPath(World *world, int size) {
+	GameObject *gameObject = world->CreateGameObject("Path");
+	PathRenderer *renderer = (PathRenderer*)gameObject->AddComponent("PathRenderer");
+	renderer->path = new Path();
+	renderer->path->size = size;
+	renderer->path->radius = 5;
+	renderer->path->AddNode(glm::vec3(-30, 0, -30));
+	renderer->path->AddNode(glm::vec3(-30, 0, 30));
+	renderer->path->AddNode(glm::vec3(30, 0, 30));
+	renderer->path->AddNode(glm::vec3(30, 0, -30));
+	return gameObject;
 }

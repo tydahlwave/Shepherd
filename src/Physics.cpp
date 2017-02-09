@@ -40,7 +40,13 @@ void Physics::UpdateBulletPhysics(float deltaTime, World &world) {
             btTransform *form = new btTransform();
             rb->bulletRigidBody->getMotionState()->getWorldTransform(*form);
             go->transform->SetPosition(glm::vec3(form->getOrigin().x(), form->getOrigin().y(), form->getOrigin().z()));
+            
+//            btScalar yaw, pitch, roll;
+//            btMatrix3x3 mat = form->getBasis();
+//            mat.getEulerYPR(yaw, pitch, roll);
+
             btVector3 rot = form->getRotation().getAngle() * (form->getRotation().getAxis());
+            
             go->transform->SetRotation(glm::vec3(rot.x()*180/M_PI,rot.y()*180/M_PI,rot.z()*180/M_PI));
         }
         
