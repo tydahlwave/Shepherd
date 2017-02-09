@@ -18,7 +18,7 @@ void Physics::Update(float deltaTime, World &world) {
     for (GameObject *gameObject : world.GetGameObjects()) {
         RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
         if (rigidBody && rigidBody->useGravity && !rigidBody->isKinematic) {
-            glm::vec3 accel = rigidBody->acceleration * deltaTime;
+//            glm::vec3 accel = rigidBody->acceleration * deltaTime;
             glm::vec3 vel = rigidBody->velocity * deltaTime;
 //            rigidBody->acceleration += gravity * deltaTime;
 //            rigidBody->velocity += accel;

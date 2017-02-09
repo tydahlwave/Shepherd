@@ -4,6 +4,7 @@
 #include "GLSL.h"
 #include "Program.h"
 #include "Noise/Noise.h"
+#include "TextureLoader.h"
 
 #define UP 0
 #define RIGHT 1
@@ -124,6 +125,10 @@ void Terrain::UpdateBuffers() {
 }
 
 void Terrain::init() {
+    
+    // Initialize texture
+    makeTexture();
+    
     // Initialize the vertex array object
     glGenVertexArrays(1, &vaoID);
     glBindVertexArray(vaoID);
@@ -161,6 +166,32 @@ void Terrain::init() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     assert(glGetError() == GL_NO_ERROR);
+}
+
+void Terrain::makeTexture() {
+//    if (texture) delete texture;
+    texture = new TextureLoader();
+    texture->setUnit(123);
+    char *array = (char*) malloc(sizeof(char) * size * size * 3);
+    float min = FLT_MAX;
+    float max = FLT_MIN;
+    for (int row = 0; row < size; row++) {
+        for (int col = 0; col < size; col++) {
+            if (heightMap[row][col] < min) min = heightMap[row][col];
+            if (heightMap[row][col] > max) max = heightMap[row][col];
+        }
+    }
+    for (int row = 0; row < size; row++) {
+        for (int col = 0; col < size; col++) {
+            char value = (char)((heightMap[col][row] - min) / (max-min) * 255);
+            array[(row * size + col)*3 + 0] = value;
+            array[(row * size + col)*3 + 1] = value;
+            array[(row * size + col)*3 + 2] = value;
+        }
+    }
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    TextureLoader::Image image = { size, size, array };
+    texture->init(image);
 }
  
 void Terrain::draw(Program *prog) const {

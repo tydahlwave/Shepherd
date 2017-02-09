@@ -8,6 +8,7 @@
 #include "glm/glm.hpp"
 
 class Program;
+class TextureLoader;
 
 class Terrain {
 public:
@@ -20,8 +21,9 @@ public:
     
     void Generate();
     void Regenerate();
-    void init();
     void draw(Program *prog) const;
+    
+    TextureLoader *getTexture() { return texture; };
 private:
     std::vector<unsigned int> eleBuf;
     std::vector<float> posBuf;
@@ -34,9 +36,12 @@ private:
     unsigned vaoID;
     
     std::vector<std::vector<float>> heightMap;
+    TextureLoader *texture;
     
     void UpdateBuffers();
     void ComputeNormals();
+    void init();
+    void makeTexture();
 };
 
 #endif

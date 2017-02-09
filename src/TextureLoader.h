@@ -36,9 +36,11 @@ public:
 	const std::string &getName() const { return name; }
 	void setUnit(int u) { unit = u; }
 	int getUnit() const { return unit; }
+    GLuint getTextureId() const { return tid; }
 	void setHandle(GLint h) { handle = h; }
 	GLint getHandle() const { return handle; }
 	void init();
+    void init(TextureLoader::Image &image);
 	void bind();
 	void unbind();
 	

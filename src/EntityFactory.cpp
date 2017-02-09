@@ -13,7 +13,7 @@
 #include "Components/MeshRenderer.h"
 #include "Components/RigidBody.h"
 #include "Components/TerrainRenderer.h"
-#include "Terrain.h";
+#include "Terrain.h"
 
 GameObject *EntityFactory::createMainCamera(World *world) {
     GameObject *gameObject = world->CreateGameObject("MainCamera");
