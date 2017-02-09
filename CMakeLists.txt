@@ -9,10 +9,15 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 # We don't really need to include header and resource files to build, but it's
 # nice to have them show up in IDEs.
 file(GLOB_RECURSE HEADERS "src/*.h")
+file(GLOB_RECURSE SOIL "src/SOIL/*")
+file(GLOB_RECURSE IMGUI "src/imgui/*")
 file(GLOB_RECURSE GLSL "resources/*.glsl")
 
+source_group("SOIL" REGULAR_EXPRESSION "src/SOIL/*" )
+source_group("IMGUI" REGULAR_EXPRESSION "src/imgui/*" )
+
 # Set the executable.
-add_executable(${CMAKE_PROJECT_NAME} ${SOURCES} ${HEADERS} ${GLSL})
+add_executable(${CMAKE_PROJECT_NAME} ${SOURCES} ${HEADERS} ${SOIL} ${IMGUI} ${GLSL})
 
 # Get the BulletPhysics environment variable
 set(BULLET_INCLUDE_DIR "$ENV{BULLET_INCLUDE_DIR}")
