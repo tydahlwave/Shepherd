@@ -206,8 +206,8 @@ int main(int argc, char **argv) {
     
     // Create Cube (with bullet physics)
     EntityFactory::createSphere(&world, 2.0, glm::vec3(5,20,2.0), 4.0);
-    EntityFactory::createSphere(&world, 2.0, glm::vec3(5,15,2.0), 2.0);
-    EntityFactory::createSphere(&world, 2.0, glm::vec3(5,10,2.0), 1.0);
+    EntityFactory::createSphere(&world, 2.0, glm::vec3(5,15,2.0), 4.0);
+    EntityFactory::createSphere(&world, 2.0, glm::vec3(5,10,2.0), 4.0);
     
     // Create Physics Ground (below previous ground)
     EntityFactory::createCube(&world, glm::vec3(groundSize,0.1,groundSize), glm::vec3(5.5,-4,2.0),0);

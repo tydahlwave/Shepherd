@@ -50,19 +50,23 @@ void Physics::UpdateBulletPhysics(float deltaTime, World &world) {
 void Physics::ComputeCollisions(World &world) {
     std::vector<Collision> collisions;
     std::vector<GameObject*> gameObjects = world.GetGameObjects();
+    
     // Only test for collision between 2 objects once
     for (int i = 0; i < gameObjects.size(); i++) {
         GameObject *gameObject1 = gameObjects[i];
-    //for (GameObject *gameObject1 : world.GetGameObjects()) {
+        
         // Get bounds for first object
         Bounds bounds1 = gameObject1->getBounds();
+        
         for (int j = i+1; j < gameObjects.size(); j++) {
             GameObject *gameObject2 = gameObjects[j];
-        //for (GameObject *gameObject2 : world.GetGameObjects()) {
+            
             // Don't compute collision with self
             if (gameObject2 == gameObject1) continue;
+            
             // Get bounds for second object
             Bounds bounds2 = gameObject2->getBounds();
+            
             // Test for collision
             Bounds *intersection = Bounds::Intersection(bounds1, bounds2);
             if (intersection) {
@@ -142,14 +146,14 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
             float dy;
             if (bounds2.getMax().y > bounds1.getMax().y) {
                 dy = bounds1.getMax().y - bounds2.getMin().y;
-                collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetPosition() + glm::vec3(0, dy, 0));
+                collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetRotation() + glm::vec3(0, dy, 0));
                 rigidBody1->velocity.y = rigidBody1->velocity.y/2;
                 rigidBody1->acceleration = glm::vec3(0, 0, 0);
                 rigidBody2->velocity.y = 0;
                 rigidBody2->acceleration = glm::vec3(0, 0, 0);
             } else {
                 dy = bounds2.getMax().y - bounds1.getMin().y;
-                collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetPosition() + glm::vec3(0, dy, 0));
+                collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetRotation() + glm::vec3(0, dy, 0));
                 rigidBody2->velocity.y = -rigidBody2->velocity.y/2;
                 rigidBody2->acceleration = glm::vec3(0, 0, 0);
                 rigidBody1->velocity.y = 0;
@@ -168,7 +172,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
         } else if (rigidBody1 && !rigidBody1->isKinematic) {
             // TODO: don't just move up
             float dy = bounds2.getMax().y - bounds1.getMin().y;
-            collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetPosition() + glm::vec3(0, dy, 0));
+            collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetRotation() + glm::vec3(0, dy, 0));
             rigidBody1->velocity.y = 0;
             rigidBody1->acceleration = glm::vec3(0, 0, 0);
 //            rigidBody1->acceleration = rigidBody1->acceleration / glm::vec3(2, 2, 2);
@@ -176,7 +180,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
         } else if (rigidBody2 && !rigidBody2->isKinematic) {
             // TODO: don't just move up
             float dy = bounds1.getMax().y - bounds2.getMin().y;
-            collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetPosition() + glm::vec3(0, dy, 0));
+            collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetRotation() + glm::vec3(0, dy, 0));
             rigidBody2->velocity.y = 0;
             rigidBody2->acceleration = glm::vec3(0, 0, 0);
 //            rigidBody2->acceleration = rigidBody2->acceleration / glm::vec3(2, 2, 2);
@@ -187,16 +191,16 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
 }
 
 // Get the bounds for a game object if it is collidable, otherwise return null
-Bounds Physics::BoundsForGameObject(GameObject *gameObject) {
-    MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
-    BoxCollider *boxCollider = (BoxCollider*)gameObject->GetComponent("BoxCollider");
-    SphereCollider *sphereCollider = (SphereCollider*)gameObject->GetComponent("SphereCollider");
-    if (boxCollider || sphereCollider) {
-        if (meshRenderer) {
-            return meshRenderer->model->bounds.TransformedBounds(gameObject->transform);
-        }
-        Bounds *bounds = new Bounds();
-        return bounds->TransformedBounds(gameObject->transform);
-    }
-    return Bounds();
-}
+//Bounds *Physics::BoundsForGameObject(GameObject *gameObject) {
+//    MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
+//    BoxCollider *boxCollider = (BoxCollider*)gameObject->GetComponent("BoxCollider");
+//    SphereCollider *sphereCollider = (SphereCollider*)gameObject->GetComponent("SphereCollider");
+//    if (boxCollider || sphereCollider) {
+//        if (meshRenderer) {
+//            return meshRenderer->model->bounds.TransformedBounds(gameObject->transform);
+//        }
+//        Bounds *bounds = new Bounds();
+//        return bounds->TransformedBounds(gameObject->transform);
+//    }
+//    return new Bounds();
+//}

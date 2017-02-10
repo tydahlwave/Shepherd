@@ -29,7 +29,7 @@ public:
     int bunniesCollected = 0;
     
     void Update(float deltaTime, World &world);
-    Bounds BoundsForGameObject(GameObject *gameObject);
+//    Bounds BoundsForGameObject(GameObject *gameObject);
 private:
     void UpdateBulletPhysics(float deltaTime, World &world);
     void ComputeCollisions(World &world);
