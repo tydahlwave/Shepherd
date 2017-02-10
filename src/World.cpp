@@ -10,6 +10,7 @@
 
 World::World() :gameObjects() {
     mainCamera = EntityFactory::createMainCamera(this);
+    mainCamera->transform->SetPosition(glm::vec3(10, 10, 10));
     
     ///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
     btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
