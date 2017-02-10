@@ -33,7 +33,7 @@ void WolfSystem::Spawn(World *world) {
     center.y = 2;
     float angle = (float)(rand() % 360);
     glm::vec3 direction = glm::vec3(0, 0, 0);
-    direction.x = sin(angle * 180 / M_PI);
+    direction.x = cos(angle * 180 / M_PI);
     direction.z = sin(angle * 180 / M_PI);
     float distance = 20.0f;
     wolf->transform->SetPosition(center + direction * distance);
@@ -52,7 +52,7 @@ void WolfSystem::MoveWolf(GameObject *wolf, float deltaTime, World *world) {
             rigidBody->velocity.x = direction.x * maxSpeed;
             rigidBody->velocity.z = direction.z * maxSpeed;
             float angle = atan2(direction.x, direction.z);
-            glm::vec3 rotation = glm::vec3(0, (angle * 180 / M_PI) + 90, 0);
+            glm::vec3 rotation = glm::vec3(0, (angle * 180 / M_PI), 0);
             wolf->transform->SetRotation(rotation);
         } else {
             rigidBody->velocity.x = 0;

@@ -36,7 +36,7 @@ GameObject::GameObject(std::string name, std::vector<std::string> componentNames
 Bounds GameObject::getBounds() {
     MeshRenderer *meshRenderer = (MeshRenderer*) this->GetComponent("MeshRenderer");
     if (meshRenderer) {
-        return meshRenderer->model->bounds;
+        return meshRenderer->model->bounds.TransformedBounds(this->transform);
     } else {
         return Bounds().TransformedBounds(this->transform);
     }
