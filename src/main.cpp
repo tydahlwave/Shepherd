@@ -21,9 +21,16 @@
 #include "PhysicsController.h"
 #include "TerrainController.h"
 #include "Components/RigidBody.h"
+#include "Components/TerrainRenderer.h"
+#include "Terrain.h"
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
 #include "AudioEngine.h"
+#include "TextureLoader.h"
+
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw_gl3.h"
+#include "Path.h"
 
 #ifdef WIN32
 #include <btBulletDynamicsCommon.h>
@@ -96,6 +103,60 @@ void randomlyPopulateWithBoulders(World *world) {
     }
 }
 
+bool show_test_window = true;
+bool show_another_window = true;
+ImVec4 clear_color = ImColor(114, 144, 154);
+
+void drawTerrainWindow(Window &window, GameObject *terrain) {
+    TerrainRenderer *terrainRenderer = (TerrainRenderer*) terrain->GetComponent("TerrainRenderer");
+    TextureLoader *textureTest = terrainRenderer->terrain->getTexture();
+
+    // Prevent gui from being drawn in wireframe mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    
+    ImGui_ImplGlfwGL3_NewFrame();
+    
+    // 1. Show a simple window
+    // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+    {
+        ImGui::SetNextWindowPos(ImVec2(300, 20), ImGuiSetCond_FirstUseEver);
+        ImGui::SetNextWindowContentSize(ImVec2(100, 20));
+        ImGui::Begin("Debug");
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::End();
+    }
+    
+    // 2. Show another simple window, this time using an explicit Begin/End pair
+//    if (show_another_window)
+//    {
+//        ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
+//        ImGui::Begin("Another Window", &show_another_window);
+//        ImGui::Text("Hello");
+//        ImGui::End();
+//    }
+    
+    // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
+//    if (show_test_window)
+//    {
+//        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+//        ImGui::ShowTestWindow(&show_test_window);
+//    }
+    
+    {
+        ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiSetCond_FirstUseEver);
+        ImGui::Begin("Terrain Settings");
+        ImVec2 uv0 = ImVec2(0, 0);
+        ImVec2 uv1 = ImVec2(1, 1);
+        ImGui::Image((void*)textureTest->getTextureId(), ImVec2(128, 128), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
+        ImGui::End();
+    }
+    
+    ImGui::Render();
+    
+    // Revert wireframe mode to how it was
+    glPolygonMode(GL_FRONT_AND_BACK, window.drawWireframes ? GL_LINE : GL_FILL);
+}
+
 int main(int argc, char **argv) {
     handleInput(argc, argv);
     
@@ -145,12 +206,12 @@ int main(int argc, char **argv) {
 //    sphere->transform->SetPosition(glm::vec3(0, 0, -5));
     
     // Create Cube (with bullet physics)
-//    GameObject *sphere1 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,20,2.0), 4.0);
-//    GameObject *sphere2 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,15,2.0), 2.0);
-//    GameObject *sphere3 = EntityFactory::createSphere(&world, 2.0, glm::vec3(5,10,2.0), 1.0);
+    EntityFactory::createSphere(&world, 2.0, glm::vec3(5,20,2.0), 4.0);
+    EntityFactory::createSphere(&world, 2.0, glm::vec3(5,15,2.0), 2.0);
+    EntityFactory::createSphere(&world, 2.0, glm::vec3(5,10,2.0), 1.0);
     
     // Create Physics Ground (below previous ground)
-    GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(groundSize,0.2,groundSize), glm::vec3(5.5,-4,2.0),0);
+    EntityFactory::createCube(&world, glm::vec3(groundSize,0.2,groundSize), glm::vec3(5.5,-4,2.0),0);
     
     // Create Terrain
     GameObject *terrain = EntityFactory::createTerrain(&world, SIMPLEX_TERRAIN, 513);
@@ -161,7 +222,10 @@ int main(int argc, char **argv) {
     randomlyPopulateWithBoulders(&world);
     
     EntityFactory::createHUD(&world);
-    
+
+	//Create Path
+	GameObject *path = EntityFactory::createPath(&world, 4);
+
     // Seed random generator
     srand(time(0));
     
@@ -190,17 +254,16 @@ int main(int argc, char **argv) {
         
         while(accumulator >= idealDeltaTime) {
             //update
-            bunnySpawnSystem.Update(idealDeltaTime, &world);
+            bunnySpawnSystem.Update(idealDeltaTime, &world, path);
             wolfSystem.Update(idealDeltaTime, &world);
             physics.Update(idealDeltaTime, world);
-            
-            //endupdate
             accumulator -= idealDeltaTime;
         }
         cameraController.Update(world);
         renderer.Render(world, window);
-        window.Update();
         CAudioEngine::instance()->Update();
+        if (window.drawGUI) drawTerrainWindow(window, terrain);
+        window.Update();
     }
     
     return 0;

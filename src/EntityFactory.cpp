@@ -13,7 +13,11 @@
 #include "Components/MeshRenderer.h"
 #include "Components/RigidBody.h"
 #include "Components/TerrainRenderer.h"
-#include "Terrain.h";
+#include "Terrain.h"
+#include "Components/PathRenderer.h"
+#include  "Path.h"
+
+#include <random>
 
 GameObject *EntityFactory::createMainCamera(World *world) {
     GameObject *gameObject = world->CreateGameObject("MainCamera");
@@ -133,9 +137,12 @@ GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::v
     if(mass != 0)
         cube->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
-    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, cube);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, cube, inertia);
     rigidBody->bulletRigidBody = new btRigidBody(info);
     rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+    rigidBody->bulletRigidBody->setFriction(1.f);
+    rigidBody->bulletRigidBody->setRollingFriction(0.3f);
+    rigidBody->bulletRigidBody->setAnisotropicFriction(cube->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
@@ -159,9 +166,13 @@ GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 po
     if(mass != 0)
         sphere->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
-    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere, inertia);
     rigidBody->bulletRigidBody = new btRigidBody(info);
     rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+    rigidBody->bulletRigidBody->setFriction(1.f);
+    rigidBody->bulletRigidBody->setRollingFriction(0.3f);
+    rigidBody->bulletRigidBody->setAnisotropicFriction(sphere->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
@@ -226,4 +237,17 @@ GameObject *EntityFactory::createTerrain(World *world, int type, int size) {
     renderer->shader = Shader::phong;
     renderer->material = Material::bronze;
     return gameObject;
+}
+
+GameObject *EntityFactory::createPath(World *world, int size) {
+	GameObject *gameObject = world->CreateGameObject("Path");
+	PathRenderer *renderer = (PathRenderer*)gameObject->AddComponent("PathRenderer");
+	renderer->path = new Path();
+	renderer->path->size = size;
+	renderer->path->radius = 5;
+	renderer->path->AddNode(glm::vec3(-30, 0, -30));
+	renderer->path->AddNode(glm::vec3(-30, 0, 30));
+	renderer->path->AddNode(glm::vec3(30, 0, 30));
+	renderer->path->AddNode(glm::vec3(30, 0, -30));
+	return gameObject;
 }

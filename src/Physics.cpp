@@ -18,7 +18,7 @@ void Physics::Update(float deltaTime, World &world) {
     for (GameObject *gameObject : world.GetGameObjects()) {
         RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
         if (rigidBody && rigidBody->useGravity && !rigidBody->isKinematic) {
-            glm::vec3 accel = rigidBody->acceleration * deltaTime;
+//            glm::vec3 accel = rigidBody->acceleration * deltaTime;
             glm::vec3 vel = rigidBody->velocity * deltaTime;
 //            rigidBody->acceleration += gravity * deltaTime;
 //            rigidBody->velocity += accel;
@@ -31,7 +31,7 @@ void Physics::Update(float deltaTime, World &world) {
 
 void Physics::UpdateBulletPhysics(float deltaTime, World &world) {
     btScalar fixedTimeStep = 1.f/60.f;
-    world.dynamicsWorld->stepSimulation((btScalar)(deltaTime), 0, fixedTimeStep);
+    world.dynamicsWorld->stepSimulation((deltaTime), 0, fixedTimeStep);
     //world.dynamicsWorld->stepSimulation(deltaTime);
     for(GameObject* go : world.GetGameObjects()) {
         RigidBody* rb = (RigidBody*)go->GetComponent("RigidBody");
@@ -39,7 +39,13 @@ void Physics::UpdateBulletPhysics(float deltaTime, World &world) {
             btTransform *form = new btTransform();
             rb->bulletRigidBody->getMotionState()->getWorldTransform(*form);
             go->transform->SetPosition(glm::vec3(form->getOrigin().x(), form->getOrigin().y(), form->getOrigin().z()));
+            
+//            btScalar yaw, pitch, roll;
+//            btMatrix3x3 mat = form->getBasis();
+//            mat.getEulerYPR(yaw, pitch, roll);
+
             btVector3 rot = form->getRotation().getAngle() * (form->getRotation().getAxis());
+            
             go->transform->SetRotation(glm::vec3(rot.x()*180/M_PI,rot.y()*180/M_PI,rot.z()*180/M_PI));
         }
         

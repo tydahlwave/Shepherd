@@ -26,6 +26,7 @@ public:
     static GameObject *createPhysicsGround(World *world);
     static GameObject *createBoulder(World *world, int boulderType, float radius);
     static GameObject *createTerrain(World *world, int type, int size);
+	static GameObject *createPath(World *world, int nodes);
 };
 
 #endif /* EntityFactory_h */

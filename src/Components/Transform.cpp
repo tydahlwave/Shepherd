@@ -30,26 +30,26 @@ void Transform::SetPosition(glm::vec3 pos) {
         }
     }
 }
+
 void Transform::SetRotation(glm::vec3 rot) {
     rotation = rot;
     
     // Below might be wonky
     RigidBody* rb = (RigidBody*)gameObject->GetComponent("RigidBody");
     if(rb && rb->bulletRigidBody) {
-        if (!rb->bulletRigidBody->isKinematicObject()) {
+        btQuaternion quat = btQuaternion(rot.y/180*M_PI, rot.x/180*M_PI, rot.z/180*M_PI); // yaw, pitch, roll
+//        if (!rb->bulletRigidBody->isKinematicObject()) {
             btTransform form = rb->bulletRigidBody->getCenterOfMassTransform();
-            btQuaternion quat = btQuaternion(rot.y/180*M_PI, rot.x/180*M_PI, rot.z/180*M_PI); // yaw, pitch, roll
             form.setRotation(quat);
             rb->bulletRigidBody->activate(true);
             rb->bulletRigidBody->setCenterOfMassTransform(form);
-        } else {
-            btTransform form;
-            rb->bulletRigidBody->getMotionState()->getWorldTransform(form);
-            btQuaternion quat = btQuaternion(rot.y/180*M_PI, rot.x/180*M_PI, rot.z/180*M_PI); // yaw, pitch, roll
-            form.setRotation(quat);
-            rb->bulletRigidBody->activate(true);
-            rb->bulletRigidBody->getMotionState()->setWorldTransform(form);
-        }
+//        } else {
+//            btTransform form;
+//            rb->bulletRigidBody->getMotionState()->getWorldTransform(form);
+//            form.setRotation(quat);
+//            rb->bulletRigidBody->activate(true);
+//            rb->bulletRigidBody->getMotionState()->setWorldTransform(form);
+//        }
     }
 }
 

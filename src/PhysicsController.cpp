@@ -21,7 +21,7 @@ void PhysicsController::MouseMoved(World *world, int windowWidth, int windowHeig
     
 }
 
-bool PhysicsController::isLyingInCone(btVector3 x, btVector3 t, btVector3 b, float aperture){
+bool PhysicsController::isLyingInCone(btVector3 &x, btVector3 &t, btVector3 &b, float aperture){
     
     // This is for our convenience
     float halfAperture = aperture/2.f;

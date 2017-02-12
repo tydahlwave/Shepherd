@@ -16,11 +16,13 @@
 
 void TerrainController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
     // Re-generated Terrain
-    if (action == GLFW_PRESS && key == GLFW_KEY_SPACE) {
-        for (GameObject *go : world->GetGameObjects()) {
-            if (go->name.compare("Terrain") == 0) {
-                TerrainRenderer *terrainRenderer = (TerrainRenderer*) go->GetComponent("TerrainRenderer");
-                terrainRenderer->terrain->Regenerate();
+    if (action == GLFW_PRESS) {
+        if (key == GLFW_KEY_SPACE) {
+            for (GameObject *go : world->GetGameObjects()) {
+                if (go->name.compare("Terrain") == 0) {
+                    TerrainRenderer *terrainRenderer = (TerrainRenderer*) go->GetComponent("TerrainRenderer");
+                    terrainRenderer->terrain->Regenerate();
+                }
             }
         }
     }
