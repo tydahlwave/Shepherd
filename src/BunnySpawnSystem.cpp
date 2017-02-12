@@ -77,7 +77,7 @@ void BunnySpawnSystem::Update(float deltaTime, World *world) {
 			rigidBody->velocity -= vel;
 		}
 		count += 1;
-
+        
         b->transform->SetPosition(randPosition);
         rigidBody->useGravity = true;
         b->transform->SetRotation(vec3(0, -randomAngle+90, 0));

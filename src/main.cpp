@@ -23,6 +23,7 @@
 #include "Components/RigidBody.h"
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
+#include "AudioEngine.h"
 
 #ifdef WIN32
 #include <btBulletDynamicsCommon.h>
@@ -108,6 +109,10 @@ int main(int argc, char **argv) {
     BunnySpawnSystem bunnySpawnSystem = BunnySpawnSystem();
     WolfSystem wolfSystem = WolfSystem();
     
+    
+    //initialize audio engine
+    CAudioEngine::instance()->Init();
+    
     // Static Initializers
     Mesh::LoadMeshes(resourceDir);
     Shader::LoadShaders(resourceDir);
@@ -169,6 +174,10 @@ int main(int argc, char **argv) {
     float idealDeltaTime = 1.f/60.f;
     float accumulator = 0.0f;
     
+    CAudioEngine::instance()->LoadSounds(resourceDir);
+    CAudioEngine::instance()->PlaySound("back.wav");
+    CAudioEngine::instance()->PlaySound("herdAmbient.wav");
+    
     // Game loop
     while (!window.ShouldClose()) {
         long curTime = Time::Now();
@@ -191,7 +200,7 @@ int main(int argc, char **argv) {
         cameraController.Update(world);
         renderer.Render(world, window);
         window.Update();
-        
+        CAudioEngine::instance()->Update();
     }
     
     return 0;
