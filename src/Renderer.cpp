@@ -74,9 +74,9 @@ void Renderer::Render(World &world, Window &window) {
             if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
             if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
             
-            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+            Camera *camera = (Camera*)world.mainCharacter->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            applyCameraMatrix(shader, camera, world.mainCharacter->transform->GetPosition());
             applyTransformMatrix(shader, gameObject->transform);
             
             mesh->draw(shader);
@@ -98,9 +98,9 @@ void Renderer::Render(World &world, Window &window) {
             if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
             if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
             
-            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+            Camera *camera = (Camera*)world.mainCharacter->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            applyCameraMatrix(shader, camera, world.mainCharacter->transform->GetPosition());
             applyTransformMatrix(shader, gameObject->transform);
             
             terrain->draw(shader);

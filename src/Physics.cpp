@@ -96,7 +96,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
         Bounds *newIntersection = Bounds::Intersection(*bounds1, *bounds2);
         if (!newIntersection) continue;
         
-        if (collision.gameObject1->name.compare("MainCamera") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
+        if (collision.gameObject1->name.compare("MainCharacter") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
             MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject2->GetComponent("MeshRenderer");
             if (meshRenderer->material != Material::polishedGold) {
                 meshRenderer->material = Material::polishedGold;
@@ -104,7 +104,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
                 bunniesCollected += 1;
 //                std::cout << "Bunnies Collected: " << bunniesCollected << std::endl;
             }
-        } else if (collision.gameObject2->name.compare("MainCamera") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
+        } else if (collision.gameObject2->name.compare("MainCharacter") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
             MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject1->GetComponent("MeshRenderer");
             if (meshRenderer->material != Material::polishedGold) {
                 meshRenderer->material = Material::polishedGold;

@@ -18,33 +18,33 @@
 //#endif
 
 void CameraController::Update(World &world) {
-    Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
-    RigidBody *rigidBody = (RigidBody*)world.mainCamera->GetComponent("RigidBody");
-    glm::vec3 gaze = camera->lookAt - world.mainCamera->transform->GetPosition();
+    Camera *camera = (Camera*)world.mainCharacter->GetComponent("Camera");
+    RigidBody *rigidBody = (RigidBody*)world.mainCharacter->GetComponent("RigidBody");
+    glm::vec3 gaze = camera->lookAt - world.mainCharacter->transform->GetPosition();
     glm::vec3 w = normalize(-gaze);
     glm::vec3 u = normalize(cross(camera->up, w));
     if (abs(rigidBody->velocity[2]) > cameraStoppedThreshold) {
-        world.mainCamera->transform->SetPosition(world.mainCamera->transform->GetPosition() + rigidBody->velocity[2] * w);
+        world.mainCharacter->transform->SetPosition(world.mainCharacter->transform->GetPosition() + rigidBody->velocity[2] * w);
         camera->lookAt += rigidBody->velocity[2] * w;
     }
     if (abs(rigidBody->velocity[0]) > cameraStoppedThreshold) {
-//        if ((world.mainCamera->transform->GetPosition().y + rigidBody->velocity[0] * u.y) > -3.99) {
+//        if ((world.mainCharacter->transform->GetPosition().y + rigidBody->velocity[0] * u.y) > -3.99) {
 //            u.y = 0;
-//            //world.mainCamera->transform->position += rigidBody->velocity[0] * u;
+//            //world.mainCharacter->transform->position += rigidBody->velocity[0] * u;
 //            //camera->lookAt += rigidBody->velocity[0] * u;
 //        }
-        world.mainCamera->transform->SetPosition(world.mainCamera->transform->GetPosition() + rigidBody->velocity[0] * u);
+        world.mainCharacter->transform->SetPosition(world.mainCharacter->transform->GetPosition() + rigidBody->velocity[0] * u);
         camera->lookAt += rigidBody->velocity[0] * u;
     }
     
-//    if (world.mainCamera->transform->GetPosition().y < -1.99) {
-//        world.mainCamera->transform->SetPosition(glm::vec3(world.mainCamera->transform->GetPosition().x,-1.99,world.mainCamera->transform->GetPosition().z));
+//    if (world.mainCharacter->transform->GetPosition().y < -1.99) {
+//        world.mainCharacter->transform->SetPosition(glm::vec3(world.mainCharacter->transform->GetPosition().x,-1.99,world.mainCharacter->transform->GetPosition().z));
 //    }
 }
 
 
 void CameraController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
-    RigidBody *rigidBody = (RigidBody*)world->mainCamera->GetComponent("RigidBody");
+    RigidBody *rigidBody = (RigidBody*)world->mainCharacter->GetComponent("RigidBody");
     
     if (action == GLFW_PRESS) {
         if (key == GLFW_KEY_LEFT_SHIFT) {
@@ -113,10 +113,10 @@ void CameraController::MouseMoved(World *world, int windowWidth, int windowHeigh
     if (alpha2 < -M_PI*8/18) alpha2 = -M_PI*8/18;
 
     // Compute camera lookat point
-    Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
-    camera->lookAt[0] = world->mainCamera->transform->GetPosition().x + cos(alpha2) * cos(beta2);
-    camera->lookAt[1] = world->mainCamera->transform->GetPosition().y + -sin(alpha2);
-    camera->lookAt[2] = world->mainCamera->transform->GetPosition().z + cos(alpha2) * cos(M_PI/2 - beta2);
+    Camera *camera = (Camera*)world->mainCharacter->GetComponent("Camera");
+    camera->lookAt[0] = world->mainCharacter->transform->GetPosition().x + cos(alpha2) * cos(beta2);
+    camera->lookAt[1] = world->mainCharacter->transform->GetPosition().y + -sin(alpha2);
+    camera->lookAt[2] = world->mainCharacter->transform->GetPosition().z + cos(alpha2) * cos(M_PI/2 - beta2);
     //std::cout << camera->lookAt.x << ", " << camera->lookAt.y << ", " << camera->lookAt.z << std::endl;
 }
 

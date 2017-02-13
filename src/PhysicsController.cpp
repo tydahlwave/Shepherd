@@ -69,9 +69,9 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
         
         
         
-        Camera* cam = (Camera*)world->mainCamera->GetComponent("Camera");
+        Camera* cam = (Camera*)world->mainCharacter->GetComponent("Camera");
         
-        btVector3 camPos = btVector3(world->mainCamera->transform->GetPosition().x,world->mainCamera->transform->GetPosition().y,world->mainCamera->transform->GetPosition().z);
+        btVector3 camPos = btVector3(world->mainCharacter->transform->GetPosition().x,world->mainCharacter->transform->GetPosition().y,world->mainCharacter->transform->GetPosition().z);
         
         btVector3 camLookAt = btVector3(cam->lookAt.x,cam->lookAt.y,cam->lookAt.z);
         btVector3 endPoint = (camLookAt - camPos)*1000.0; // multiplied by a large number to make sure i got far enough

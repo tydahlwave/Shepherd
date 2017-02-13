@@ -178,7 +178,9 @@ int main(int argc, char **argv) {
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController);
 	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem);
-    
+
+	world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCharacter);
+
     // Create ground
 //    GameObject *ground = EntityFactory::createGround(&world);
 //    ground->transform->SetPosition(glm::vec3(ground->transform->GetPosition().x,ground->transform->GetPosition().y - 2,ground->transform->GetPosition().z));
