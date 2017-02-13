@@ -47,6 +47,8 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
 	btMotionState* motion = new btDefaultMotionState(t);
 	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
 	RigidBody *rigidBody = (RigidBody*)camera->GetComponent("RigidBody");
+	rigidBody->isKinematic = false;
+	rigidBody->useGravity = true;
 	rigidBody->bulletRigidBody = new btRigidBody(info);
 	rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
 

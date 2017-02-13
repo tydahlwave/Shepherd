@@ -29,6 +29,7 @@ public:
     float fov = 45.0f; // field of view
     glm::vec3 lookAt = glm::vec3(0, 0, -1);
     glm::vec3 up = glm::vec3(0, 1, 0);
+	glm::vec3 vel = glm::vec3(0, 0, 0);
 };
 
 #endif /* Camera_h */
