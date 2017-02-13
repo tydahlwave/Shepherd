@@ -35,21 +35,25 @@ float KDTree::putIntoRightAndLeft(std::vector<GameObject*> gameObjects, std::vec
     else
         std::sort (gameObjects.begin(), gameObjects.end(), gameObjectZCmp);
     
-    for(int i = 0; i < gameObjects.size()/2; i++) {
-        left.push_back(gameObjects[i]);
-    }
-    for(int i = gameObjects.size()/2; i < gameObjects.size(); i++) {
-        right.push_back(gameObjects[i]);
-    }
+    float halfWayPoint;
     if(gameObjects.size() % 2 == 0) {
         float pos1 = gameObjects[gameObjects.size()/2 - 1]->transform->GetPosition()[dimension];
         float pos2 = gameObjects[gameObjects.size()/2]->transform->GetPosition()[dimension];
-        return (pos1 + pos2)/2.0f;
+        halfWayPoint = (pos1 + pos2)/2.0f;
     }
     else {
-        return gameObjects[gameObjects.size()/2 - 1]->transform->GetPosition()[dimension];
+        halfWayPoint = gameObjects[gameObjects.size()/2 - 1]->transform->GetPosition()[dimension];
     }
-        
+    for(int i = 0; i < gameObjects.size(); i++) {
+        Bounds b = gameObjects[i]->getBounds();
+        if(b.getMin()[dimension] < halfWayPoint) {
+            left.push_back(gameObjects[i]);
+        }
+        if(b.getMax()[dimension] > halfWayPoint) {
+            right.push_back(gameObjects[i]);
+        }
+    }
+    return halfWayPoint;
 }
 
 Node *KDTree::createTree(std::vector<GameObject*> gameObjects, int dimension, glm::vec3 parentMinVals, glm::vec3 parentMaxVals) {

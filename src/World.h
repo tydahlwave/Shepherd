@@ -34,6 +34,7 @@ public:
     GameObject *CreateGameObject(std::string name);
 private:
     std::vector<GameObject*> gameObjects;
+    //KDTree kdTree;
 };
 
 #endif /* World_h */
