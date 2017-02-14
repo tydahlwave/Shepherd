@@ -31,8 +31,10 @@ public:
     void Update(float deltaTime, World &world);
     Bounds *BoundsForGameObject(GameObject *gameObject);
 private:
+    void UpdateBulletPhysics(float deltaTime, World &world);
     void ComputeCollisions(World &world);
-    void ResolveCollisions(std::vector<Collision> collisions);
+    void ResolveCollisions(World &world, std::vector<Collision> collisions);
+    static void *StepBullet( void *world);
 //    Bounds *BoundsForGameObject(GameObject *gameObject);
 };
 

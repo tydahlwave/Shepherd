@@ -30,3 +30,6 @@
 # Build folder
 build/
 bullet/
+
+# macos
+.DS_Store

@@ -9,13 +9,18 @@
 #ifndef Texture_h
 #define Texture_h
 
+#include "TextureLoader.h"
+
 class Texture {
 public:
     Texture() {};
+    Texture(TextureLoader *t) { texture = t; };
     virtual ~Texture() {};
     
-//    static void InitializeTextures();
-//    static Texture *texture1;
+    TextureLoader *texture = nullptr;
+    
+    static void LoadTextures(std::string resourceDir);
+    static Texture *hair;
 };
 
 #endif /* Texture_h */

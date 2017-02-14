@@ -11,20 +11,38 @@
 
 #include "Time.h"
 #include "Mesh.h"
+#include "Texture.h"
 #include "Material.h"
 #include "Shader.h"
 #include "EntityFactory.h"
 #include "Physics.h"
 #include "Renderer.h"
 #include "CameraController.h"
+#include "PhysicsController.h"
+#include "TerrainController.h"
 #include "Components/RigidBody.h"
+#include "Components/TerrainRenderer.h"
+#include "Terrain.h"
 #include "BunnySpawnSystem.h"
+#include "WolfSystem.h"
+#include "TextureLoader.h"
+
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw_gl3.h"
+#include "Path.h"
+
 #ifdef WIN32
 #include <btBulletDynamicsCommon.h>
 #else
 #include <BulletDynamics/btBulletDynamicsCommon.h>
 #endif
+
+#define SIMPLEX_TERRAIN 0
+#define DIAMOND_SQUARE_TERRAIN 1
+
 static std::string resourceDir;
+
+static const float groundSize = 100.0f;
 
 void handleInput(int argc, char **argv) {
     if (argc != 2) {
@@ -53,10 +71,12 @@ void displayStats(float deltaTime, World &world, Physics &physics) {
         }
         for (GameObject *gameObject : world.GetGameObjects()) {
             if (gameObject->name.compare("Bunny") == 0) {
-                bunnyCount++;
                 RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
-                if (abs(rigidBody->velocity.y) < 0.01) {
-                    groundedObjectsCount++;
+                if (rigidBody) {
+                    bunnyCount++;
+                    if (abs(rigidBody->velocity.y) < 0.01) {
+                        groundedObjectsCount++;
+                    }
                 }
             }
         }
@@ -69,6 +89,73 @@ void displayStats(float deltaTime, World &world, Physics &physics) {
     }
 }
 
+void randomlyPopulateWithBoulders(World *world) {
+    for (int i = 0; i < 15; i++) {
+        int type = rand() % 3;
+        float scale = rand() % 4 + 1;
+        GameObject *boulder = EntityFactory::createBoulder(world, type, 1);
+        float posX = (rand() % (int)groundSize) - groundSize/2;
+        float posZ = (rand() % (int)groundSize) - groundSize/2;
+        boulder->transform->SetPosition(glm::vec3(posX, -4, posZ));
+        boulder->transform->SetRotation(glm::vec3(0, rand() % 360, 0));
+        boulder->transform->SetScale(glm::vec3(scale, scale, scale));
+    }
+}
+
+bool show_test_window = true;
+bool show_another_window = true;
+ImVec4 clear_color = ImColor(114, 144, 154);
+
+void drawTerrainWindow(Window &window, GameObject *terrain) {
+    TerrainRenderer *terrainRenderer = (TerrainRenderer*) terrain->GetComponent("TerrainRenderer");
+    TextureLoader *textureTest = terrainRenderer->terrain->getTexture();
+
+    // Prevent gui from being drawn in wireframe mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    
+    ImGui_ImplGlfwGL3_NewFrame();
+    
+    // 1. Show a simple window
+    // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+    {
+        ImGui::SetNextWindowPos(ImVec2(300, 20), ImGuiSetCond_FirstUseEver);
+        ImGui::SetNextWindowContentSize(ImVec2(100, 20));
+        ImGui::Begin("Debug");
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::End();
+    }
+    
+    // 2. Show another simple window, this time using an explicit Begin/End pair
+//    if (show_another_window)
+//    {
+//        ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
+//        ImGui::Begin("Another Window", &show_another_window);
+//        ImGui::Text("Hello");
+//        ImGui::End();
+//    }
+    
+    // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
+//    if (show_test_window)
+//    {
+//        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+//        ImGui::ShowTestWindow(&show_test_window);
+//    }
+    
+    {
+        ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiSetCond_FirstUseEver);
+        ImGui::Begin("Terrain Settings");
+        ImVec2 uv0 = ImVec2(0, 0);
+        ImVec2 uv1 = ImVec2(1, 1);
+        ImGui::Image((void*)textureTest->getTextureId(), ImVec2(128, 128), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
+        ImGui::End();
+    }
+    
+    ImGui::Render();
+    
+    // Revert wireframe mode to how it was
+    glPolygonMode(GL_FRONT_AND_BACK, window.drawWireframes ? GL_LINE : GL_FILL);
+}
+
 int main(int argc, char **argv) {
     handleInput(argc, argv);
     
@@ -77,42 +164,65 @@ int main(int argc, char **argv) {
     Physics physics = Physics();
     Renderer renderer = Renderer();
     CameraController cameraController = CameraController();
+    PhysicsController physicsController = PhysicsController();
+    TerrainController terrainController = TerrainController();
     BunnySpawnSystem bunnySpawnSystem = BunnySpawnSystem();
+    WolfSystem wolfSystem = WolfSystem();
     
     // Static Initializers
     Mesh::LoadMeshes(resourceDir);
     Shader::LoadShaders(resourceDir);
+    Texture::LoadTextures(resourceDir);
     Material::InitializeMaterials();
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController);
-    
-	//Create main character
+    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
+    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController);
+	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem);
 
-	world.mainCharacter = EntityFactory::createMainCharacter(&world);
+	world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCharacter);
 
     // Create ground
-    GameObject *ground = EntityFactory::createGround(&world);
-    ground->transform->position.y -= 2;
-    ground->transform->scale = glm::vec3(30, 1, 30);
+//    GameObject *ground = EntityFactory::createGround(&world);
+//    ground->transform->SetPosition(glm::vec3(ground->transform->GetPosition().x,ground->transform->GetPosition().y - 2,ground->transform->GetPosition().z));
+//    ground->transform->SetScale(glm::vec3(30, 1, 30));
     
-    GameObject *barrier1 = EntityFactory::createBarrier(&world);
-    barrier1->transform->position = glm::vec3(0, 0, -30);
-    barrier1->transform->scale = glm::vec3(50, 5, 1);
-    GameObject *barrier2 = EntityFactory::createBarrier(&world);
-    barrier2->transform->position = glm::vec3(0, 0, 30);
-    barrier2->transform->scale = glm::vec3(50, 5, 1);
-    GameObject *barrier3 = EntityFactory::createBarrier(&world);
-    barrier3->transform->position = glm::vec3(-30, 0, 0);
-    barrier3->transform->scale = glm::vec3(1, 5, 50);
-    GameObject *barrier4 = EntityFactory::createBarrier(&world);
-    barrier4->transform->position = glm::vec3(30, 0, 0);
-    barrier4->transform->scale = glm::vec3(1, 5, 50);
+//    GameObject *barrier1 = EntityFactory::createBarrier(&world);
+//    barrier1->transform->SetPosition(glm::vec3(0, 0, -30));
+//    barrier1->transform->SetScale(glm::vec3(50, 5, 1));
+//    GameObject *barrier2 = EntityFactory::createBarrier(&world);
+//    barrier2->transform->SetPosition(glm::vec3(0, 0, 30));
+//    barrier2->transform->SetScale(glm::vec3(50, 5, 1));
+//    GameObject *barrier3 = EntityFactory::createBarrier(&world);
+//    barrier3->transform->SetPosition(glm::vec3(-30, 0, 0));
+//    barrier3->transform->SetScale(glm::vec3(1, 5, 50));
+//    GameObject *barrier4 = EntityFactory::createBarrier(&world);
+//    barrier4->transform->SetPosition(glm::vec3(30, 0, 0));
+//    barrier4->transform->SetScale(glm::vec3(1, 5, 50));
+    
+//    GameObject *sphere = EntityFactory::createTexturedSphere(&world);
+//    sphere->transform->SetPosition(glm::vec3(0, 0, -5));
     
     // Create Cube (with bullet physics)
-    GameObject *cube1 = EntityFactory::createCube(&world, glm::vec3(2.0,2.0,2.0), glm::vec3(5,50,0),2.0);
+    EntityFactory::createSphere(&world, 2.0, glm::vec3(5,20,2.0), 4.0);
+    EntityFactory::createSphere(&world, 2.0, glm::vec3(5,15,2.0), 2.0);
+    EntityFactory::createSphere(&world, 2.0, glm::vec3(5,10,2.0), 1.0);
     
-    // Create Physics Ground (above previous ground)
-    GameObject *cube2 = EntityFactory::createCube(&world, glm::vec3(2.0,2.0,2.0), glm::vec3(5,0,1.5),0.0);
+    // Create Physics Ground (below previous ground)
+    EntityFactory::createCube(&world, glm::vec3(groundSize,0.2,groundSize), glm::vec3(5.5,-4,2.0),0);
     
+    // Create Terrain
+    GameObject *terrain = EntityFactory::createTerrain(&world, SIMPLEX_TERRAIN, 513);
+    terrain->transform->SetPosition(glm::vec3(-256, -100, -256));
+    terrain->transform->SetScale(glm::vec3(1, 1, 1));
+    
+    // Create boulders
+    randomlyPopulateWithBoulders(&world);
+    
+    EntityFactory::createHUD(&world);
+
+	//Create Path
+	GameObject *path = EntityFactory::createPath(&world, 4);
+
     // Seed random generator
     srand(time(0));
     
@@ -122,35 +232,31 @@ int main(int argc, char **argv) {
     std::cout << "Bunnies Collected: 0" << std::endl;
     
     
+    float idealDeltaTime = 1.f/60.f;
+    float accumulator = 0.0f;
+    
     // Game loop
     while (!window.ShouldClose()) {
         long curTime = Time::Now();
-        float deltaTime = (curTime - oldTime) / 1000.0f;
-        world.dynamicsWorld->stepSimulation(deltaTime);
-        for(GameObject* go : world.GetGameObjects()) {
-            RigidBody* rb = (RigidBody*)go->GetComponent("RigidBody");
-            if(rb && rb->bulletRigidBody) {
-                btTransform *form = new btTransform();
-                rb->bulletRigidBody->getMotionState()->getWorldTransform(*form);
-                go->transform->position.x = form->getOrigin().x();
-                go->transform->position.y = form->getOrigin().y();
-                go->transform->position.z = form->getOrigin().z();
-                
-            }
-            
-        }
-        
-        
-        displayStats(deltaTime, world, physics);
-        
-        cameraController.Update(world);
-        bunnySpawnSystem.Update(deltaTime, &world);
-        //physics.Update(deltaTime, world);
-        renderer.Render(world, window);
-        window.Update();
-        
+        float elapsedTime = (curTime - oldTime) / 1000.0f;
         // Reset current frame time
         oldTime = curTime;
+        displayStats(elapsedTime, world, physics);
+        
+        accumulator += elapsedTime;
+        
+        while(accumulator >= idealDeltaTime) {
+            //update
+            bunnySpawnSystem.Update(idealDeltaTime, &world, path);
+            wolfSystem.Update(idealDeltaTime, &world);
+            physics.Update(idealDeltaTime, world);
+            accumulator -= idealDeltaTime;
+        }
+        cameraController.Update(world);
+        renderer.Render(world, window);
+        
+        if (window.drawGUI) drawTerrainWindow(window, terrain);
+        window.Update();
     }
     
     return 0;

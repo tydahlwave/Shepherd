@@ -3,6 +3,7 @@
 #ifndef _MATHDEF_H_
 #define _MATHDEF_H_
 
+#ifndef __APPLE__
 #define _MATH_DEFINES_DEFINED
 // Definitions of useful mathematical constants
 //
@@ -24,3 +25,6 @@
 #define M_SQRT1_2  0.707106781186547524401  // 1/sqrt(2)
 
 #endif
+
+#endif
+

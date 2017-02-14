@@ -10,7 +10,11 @@
 #define RigidBody_h
 
 #include "Component.h"
+#ifdef WIN32
 #include <btBulletCollisionCommon.h>
+#else
+#include <BulletDynamics/btBulletCollisionCommon.h>
+#endif
 
 class RigidBody : public Component {
 public:

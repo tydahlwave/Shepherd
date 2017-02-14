@@ -29,6 +29,7 @@ public:
     
     btDiscreteDynamicsWorld *dynamicsWorld;
     
+    
     std::vector<GameObject*> GetGameObjects();
     GameObject *CreateGameObject(std::string name);
 private:

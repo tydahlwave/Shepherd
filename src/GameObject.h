@@ -32,6 +32,10 @@ public:
     
     Component *AddComponent(std::string name);
     Component *GetComponent(std::string name);
+    void RemoveComponent(std::string name);
+    
+    // Safely remove game object from game
+    void Destroy();
 private:
     std::map<std::string, Component*> components;
 };

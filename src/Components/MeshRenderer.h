@@ -13,16 +13,18 @@
 #include "../Mesh.h"
 #include "../Material.h"
 #include "../Shader.h"
+#include "../Texture.h"
 
 class MeshRenderer : public Component {
 public:
     MeshRenderer() { name = "MeshRenderer"; };
-    MeshRenderer(Mesh *m, Shader *s, Material *mat) :MeshRenderer() { mesh = m; shader = s; material = mat; }
+    MeshRenderer(Mesh *m, Shader *s, Material *mat, Texture *t) :MeshRenderer() { mesh = m; shader = s; material = mat; texture = t; }
     virtual ~MeshRenderer() {};
     
     Mesh *mesh = nullptr;
     Shader *shader = nullptr;
     Material *material = nullptr;
+    Texture *texture = nullptr;
 };
 
 #endif /* MeshRenderer_h */

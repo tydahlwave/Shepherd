@@ -14,6 +14,8 @@
 #include "Components/RigidBody.h"
 #include "Components/BoxCollider.h"
 #include "Components/SphereCollider.h"
+#include "Components/TerrainRenderer.h"
+#include "Components/PathRenderer.h"
 
 GameObject::GameObject() :components() {
     name = "GameObject";
@@ -47,6 +49,12 @@ Component *GameObject::AddComponent(std::string name) {
             component = (Component*) new BoxCollider();
         } else if (name.compare("SphereCollider") == 0) {
             component = (Component*) new SphereCollider();
+		}
+		else if (name.compare("TerrainRenderer") == 0) {
+			component = (Component*) new TerrainRenderer();
+		}
+		else if (name.compare("PathRenderer") == 0) {
+			component = (Component*) new PathRenderer();
         } else {
             component = nullptr;
             std::cout << name << " component does not exist." << std::endl;
@@ -62,4 +70,22 @@ Component *GameObject::AddComponent(std::string name) {
 
 Component *GameObject::GetComponent(std::string name) {
     return components[name];
+}
+
+void GameObject::RemoveComponent(std::string name) {
+    components[name] = nullptr;
+}
+
+void GameObject::Destroy() {
+//    for(std::map<std::string, Component*>::iterator it = components.begin(); it != components.end(); it++) {
+        // iterator->first = key
+        // iterator->second = value
+        // Repeat if you also want to iterate through the second map.
+//        if (components[it->first]) {
+//            components[it->first]->gameObject = nullptr;
+//            components[it->first] = nullptr;
+//        }
+//        world->GetGameObjects()
+//        delete this;
+//    }
 }

@@ -19,9 +19,12 @@ public:
     Transform(glm::vec3 p, glm::vec3 r, glm::vec3 s) :Transform() { position = p; rotation = r; scale = s; }
     virtual ~Transform() {};
     
-    glm::vec3 position = glm::vec3(0, 0, 0);
-    glm::vec3 rotation = glm::vec3(0, 0, 0);
-    glm::vec3 scale = glm::vec3(1, 1, 1);
+    glm::vec3 GetPosition() { return position; }
+    glm::vec3 GetRotation() { return rotation; }
+    glm::vec3 GetScale() { return scale; }
+    void SetPosition(glm::vec3 pos);
+    void SetRotation(glm::vec3 rot);
+    void SetScale(glm::vec3 sc);
     
     const glm::mat4 &GetMatrix() {
         MatrixStack stack = MatrixStack();
@@ -33,6 +36,10 @@ public:
         stack.scale(scale);
         return stack.topMatrix();
     }
+private:
+    glm::vec3 position = glm::vec3(0, 0, 0);
+    glm::vec3 rotation = glm::vec3(0, 0, 0);
+    glm::vec3 scale = glm::vec3(1, 1, 1);
 };
 
 

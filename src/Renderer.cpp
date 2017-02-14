@@ -14,6 +14,7 @@
 #include "Renderer.h"
 #include "Components/MeshRenderer.h"
 #include "Components/Camera.h"
+#include "Components/TerrainRenderer.h"
 
 Renderer::Renderer() {
     Initialize();
@@ -22,7 +23,7 @@ Renderer::Renderer() {
 void applyProjectionMatrix(Program *program, Window &window, Camera *camera) {
     MatrixStack stack = MatrixStack();
     float aspectRatio = window.GetWidth()/(float)window.GetHeight();
-    stack.perspective(45.0f, aspectRatio, 0.01f, 100.0f);
+    stack.perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
     glUniformMatrix4fv(program->getUniform("P"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
 
@@ -49,7 +50,7 @@ void applyMaterial(Program *program, Material *material) {
 void Renderer::Initialize() {
     GLSL::checkVersion();
     // Set background color.
-    glClearColor(.12f, .34f, .56f, 1.0f);
+    glClearColor(0.0f, 170/255.0f, 1.0f, 1.0f);
     // Enable z-buffer test.
     glEnable(GL_DEPTH_TEST);
 }
@@ -65,18 +66,44 @@ void Renderer::Render(World &world, Window &window) {
             auto mesh = meshRenderer->mesh->shape;
             shader->bind();
             
-            applyMaterial(shader, meshRenderer->material);
-            glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
-            glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
-            glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
-            glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
+            if (meshRenderer->material) {
+                applyMaterial(shader, meshRenderer->material);
+            }
+            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
+            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
+            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
+            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
             
             Camera *camera = (Camera*)world.mainCharacter->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, world.mainCharacter->transform->position + (camera->offset*glm::vec3(1, 0, 1)));
+            applyCameraMatrix(shader, camera, world.mainCharacter->transform->GetPosition());
             applyTransformMatrix(shader, gameObject->transform);
             
             mesh->draw(shader);
+            
+            shader->unbind();
+        }
+        
+        TerrainRenderer *terrainRenderer = (TerrainRenderer*)gameObject->GetComponent("TerrainRenderer");
+        if (terrainRenderer) {
+            auto shader = terrainRenderer->shader->program;
+            auto terrain = terrainRenderer->terrain;
+            shader->bind();
+            
+            if (terrainRenderer->material) {
+                applyMaterial(shader, terrainRenderer->material);
+            }
+            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
+            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
+            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
+            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
+            
+            Camera *camera = (Camera*)world.mainCharacter->GetComponent("Camera");
+            applyProjectionMatrix(shader, window, camera);
+            applyCameraMatrix(shader, camera, world.mainCharacter->transform->GetPosition());
+            applyTransformMatrix(shader, gameObject->transform);
+            
+            terrain->draw(shader);
             
             shader->unbind();
         }
