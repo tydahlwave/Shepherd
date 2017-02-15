@@ -18,12 +18,14 @@ public:
     int size = 256;
     // 0 = Simplex, 1 = Diamond-Square
     int type = 0;
+    std::vector<std::vector<float>> heightMap;
     
     void Generate();
     void Regenerate();
     void draw(Program *prog) const;
     
     TextureLoader *getTexture() { return texture; };
+    float getHeight(int row, int col) { return heightMap[row][col]; }
 private:
     std::vector<unsigned int> eleBuf;
     std::vector<float> posBuf;
@@ -35,7 +37,6 @@ private:
     unsigned texBufID;
     unsigned vaoID;
     
-    std::vector<std::vector<float>> heightMap;
     TextureLoader *texture;
     
     void UpdateBuffers();

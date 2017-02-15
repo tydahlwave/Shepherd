@@ -18,6 +18,7 @@ class GameObject;
 #include <btBulletDynamicsCommon.h>
 #else
 #include <BulletDynamics/btBulletDynamicsCommon.h>
+#include <BulletCollision/btBulletCollisionCommon.h>
 #endif
 
 class World {

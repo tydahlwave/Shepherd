@@ -19,8 +19,12 @@
 #include "Terrain.h"
 #include "Components/PathRenderer.h"
 #include  "Path.h"
+//#include <Bullet3Geometry>
+#include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
 
 #include <random>
+
+std::vector<float> EntityFactory::testmap = std::vector<float>();
 
 GameObject *EntityFactory::createMainCamera(World *world) {
     GameObject *gameObject = world->CreateGameObject("MainCamera");
@@ -230,7 +234,7 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     return gameObject;
 }
 
-GameObject *EntityFactory::createTerrain(World *world, int type, int size) {
+GameObject *EntityFactory::createTerrain(World *world, int type, int size, glm::vec3 pos) {
     GameObject *gameObject = world->CreateGameObject("Terrain");
     TerrainRenderer *renderer = (TerrainRenderer*) gameObject->AddComponent("TerrainRenderer");
     renderer->terrain = new Terrain();
@@ -239,6 +243,49 @@ GameObject *EntityFactory::createTerrain(World *world, int type, int size) {
     renderer->terrain->Generate();
     renderer->shader = ShaderLibrary::phong;
     renderer->material = MaterialLibrary::bronze;
+    RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
+    btTransform t;
+    t.setIdentity();
+    t.setOrigin(btVector3(pos.x, pos.y, pos.z));
+//    btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(0,1,0),0);
+    
+    
+    
+    for (int i = 0; i < renderer->terrain->heightMap.size(); i++) {
+        for (int j = 0; j < renderer->terrain->heightMap[i].size(); j++) {
+            //    for (std::vector<std::vector<float>>::iterator it = renderer->terrain->heightMap.begin(); it != renderer->terrain->heightMap.end(); it++) {
+            testmap.push_back((renderer->terrain->heightMap[j][i]));
+        }
+    }
+    //    for (std::vector<float> vec : renderer->terrain->heightMap.) {
+    //        testMap.push_back(0);
+    //    }
+    
+    
+    
+    btHeightfieldTerrainShape* collisionShape =
+//    new btHeightfieldTerrainShape(
+//                                    size,
+//                                    size,
+////                                    &renderer->terrain->heightMap[0][0],
+//                                    testmap.data(),
+//                                    -256.0f,
+//                                    256.0f,
+//                                    true,
+//                                    true);
+    
+    new btHeightfieldTerrainShape(size, size,
+                                  testmap.data(), 1.0f,
+                                  -255.0f, 255.0f,
+                                  1, PHY_FLOAT,
+                                  false);
+    
+    btMotionState* motion = new btDefaultMotionState(t);
+    btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, collisionShape);
+    rigidBody->bulletRigidBody = new btRigidBody(info);
+    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+    
+    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
 }
 

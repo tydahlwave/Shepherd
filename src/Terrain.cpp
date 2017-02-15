@@ -97,9 +97,9 @@ void Terrain::UpdateBuffers() {
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             int index = (y * width + x) * 3;
-            posBuf[index + 0] = x;// + posX;
+            posBuf[index + 0] = x - size/2.0f;
             posBuf[index + 1] = heightMap[x][y];// * 20;
-            posBuf[index + 2] = y;// + posZ;
+            posBuf[index + 2] = y - size/2.0f;
             // printf("Point %d: %d %.3f %d\n", x+width*y, x, posBuf[chunkIndex][index + 1], y);
         }
     }

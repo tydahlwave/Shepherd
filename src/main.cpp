@@ -214,8 +214,7 @@ int main(int argc, char **argv) {
     EntityFactory::createCube(&world, glm::vec3(groundSize,0.1,groundSize), glm::vec3(5.5,-4,2.0),0);
     
     // Create Terrain
-    GameObject *terrain = EntityFactory::createTerrain(&world, SIMPLEX_TERRAIN, 513);
-    terrain->transform->SetPosition(glm::vec3(-256, -100, -256));
+    GameObject *terrain = EntityFactory::createTerrain(&world, SIMPLEX_TERRAIN, 513, glm::vec3(0, -100, 0));
     terrain->transform->SetScale(glm::vec3(1, 1, 1));
     
     // Create boulders
@@ -250,7 +249,7 @@ int main(int argc, char **argv) {
         while(accumulator >= idealDeltaTime) {
             //update
             bunnySpawnSystem.Update(idealDeltaTime, &world, path);
-            wolfSystem.Update(idealDeltaTime, &world);
+//            wolfSystem.Update(idealDeltaTime, &world);
             physics.Update(idealDeltaTime, world);
             accumulator -= idealDeltaTime;
         }

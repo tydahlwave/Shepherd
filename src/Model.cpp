@@ -43,8 +43,49 @@ void Model::loadModel(std::string path) {
         this->meshes.push_back(this->processMesh(mesh, scene));
     }
     
-    // Calculate bounds
+    this->resize();
     this->calculateBounds();
+}
+
+void Model::resize() {
+    glm::vec3 scale, shift;
+    glm::vec3 min = glm::vec3(1, 1, 1) * FLT_MAX;
+    glm::vec3 max = glm::vec3(1, 1, 1) * FLT_MIN;
+    float epsilon = 0.001f;
+    
+    // Find min and max extents
+    for (Mesh mesh : meshes) {
+        for (int i = 0; i < mesh.vertices.size(); i++) {
+            Vertex *v = &mesh.vertices[i];
+            for (int dim = 0; dim < 3; dim++) {
+                if (v->pos[dim] < min[dim]) min[dim] = v->pos[dim];
+                if (v->pos[dim] > max[dim]) max[dim] = v->pos[dim];
+            }
+        }
+    }
+    
+    // Find the longest dimension
+    float maxExtent;
+    glm::vec3 extent = max - min;
+    if (extent[0] >= extent[1] && extent[0] >= extent[2]) maxExtent = extent[0];
+    else if (extent[1] >= extent[2]) maxExtent = extent[1];
+    else maxExtent = extent[2];
+    
+    // Calculate the necessary scale and shift for each dimension
+    scale = glm::vec3(1, 1, 1) * (2.0f / maxExtent);
+    shift = min + (extent / 2.0f);
+    
+    // Go through all verticies, shift and scale them
+    for (Mesh mesh : meshes) {
+        for (int i = 0; i < mesh.vertices.size(); i++) {
+            Vertex *v = &mesh.vertices[i];
+            for (int dim = 0; dim < 3; dim++) {
+                v->pos[dim] = (v->pos[dim] - shift[dim]) * scale[dim];
+                assert(v->pos[dim] >= -1.0 - epsilon);
+                assert(v->pos[dim] <= 1.0 + epsilon);
+            }
+        }
+    }
 }
 
 void Model::calculateBounds() {

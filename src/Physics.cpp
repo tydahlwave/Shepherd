@@ -13,7 +13,9 @@
 #include "Components/BoxCollider.h"
 #include "Components/SphereCollider.h"
 #include "Components/MeshRenderer.h"
+#include "Components/TerrainRenderer.h"
 #include "MaterialLibrary.h"
+#include "Interpolation.h"
 
 void Physics::Update(float deltaTime, World &world) {
     for (GameObject *gameObject : world.GetGameObjects()) {
@@ -27,6 +29,7 @@ void Physics::Update(float deltaTime, World &world) {
         }
     }
     ComputeCollisions(world);
+    HandleTerrainCollisions(world);
     UpdateBulletPhysics(deltaTime, world);
 }
 
@@ -210,3 +213,53 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
 //    }
 //    return new Bounds();
 //}
+
+void Physics::HandleTerrainCollisions(World &world) {
+    std::vector<Collision> collisions;
+    std::vector<GameObject*> gameObjects = world.GetGameObjects();
+    GameObject *terrainObject = nullptr;
+    
+    // Find the terrain
+    for (GameObject *obj : world.GetGameObjects()) {
+        if (obj->name.compare("Terrain") == 0) {
+            terrainObject = obj;
+            break;
+        }
+    }
+    if (!terrainObject) return;
+    
+    // Get terrain component
+    TerrainRenderer *terrainRenderer = (TerrainRenderer*) terrainObject->GetComponent("TerrainRenderer");
+    Terrain *terrain = terrainRenderer->terrain;
+    glm::vec3 terrainSize = terrainObject->transform->GetScale() * glm::vec3(terrain->size, 1, terrain->size);
+    glm::vec3 terrainPos = terrainObject->transform->GetPosition();
+    glm::vec3 terrainMin = terrainObject->transform->GetPosition() - terrainSize/2.0f;
+    glm::vec3 terrainMax = terrainObject->transform->GetPosition() + terrainSize/2.0f;
+    
+    // Compare objects for collisions
+    for (GameObject *obj : world.GetGameObjects()) {
+        // If it's not terrain
+        if (obj->name.compare("Terrain") != 0 && obj->name.compare("Boulder") == 0) {
+            Bounds bounds = obj->getBounds();
+            
+            // If the object is within XZ bounds of terrain
+            glm::vec3 pos = obj->transform->GetPosition();
+            if (pos.x >= terrainPos.x-terrainSize.x/2.0f && pos.x < terrainPos.x + terrainSize.x/2.0f - 1 &&
+                pos.z >= terrainPos.z-terrainSize.z/2.0f && pos.z < terrainPos.z + terrainSize.z/2.0f - 1) {
+                float fColIndex = pos.z - terrainMin.z;
+                float fRowIndex = pos.x - terrainMin.x;
+                int rowIndex = (int)fRowIndex;// / (terrainSize.z/2.0f);
+                int colIndex = (int)fColIndex;// / (terrainSize.x/2.0f);
+                float neighbors[2][2] = {
+                    {terrain->getHeight(rowIndex+1, colIndex+1), terrain->getHeight(rowIndex+1, colIndex)},
+                    {terrain->getHeight(rowIndex, colIndex+1), terrain->getHeight(rowIndex, colIndex)}
+                };
+                
+                std::cout << "Height[" << rowIndex << "][" << colIndex << "] = " << terrain->getHeight(rowIndex, colIndex) << std::endl;
+                float interpolatedHeight = BilinearInterpolate(neighbors, fColIndex-colIndex, fRowIndex-rowIndex);
+                std::cout << "Interpolated Height: " << interpolatedHeight << std::endl;
+                obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight, pos.z));
+            }
+        }
+    }
+}
