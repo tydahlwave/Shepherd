@@ -32,14 +32,14 @@ void Transform::SetPosition(glm::vec3 pos) {
 }
 
 void Transform::SetRotation(glm::vec3 rot) {
-    rotation = rot;
     
     // Below might be wonky
     RigidBody* rb = (RigidBody*)gameObject->GetComponent("RigidBody");
     if(rb && rb->bulletRigidBody) {
-        btQuaternion quat = btQuaternion(rot.y/180*M_PI, rot.x/180*M_PI, rot.z/180*M_PI); // yaw, pitch, roll
+        btQuaternion quat = btQuaternion(glm::radians(rot.y), glm::radians(rot.x), glm::radians(rot.z)); // yaw, pitch, roll
 //        if (!rb->bulletRigidBody->isKinematicObject()) {
             btTransform form = rb->bulletRigidBody->getCenterOfMassTransform();
+			//btTransform formorig = form;
             form.setRotation(quat);
             rb->bulletRigidBody->activate(true);
             rb->bulletRigidBody->setCenterOfMassTransform(form);
@@ -51,6 +51,9 @@ void Transform::SetRotation(glm::vec3 rot) {
 //            rb->bulletRigidBody->getMotionState()->setWorldTransform(form);
 //        }
     }
+	if (rot.x != rot.x || rot.y != rot.y || rot.z != rot.z)
+		return;
+	rotation = rot;
 }
 
 void Transform::SetScale(glm::vec3 sc) {
