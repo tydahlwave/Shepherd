@@ -238,7 +238,7 @@ GameObject *EntityFactory::createTerrain(World *world, int type, int size, glm::
     renderer->terrain = new Terrain();
     renderer->terrain->size = size;
     renderer->terrain->type = type;
-    renderer->terrain->Generate();
+    renderer->terrain->GenerateFromImage("../../resources/SLOHeightMap.png");
     renderer->shader = ShaderLibrary::phong;
     renderer->material = MaterialLibrary::bronze;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");

@@ -23,6 +23,7 @@ public:
     
     void Generate();
     void Regenerate();
+    void GenerateFromImage(std::string imagePath);
     void draw(Program *prog) const;
     
     TextureLoader *getTexture() { return texture; };
