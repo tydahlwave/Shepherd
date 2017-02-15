@@ -32,6 +32,7 @@ public:
     static bool drawGUI;
     static bool drawMouse;
     static bool drawWireframes;
+    static bool drawAABBs;
     
     int Initialize();
     void Terminate();

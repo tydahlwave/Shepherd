@@ -49,13 +49,15 @@ public:
     std::vector<Texture2D> textures;
     
     void draw(Program *shader);
+    void calculateBounds();
+    void setupMesh();
 private:
     // Render data
     GLuint VAO, VBO, EBO;
 
     void resize();
-    void calculateBounds();
-    void setupMesh();
+//    void calculateBounds();
+//    void setupMesh();
 };
 
 #endif /* Mesh_h */

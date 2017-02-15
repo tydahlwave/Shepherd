@@ -19,6 +19,7 @@ public:
     // 0 = Simplex, 1 = Diamond-Square
     int type = 0;
     std::vector<std::vector<float>> heightMap;
+    std::vector<float> heightMapFlat;
     
     void Generate();
     void Regenerate();

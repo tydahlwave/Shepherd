@@ -14,7 +14,6 @@
 
 class EntityFactory {
 public:
-    static std::vector<float> testmap;
     static GameObject *createMainCamera(World *world);
     static GameObject *createBunny(World *world);
     static GameObject *createWolf(World *world);

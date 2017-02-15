@@ -32,6 +32,13 @@ void Terrain::Generate() {
         break;
     }
     
+    // Flatten heightmap
+    for (int i = 0; i < heightMap.size(); i++) {
+        for (int j = 0; j < heightMap[i].size(); j++) {
+            heightMapFlat.push_back(heightMap[j][i]);
+        }
+    }
+    
     auto width = heightMap[0].size();
     auto height = heightMap.size();
     std::cout << "Terrain size: " << width << "x" << height << std::endl;
@@ -62,6 +69,13 @@ void Terrain::Regenerate() {
     default:
         heightMap = Noise::GenerateDiamondSquare(size);
         break;
+    }
+    
+    // Flatten heightmap
+    for (int i = 0; i < heightMap.size(); i++) {
+        for (int j = 0; j < heightMap[i].size(); j++) {
+            heightMapFlat.push_back(heightMap[j][i]);
+        }
     }
     
     auto width = heightMap[0].size();

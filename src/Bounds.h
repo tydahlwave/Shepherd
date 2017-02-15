@@ -9,6 +9,7 @@
 #ifndef Bounds_h
 #define Bounds_h
 
+#include <iostream>
 #include "glm/glm.hpp"
 #include "Components/Transform.h"
 

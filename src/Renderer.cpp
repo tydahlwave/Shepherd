@@ -15,6 +15,9 @@
 #include "Components/MeshRenderer.h"
 #include "Components/Camera.h"
 #include "Components/TerrainRenderer.h"
+#include "ModelLibrary.h"
+#include "ShaderLibrary.h"
+#include "MaterialLibrary.h"
 
 Renderer::Renderer() {
     Initialize();
@@ -138,7 +141,19 @@ void Renderer::Render(World &world, Window &window) {
             applyTransformMatrix(shader, gameObject->transform);
             
             model->draw(shader);
+            shader->unbind();
             
+            shader->bind();
+            // If want to show AABBs
+            if (Window::drawAABBs) {
+                Bounds bounds = meshRenderer->model->bounds.TransformedBounds(gameObject->transform);
+                MatrixStack stack = MatrixStack();
+                stack.loadIdentity();
+                stack.translate(bounds.center);
+                stack.scale(bounds.halfwidths);
+                glUniformMatrix4fv(shader->getUniform("M"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
+                ModelLibrary::cube->draw(shader);
+            }
             shader->unbind();
         }
         

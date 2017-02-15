@@ -249,7 +249,7 @@ int main(int argc, char **argv) {
         while(accumulator >= idealDeltaTime) {
             //update
             bunnySpawnSystem.Update(idealDeltaTime, &world, path);
-//            wolfSystem.Update(idealDeltaTime, &world);
+            wolfSystem.Update(idealDeltaTime, &world);
             physics.Update(idealDeltaTime, world);
             accumulator -= idealDeltaTime;
         }

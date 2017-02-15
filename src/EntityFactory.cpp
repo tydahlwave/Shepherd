@@ -24,8 +24,6 @@
 
 #include <random>
 
-std::vector<float> EntityFactory::testmap = std::vector<float>();
-
 GameObject *EntityFactory::createMainCamera(World *world) {
     GameObject *gameObject = world->CreateGameObject("MainCamera");
     RigidBody *rigidBody = (RigidBody*)gameObject->AddComponent("RigidBody");
@@ -76,13 +74,13 @@ GameObject *EntityFactory::createWolf(World *world) {
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 0, 0));
-    btSphereShape* sphere = new btSphereShape(1);
+    btBoxShape* collisionShape = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x, meshRenderer->model->bounds.halfwidths.y, meshRenderer->model->bounds.halfwidths.z));
     btVector3 inertia(0,0,0);
     float mass = 1.0f;
     if(mass != 0)
-        sphere->calculateLocalInertia(mass, inertia);
+        collisionShape->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
-    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, collisionShape);
     rigidBody->bulletRigidBody = new btRigidBody(info);
     rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     
@@ -158,7 +156,7 @@ GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::v
 GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 position, float mass) {
     GameObject *gameObject = world->CreateGameObject("Sphere");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->model = ModelLibrary::sphere;
+    meshRenderer->model = ModelLibrary::player;
     meshRenderer->shader = ShaderLibrary::phong;
     meshRenderer->material = MaterialLibrary::polishedGold;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
@@ -247,39 +245,11 @@ GameObject *EntityFactory::createTerrain(World *world, int type, int size, glm::
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(pos.x, pos.y, pos.z));
-//    btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(0,1,0),0);
-    
-    
-    
-    for (int i = 0; i < renderer->terrain->heightMap.size(); i++) {
-        for (int j = 0; j < renderer->terrain->heightMap[i].size(); j++) {
-            //    for (std::vector<std::vector<float>>::iterator it = renderer->terrain->heightMap.begin(); it != renderer->terrain->heightMap.end(); it++) {
-            testmap.push_back((renderer->terrain->heightMap[j][i]));
-        }
-    }
-    //    for (std::vector<float> vec : renderer->terrain->heightMap.) {
-    //        testMap.push_back(0);
-    //    }
-    
-    
-    
-    btHeightfieldTerrainShape* collisionShape =
-//    new btHeightfieldTerrainShape(
-//                                    size,
-//                                    size,
-////                                    &renderer->terrain->heightMap[0][0],
-//                                    testmap.data(),
-//                                    -256.0f,
-//                                    256.0f,
-//                                    true,
-//                                    true);
-    
-    new btHeightfieldTerrainShape(size, size,
-                                  testmap.data(), 1.0f,
-                                  -255.0f, 255.0f,
-                                  1, PHY_FLOAT,
-                                  false);
-    
+    btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(size, size,
+                                                                              renderer->terrain->heightMapFlat.data(), 1.0f,
+                                                                              -255.0f, 255.0f, // min/max heights
+                                                                              1, PHY_FLOAT,
+                                                                              false);
     btMotionState* motion = new btDefaultMotionState(t);
     btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, collisionShape);
     rigidBody->bulletRigidBody = new btRigidBody(info);

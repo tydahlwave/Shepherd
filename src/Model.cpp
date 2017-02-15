@@ -43,7 +43,15 @@ void Model::loadModel(std::string path) {
         this->meshes.push_back(this->processMesh(mesh, scene));
     }
     
+    // Resize entire model
     this->resize();
+    
+    // Send mesh coords to GPU after resizing entire model
+    for (auto i = 0; i < this->meshes.size(); i++) {
+        Mesh *mesh = &this->meshes[i];
+        mesh->calculateBounds();
+        mesh->setupMesh();
+    }
     this->calculateBounds();
 }
 
@@ -54,9 +62,10 @@ void Model::resize() {
     float epsilon = 0.001f;
     
     // Find min and max extents
-    for (Mesh mesh : meshes) {
-        for (int i = 0; i < mesh.vertices.size(); i++) {
-            Vertex *v = &mesh.vertices[i];
+    for (auto i = 0; i < this->meshes.size(); i++) {
+        Mesh *mesh = &this->meshes[i];
+        for (int i = 0; i < mesh->vertices.size(); i++) {
+            Vertex *v = &mesh->vertices[i];
             for (int dim = 0; dim < 3; dim++) {
                 if (v->pos[dim] < min[dim]) min[dim] = v->pos[dim];
                 if (v->pos[dim] > max[dim]) max[dim] = v->pos[dim];
@@ -76,9 +85,10 @@ void Model::resize() {
     shift = min + (extent / 2.0f);
     
     // Go through all verticies, shift and scale them
-    for (Mesh mesh : meshes) {
-        for (int i = 0; i < mesh.vertices.size(); i++) {
-            Vertex *v = &mesh.vertices[i];
+    for (auto i = 0; i < this->meshes.size(); i++) {
+        Mesh *mesh = &this->meshes[i];
+        for (int i = 0; i < mesh->vertices.size(); i++) {
+            Vertex *v = &mesh->vertices[i];
             for (int dim = 0; dim < 3; dim++) {
                 v->pos[dim] = (v->pos[dim] - shift[dim]) * scale[dim];
                 assert(v->pos[dim] >= -1.0 - epsilon);

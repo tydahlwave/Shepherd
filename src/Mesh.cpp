@@ -19,8 +19,8 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vecto
     this->textures = textures;
     
 //    this->resize();
-    this->calculateBounds();
-    this->setupMesh();
+//    this->calculateBounds();
+//    this->setupMesh();
 }
 
 void Mesh::draw(Program *shader) {
