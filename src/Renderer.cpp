@@ -29,7 +29,9 @@ void applyProjectionMatrix(Program *program, Window &window, Camera *camera) {
 
 void applyCameraMatrix(Program *program, Camera *camera, glm::vec3 position) {
     MatrixStack stack = MatrixStack();
-    stack.lookAt(position, camera->lookAt, camera->up);
+	glm::vec3 forw = camera->pos + glm::vec3(sin(camera->yaw), 0, cos(camera->yaw));
+	forw.y += camera->pitch;
+    stack.lookAt(position, forw, camera->up);
     glUniformMatrix4fv(program->getUniform("V"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
 
@@ -74,9 +76,9 @@ void Renderer::Render(World &world, Window &window) {
             if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
             if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
             
-            Camera *camera = (Camera*)world.mainCharacter->GetComponent("Camera");
+            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, world.mainCharacter->transform->GetPosition());
+            applyCameraMatrix(shader, camera, camera->pos);
             applyTransformMatrix(shader, gameObject->transform);
             
             mesh->draw(shader);
@@ -98,9 +100,9 @@ void Renderer::Render(World &world, Window &window) {
             if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
             if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
             
-            Camera *camera = (Camera*)world.mainCharacter->GetComponent("Camera");
+            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, world.mainCharacter->transform->GetPosition());
+            applyCameraMatrix(shader, camera, camera->pos);
             applyTransformMatrix(shader, gameObject->transform);
             
             terrain->draw(shader);

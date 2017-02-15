@@ -18,6 +18,7 @@
 #include "Physics.h"
 #include "Renderer.h"
 #include "CameraController.h"
+#include "CharacterController.h"
 #include "PhysicsController.h"
 #include "TerrainController.h"
 #include "Components/RigidBody.h"
@@ -164,6 +165,7 @@ int main(int argc, char **argv) {
     Physics physics = Physics();
     Renderer renderer = Renderer();
     CameraController cameraController = CameraController();
+	CharacterController characterController = CharacterController();
     PhysicsController physicsController = PhysicsController();
     TerrainController terrainController = TerrainController();
     BunnySpawnSystem bunnySpawnSystem = BunnySpawnSystem();
@@ -175,11 +177,12 @@ int main(int argc, char **argv) {
     Texture::LoadTextures(resourceDir);
     Material::InitializeMaterials();
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController);
+	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController);
 	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem);
 
-	world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCharacter);
+	world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera);
 
     // Create ground
 //    GameObject *ground = EntityFactory::createGround(&world);
@@ -244,12 +247,22 @@ int main(int argc, char **argv) {
         displayStats(elapsedTime, world, physics);
         
         accumulator += elapsedTime;
-        
+
+		
         while(accumulator >= idealDeltaTime) {
             //update
+			glm::vec3 rot = world.mainCamera->transform->GetRotation();
+			std::cout << "start | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
+			characterController.Update(&world, idealDeltaTime);
+			rot = world.mainCamera->transform->GetRotation();
+			std::cout << "char | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
             bunnySpawnSystem.Update(idealDeltaTime, &world, path);
             wolfSystem.Update(idealDeltaTime, &world);
+			rot = world.mainCamera->transform->GetRotation();
+			std::cout << "wb | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
             physics.Update(idealDeltaTime, world);
+			rot = world.mainCamera->transform->GetRotation();
+			std::cout << "phys | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
             accumulator -= idealDeltaTime;
         }
         cameraController.Update(world);

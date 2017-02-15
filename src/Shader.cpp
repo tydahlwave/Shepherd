@@ -7,6 +7,7 @@
 //
 
 #include "Shader.h"
+#include <iostream>
 
 Shader *Shader::phong = nullptr;
 Shader *Shader::textured = nullptr;
@@ -44,7 +45,7 @@ void Shader::LoadShaders(std::string resourceDir) {
     program->addAttribute("vertNor");
     program->addAttribute("vertTex");
     textured = new Shader(program);
-    
+    /*
     program = new Program();
     program->setVerbose(true);
     program->setShaderNames(resourceDir + "hud_vert.glsl", resourceDir + "hud_frag.glsl");
@@ -55,4 +56,5 @@ void Shader::LoadShaders(std::string resourceDir) {
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
     hud = new Shader(program);
+	*/
 }

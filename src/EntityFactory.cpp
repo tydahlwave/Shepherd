@@ -19,23 +19,32 @@
 
 #include <random>
 
-GameObject *EntityFactory::createMainCharacter(World *world) {
-    GameObject *gameObject = world->CreateGameObject("MainCharacter");
-    RigidBody *rigidBody = (RigidBody*)gameObject->AddComponent("RigidBody");
-    rigidBody->isKinematic = true;
-    gameObject->AddComponent("Camera");
-    gameObject->AddComponent("BoxCollider");
-    gameObject->transform->SetScale(glm::vec3(0.2, 0.2, 0.2));
+GameObject *EntityFactory::createMainCamera(World *world) {
+    GameObject *gameObject = world->CreateGameObject("Camera");
+	gameObject->AddComponent("Camera");
+	/*
+	RigidBody *rigidBody = (RigidBody*)gameObject->AddComponent("RigidBody");
+	rigidBody->isKinematic = true;
+	gameObject->AddComponent("BoxCollider");
+	gameObject->transform->SetScale(glm::vec3(0.2, 0.2, 0.2));
+	*/
     return gameObject;
 }
 
-GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
-	/*
-	MeshRenderer *meshRenderer = (MeshRenderer*)camera->AddComponent("MeshRenderer");
-	meshRenderer->mesh = Mesh::sphere;
+GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *character) {
+	character->AddComponent("Character");
+
+	MeshRenderer *meshRenderer = (MeshRenderer*)character->AddComponent("MeshRenderer");
+	meshRenderer->mesh = Mesh::cube;
 	meshRenderer->shader = Shader::phong;
 	meshRenderer->material = Material::copper;
-	*/
+	character->AddComponent("BoxCollider");
+	character->transform->SetScale(glm::vec3(.2, .2, .2));
+
+	RigidBody *rigidBody = (RigidBody*)character->AddComponent("RigidBody");
+	rigidBody->isKinematic = false;
+	rigidBody->useGravity = true;
+	
 	btTransform t;
 	t.setIdentity();
 	t.setOrigin(btVector3(0, 0, 0));
@@ -46,14 +55,13 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
 		sphere->calculateLocalInertia(mass, inertia);
 	btMotionState* motion = new btDefaultMotionState(t);
 	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
-	RigidBody *rigidBody = (RigidBody*)camera->GetComponent("RigidBody");
-	rigidBody->isKinematic = false;
-	rigidBody->useGravity = true;
+	
 	rigidBody->bulletRigidBody = new btRigidBody(info);
 	rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
 
 	world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
-	return camera;
+	
+	return character;
 }
 
 GameObject *EntityFactory::createBunny(World *world) {
@@ -111,10 +119,12 @@ GameObject *EntityFactory::createWolf(World *world) {
 }
 
 GameObject *EntityFactory::createHUD(World *world) {
+	
     GameObject *gameObject = world->CreateGameObject("HUD");
-    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    /*MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->mesh = Mesh::cube;
     meshRenderer->shader = Shader::hud;
+	*/
     return gameObject;
 }
 

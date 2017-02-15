@@ -18,6 +18,7 @@ void Physics::Update(float deltaTime, World &world) {
     for (GameObject *gameObject : world.GetGameObjects()) {
         RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
         if (rigidBody && rigidBody->useGravity && !rigidBody->isKinematic) {
+			//if (gameObject->name == "Camera") std::cout << rigidBody->velocity.x << ", " << rigidBody->velocity.y << ", " << rigidBody->velocity.z << std::endl;
 //            glm::vec3 accel = rigidBody->acceleration * deltaTime;
             glm::vec3 vel = rigidBody->velocity * deltaTime;
 //            rigidBody->acceleration += gravity * deltaTime;
@@ -25,8 +26,13 @@ void Physics::Update(float deltaTime, World &world) {
             gameObject->transform->SetPosition(gameObject->transform->GetPosition()+vel);
         }
     }
+
+
+	glm::vec3 rot = world.mainCamera->transform->GetRotation();
+	std::cout << "update | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
     ComputeCollisions(world);
-    UpdateBulletPhysics(deltaTime, world);
+
+	rot = world.mainCamera->transform->GetRotation();
 }
 
 void Physics::UpdateBulletPhysics(float deltaTime, World &world) {
@@ -39,14 +45,15 @@ void Physics::UpdateBulletPhysics(float deltaTime, World &world) {
             btTransform *form = new btTransform();
             rb->bulletRigidBody->getMotionState()->getWorldTransform(*form);
             go->transform->SetPosition(glm::vec3(form->getOrigin().x(), form->getOrigin().y(), form->getOrigin().z()));
-            
+
 //            btScalar yaw, pitch, roll;
 //            btMatrix3x3 mat = form->getBasis();
 //            mat.getEulerYPR(yaw, pitch, roll);
+			if (go->name != "Camera") {
+				btVector3 rot = form->getRotation().getAngle() * (form->getRotation().getAxis());
 
-            btVector3 rot = form->getRotation().getAngle() * (form->getRotation().getAxis());
-            
-            go->transform->SetRotation(glm::vec3(rot.x()*180/M_PI,rot.y()*180/M_PI,rot.z()*180/M_PI));
+				go->transform->SetRotation(glm::vec3(glm::degrees(rot.x()), glm::degrees(rot.y()), glm::degrees(rot.z())));
+			}
         }
         
     }
@@ -81,7 +88,11 @@ void Physics::ComputeCollisions(World &world) {
             }
         }
     }
+	glm::vec3 rot = world.mainCamera->transform->GetRotation();
+	std::cout << "update1 | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
     ResolveCollisions(world, collisions);
+	rot = world.mainCamera->transform->GetRotation();
+	std::cout << "update2 | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
 }
 
 void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions) {
@@ -96,7 +107,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
         Bounds *newIntersection = Bounds::Intersection(*bounds1, *bounds2);
         if (!newIntersection) continue;
         
-        if (collision.gameObject1->name.compare("MainCharacter") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
+        if (collision.gameObject1->name.compare("Camera") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
             MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject2->GetComponent("MeshRenderer");
             if (meshRenderer->material != Material::polishedGold) {
                 meshRenderer->material = Material::polishedGold;
@@ -104,7 +115,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
                 bunniesCollected += 1;
 //                std::cout << "Bunnies Collected: " << bunniesCollected << std::endl;
             }
-        } else if (collision.gameObject2->name.compare("MainCharacter") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
+        } else if (collision.gameObject2->name.compare("Camera") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
             MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject1->GetComponent("MeshRenderer");
             if (meshRenderer->material != Material::polishedGold) {
                 meshRenderer->material = Material::polishedGold;
@@ -146,51 +157,51 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
             }
         } else {
         
-        if (rigidBody1 && rigidBody2 && !rigidBody1->isKinematic && !rigidBody2->isKinematic) {
-            // TODO: don't just move up
-            float dy;
-            if (bounds2->center.y + bounds2->halfwidths.y > bounds1->center.y + bounds1->halfwidths.y) {
-                dy = (bounds1->center.y + bounds1->halfwidths.y) - (bounds2->center.y - bounds2->halfwidths.y);
-                collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetPosition() + glm::vec3(0, dy, 0));
-                rigidBody1->velocity.y = rigidBody1->velocity.y/2;
-                rigidBody1->acceleration = glm::vec3(0, 0, 0);
-                rigidBody2->velocity.y = 0;
-                rigidBody2->acceleration = glm::vec3(0, 0, 0);
-            } else {
-                dy = (bounds2->center.y + bounds2->halfwidths.y) - (bounds1->center.y - bounds1->halfwidths.y);
-                collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetPosition() + glm::vec3(0, dy, 0));
-                rigidBody2->velocity.y = -rigidBody2->velocity.y/2;
-                rigidBody2->acceleration = glm::vec3(0, 0, 0);
-                rigidBody1->velocity.y = 0;
-                rigidBody1->acceleration = glm::vec3(0, 0, 0);
-            }
-//            collision.gameObject1->transform->position += glm::vec3(0, dy/2, 0);
-//            rigidBody1->velocity.y = 0;
-//            rigidBody1->acceleration = glm::vec3(0, 0, 0);
-//            rigidBody1->acceleration = rigidBody1->acceleration / glm::vec3(2, 2, 2);
-//            rigidBody1->acceleration.y = -rigidBody1->acceleration.y;
-//            collision.gameObject2->transform->position += glm::vec3(0, -dy/2, 0);
-//            rigidBody2->velocity.y = 0;
-//            rigidBody2->acceleration = glm::vec3(0, 0, 0);
-//            rigidBody2->acceleration = rigidBody2->acceleration / glm::vec3(2, 2, 2);
-//            rigidBody2->acceleration.y = -rigidBody2->acceleration.y;
-        } else if (rigidBody1 && !rigidBody1->isKinematic) {
-            // TODO: don't just move up
-            float dy =(bounds2->center.y + bounds2->halfwidths.y) - (bounds1->center.y - bounds1->halfwidths.y);
-            collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetPosition() + glm::vec3(0, dy, 0));
-            rigidBody1->velocity.y = 0;
-            rigidBody1->acceleration = glm::vec3(0, 0, 0);
-//            rigidBody1->acceleration = rigidBody1->acceleration / glm::vec3(2, 2, 2);
-//            rigidBody1->acceleration.y = -rigidBody1->acceleration.y;
-        } else if (rigidBody2 && !rigidBody2->isKinematic) {
-            // TODO: don't just move up
-            float dy = (bounds1->center.y + bounds1->halfwidths.y) - (bounds2->center.y - bounds2->halfwidths.y);
-            collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetPosition() + glm::vec3(0, dy, 0));
-            rigidBody2->velocity.y = 0;
-            rigidBody2->acceleration = glm::vec3(0, 0, 0);
-//            rigidBody2->acceleration = rigidBody2->acceleration / glm::vec3(2, 2, 2);
-//            rigidBody2->acceleration.y = -rigidBody2->acceleration.y;
-        }
+			if (rigidBody1 && rigidBody2 && !rigidBody1->isKinematic && !rigidBody2->isKinematic) {
+				// TODO: don't just move up
+				float dy;
+				if (bounds2->center.y + bounds2->halfwidths.y > bounds1->center.y + bounds1->halfwidths.y) {
+					dy = (bounds1->center.y + bounds1->halfwidths.y) - (bounds2->center.y - bounds2->halfwidths.y);
+					collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetPosition() + glm::vec3(0, dy, 0));
+					rigidBody1->velocity.y = rigidBody1->velocity.y/2;
+					rigidBody1->acceleration = glm::vec3(0, 0, 0);
+					rigidBody2->velocity.y = 0;
+					rigidBody2->acceleration = glm::vec3(0, 0, 0);
+				} else {
+					dy = (bounds2->center.y + bounds2->halfwidths.y) - (bounds1->center.y - bounds1->halfwidths.y);
+					collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetPosition() + glm::vec3(0, dy, 0));
+					rigidBody2->velocity.y = -rigidBody2->velocity.y/2;
+					rigidBody2->acceleration = glm::vec3(0, 0, 0);
+					rigidBody1->velocity.y = 0;
+					rigidBody1->acceleration = glm::vec3(0, 0, 0);
+				}
+	//            collision.gameObject1->transform->position += glm::vec3(0, dy/2, 0);
+	//            rigidBody1->velocity.y = 0;
+	//            rigidBody1->acceleration = glm::vec3(0, 0, 0);
+	//            rigidBody1->acceleration = rigidBody1->acceleration / glm::vec3(2, 2, 2);
+	//            rigidBody1->acceleration.y = -rigidBody1->acceleration.y;
+	//            collision.gameObject2->transform->position += glm::vec3(0, -dy/2, 0);
+	//            rigidBody2->velocity.y = 0;
+	//            rigidBody2->acceleration = glm::vec3(0, 0, 0);
+	//            rigidBody2->acceleration = rigidBody2->acceleration / glm::vec3(2, 2, 2);
+	//            rigidBody2->acceleration.y = -rigidBody2->acceleration.y;
+			} else if (rigidBody1 && !rigidBody1->isKinematic) {
+				// TODO: don't just move up
+				float dy =(bounds2->center.y + bounds2->halfwidths.y) - (bounds1->center.y - bounds1->halfwidths.y);
+				collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetPosition() + glm::vec3(0, dy, 0));
+				rigidBody1->velocity.y = 0;
+				rigidBody1->acceleration = glm::vec3(0, 0, 0);
+	//            rigidBody1->acceleration = rigidBody1->acceleration / glm::vec3(2, 2, 2);
+	//            rigidBody1->acceleration.y = -rigidBody1->acceleration.y;
+			} else if (rigidBody2 && !rigidBody2->isKinematic) {
+				// TODO: don't just move up
+				float dy = (bounds1->center.y + bounds1->halfwidths.y) - (bounds2->center.y - bounds2->halfwidths.y);
+				collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetPosition() + glm::vec3(0, dy, 0));
+				rigidBody2->velocity.y = 0;
+				rigidBody2->acceleration = glm::vec3(0, 0, 0);
+	//            rigidBody2->acceleration = rigidBody2->acceleration / glm::vec3(2, 2, 2);
+	//            rigidBody2->acceleration.y = -rigidBody2->acceleration.y;
+			}
         }
     }
 }
