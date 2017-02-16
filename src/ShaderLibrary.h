@@ -21,7 +21,6 @@ public:
     static Shader *hud;
     static Shader *cell;
     static Shader *chargeBar;
-    static float *charge;
 };
 
 #endif /* ShaderLibrary_h */

@@ -18,6 +18,8 @@
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
+#include "PhysicsController.h"
+#include "Time.h"
 
 Renderer::Renderer() {
     Initialize();
@@ -128,10 +130,20 @@ void Renderer::Render(World &world, Window &window) {
     
     for (GameObject *gameObject : world.GetGameObjects()) {
         MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
-        if (meshRenderer && gameObject->name.compare("HUD") == 0) {
+        if (meshRenderer && (gameObject->name.compare("HUD") == 0 || gameObject->name.compare("ChargeBar") == 0)) {
             auto shader = meshRenderer->shader->program;
             auto model = meshRenderer->model;
             shader->bind();
+            
+            if (shader->hasUniform("charge")) {
+                float charge = 0;
+                if(PhysicsController::charge){
+                    charge =(Time::Now() - PhysicsController::LeftClickPressTime) / 10;
+                    //charge = (charge > 1.0) ? 1.0 : charge;
+                }
+                glUniform1f(shader->getUniform("charge"), charge);
+                
+            }
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
@@ -153,8 +165,7 @@ void Renderer::Render(World &world, Window &window) {
             if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 0, 0, 1);
             if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
             if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
-            if (shader->hasUniform("charge")) glUniform1f(shader->getUniform("charge"), 1.0);
-
+            
             // all of this till next comment will be taken out
             
             if (shader->hasUniform("numLights")) glUniform1i(shader->getUniform("numLights"), lights.size());

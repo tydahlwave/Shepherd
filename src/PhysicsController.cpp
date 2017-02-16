@@ -7,11 +7,18 @@
 
 #include <iostream>
 #include <GLFW/glfw3.h>
+#include <thread>
 
 #include "PhysicsController.h"
 #include "Components/Camera.h"
 #include "Components/RigidBody.h"
 #include "Time.h"
+#include "SoundLibrary.h"
+
+
+bool PhysicsController::charge = false;
+long PhysicsController::LeftClickPressTime = 0;
+long PhysicsController::RightClickPressTime = 0;
 
 void PhysicsController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
 
@@ -53,18 +60,30 @@ bool PhysicsController::isLyingInCone(btVector3 &x, btVector3 &t, btVector3 &b, 
     return isUnderRoundCap;
 }
 
+
 void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY, int key, int action) {
+    
     if (key == GLFW_MOUSE_BUTTON_LEFT || key == GLFW_MOUSE_BUTTON_RIGHT) {
         float coef = -1.0;
         if(key == GLFW_MOUSE_BUTTON_LEFT) {
             coef = 1.0;
         }
         if(action == GLFW_PRESS) {
-            if(key == GLFW_MOUSE_BUTTON_LEFT) LeftClickPressTime = Time::Now();
-            else if(key == GLFW_MOUSE_BUTTON_RIGHT) RightClickPressTime = Time::Now();
+            if(key == GLFW_MOUSE_BUTTON_LEFT){
+                LeftClickPressTime = Time::Now();
+            }
+            else if(key == GLFW_MOUSE_BUTTON_RIGHT) {
+                RightClickPressTime = Time::Now();
+            }
+            charge = true;
+            SoundLibrary::playCharge();
             return;
         }
-        if(action != GLFW_RELEASE) return; // might not need this.... just in case
+        if(action == GLFW_RELEASE){
+            charge = false;
+            //return; // might not need this.... just in case
+            SoundLibrary::playShot();
+        }
         
         
         
@@ -107,10 +126,10 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                     
                     //is sheep, baa
                     
-                    if(go->name.compare("bunny") == 1)
+                    if(go->name.compare("Bunny") == 0)
                     {
-                        CAudioEngine::instance()->PlaySound("baa.wav");
-                        //std::printf("hit");
+                        SoundLibrary::playRandSheep();
+                        std::printf("hit");
                     }
                     
                     rb->bulletRigidBody->setLinearVelocity(forceVector);

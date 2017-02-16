@@ -19,14 +19,16 @@ public:
     PhysicsController() {};
     virtual ~PhysicsController() {};
     
+    static bool charge;
+    
     void KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action);
     void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY);
     void MouseClicked(World *world, double mouseX, double mouseY, int key, int action);
+    static long LeftClickPressTime;
+    static long RightClickPressTime;
     
 private:
     bool isLyingInCone(btVector3 &x, btVector3 &t, btVector3 &b, float aperture);
-    long LeftClickPressTime;
-    long RightClickPressTime;
 };
 
 #endif /* CameraController_h */

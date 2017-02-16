@@ -13,7 +13,6 @@ Shader *ShaderLibrary::textured = nullptr;
 Shader *ShaderLibrary::hud = nullptr;
 Shader *ShaderLibrary::cell = nullptr;
 Shader *ShaderLibrary::chargeBar = nullptr;
-float *ShaderLibrary::charge = 0;
 
 void ShaderLibrary::LoadShaders(std::string resourceDir) {
     Program *program = new Program();

@@ -233,7 +233,7 @@ int main(int argc, char **argv) {
     
     CAudioEngine::instance()->LoadSounds(resourceDir);
     CAudioEngine::instance()->PlaySound("back.wav");
-    CAudioEngine::instance()->PlaySound("herdAmbient.wav");
+    //CAudioEngine::instance()->PlaySound("herdAmbient.wav");
     
     // Game loop
     while (!window.ShouldClose()) {

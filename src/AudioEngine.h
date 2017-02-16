@@ -57,7 +57,7 @@ class CAudioEngine {
     static CAudioEngine *a_instance;
 public:
     static string resourceDir;
-    
+        
     static void Init();
     static void Update();
     static void Shutdown();

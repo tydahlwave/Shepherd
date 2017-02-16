@@ -45,6 +45,7 @@ Implementation* sgpImplementation = nullptr;
 CAudioEngine* CAudioEngine::a_instance;
 string CAudioEngine::resourceDir;
 
+
 //Initialize audio engine
 void CAudioEngine::Init() {
     sgpImplementation = new Implementation;
