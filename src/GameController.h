@@ -73,6 +73,8 @@ private:
     GameObject *sign = nullptr;
 	float groundSize = 100.0f;
 	int gameMusic = 0;
+    
+    void displayStats(float deltaTime, World &world, Physics &physics);
 };
 
 #endif /* CharacterController_h */

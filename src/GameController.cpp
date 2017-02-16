@@ -27,6 +27,7 @@
 #include "MaterialLibrary.h"
 #include "Time.h"
 #include "Components/MeshRenderer.h"
+#include "Components/PathRenderer.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
@@ -36,7 +37,7 @@
 #define DIAMOND_SQUARE_TERRAIN 1
 
 
-void displayStats(float deltaTime, World &world, Physics &physics) {
+void GameController::displayStats(float deltaTime, World &world, Physics &physics) {
 	static float elapsedTime = 0.5;
 	static long frames = 0;
 	elapsedTime += deltaTime;
@@ -44,13 +45,19 @@ void displayStats(float deltaTime, World &world, Physics &physics) {
 	if (elapsedTime > 1.0) {
 		elapsedTime = 0;
 		int bunnyCount = 0;
+        int bunniesAtEnd = 0;
 		int groundedObjectsCount = 0;
-		GameObject *ground;
+		GameObject *ground = nullptr;
+        Path *path = nullptr;
 		for (GameObject *gameObject : world.GetGameObjects()) {
 			if (gameObject->name.compare("Ground")) {
 				ground = gameObject;
 				break;
 			}
+            PathRenderer *pathRenderer = (PathRenderer*)gameObject->GetComponent("PathRenderer");
+            if (pathRenderer && pathRenderer->path) {
+                path = pathRenderer->path;
+            }
 		}
 		for (GameObject *gameObject : world.GetGameObjects()) {
 			if (gameObject->name.compare("Bunny") == 0) {
@@ -60,14 +67,29 @@ void displayStats(float deltaTime, World &world, Physics &physics) {
 					if (abs(rigidBody->velocity.y) < 0.01) {
 						groundedObjectsCount++;
 					}
+                    
+                    // Check if bunny is at end
+                    if (path) {
+                        glm::vec3 endPoint = path->GetNodes()[path->size-1];
+                        if (glm::distance(gameObject->transform->GetPosition(), endPoint) < 20.0f) {
+                            bunniesAtEnd++;
+                        }
+                    }
 				}
 			}
 		}
 		std::cout << "\nFPS: " << frames << std::endl;
 		std::cout << "Game Objects: " << world.GetGameObjects().size() << std::endl;
-		std::cout << "Bunnies: " << bunnyCount << std::endl;
-		std::cout << "Objects on Ground: " << groundedObjectsCount << std::endl;
-		std::cout << "Bunnies Collected: " << physics.bunniesCollected << std::endl;
+		std::cout << "Sheep: " << bunnyCount << std::endl;
+//		std::cout << "Objects on Ground: " << groundedObjectsCount << std::endl;
+//		std::cout << "Bunnies Collected: " << physics.bunniesCollected << std::endl;
+        
+        if (bunnyCount == 0 || bunniesAtEnd == bunnyCount) {
+//            nextState = MainMenu;
+            std::cout << "Game Over" << std::endl;
+            exit(0);
+        }
+        
 		frames = 0;
 	}
 }
@@ -178,7 +200,6 @@ void GameController::Run() {
 			float elapsedTime = (curTime - oldTime) / 1000.0f;
 			// Reset current frame time
 			oldTime = curTime;
-			displayStats(elapsedTime, world, physics);
 
 			accumulator += elapsedTime;
 
@@ -199,7 +220,7 @@ void GameController::Run() {
 			CAudioEngine::instance()->Update();
 			if (window.drawGUI && terrain) drawTerrainWindow(window, terrain);
 			window.Update();
-            
+            displayStats(elapsedTime, world, physics);
             
 		}
 		state = nextState;

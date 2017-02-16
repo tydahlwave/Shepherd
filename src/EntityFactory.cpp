@@ -352,7 +352,7 @@ GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
 //    meshRenderer->model = (type == 0) ? ModelLibrary::tree1 : (type == 1) ? ModelLibrary::tree2 : ModelLibrary::tree3;
     meshRenderer->model = (type == 0) ? ModelLibrary::tree2 : ModelLibrary::tree3;
     meshRenderer->shader = ShaderLibrary::cell;
-    meshRenderer->material = MaterialLibrary::grass;
+    meshRenderer->material = MaterialLibrary::emerald;
     gameObject->AddComponent("BoxCollider");
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->isKinematic = true;
