@@ -77,6 +77,10 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
 
 }
 
+void CharacterController::MouseScrolled(World *world, double dx, double dy) {
+
+}
+
 void CharacterController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {
 	glm::vec2 mouseCurr(mouseX, mouseY);
 	if (mousePrev.x == 0 && mousePrev.y == 0)

@@ -21,6 +21,9 @@ void PhysicsController::MouseMoved(World *world, int windowWidth, int windowHeig
     
 }
 
+void PhysicsController::MouseScrolled(World *world, double dx, double dy) {
+
+}
 bool PhysicsController::isLyingInCone(btVector3 &x, btVector3 &t, btVector3 &b, float aperture){
     
     // This is for our convenience
