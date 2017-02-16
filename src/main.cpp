@@ -170,13 +170,13 @@ void setupWorld(World *world, TreeSystem &treeSystem) {
     EntityFactory::createSphere(world, 2.0, glm::vec3(5,10,2.0), 4.0);
     
     // Create Physics Ground (below previous ground)
-    EntityFactory::createCube(world, glm::vec3(groundSize,0.1,groundSize), glm::vec3(5.5,-4,2.0),0);
+//    EntityFactory::createCube(world, glm::vec3(groundSize,0.1,groundSize), glm::vec3(5.5,-4,2.0),0);
     
     // Create boulders
     randomlyPopulateWithBoulders(world);
     
     // Create trees
-    treeSystem.Spawn(world);
+    treeSystem.Initialize(world);
     
     EntityFactory::createHUD(world);
     
@@ -213,7 +213,7 @@ int main(int argc, char **argv) {
 	world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera);
 
 	// Create terrain
-	GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0, -100, 0));
+	GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(300, 120, -250));
 	terrain->transform->SetScale(glm::vec3(1, 1, 1));
 
     // Place game objects
@@ -245,6 +245,7 @@ int main(int argc, char **argv) {
             characterController.Update(&world, idealDeltaTime);
             accumulator -= idealDeltaTime;
         }
+        treeSystem.Update(&world, world.mainCamera->transform->GetPosition());
         cameraController.Update(world);
         renderer.Render(world, window);
         

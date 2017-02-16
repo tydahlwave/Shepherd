@@ -239,8 +239,9 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     rigidBody->isKinematic = true;
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-//    meshRenderer->mesh = (boulderType <= 1) ? (boulderType <= 0) ? Mesh::boulder1 : Mesh::boulder2 : Mesh::boulder3;
-    meshRenderer->model = ModelLibrary::sphere;
+    int randNum = rand() % 3;
+    meshRenderer->model = (randNum <= 1) ? (randNum <= 0) ? ModelLibrary::boulder1 : ModelLibrary::boulder2 : ModelLibrary::boulder3;
+//    meshRenderer->model = ModelLibrary::sphere;
     meshRenderer->shader = ShaderLibrary::phong;
     meshRenderer->material = MaterialLibrary::brass;
     btTransform t;
