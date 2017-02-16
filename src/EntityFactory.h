@@ -28,7 +28,7 @@ public:
     static GameObject *createPhysicsGround(World *world);
     static GameObject *createBoulder(World *world, int boulderType, float radius);
     static GameObject *createTerrain(World *world, std::string resourceDir, int type, int size, glm::vec3 pos);
-	static GameObject *createPath(World *world, int nodes);
+	static GameObject *createPath(World *world, GameObject *terrain, int nodes);
     static GameObject *createTree(World *world, int type, glm::vec3 pos);
 	static GameObject *createSkybox(World *world, std::string resourceDir);
 	static GameObject *upgradeCharacter(World *world, GameObject *camera);
