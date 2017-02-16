@@ -7,6 +7,7 @@
 //
 
 #include "ShaderLibrary.h"
+#define MAX_NUM_LIGHTS 10
 
 Shader *ShaderLibrary::phong = nullptr;
 Shader *ShaderLibrary::textured = nullptr;
@@ -27,7 +28,7 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
     program->addUniform("numLights");
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < MAX_NUM_LIGHTS; i++) {
         std::string uniformName = ConstructLightUniformName("position", i);
         program->addUniform(uniformName);
         uniformName = ConstructLightUniformName("intensities", i);
@@ -81,7 +82,7 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
     program->addUniform("numLights");
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < MAX_NUM_LIGHTS; i++) {
         std::string uniformName = ConstructLightUniformName("position", i);
         program->addUniform(uniformName);
         uniformName = ConstructLightUniformName("intensities", i);
@@ -111,7 +112,7 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
     program->addUniform("numLights");
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < MAX_NUM_LIGHTS; i++) {
         std::string uniformName = ConstructLightUniformName("position", i);
         program->addUniform(uniformName);
         uniformName = ConstructLightUniformName("intensities", i);
