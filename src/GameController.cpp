@@ -249,6 +249,7 @@ void GameController::LoadState() {
 
         audio->toggleSound(gameMusic, true);
 		gameMusic = audio->PlaySound("back.wav");
+        audio->SetChannelvolume(gameMusic, 2);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)terrainController);
