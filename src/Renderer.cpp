@@ -88,10 +88,11 @@ std::vector<Light> setUpLights(World &world, Path *path) {
     // Add lights at path nodes
     if (path) {
         glm::vec3 nodePos = path->GetNodes()[path->size-1];
+        nodePos.y += 20.0f;
 //        for (glm::vec3 nodePos : path->GetNodes()) {
             Light nodeLight;
             nodeLight.position = glm::vec4(nodePos, 1);
-            nodeLight.intensities = glm::vec3(1, 1, 1); //strong white light
+            nodeLight.intensities = glm::vec3(2, 2, 2); //strong white light
             nodeLight.attenuation = 0.1f;
             nodeLight.ambientCoefficient = 0.0f; //no ambient light
             nodeLight.coneAngle = 15.0f;
