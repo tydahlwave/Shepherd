@@ -25,13 +25,42 @@
 #include <random>
 
 GameObject *EntityFactory::createMainCamera(World *world) {
-    GameObject *gameObject = world->CreateGameObject("MainCamera");
+    GameObject *gameObject = world->CreateGameObject("Camera");
     RigidBody *rigidBody = (RigidBody*)gameObject->AddComponent("RigidBody");
     rigidBody->isKinematic = true;
     gameObject->AddComponent("Camera");
     gameObject->AddComponent("BoxCollider");
-    gameObject->transform->SetScale(glm::vec3(0.2, 0.2, 0.2));
+    gameObject->transform->SetScale(glm::vec3(3, 3, 3));
     return gameObject;
+}
+
+GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
+	camera->AddComponent("Character");
+	MeshRenderer *meshRenderer = (MeshRenderer*)camera->AddComponent("MeshRenderer");
+	meshRenderer->model = ModelLibrary::player;
+	meshRenderer->shader = ShaderLibrary::phong;
+	meshRenderer->material = MaterialLibrary::copper;
+	
+	btTransform t;
+	t.setIdentity();
+	t.setOrigin(btVector3(0, 0, 0));
+    btBoxShape* collisionShape = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x*camera->transform->GetScale().x, meshRenderer->model->bounds.halfwidths.y*camera->transform->GetScale().y, meshRenderer->model->bounds.halfwidths.z*camera->transform->GetScale().z));
+
+	btVector3 inertia(0, 0, 0);
+	float mass = 100.0f;
+	if (mass != 0)
+		collisionShape->calculateLocalInertia(mass, inertia);
+	btMotionState* motion = new btDefaultMotionState(t);
+	btRigidBody::btRigidBodyConstructionInfo info(mass, motion, collisionShape);
+	RigidBody *rigidBody = (RigidBody*)camera->GetComponent("RigidBody");
+	rigidBody->isKinematic = false;
+	rigidBody->useGravity = true;
+	rigidBody->bulletRigidBody = new btRigidBody(info);
+	rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+    rigidBody->bulletRigidBody->setCollisionFlags(0);
+
+	world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+	return camera;
 }
 
 GameObject *EntityFactory::createBunny(World *world) {

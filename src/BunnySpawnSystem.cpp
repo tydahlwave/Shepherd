@@ -120,6 +120,9 @@ void BunnySpawnSystem::MouseClicked(World *world, double mouseX, double mouseY, 
 
 }
 
+void BunnySpawnSystem::MouseScrolled(World *world, double dx, double dy) {
+
+}
 
 void BunnySpawnSystem::Flock(World *world, GameObject *bunny, glm::vec3 target) {
 	Arrival(world, bunny, target);
@@ -157,7 +160,7 @@ void BunnySpawnSystem::Arrival(World *world, GameObject *bunny, glm::vec3 target
 		
 	if (rigidBody) {
 		if (flockToCamera) {
-			position = world->mainCamera->transform->GetPosition();
+			position = world->mainCharacter->transform->GetPosition();
         }
         else {
 			position = target;

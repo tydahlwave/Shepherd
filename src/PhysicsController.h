@@ -26,6 +26,8 @@ public:
     void MouseClicked(World *world, double mouseX, double mouseY, int key, int action);
     static long LeftClickPressTime;
     static long RightClickPressTime;
+	void MouseScrolled(World *world, double dx, double dy);
+
     
 private:
     bool isLyingInCone(btVector3 &x, btVector3 &t, btVector3 &b, float aperture);

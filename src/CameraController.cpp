@@ -13,113 +13,55 @@
 #include "CameraController.h"
 #include "Components/Camera.h"
 #include "Components/RigidBody.h"
-
+#define capVal(a, min, max) ((a = (a < min ? min : (a > max ? max : a))))
 //#ifndef M_PI
 //#define M_PI 3.14159265358979323846
 //#endif
 
 void CameraController::Update(World &world) {
-    Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
-    RigidBody *rigidBody = (RigidBody*)world.mainCamera->GetComponent("RigidBody");
-    glm::vec3 gaze = camera->lookAt - world.mainCamera->transform->GetPosition();
-    glm::vec3 w = normalize(-gaze);
-    glm::vec3 u = normalize(cross(camera->up, w));
-    if (abs(rigidBody->velocity[2]) > cameraStoppedThreshold) {
-        world.mainCamera->transform->SetPosition(world.mainCamera->transform->GetPosition() + rigidBody->velocity[2] * w);
-        camera->lookAt += rigidBody->velocity[2] * w;
-    }
-    if (abs(rigidBody->velocity[0]) > cameraStoppedThreshold) {
-//        if ((world.mainCamera->transform->GetPosition().y + rigidBody->velocity[0] * u.y) > -3.99) {
-//            u.y = 0;
-//            //world.mainCamera->transform->position += rigidBody->velocity[0] * u;
-//            //camera->lookAt += rigidBody->velocity[0] * u;
-//        }
-        world.mainCamera->transform->SetPosition(world.mainCamera->transform->GetPosition() + rigidBody->velocity[0] * u);
-        camera->lookAt += rigidBody->velocity[0] * u;
-    }
-    
-//    if (world.mainCamera->transform->GetPosition().y < -1.99) {
-//        world.mainCamera->transform->SetPosition(glm::vec3(world.mainCamera->transform->GetPosition().x,-1.99,world.mainCamera->transform->GetPosition().z));
-//    }
-    
+	Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+	//get main character's position
+	glm::vec3 pos = world.mainCamera->transform->GetPosition();
+	//get main characters rotation
+	glm::vec3 rot = world.mainCamera->transform->GetRotation();
+
+	if (camera->dist > 0) {
+		float offx = camera->dist * sin(glm::radians(camera->aap));
+		float offy = camera->dist * sin(glm::radians(camera->pitch));
+		float offz = camera->dist * cos(glm::radians(camera->aap));
+
+		pos.x = pos.x - offx;
+		pos.y = pos.y - offy;
+		pos.z = pos.z - offz;
+	}
+	camera->yaw = glm::radians(camera->aap);
+	pos.y += 5;
+	camera->pos = pos;
+	camera->lookAt = camera->pos + glm::vec3(sin(camera->yaw), sin(glm::radians(camera->pitch)), cos(camera->yaw));
 }
 
 
-void CameraController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
-    RigidBody *rigidBody = (RigidBody*)world->mainCamera->GetComponent("RigidBody");
-    
-    if (action == GLFW_PRESS) {
-        if (key == GLFW_KEY_LEFT_SHIFT) {
-            cameraSpeed = 5;
-        }
-        if (key == GLFW_KEY_W) {
-            rigidBody->velocity[2] = -cameraSpeed;
-        } else if (key == GLFW_KEY_S) {
-            rigidBody->velocity[2] = cameraSpeed;
-        } else if (key == GLFW_KEY_A) {
-            rigidBody->velocity[0] = -cameraSpeed;
-        } else if (key == GLFW_KEY_D) {
-            rigidBody->velocity[0] = cameraSpeed;
-        }
-    } else if (action == GLFW_RELEASE) {
-        if (key == GLFW_KEY_LEFT_SHIFT) {
-            cameraSpeed = 0.2;
-        }
-        if (key == GLFW_KEY_W) {
-            if (rigidBody->velocity[2] < -cameraStoppedThreshold) {
-                rigidBody->velocity[2] = 0;
-            } else {
-                rigidBody->velocity[2] = cameraSpeed;
-            }
-        } else if (key == GLFW_KEY_S) {
-            if (rigidBody->velocity[2] > cameraStoppedThreshold) {
-                rigidBody->velocity[2] = 0;
-            } else {
-                rigidBody->velocity[2] = -cameraSpeed;
-            }
-        } else if (key == GLFW_KEY_A) {
-            if (rigidBody->velocity[0] < -cameraStoppedThreshold) {
-                rigidBody->velocity[0] = 0;
-            } else {
-                rigidBody->velocity[0] = cameraSpeed;
-            }
-        } else if (key == GLFW_KEY_D) {
-            if (rigidBody->velocity[0] > cameraStoppedThreshold) {
-                rigidBody->velocity[0] = 0;
-            } else {
-                rigidBody->velocity[0] = -cameraSpeed;
-            }
-        }
-    }
-    
-    // Update current camera velocity to match the camera speed variable
-    if (rigidBody->velocity.x > 0.01) {
-        rigidBody->velocity.x = cameraSpeed;
-    } else if (rigidBody->velocity.x < -0.01) {
-        rigidBody->velocity.x = -cameraSpeed;
-    }
-    if (rigidBody->velocity.z > 0.01) {
-        rigidBody->velocity.z = cameraSpeed;
-    } else if (rigidBody->velocity.z < -0.01) {
-        rigidBody->velocity.z = -cameraSpeed;
-    }
+void CameraController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {   
+}
+
+void CameraController::MouseScrolled(World *world, double dx, double dy) {
+	Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
+	camera->dist -= dy;
 }
 
 void CameraController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {
-    // Compute new alpha and beta for the camera lookat point
-    double alpha2 = alpha + ((mouseY + windowHeight/2.0) / windowHeight * M_PI*16/18) - M_PI*8/18;
-    double beta2 = beta + ((mouseX + windowWidth/2.0) / windowWidth * M_PI*2) - M_PI;
+	Camera * camera = (Camera*)world->mainCamera->GetComponent("Camera");
+	glm::vec2 mouseCurr(mouseX, mouseY);
+	if (mousePrev.x == 0 && mousePrev.y == 0) {
+		mousePrev = mouseCurr;
+	}
+	glm::vec2 dv = mouseCurr - mousePrev;
 
-    // Constrain the view (up and down constrained to (-80,80) degrees)
-    if (alpha2 > M_PI*8/18) alpha2 = M_PI*8/18;
-    if (alpha2 < -M_PI*8/18) alpha2 = -M_PI*8/18;
+	camera->aap -= dv.x;
+	camera->pitch -= dv.y;
 
-    // Compute camera lookat point
-    Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
-    camera->lookAt[0] = world->mainCamera->transform->GetPosition().x + cos(alpha2) * cos(beta2);
-    camera->lookAt[1] = world->mainCamera->transform->GetPosition().y + -sin(alpha2);
-    camera->lookAt[2] = world->mainCamera->transform->GetPosition().z + cos(alpha2) * cos(M_PI/2 - beta2);
-    //std::cout << camera->lookAt.x << ", " << camera->lookAt.y << ", " << camera->lookAt.z << std::endl;
+	capVal(camera->pitch, -60.f, 60.f);
+	mousePrev = mouseCurr;
 }
 
 void CameraController::MouseClicked(World *world, double mouseX, double mouseY, int key, int action) {

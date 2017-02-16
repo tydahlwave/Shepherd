@@ -28,6 +28,9 @@ void PhysicsController::MouseMoved(World *world, int windowWidth, int windowHeig
     
 }
 
+void PhysicsController::MouseScrolled(World *world, double dx, double dy) {
+
+}
 bool PhysicsController::isLyingInCone(btVector3 &x, btVector3 &t, btVector3 &b, float aperture){
     
     // This is for our convenience
@@ -88,15 +91,18 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
         
         
         
-        Camera* cam = (Camera*)world->mainCamera->GetComponent("Camera");
+        Camera* cam = (Camera*)world->mainCharacter->GetComponent("Camera");
+
+		glm::vec3 rot = world->mainCharacter->transform->GetRotation();
+		glm::vec3 pos = world->mainCharacter->transform->GetPosition();
+		float theta = glm::radians(rot.y);
+        btVector3 camPos = btVector3(pos.x, pos.y, pos.z);
         
-        btVector3 camPos = btVector3(world->mainCamera->transform->GetPosition().x,world->mainCamera->transform->GetPosition().y,world->mainCamera->transform->GetPosition().z);
-        
-        btVector3 camLookAt = btVector3(cam->lookAt.x,cam->lookAt.y,cam->lookAt.z);
-        btVector3 endPoint = camPos + (camLookAt - camPos)*30.0; // multiplied by a large number to make sure i got far enough
+        btVector3 camLookAt = btVector3(sin(theta) * 1, 0, cos(theta) * 1);
+        btVector3 endPoint = camPos + (camLookAt)*300.0; // multiplied by a large number to make sure i got far enough
         
         
-        btVector3 forceVector = camLookAt - camPos;
+        btVector3 forceVector = camLookAt;
         forceVector.setY(coef*0.7);
         forceVector.normalize();
         
