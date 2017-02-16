@@ -157,7 +157,7 @@ void BunnySpawnSystem::Arrival(World *world, GameObject *bunny, glm::vec3 target
 		
 	if (rigidBody) {
 		if (flockToCamera) {
-			position = world->mainCamera->transform->GetPosition();
+			position = world->mainCharacter->transform->GetPosition();
         }
         else {
 			position = target;

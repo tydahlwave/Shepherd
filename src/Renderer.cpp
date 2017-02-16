@@ -32,7 +32,9 @@ void applyProjectionMatrix(Program *program, Window &window, Camera *camera) {
 
 void applyCameraMatrix(Program *program, Camera *camera, glm::vec3 position) {
     MatrixStack stack = MatrixStack();
-    stack.lookAt(position, camera->lookAt, camera->up);
+	glm::vec3 forw = camera->pos + glm::vec3(sin(camera->yaw), sin(glm::radians(camera->pitch)), cos(camera->yaw));
+	//forw.y += camera->pitch;
+    stack.lookAt(position, forw, camera->up);
     glUniformMatrix4fv(program->getUniform("V"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
 
@@ -169,7 +171,7 @@ void Renderer::Render(World &world, Window &window) {
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            applyCameraMatrix(shader, camera, camera->pos);
             applyTransformMatrix(shader, gameObject->transform);
             
             model->draw(shader);
@@ -205,7 +207,7 @@ void Renderer::Render(World &world, Window &window) {
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            applyCameraMatrix(shader, camera, camera->pos);
             applyTransformMatrix(shader, gameObject->transform);
             
             terrain->draw(shader);

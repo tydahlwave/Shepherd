@@ -18,6 +18,7 @@
 #include "Physics.h"
 #include "Renderer.h"
 #include "CameraController.h"
+#include "CharacterController.h"
 #include "PhysicsController.h"
 #include "TerrainController.h"
 #include "Components/RigidBody.h"
@@ -191,6 +192,7 @@ int main(int argc, char **argv) {
     Physics physics = Physics();
     Renderer renderer = Renderer();
     CameraController cameraController = CameraController();
+	CharacterController characterController = CharacterController();
     PhysicsController physicsController = PhysicsController();
     TerrainController terrainController = TerrainController();
     BunnySpawnSystem bunnySpawnSystem = BunnySpawnSystem();
@@ -206,11 +208,14 @@ int main(int argc, char **argv) {
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController);
 	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem);
+    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController);
     
-    // Create terrain
-    GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0, -100, 0));
-    terrain->transform->SetScale(glm::vec3(1, 1, 1));
-    
+	world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera);
+
+	// Create terrain
+	GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0, -100, 0));
+	terrain->transform->SetScale(glm::vec3(1, 1, 1));
+
     // Place game objects
     setupWorld(&world, treeSystem);
 
@@ -234,6 +239,7 @@ int main(int argc, char **argv) {
         
         while(accumulator >= idealDeltaTime) {
             //update
+			characterController.Update(&world, idealDeltaTime);
 //            bunnySpawnSystem.Update(idealDeltaTime, &world, path);
 //            wolfSystem.Update(idealDeltaTime, &world);
             physics.Update(idealDeltaTime, world);
