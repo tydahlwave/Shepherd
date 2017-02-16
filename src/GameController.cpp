@@ -26,6 +26,7 @@
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
 #include "Time.h"
+#include "Components/MeshRenderer.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
@@ -171,6 +172,8 @@ void GameController::Run() {
 
 		// Game loop
 		while (state == nextState) {
+            sign->transform->SetRotation(vec3(0,180,cos(Time::Now() / 1000.0) * 2));
+            //sign->transform->SetPosition(vec3(0,sin(Time::Now() / 2000.0) * .02 + .5 ,2));
 			long curTime = Time::Now();
 			float elapsedTime = (curTime - oldTime) / 1000.0f;
 			// Reset current frame time
@@ -196,6 +199,8 @@ void GameController::Run() {
 			CAudioEngine::instance()->Update();
 			if (window.drawGUI && terrain) drawTerrainWindow(window, terrain);
 			window.Update();
+            
+            
 		}
 		state = nextState;
 	}
@@ -217,7 +222,18 @@ void GameController::LoadState() {
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
 
 		//load sign
-		EntityFactory::createTitle(&world);
+        sign = EntityFactory::createTitle(&world);
+        //Create skybox
+        //GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);
+        
+        /*GameObject *signShad = EntityFactory::createTitle(&world);
+        signShad->transform->SetScale(vec3(1,.2,1));
+        signShad->transform->SetPosition(vec3(-1.0,-1.0,2.5));
+        signShad->RemoveComponent("MeshRenderer");
+        MeshRenderer *mesh = (MeshRenderer*)signShad->AddComponent("MeshRenderer");
+        mesh->model = ModelLibrary::title;
+        mesh->shader = ShaderLibrary::cell;*/
+        
         gameMusic = audio->PlaySound("menu.wav");
 		break;
 	}
