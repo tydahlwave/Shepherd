@@ -232,13 +232,13 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     return gameObject;
 }
 
-GameObject *EntityFactory::createTerrain(World *world, int type, int size, glm::vec3 pos) {
+GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, int type, int size, glm::vec3 pos) {
     GameObject *gameObject = world->CreateGameObject("Terrain");
     TerrainRenderer *renderer = (TerrainRenderer*) gameObject->AddComponent("TerrainRenderer");
     renderer->terrain = new Terrain();
     renderer->terrain->size = size;
     renderer->terrain->type = type;
-    renderer->terrain->GenerateFromImage("../../resources/terrain9.png");
+    renderer->terrain->GenerateFromImage(resourceDir + "terrain9.png");
     renderer->shader = ShaderLibrary::phong;
     renderer->material = MaterialLibrary::bronze;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");

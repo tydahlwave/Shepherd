@@ -107,7 +107,7 @@ void Terrain::Regenerate() {
 
 void Terrain::GenerateFromImage(std::string imagePath) {
     int width = 0, height = 0, channels = 0;
-    unsigned char* img = SOIL_load_image("../../resources/terrain9.png",//imagePath.c_str(),
+    unsigned char* img = SOIL_load_image(imagePath.c_str(),
                                          &width, &height, &channels,
                                          SOIL_LOAD_AUTO);
     std::cout << SOIL_last_result() << std::endl;

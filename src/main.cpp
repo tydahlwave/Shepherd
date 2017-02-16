@@ -208,7 +208,7 @@ int main(int argc, char **argv) {
 	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem);
     
     // Create terrain
-    GameObject *terrain = EntityFactory::createTerrain(&world, SIMPLEX_TERRAIN, 1081, glm::vec3(0, -100, 0));
+    GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0, -100, 0));
     terrain->transform->SetScale(glm::vec3(1, 1, 1));
     
     // Place game objects
