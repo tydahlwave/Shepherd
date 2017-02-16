@@ -50,7 +50,7 @@ void Physics::UpdateBulletPhysics(float deltaTime, World &world) {
 
             btVector3 rot = form->getRotation().getAngle() * (form->getRotation().getAxis());
             
-            go->transform->SetRotation(glm::vec3(rot.x()*180/M_PI,rot.y()*180/M_PI,rot.z()*180/M_PI));
+            go->transform->SetRotation(glm::vec3(glm::degrees(rot.x()),glm::degrees(rot.y()),glm::degrees(rot.z())));
         }
         
     }
@@ -77,10 +77,9 @@ void Physics::ComputeCollisions(World &world) {
             Bounds bounds2 = gameObject2->getBounds();
             
             // Test for collision
-            Bounds *intersection = Bounds::Intersection(bounds1, bounds2);
-            if (intersection) {
+            if (Bounds::Intersects(bounds1, bounds2)) {
 //                std::cout << gameObject1->name << " hit " << gameObject2->name << std::endl;
-                Collision collision = Collision(gameObject1, gameObject2, intersection);
+                Collision collision = Collision(gameObject1, gameObject2, nullptr);
                 collisions.push_back(collision);
             }
         }
@@ -97,10 +96,9 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
         Bounds bounds1 = collision.gameObject1->getBounds();
         Bounds bounds2 = collision.gameObject2->getBounds();
         // If there is no longer an intersection, continue
-        Bounds *newIntersection = Bounds::Intersection(bounds1, bounds2);
-        if (!newIntersection) continue;
+        if (!Bounds::Intersects(bounds1, bounds2)) continue;
         
-        if (collision.gameObject1->name.compare("MainCamera") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
+        if (collision.gameObject1->name.compare("Camera") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
             MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject2->GetComponent("MeshRenderer");
             if (meshRenderer->material != MaterialLibrary::polishedGold) {
                 meshRenderer->material = MaterialLibrary::polishedGold;
@@ -108,7 +106,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
                 bunniesCollected += 1;
 //                std::cout << "Bunnies Collected: " << bunniesCollected << std::endl;
             }
-        } else if (collision.gameObject2->name.compare("MainCamera") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
+        } else if (collision.gameObject2->name.compare("Camera") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
             MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject1->GetComponent("MeshRenderer");
             if (meshRenderer->material != MaterialLibrary::polishedGold) {
                 meshRenderer->material = MaterialLibrary::polishedGold;

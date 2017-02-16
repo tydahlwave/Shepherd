@@ -18,6 +18,7 @@
 #include "Physics.h"
 #include "Renderer.h"
 #include "CameraController.h"
+#include "CharacterController.h"
 #include "PhysicsController.h"
 #include "TerrainController.h"
 #include "Components/RigidBody.h"
@@ -191,6 +192,7 @@ int main(int argc, char **argv) {
     Physics physics = Physics();
     Renderer renderer = Renderer();
     CameraController cameraController = CameraController();
+	CharacterController characterController = CharacterController();
     PhysicsController physicsController = PhysicsController();
     TerrainController terrainController = TerrainController();
     BunnySpawnSystem bunnySpawnSystem = BunnySpawnSystem();
@@ -206,6 +208,7 @@ int main(int argc, char **argv) {
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController);
 	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem);
+    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController);
     
 	//Create skybox
 	GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);
@@ -214,6 +217,8 @@ int main(int argc, char **argv) {
     GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0, -100, 0));
     terrain->transform->SetScale(glm::vec3(1, 1, 1));
     
+	world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera);
+
     // Place game objects
     setupWorld(&world, treeSystem);
 
@@ -231,7 +236,7 @@ int main(int argc, char **argv) {
         float elapsedTime = (curTime - oldTime) / 1000.0f;
         // Reset current frame time
         oldTime = curTime;
-        displayStats(elapsedTime, world, physics);
+        //displayStats(elapsedTime, world, physics);
         
         accumulator += elapsedTime;
         
@@ -240,6 +245,7 @@ int main(int argc, char **argv) {
 //            bunnySpawnSystem.Update(idealDeltaTime, &world, path);
 //            wolfSystem.Update(idealDeltaTime, &world);
             physics.Update(idealDeltaTime, world);
+            characterController.Update(&world, idealDeltaTime);
             accumulator -= idealDeltaTime;
         }
         cameraController.Update(world);

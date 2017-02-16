@@ -95,6 +95,13 @@ void Window::MouseButtonCallback(GLFWwindow *window, int button, int action, int
     }
 }
 
+void Window::MouseScrollCallback(GLFWwindow *window, double dx, double dy) {
+	// Execute all registered callbacks
+	for (WindowCallbackDelegate *delegate : windowCallbackDelegates) {
+		delegate->MouseScrolled(world, dx, dy);
+	}
+}
+
 static void resize_callback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
 }
@@ -147,6 +154,8 @@ int Window::Initialize() {
     glfwSetMouseButtonCallback(window, Window::MouseButtonCallback);
     // Set the mouse move call back
     glfwSetCursorPosCallback(window, Window::MouseMoveCallback);
+	// set the mouse scroll call back
+	glfwSetScrollCallback(window, Window::MouseScrollCallback);
     //set the window resize call back
     glfwSetFramebufferSizeCallback(window, resize_callback);
     
