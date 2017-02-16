@@ -35,7 +35,7 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
 
 	if (action == GLFW_PRESS) {
 		if (key == GLFW_KEY_LEFT_SHIFT) {
-			moveSpeed = 0.6;
+			moveSpeed = 10;
 		}
 		if (key == GLFW_KEY_W) {
 			character->vel[2] = 5.f;
@@ -59,7 +59,7 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
 	}
 	else if (action == GLFW_RELEASE) {
 		if (key == GLFW_KEY_LEFT_SHIFT) {
-			moveSpeed = 0.2;
+			moveSpeed = 5;
 		}
 		if (key == GLFW_KEY_W) {
 			character->vel[2] = 0.f;

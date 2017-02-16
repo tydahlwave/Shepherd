@@ -29,7 +29,7 @@ void CameraController::Update(World &world) {
 	float offz = camera->dist * cos(glm::radians(camera->aap));
 
 	pos.x = pos.x - offx;
-	pos.y = pos.y + offy;
+	pos.y = pos.y + 5 - offy;
 	pos.z = pos.z - offz;
 	camera->pos = pos;
 	camera->yaw = glm::radians(camera->aap);
@@ -48,7 +48,7 @@ void CameraController::MouseMoved(World *world, int windowWidth, int windowHeigh
 	glm::vec2 dv = mouseCurr - mousePrev;
 
 	camera->aap -= dv.x;
-	camera->pitch -= rfactor * dv.y;
+	camera->pitch -= dv.y;
 
 	capVal(camera->pitch, -60.f, 60.f);
 	mousePrev = mouseCurr;

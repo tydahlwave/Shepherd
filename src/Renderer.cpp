@@ -29,8 +29,8 @@ void applyProjectionMatrix(Program *program, Window &window, Camera *camera) {
 
 void applyCameraMatrix(Program *program, Camera *camera, glm::vec3 position) {
     MatrixStack stack = MatrixStack();
-	glm::vec3 forw = camera->pos + glm::vec3(sin(camera->yaw), 0, cos(camera->yaw));
-	forw.y += camera->pitch;
+	glm::vec3 forw = camera->pos + glm::vec3(sin(camera->yaw), sin(glm::radians(camera->pitch)), cos(camera->yaw));
+	//forw.y += camera->pitch;
     stack.lookAt(position, forw, camera->up);
     glUniformMatrix4fv(program->getUniform("V"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
