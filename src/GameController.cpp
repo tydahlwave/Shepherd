@@ -249,6 +249,7 @@ void GameController::LoadState() {
 
         audio->toggleSound(gameMusic, true);
 		gameMusic = audio->PlaySound("back.wav");
+        audio->SetChannelvolume(gameMusic, 2);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)terrainController);
@@ -271,7 +272,7 @@ void GameController::LoadState() {
 
 		// Place game objects
 		//Create Path
-		path = EntityFactory::createPath(&world, 4);
+		path = EntityFactory::createPath(&world, terrain, 4);
 
 		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 20, 2.0), 4.0);
 		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 15, 2.0), 4.0);
