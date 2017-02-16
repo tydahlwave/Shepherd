@@ -19,25 +19,34 @@
 //#endif
 
 void CameraController::Update(World &world) {
-    Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+	Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
 	//get main character's position
 	glm::vec3 pos = world.mainCamera->transform->GetPosition();
 	//get main characters rotation
 	glm::vec3 rot = world.mainCamera->transform->GetRotation();
 
-	float offx = camera->dist * sin(glm::radians(camera->aap));
-	float offy = camera->dist * sin(glm::radians(camera->pitch));
-	float offz = camera->dist * cos(glm::radians(camera->aap));
+	if (camera->dist > 0) {
+		float offx = camera->dist * sin(glm::radians(camera->aap));
+		float offy = camera->dist * sin(glm::radians(camera->pitch));
+		float offz = camera->dist * cos(glm::radians(camera->aap));
 
-	pos.x = pos.x - offx;
-	pos.y = pos.y + 5 - offy;
-	pos.z = pos.z - offz;
-	camera->pos = pos;
+		pos.x = pos.x - offx;
+		pos.y = pos.y - offy;
+		pos.z = pos.z - offz;
+	}
 	camera->yaw = glm::radians(camera->aap);
+	pos.y += 5;
+	camera->pos = pos;
+	camera->lookAt = camera->pos + glm::vec3(sin(camera->yaw), sin(glm::radians(camera->pitch)), cos(camera->yaw));
 }
 
 
 void CameraController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {   
+}
+
+void CameraController::MouseScrolled(World *world, double dx, double dy) {
+	Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
+	camera->dist -= dy;
 }
 
 void CameraController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {

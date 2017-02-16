@@ -16,6 +16,7 @@ public:
     virtual void KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) = 0;
     virtual void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) = 0;
     virtual void MouseClicked(World *world, double mouseX, double mouseY, int key, int action) = 0;
+	virtual void MouseScrolled(World *world, double dx, double dy) = 0;
 };
 
 #endif /* WindowCallbackDelegate_h */

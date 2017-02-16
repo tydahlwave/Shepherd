@@ -35,3 +35,8 @@ void TerrainController::MouseClicked(World *world, double mouseX, double mouseY,
 void TerrainController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {
     
 }
+
+
+void TerrainController::MouseScrolled(World *world, double dx, double dy) {
+
+}
