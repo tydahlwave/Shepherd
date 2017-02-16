@@ -18,7 +18,7 @@ public:
     TreeSystem() {}
     TreeSystem(int _maxTreeCount) :maxTreeCount(_maxTreeCount) {}
     
-    int maxTreeCount = 5;
+    int maxTreeCount = 10;
     
     void Initialize(World *world);
     void Spawn(World *world);
