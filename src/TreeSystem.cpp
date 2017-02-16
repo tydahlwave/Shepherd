@@ -7,7 +7,7 @@
 //
 
 #include "TreeSystem.h"
-
+#include <time.h>
 #include "EntityFactory.h"
 
 void TreeSystem::Spawn(World *world) {
