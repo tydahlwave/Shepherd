@@ -30,7 +30,7 @@ GameObject *EntityFactory::createMainCamera(World *world) {
     rigidBody->isKinematic = true;
     gameObject->AddComponent("Camera");
     gameObject->AddComponent("BoxCollider");
-    gameObject->transform->SetScale(glm::vec3(1, 1, 1));
+    gameObject->transform->SetScale(glm::vec3(0.2, 0.2, 0.2));
     return gameObject;
 }
 
@@ -44,10 +44,10 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
 	btTransform t;
 	t.setIdentity();
 	t.setOrigin(btVector3(0, 0, 0));
-    btBoxShape* collisionShape = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x, meshRenderer->model->bounds.halfwidths.y, meshRenderer->model->bounds.halfwidths.z));
+    btBoxShape* collisionShape = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x*camera->transform->GetScale().x, meshRenderer->model->bounds.halfwidths.y*camera->transform->GetScale().y, meshRenderer->model->bounds.halfwidths.z*camera->transform->GetScale().z));
 
 	btVector3 inertia(0, 0, 0);
-	float mass = 100.0f;
+	float mass = 0.0f;
 	if (mass != 0)
 		collisionShape->calculateLocalInertia(mass, inertia);
 	btMotionState* motion = new btDefaultMotionState(t);
