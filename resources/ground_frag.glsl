@@ -1,6 +1,10 @@
 #version 330 core
 in vec3 fragPos;
 in vec3 fragNor;
+uniform vec3 matDiffuseColor;
+uniform vec3 matSpecularColor;
+uniform vec3 matAmbientColor;
+uniform float matShine;
 uniform mat4 V;
 
 #define MAX_LIGHTS 10
@@ -113,6 +117,7 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     return ambient + attenuation*(diffuse + specular);
 }
 
+
 void main()
 {
     // Normalize the vectors
@@ -127,7 +132,8 @@ void main()
     
     float edgeDetection = (dot(viewN, vertexN) > 0.3) ? 1 : 0;
     
-    color = vec4(edgeDetection*linearColor, 1.0);
+    //color = vec4(edgeDetection*linearColor, 1.0);
+    color = vec4(linearColor, 1.0);
     //final color (after gamma correction)
     //vec3 gamma = vec3(1.0/2.2);
     //color = vec4(pow(totalPhong, gamma), 1.0);
