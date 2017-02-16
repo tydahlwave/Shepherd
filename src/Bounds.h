@@ -159,21 +159,21 @@ public:
         return true;
     }
     
-    static Bounds *Intersection(Bounds &a, Bounds &b) {
-        if (!Bounds::Intersects(a, b)) return nullptr;
-        
-        glm::vec3 aMin = a.center - a.halfwidths;
-        glm::vec3 aMax = a.center + a.halfwidths;
-        glm::vec3 bMin = b.center - b.halfwidths;
-        glm::vec3 bMax = b.center + b.halfwidths;
-        glm::vec3 min, max;
-        
-        for (int dim = 0; dim < 3; dim++) {
-            min[dim] = (aMin[dim] > bMin[dim]) ? aMin[dim] : bMin[dim];
-            max[dim] = (aMax[dim] < bMax[dim]) ? aMax[dim] : bMax[dim];
-        }
-        return new Bounds(min, max);
-    }
+//    static Bounds *Intersection(Bounds &a, Bounds &b) {
+//        if (!Bounds::Intersects(a, b)) return nullptr;
+//        
+//        glm::vec3 aMin = a.center - a.halfwidths;
+//        glm::vec3 aMax = a.center + a.halfwidths;
+//        glm::vec3 bMin = b.center - b.halfwidths;
+//        glm::vec3 bMax = b.center + b.halfwidths;
+//        glm::vec3 min, max;
+//        
+//        for (int dim = 0; dim < 3; dim++) {
+//            min[dim] = (aMin[dim] > bMin[dim]) ? aMin[dim] : bMin[dim];
+//            max[dim] = (aMax[dim] < bMax[dim]) ? aMax[dim] : bMax[dim];
+//        }
+//        return new Bounds(min, max);
+//    }
 };
 
 #endif /* Bounds_h */

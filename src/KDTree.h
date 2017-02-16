@@ -10,6 +10,8 @@
 #define KDTree_h
 
 #include <vector>
+#include "glm/glm.hpp"
+
 #include "GameObject.h"
 
 typedef struct Node {

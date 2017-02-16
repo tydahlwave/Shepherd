@@ -47,6 +47,7 @@ public:
     static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
     static void MouseMoveCallback(GLFWwindow *window, double posX, double posY);
     static void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
+	static void MouseScrollCallback(GLFWwindow *window, double dx, double dy);
     static void AddWindowCallbackDelegate(WindowCallbackDelegate *delegate);
 private:
     GLFWwindow *window; // Main application window

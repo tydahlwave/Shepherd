@@ -1,5 +1,5 @@
 #version 330 core 
-// in vec3 fragPos;
+in vec3 fragPos;
 // in vec3 fragNor;
 // in vec3 fragLightPos;
 // in vec3 fragLightColor;
@@ -63,6 +63,5 @@ void main()
    vec3 sunDir = normalize(fragSunDir);
    vec3 sunLight = fragDiffuseColor * max(dot(up, sunDir), 0) * fragSunColor;
    vec3 totalColor = fragAmbientColor + sunLight;
-
    color = vec4(totalColor, 1.0);
 }

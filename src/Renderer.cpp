@@ -37,14 +37,6 @@ void applyCameraMatrix(Program *program, Camera *camera, glm::vec3 position) {
     glUniformMatrix4fv(program->getUniform("V"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
 
-void applyCameraMatrixWithoutTrans(Program *program, Camera *camera, glm::vec3 position) {
-	MatrixStack stack = MatrixStack();
-	stack.lookAt(position, camera->lookAt, camera->up);
-	glm::mat4 view = glm::mat4(glm::mat3(stack.topMatrix()));
-	glUniformMatrix4fv(program->getUniform("V"), 1, GL_FALSE, value_ptr(view));
-}
-
-
 void applyTransformMatrix(Program *program, Transform *transform) {
     glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, value_ptr(transform->GetMatrix()));
 }
@@ -67,9 +59,31 @@ void Renderer::Initialize() {
     glEnable(GL_DEPTH_TEST);
 }
 
-bool intersectFrustumAABB(Camera *cam, vec3 boxMin, vec3 boxMax) {
+std::vector<Light> setUpLights() {
+    std::vector<Light> lights;
+
+    Light spotlight;
+    spotlight.position = glm::vec4(-4,10,10,1);
+    spotlight.intensities = glm::vec3(1,1,1); //strong white light
+    spotlight.attenuation = 0.1f;
+    spotlight.ambientCoefficient = 0.0f; //no ambient light
+    spotlight.coneAngle = 15.0f;
+    spotlight.coneDirection = glm::vec3(0,-1,0);
+    
+    Light directionalLight;
+    directionalLight.position = glm::vec4(1, 0.8, 0.6, 0); //w == 0 indications a directional light
+    directionalLight.intensities = glm::vec3(0.6,0.5,0.3); //weak yellowish light
+    directionalLight.ambientCoefficient = 0.06f;
+    
+    lights.push_back(spotlight);
+    //lights.push_back(directionalLight);
+    
+    return lights;
+}
+
+bool intersectFrustumAABB(Camera *cam, vec3 min, vec3 max) {
     // Indexed for the 'index trick' later
-    vec3 box[] = {boxMin, boxMax};
+    vec3 box[] = {min, max};
     
     // We only need to do 6 point-plane tests
     for (int i = 0; i < 6; ++i)
@@ -98,24 +112,6 @@ bool intersectFrustumAABB(Camera *cam, vec3 boxMin, vec3 boxMax) {
     return true;
 }
 
-bool Renderer::ViewFrustCull(GameObject *gameObject, Camera *camera){
-    
-    float dist;
-    Bounds b = gameObject->getBounds();
-    
-    vec3 boundPoints[8];
-    vec3 boundPoint1 = boundPoints[0] = b.getMin();
-    vec3 boundPoint2 = boundPoints[1] = b.getMax();
-    vec3 boundPoint3 = boundPoints[2] = vec3(boundPoint1.x, boundPoint1.y, boundPoint2.z);
-    vec3 boundPoint4 = boundPoints[3] = vec3(boundPoint1.x, boundPoint2.y, boundPoint1.z);
-    vec3 boundPoint5 = boundPoints[4] = vec3(boundPoint2.x, boundPoint1.y, boundPoint1.z);
-    vec3 boundPoint6 = boundPoints[5] = vec3(boundPoint1.x, boundPoint2.y, boundPoint2.z);
-    vec3 boundPoint7 = boundPoints[6] = vec3(boundPoint2.x, boundPoint1.y, boundPoint2.z);
-    vec3 boundPoint8 = boundPoints[7] = vec3(boundPoint2.x, boundPoint2.y, boundPoint1.z);
-
-    return !intersectFrustumAABB(camera, b.getMin(), b.getMax());
-}
-
 void Renderer::Render(World &world, Window &window) {
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -126,9 +122,11 @@ void Renderer::Render(World &world, Window &window) {
     //glGetFloatv(GL_PROJECTION_MATRIX, P);
     float aspectRatio = window.GetWidth()/(float)window.GetHeight();
     mat4 P = glm::perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
-    mat4 V = glm::lookAt(camera->gameObject->transform->GetPosition(), camera->lookAt, camera->up);
+    mat4 V = glm::lookAt(camera->pos, camera->lookAt, camera->up);
     
     camera->ExtractVFPlanes(P, V);
+    
+    std::vector<Light> lights = setUpLights();
     
     for (GameObject *gameObject : world.GetGameObjects()) {
 		SkyboxRenderer *skyboxRenderer = (SkyboxRenderer*)gameObject->GetComponent("SkyboxRenderer");
@@ -139,22 +137,38 @@ void Renderer::Render(World &world, Window &window) {
 
 			shader->bind();
 			glDepthMask(GL_FALSE);
-
-			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
-			applyProjectionMatrix(shader, window, camera);
-			applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
-			applyTransformMatrix(shader, gameObject->transform);
-
+			glDepthRange(1, 1);
+			glDepthFunc(GL_LEQUAL);
 			glUniform1i(shader->getUniform("skybox"), 2);
 			glActiveTexture(GL_TEXTURE2);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubeMapTexture);
 
+			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+			applyProjectionMatrix(shader, window, camera);
+			applyCameraMatrix(shader, camera, camera->pos);
+			applyTransformMatrix(shader, gameObject->transform);
+
 			model->draw(shader);
+		    glDepthMask(GL_TRUE);
+			glDepthRange(0, 1);
+			glDepthFunc(GL_LESS);
 			shader->unbind();
 		}
 
         MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
-        if (meshRenderer && !ViewFrustCull(gameObject, camera)) {
+        if (meshRenderer && gameObject->name.compare("HUD") == 0) {
+            auto shader = meshRenderer->shader->program;
+            auto model = meshRenderer->model;
+            shader->bind();
+            
+            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+            applyProjectionMatrix(shader, window, camera);
+            applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            applyTransformMatrix(shader, gameObject->transform);
+            
+            model->draw(shader);
+            shader->unbind();
+        } else if (meshRenderer && intersectFrustumAABB(camera, gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
             auto shader = meshRenderer->shader->program;
             auto model = meshRenderer->model;
             shader->bind();
@@ -162,14 +176,33 @@ void Renderer::Render(World &world, Window &window) {
             if (meshRenderer->material) {
                 applyMaterial(shader, meshRenderer->material);
             }
+            // all of this till next comment will be taken out
             if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
-            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
+            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 0, 0, 1);
             if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
             if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
+            // all of this till next comment will be taken out
+            
+            if (shader->hasUniform("numLights")) glUniform1i(shader->getUniform("numLights"), lights.size());
+            
+            for(int i = 0; i < lights.size(); ++i){
+                std::string uniformName = ShaderLibrary::ConstructLightUniformName("position", i);
+                if (shader->hasUniform(uniformName)) glUniform4f(shader->getUniform(uniformName), lights[i].position.x,lights[i].position.y,lights[i].position.z,lights[i].position.w);
+                uniformName = ShaderLibrary::ConstructLightUniformName("intensities", i);
+                if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].intensities.x,lights[i].intensities.y,lights[i].intensities.z);
+                uniformName = ShaderLibrary::ConstructLightUniformName("attenuation", i);
+                if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].attenuation);
+                uniformName = ShaderLibrary::ConstructLightUniformName("ambientCoefficient", i);
+                if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].ambientCoefficient);
+                uniformName = ShaderLibrary::ConstructLightUniformName("coneAngle", i);
+                if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].coneAngle);
+                uniformName = ShaderLibrary::ConstructLightUniformName("coneDirection", i);
+                if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].coneDirection.x,lights[i].coneDirection.y,lights[i].coneDirection.z);
+            }
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            applyCameraMatrix(shader, camera, camera->pos);
             applyTransformMatrix(shader, gameObject->transform);
             
             model->draw(shader);
@@ -205,7 +238,7 @@ void Renderer::Render(World &world, Window &window) {
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            applyCameraMatrix(shader, camera, camera->pos);
             applyTransformMatrix(shader, gameObject->transform);
             
             terrain->draw(shader);
