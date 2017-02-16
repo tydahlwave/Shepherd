@@ -20,6 +20,7 @@ public:
     static Shader *phong;
     static Shader *textured;
     static Shader *hud;
+	static Shader *skybox;
     static std::string ConstructLightUniformName(const char* propertyName, size_t lightIndex) {
         std::ostringstream ss;
         ss << "allLights[" << lightIndex << "]." << propertyName;

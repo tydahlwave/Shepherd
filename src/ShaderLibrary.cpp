@@ -11,6 +11,8 @@
 Shader *ShaderLibrary::phong = nullptr;
 Shader *ShaderLibrary::textured = nullptr;
 Shader *ShaderLibrary::hud = nullptr;
+Shader *ShaderLibrary::skybox = nullptr;
+
 
 
 void ShaderLibrary::LoadShaders(std::string resourceDir) {
@@ -69,4 +71,16 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
     hud = new Shader(program);
+
+	program = new Program();
+	program->setVerbose(true);
+	program->setShaderNames(resourceDir + "skybox_vert.glsl", resourceDir + "skybox_frag.glsl");
+	program->init();
+	program->addUniform("P");
+	program->addUniform("M");
+	program->addUniform("V");
+	program->addUniform("skybox");
+	program->addAttribute("vertPos");
+	program->addAttribute("vertNor");
+	skybox = new Shader(program);
 }

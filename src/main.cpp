@@ -207,11 +207,14 @@ int main(int argc, char **argv) {
 	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController);
     
-	world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera);
+	//Create skybox
+	GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);
 
-	// Create terrain
-	GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(300, 120, -250));
-	terrain->transform->SetScale(glm::vec3(1, 1, 1));
+    // Create terrain
+    GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0, -100, 0));
+    terrain->transform->SetScale(glm::vec3(1, 1, 1));
+    
+	world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera);
 
     // Place game objects
     setupWorld(&world, treeSystem);
@@ -226,14 +229,14 @@ int main(int argc, char **argv) {
     long oldTime = Time::Now();
     float idealDeltaTime = 1.f/60.f;
     float accumulator = 0.0f;
-    
+
     // Game loop
     while (!window.ShouldClose()) {
         long curTime = Time::Now();
         float elapsedTime = (curTime - oldTime) / 1000.0f;
         // Reset current frame time
         oldTime = curTime;
-        displayStats(elapsedTime, world, physics);
+        //displayStats(elapsedTime, world, physics);
         
         accumulator += elapsedTime;
         

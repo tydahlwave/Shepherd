@@ -16,6 +16,7 @@
 #include "Components/SphereCollider.h"
 #include "Components/TerrainRenderer.h"
 #include "Components/PathRenderer.h"
+#include "Components/SkyboxRenderer.h"
 #include "Components/Character.h"
 
 GameObject::GameObject() :components() {
@@ -65,6 +66,9 @@ Component *GameObject::AddComponent(std::string name) {
 		}
 		else if (name.compare("PathRenderer") == 0) {
 			component = (Component*) new PathRenderer();
+        } 
+		else if (name.compare("SkyboxRenderer") == 0) {
+			component = (Component*) new SkyboxRenderer();
 		}
 		else if (name.compare("Character") == 0) {
 			component = (Component *) new Character();

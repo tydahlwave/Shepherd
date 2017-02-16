@@ -15,6 +15,7 @@
 #include "Components/MeshRenderer.h"
 #include "Components/Camera.h"
 #include "Components/TerrainRenderer.h"
+#include "Components/SkyboxRenderer.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
@@ -114,6 +115,7 @@ bool intersectFrustumAABB(Camera *cam, vec3 min, vec3 max) {
 void Renderer::Render(World &world, Window &window) {
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
     
     Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
     //GLfloat P[16]; //glm::make_mat4(P)
@@ -127,6 +129,32 @@ void Renderer::Render(World &world, Window &window) {
     std::vector<Light> lights = setUpLights();
     
     for (GameObject *gameObject : world.GetGameObjects()) {
+		SkyboxRenderer *skyboxRenderer = (SkyboxRenderer*)gameObject->GetComponent("SkyboxRenderer");
+		if (skyboxRenderer) {
+			auto skybox = skyboxRenderer->skybox;
+			auto shader = skyboxRenderer->shader->program;
+			auto model = skyboxRenderer->model;
+
+			shader->bind();
+			glDepthMask(GL_FALSE);
+			glDepthRange(1, 1);
+			glDepthFunc(GL_LEQUAL);
+			glUniform1i(shader->getUniform("skybox"), 2);
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubeMapTexture);
+
+			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+			applyProjectionMatrix(shader, window, camera);
+			applyCameraMatrix(shader, camera, camera->pos);
+			applyTransformMatrix(shader, gameObject->transform);
+
+			model->draw(shader);
+		    glDepthMask(GL_TRUE);
+			glDepthRange(0, 1);
+			glDepthFunc(GL_LESS);
+			shader->unbind();
+		}
+
         MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
         if (meshRenderer && gameObject->name.compare("HUD") == 0) {
             auto shader = meshRenderer->shader->program;

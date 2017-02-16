@@ -13,11 +13,12 @@
 #include "Components/MeshRenderer.h"
 #include "Components/RigidBody.h"
 #include "Components/TerrainRenderer.h"
+#include "Components/PathRenderer.h"
+#include "Components/SkyboxRenderer.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
 #include "Terrain.h"
-#include "Components/PathRenderer.h"
 #include  "Path.h"
 //#include <Bullet3Geometry>
 #include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
@@ -346,4 +347,14 @@ GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
 
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
+}
+
+GameObject *EntityFactory::createSkybox(World *world, std::string resourceDir) {
+	GameObject *gameObject = world->CreateGameObject("Skybox");
+	SkyboxRenderer *renderer = (SkyboxRenderer*)gameObject->AddComponent("SkyboxRenderer");
+	renderer->skybox = new Skybox(resourceDir);
+	renderer->model = ModelLibrary::cube;
+	renderer->shader = ShaderLibrary::skybox;
+
+	return gameObject;
 }

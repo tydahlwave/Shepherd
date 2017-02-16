@@ -9,6 +9,7 @@
 #include <GL/glut.h>
 #endif
 #include <string>
+#include <vector>
 
 class TextureLoader
 {
@@ -43,7 +44,8 @@ public:
     void init(TextureLoader::Image &image);
 	void bind();
 	void unbind();
-	
+	//GLuint loadCubeMap(std::vector<const GLchar *> faces);
+
 private:
 	std::string filename;
 	std::string name;
