@@ -144,16 +144,21 @@ void Renderer::Render(World &world, Window &window) {
             // all of this till next comment will be taken out
             
             if (shader->hasUniform("numLights")) glUniform1i(shader->getUniform("numLights"), lights.size());
-            if (shader->hasUniform("allLights")) {
-                for(int i = 0; i < lights.size(); ++i){
-                    glUniform4f(shader->getUniform("position"), lights[i].position.x,lights[i].position.y,lights[i].position.z,lights[i].position.w);
-                    glUniform3f(shader->getUniform("intensities"), lights[i].intensities.x,lights[i].intensities.y,lights[i].intensities.z);
-                    glUniform1f(shader->getUniform("attenuation"), lights[i].attenuation);
-                    glUniform1f(shader->getUniform("ambientCoefficient"), lights[i].ambientCoefficient);
-                    glUniform1f(shader->getUniform("coneAngle"), lights[i].coneAngle);glUniform3f(shader->getUniform("coneDirection"), lights[i].coneDirection.x,lights[i].coneDirection.y,lights[i].coneDirection.z);
-                }
+            
+            for(int i = 0; i < lights.size(); ++i){
+                std::string uniformName = ShaderLibrary::ConstructLightUniformName("position", i);
+                if (shader->hasUniform(uniformName)) glUniform4f(shader->getUniform(uniformName), lights[i].position.x,lights[i].position.y,lights[i].position.z,lights[i].position.w);
+                uniformName = ShaderLibrary::ConstructLightUniformName("intensities", i);
+                if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].intensities.x,lights[i].intensities.y,lights[i].intensities.z);
+                uniformName = ShaderLibrary::ConstructLightUniformName("attenuation", i);
+                if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].attenuation);
+                uniformName = ShaderLibrary::ConstructLightUniformName("ambientCoefficient", i);
+                if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].ambientCoefficient);
+                uniformName = ShaderLibrary::ConstructLightUniformName("coneAngle", i);
+                if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].coneAngle);
+                uniformName = ShaderLibrary::ConstructLightUniformName("coneDirection", i);
+                if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].coneDirection.x,lights[i].coneDirection.y,lights[i].coneDirection.z);
             }
-            if (shader->hasUniform("cameraPos")) glUniform3f(shader->getUniform("cameraPos"), world.mainCamera->transform->GetPosition().x,world.mainCamera->transform->GetPosition().y,world.mainCamera->transform->GetPosition().z);
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
