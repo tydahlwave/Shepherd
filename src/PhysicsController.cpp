@@ -113,7 +113,7 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
         else deltaTime = Time::Now() - RightClickPressTime;
         float forceScalar = deltaTime /30.;
         if(forceScalar > 200.) forceScalar = 200.;
-        if(forceScalar < 40.) forceScalar = 40.;
+        if(forceScalar < 40.) forceScalar = 30.;
         
         forceVector = coef*forceVector*forceScalar;
         
@@ -145,7 +145,7 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                         Death* gD = (Death*) go->GetComponent("Death");
                         if(gD){
                             std::printf("found d comp");
-                            if(forceScalar > 60){
+                            if(forceScalar > 50){
                                 std::printf("set die");
                                 gD->shouldDie = true;
                             }
