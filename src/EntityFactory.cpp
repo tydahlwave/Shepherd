@@ -38,8 +38,8 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
 	camera->AddComponent("Character");
 	MeshRenderer *meshRenderer = (MeshRenderer*)camera->AddComponent("MeshRenderer");
 	meshRenderer->model = ModelLibrary::player;
-	meshRenderer->shader = ShaderLibrary::phong;
-	meshRenderer->material = MaterialLibrary::copper;
+	meshRenderer->shader = ShaderLibrary::cell;
+	meshRenderer->material = MaterialLibrary::pearl;
 	
 	btTransform t;
 	t.setIdentity();
