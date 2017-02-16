@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
     handleInput(argc, argv);
 	GameController gameController = GameController();
 	gameController.Init(resourceDir);
-	gameController.Run();   
-
+	gameController.Run();
+    
     return 0;
 }

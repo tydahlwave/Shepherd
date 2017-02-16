@@ -263,7 +263,7 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     int randNum = rand() % 3;
     meshRenderer->model = (randNum <= 1) ? (randNum <= 0) ? ModelLibrary::boulder1 : ModelLibrary::boulder2 : ModelLibrary::boulder3;
 //    meshRenderer->model = ModelLibrary::sphere;
-    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->shader = ShaderLibrary::cell;
     meshRenderer->material = MaterialLibrary::brass;
     btTransform t;
     t.setIdentity();

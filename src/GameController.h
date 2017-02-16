@@ -69,6 +69,7 @@ private:
 	TreeSystem *treeSystem = nullptr;
 	GameObject *path = nullptr;
 	GameObject *terrain = nullptr;
+	GameObject *skybox = nullptr;
 	float groundSize = 100.0f;
 	int gameMusic = 0;
 };

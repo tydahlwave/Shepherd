@@ -142,7 +142,6 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("V");
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
-
     menu = new Shader(program);
     
     program = new Program();
