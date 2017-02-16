@@ -9,7 +9,7 @@
 #include "EntityFactory.h"
 
 World::World() :gameObjects() {
-	mainCharacter = EntityFactory::createMainCharacter(this);
+	mainCamera = EntityFactory::createMainCamera(this);
     
     ///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
     btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();

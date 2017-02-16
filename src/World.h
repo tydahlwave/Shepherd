@@ -26,6 +26,7 @@ public:
     virtual ~World() {};
     
     GameObject *mainCharacter = nullptr;
+	GameObject *mainCamera = nullptr;
     
     btDiscreteDynamicsWorld *dynamicsWorld;
     

@@ -30,6 +30,12 @@ public:
     glm::vec3 lookAt = glm::vec3(0, 0, -1);
     glm::vec3 up = glm::vec3(0, 1, 0);
 	glm::vec3 vel = glm::vec3(0, 0, 0);
+	float dist = 10;
+	float aap = 0;
+	float pitch = 0;
+	float yaw = 0;
+	float roll = 0;
+	glm::vec3 pos = glm::vec3(0, 0, 0);
 };
 
 #endif /* Camera_h */

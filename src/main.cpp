@@ -18,6 +18,7 @@
 #include "Physics.h"
 #include "Renderer.h"
 #include "CameraController.h"
+#include "CharacterController.h"
 #include "PhysicsController.h"
 #include "TerrainController.h"
 #include "Components/RigidBody.h"
@@ -164,6 +165,7 @@ int main(int argc, char **argv) {
     Physics physics = Physics();
     Renderer renderer = Renderer();
     CameraController cameraController = CameraController();
+	CharacterController characterController = CharacterController();
     PhysicsController physicsController = PhysicsController();
     TerrainController terrainController = TerrainController();
     BunnySpawnSystem bunnySpawnSystem = BunnySpawnSystem();
@@ -174,12 +176,13 @@ int main(int argc, char **argv) {
     Shader::LoadShaders(resourceDir);
     Texture::LoadTextures(resourceDir);
     Material::InitializeMaterials();
-    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController);
+	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController);
+    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController);
 	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem);
 
-	world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCharacter);
+	world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera);
 
     // Create ground
 //    GameObject *ground = EntityFactory::createGround(&world);
@@ -247,6 +250,7 @@ int main(int argc, char **argv) {
         
         while(accumulator >= idealDeltaTime) {
             //update
+			characterController.Update(&world, idealDeltaTime);
             bunnySpawnSystem.Update(idealDeltaTime, &world, path);
             wolfSystem.Update(idealDeltaTime, &world);
             physics.Update(idealDeltaTime, world);

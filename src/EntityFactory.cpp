@@ -19,8 +19,8 @@
 
 #include <random>
 
-GameObject *EntityFactory::createMainCharacter(World *world) {
-    GameObject *gameObject = world->CreateGameObject("MainCharacter");
+GameObject *EntityFactory::createMainCamera(World *world) {
+    GameObject *gameObject = world->CreateGameObject("Camera");
     RigidBody *rigidBody = (RigidBody*)gameObject->AddComponent("RigidBody");
     rigidBody->isKinematic = true;
     gameObject->AddComponent("Camera");
@@ -30,12 +30,12 @@ GameObject *EntityFactory::createMainCharacter(World *world) {
 }
 
 GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
-	/*
+	camera->AddComponent("Character");
 	MeshRenderer *meshRenderer = (MeshRenderer*)camera->AddComponent("MeshRenderer");
-	meshRenderer->mesh = Mesh::sphere;
+	meshRenderer->mesh = Mesh::cube;
 	meshRenderer->shader = Shader::phong;
 	meshRenderer->material = Material::copper;
-	*/
+	
 	btTransform t;
 	t.setIdentity();
 	t.setOrigin(btVector3(0, 0, 0));

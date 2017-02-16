@@ -26,10 +26,8 @@ public:
 private:
     float alpha = -M_PI/2;
     float beta = -M_PI/2*3;
-	float alpha2, beta2;
-    float cameraSpeed = 0.2;
-    float cameraStoppedThreshold = 0.1;
-	glm::vec2 mouseprev = { 0.f, 0.f };
+	glm::vec2 mousePrev = { 0.f, 0.f };
+	float rfactor = .01;
 };
 
 #endif /* CameraController_h */

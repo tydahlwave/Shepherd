@@ -14,7 +14,7 @@
 
 class EntityFactory {
 public:
-    static GameObject *createMainCharacter(World *world);
+    static GameObject *createMainCamera(World *world);
     static GameObject *createBunny(World *world);
     static GameObject *createWolf(World *world);
     static GameObject *createHUD(World *world);

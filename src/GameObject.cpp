@@ -16,6 +16,7 @@
 #include "Components/SphereCollider.h"
 #include "Components/TerrainRenderer.h"
 #include "Components/PathRenderer.h"
+#include "Components/Character.h"
 
 GameObject::GameObject() :components() {
     name = "GameObject";
@@ -55,7 +56,10 @@ Component *GameObject::AddComponent(std::string name) {
 		}
 		else if (name.compare("PathRenderer") == 0) {
 			component = (Component*) new PathRenderer();
-        } else {
+		}
+		else if (name.compare("Character") == 0) {
+			component = (Component *) new Character();
+		} else {
             component = nullptr;
             std::cout << name << " component does not exist." << std::endl;
         }
