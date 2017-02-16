@@ -179,9 +179,6 @@ void setupWorld(World *world, TreeSystem &treeSystem) {
     treeSystem.Initialize(world);
     
     EntityFactory::createHUD(world);
-    
-    //Create Path
-    GameObject *path = EntityFactory::createPath(world, 4);
 }
 
 int main(int argc, char **argv) {
@@ -218,6 +215,9 @@ int main(int argc, char **argv) {
 
     // Place game objects
     setupWorld(&world, treeSystem);
+    
+    //Create Path
+    GameObject *path = EntityFactory::createPath(&world, 4);
 
     // Seed random generator
     srand(time(0));
@@ -239,8 +239,8 @@ int main(int argc, char **argv) {
         
         while(accumulator >= idealDeltaTime) {
             //update
-//            bunnySpawnSystem.Update(idealDeltaTime, &world, path);
-//            wolfSystem.Update(idealDeltaTime, &world);
+            bunnySpawnSystem.Update(idealDeltaTime, &world, path);
+            wolfSystem.Update(idealDeltaTime, &world);
             physics.Update(idealDeltaTime, world);
             characterController.Update(&world, idealDeltaTime);
             accumulator -= idealDeltaTime;

@@ -249,14 +249,17 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     t.setOrigin(btVector3(0, 0, 0));
     btSphereShape* sphere = new btSphereShape(radius);
     btVector3 inertia(0,0,0);
-    float mass = 0.0;
+    float mass = 10.0;
     if (mass != 0)
         sphere->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
     btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
     rigidBody->bulletRigidBody = new btRigidBody(info);
     rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
-    rigidBody->bulletRigidBody->setCollisionFlags(0); // Make it a static object
+    rigidBody->bulletRigidBody->setFriction(1.f);
+    rigidBody->bulletRigidBody->setRollingFriction(0.3f);
+    rigidBody->bulletRigidBody->setAnisotropicFriction(sphere->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+//    rigidBody->bulletRigidBody->setCollisionFlags(0); // Make it a static object
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
