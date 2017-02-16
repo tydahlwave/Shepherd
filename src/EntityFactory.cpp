@@ -296,20 +296,32 @@ GameObject *EntityFactory::createPath(World *world, int size) {
 	GameObject *gameObject = world->CreateGameObject("Path");
 	PathRenderer *renderer = (PathRenderer*)gameObject->AddComponent("PathRenderer");
 	renderer->path = new Path();
-	renderer->path->size = size;
+	renderer->path->size = 11;
 	renderer->path->radius = 5;
-	renderer->path->AddNode(glm::vec3(-30, 0, -30));
-	renderer->path->AddNode(glm::vec3(-30, 0, 30));
-    renderer->path->AddNode(glm::vec3(30, 0, 30));
-    renderer->path->AddNode(glm::vec3(0, 0, 0));
-	renderer->path->AddNode(glm::vec3(30, 0, -30));
+//	renderer->path->AddNode(glm::vec3(-30, 0, -30));
+//	renderer->path->AddNode(glm::vec3(-30, 0, 30));
+//    renderer->path->AddNode(glm::vec3(30, 0, 30));
+//    renderer->path->AddNode(glm::vec3(0, 0, 0));
+//	renderer->path->AddNode(glm::vec3(30, 0, -30));
+    renderer->path->AddNode(glm::vec3(-30, 0, -30));
+    renderer->path->AddNode(glm::vec3(-30, 0, -100));
+    renderer->path->AddNode(glm::vec3(30, 0, -200));
+    renderer->path->AddNode(glm::vec3(-30, 0, -300));
+    renderer->path->AddNode(glm::vec3(30, 0, -400));
+    renderer->path->AddNode(glm::vec3(-30, 0, -500));
+    renderer->path->AddNode(glm::vec3(30, 0, -600));
+    renderer->path->AddNode(glm::vec3(0, 0, -700));
+    renderer->path->AddNode(glm::vec3(60, 0, -800));
+    renderer->path->AddNode(glm::vec3(0, 0, -900));
+    renderer->path->AddNode(glm::vec3(60, 0, -1000));
     return gameObject;
 }
 
 GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
     GameObject *gameObject = world->CreateGameObject("Tree");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->model = (type == 0) ? ModelLibrary::tree1 : (type == 1) ? ModelLibrary::tree2 : ModelLibrary::tree3;
+//    meshRenderer->model = (type == 0) ? ModelLibrary::tree1 : (type == 1) ? ModelLibrary::tree2 : ModelLibrary::tree3;
+    meshRenderer->model = (type == 0) ? ModelLibrary::tree2 : ModelLibrary::tree3;
     meshRenderer->shader = ShaderLibrary::phong;
     meshRenderer->material = MaterialLibrary::grass;
     gameObject->AddComponent("BoxCollider");

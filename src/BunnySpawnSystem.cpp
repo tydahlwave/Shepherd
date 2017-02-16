@@ -300,7 +300,10 @@ glm::vec3 BunnySpawnSystem::FollowPath(World *world, GameObject *bunny) {
 		RigidBody *rigidBody = (RigidBody*)bunny->GetComponent("RigidBody");
 
 		target = nodes.at(bunnyNode[bunny]);
-		if (glm::distance(bunny->transform->GetPosition(), target) <= (*path).radius) {
+        target.y = 0;
+        glm::vec3 bunnyPos = bunny->transform->GetPosition();
+        bunnyPos.y = 0;
+		if (glm::distance(bunnyPos, target) <= (*path).radius) {
 			bunnyNode[bunny] = bunnyNode[bunny] + 1;
 
 			if (bunnyNode[bunny] >= (*path).size) {
