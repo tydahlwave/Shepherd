@@ -17,6 +17,8 @@ Material *MaterialLibrary::ruby = nullptr;
 Material *MaterialLibrary::emerald = nullptr;
 Material *MaterialLibrary::polishedGold = nullptr;
 Material *MaterialLibrary::grass = nullptr;
+Material *MaterialLibrary::brown = nullptr;
+Material *MaterialLibrary::chrome = nullptr;
 
 void MaterialLibrary::InitializeMaterials() {
     // Shiny blue plastic
@@ -81,4 +83,18 @@ void MaterialLibrary::InitializeMaterials() {
     specular = glm::vec4(78/255.0f/2, 114/255.0f/2, 66/255.0f/2, 1);
     shine = 12.0;
     grass = new Material(new Color(ambient), new Color(diffuse), new Color(specular), shine);
+    
+    // brown
+    ambient = glm::vec4(0.15, 0.1, 0.054, 1);
+    diffuse = glm::vec4(0.514, 0.32, 0.1, 1);
+    specular = glm::vec4(.1, .1, .08, 1);
+    shine = 10.0;
+    brown = new Material(new Color(ambient), new Color(diffuse), new Color(specular), shine);
+    
+    // chrome
+    ambient = glm::vec4(.5, .5, .5, 1);
+    diffuse = glm::vec4(0.5, 0.5, 0.5, 1);
+    specular = glm::vec4(.5, .5, .5, 1);
+    shine = 70.0;
+    chrome = new Material(new Color(ambient), new Color(diffuse), new Color(specular), shine);
 }

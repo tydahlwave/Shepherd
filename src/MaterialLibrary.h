@@ -23,6 +23,8 @@ public:
     static Material *emerald;
     static Material *polishedGold;
     static Material *grass;
+    static Material *brown;
+    static Material *chrome;
 };
 
 #endif /* MaterialLibrary_h */
