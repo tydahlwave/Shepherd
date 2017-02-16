@@ -137,7 +137,7 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                     if(go->name.compare("Bunny") == 0)
                     {
                         SoundLibrary::playRandSheep();
-                        rb->bulletRigidBody->setLinearVelocity(forceVector);
+//                        rb->bulletRigidBody->setLinearVelocity(forceVector);
                     }
                     else if(go->name.compare("Wolf") == 0)
                     {
@@ -150,7 +150,7 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                                 gD->shouldDie = true;
                             }
                         }
-                        rb->bulletRigidBody->setLinearVelocity(forceVector);
+//                        rb->bulletRigidBody->setLinearVelocity(forceVector);
                     }
                     else if(go->name.compare("Tree") == 0)
                     {
@@ -158,13 +158,14 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
 //                        glm::vec3 scale = go->transform->GetScale();
 //                        scale.y *= 2;
 //                        go->transform->SetScale(scale);
-                        rb->bulletRigidBody->setLinearVelocity(forceVector);
+//                        rb->bulletRigidBody->setLinearVelocity(forceVector);
                     }
                     else if(go->name.compare("Rock") == 0)
                     {
                         SoundLibrary::playRockHit();
-                        rb->bulletRigidBody->setLinearVelocity(forceVector);
+//                        rb->bulletRigidBody->setLinearVelocity(forceVector);
                     }
+                    rb->bulletRigidBody->setLinearVelocity(forceVector);
                 }
             }
         }
