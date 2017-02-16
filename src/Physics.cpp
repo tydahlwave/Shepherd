@@ -100,21 +100,22 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
         if (!Bounds::Intersects(bounds1, bounds2)) continue;
         
         if (collision.gameObject1->name.compare("Camera") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
-            MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject2->GetComponent("MeshRenderer");
+            /*MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject2->GetComponent("MeshRenderer");
             if (meshRenderer->material != MaterialLibrary::polishedGold) {
                 meshRenderer->material = MaterialLibrary::polishedGold;
                 rigidBody2->isKinematic = true;
                 bunniesCollected += 1;
 //                std::cout << "Bunnies Collected: " << bunniesCollected << std::endl;
-            }
+            }*/
         } else if (collision.gameObject2->name.compare("Camera") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
+            /*
             MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject1->GetComponent("MeshRenderer");
             if (meshRenderer->material != MaterialLibrary::polishedGold) {
                 meshRenderer->material = MaterialLibrary::polishedGold;
                 rigidBody2->isKinematic = true;
                 bunniesCollected += 1;
 //                std::cout << "Bunnies Collected: " << bunniesCollected << std::endl;
-            }
+            }*/
         } else if (collision.gameObject1->name.compare("Barrier") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
             rigidBody2->velocity.x *= -1;
             rigidBody2->velocity.z *= -1;

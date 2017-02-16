@@ -124,7 +124,7 @@ GameObject *EntityFactory::createTitle(World *world) {
 	MeshRenderer *mesh = (MeshRenderer*)gameObject->AddComponent("MeshRenderer");
 	mesh->model = ModelLibrary::title;
 	mesh->shader = ShaderLibrary::menu;
-	gameObject->transform->SetPosition(glm::vec3(0.f, 0.f, 2.f));
+	gameObject->transform->SetPosition(glm::vec3(0.f, .5f, 2.f));
 	gameObject->transform->SetRotation(glm::vec3(0.f, 180.f, 0.f));
 
 	return gameObject;
@@ -294,7 +294,7 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
     renderer->terrain->type = type;
     renderer->terrain->GenerateFromImage(resourceDir + "terrain9.png");
     renderer->shader = ShaderLibrary::phong;
-    renderer->material = MaterialLibrary::bronze;
+    renderer->material = MaterialLibrary::grass;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     btTransform t;
     t.setIdentity();

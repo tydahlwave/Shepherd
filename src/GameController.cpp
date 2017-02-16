@@ -26,6 +26,7 @@
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
 #include "Time.h"
+#include "Components/MeshRenderer.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
@@ -150,7 +151,10 @@ void GameController::Init(std::string resourceDir) {
 }
 
 void GameController::Run() {
-	nextState = state = MainMenu;
+    audio->LoadSounds(resourceDir);
+    nextState = MainMenu;
+    state = MainMenu;
+    
 	while (state != Close) {
 		LoadState();
 		// Seed random generator
@@ -161,12 +165,15 @@ void GameController::Run() {
 		float idealDeltaTime = 1.f / 60.f;
 		float accumulator = 0.0f;
 
-		audio->LoadSounds(resourceDir);
+		
 
 		//audio->PlaySound("herdAmbient.wav");
+        
 
 		// Game loop
 		while (state == nextState) {
+            sign->transform->SetRotation(vec3(0,180,cos(Time::Now() / 1000.0) * 2));
+            //sign->transform->SetPosition(vec3(0,sin(Time::Now() / 2000.0) * .02 + .5 ,2));
 			long curTime = Time::Now();
 			float elapsedTime = (curTime - oldTime) / 1000.0f;
 			// Reset current frame time
@@ -192,6 +199,8 @@ void GameController::Run() {
 			CAudioEngine::instance()->Update();
 			if (window.drawGUI && terrain) drawTerrainWindow(window, terrain);
 			window.Update();
+            
+            
 		}
 		state = nextState;
 	}
@@ -206,13 +215,26 @@ void GameController::LoadState() {
 	switch (state) {
 	case MainMenu:
 	{
-        gameMusic = audio->PlaySound("back.wav");
+        
+        std::cout<<"play menu";
+        
 		cameraController = new CameraController();
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
 
 		//load sign
-		EntityFactory::createTitle(&world);
-
+        sign = EntityFactory::createTitle(&world);
+        //Create skybox
+        //GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);
+        
+        /*GameObject *signShad = EntityFactory::createTitle(&world);
+        signShad->transform->SetScale(vec3(1,.2,1));
+        signShad->transform->SetPosition(vec3(-1.0,-1.0,2.5));
+        signShad->RemoveComponent("MeshRenderer");
+        MeshRenderer *mesh = (MeshRenderer*)signShad->AddComponent("MeshRenderer");
+        mesh->model = ModelLibrary::title;
+        mesh->shader = ShaderLibrary::cell;*/
+        
+        gameMusic = audio->PlaySound("menu.wav");
 		break;
 	}
 	case Level1:
@@ -225,7 +247,7 @@ void GameController::LoadState() {
 		wolfSystem = new WolfSystem();
 		treeSystem = new TreeSystem();
 
-      
+        audio->toggleSound(gameMusic, true);
 		gameMusic = audio->PlaySound("back.wav");
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
