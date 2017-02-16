@@ -37,7 +37,7 @@ void Mesh::LoadMeshes(std::string resourceDir) {
     plane = new Mesh(shape);
     
     shape = new Shape();
-    shape->loadMesh(resourceDir + "sphere.obj");
+    shape->loadMesh(resourceDir + "sm_sphere.obj");
     shape->resize();
     shape->init();
     sphere = new Mesh(shape);

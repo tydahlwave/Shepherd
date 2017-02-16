@@ -37,7 +37,7 @@ GameObject *EntityFactory::createBunny(World *world) {
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->mesh = Mesh::bunny;
-    meshRenderer->shader = Shader::phong;
+    meshRenderer->shader = Shader::cell;
     meshRenderer->material = Material::pearl;
     btTransform t;
     t.setIdentity();
@@ -64,7 +64,7 @@ GameObject *EntityFactory::createWolf(World *world) {
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->mesh = Mesh::bunny;
-    meshRenderer->shader = Shader::phong;
+    meshRenderer->shader = Shader::cell;
     meshRenderer->material = Material::ruby;
     btTransform t;
     t.setIdentity();
@@ -109,7 +109,7 @@ GameObject *EntityFactory::createGround(World *world) {
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->mesh = Mesh::plane;
-    meshRenderer->shader = Shader::phong;
+    meshRenderer->shader = Shader::cell;
     meshRenderer->material = Material::bronze;
     return gameObject;
 }
@@ -152,7 +152,7 @@ GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 po
     GameObject *gameObject = world->CreateGameObject("Sphere");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->mesh = Mesh::sphere;
-    meshRenderer->shader = Shader::phong;
+    meshRenderer->shader = Shader::cell;
     meshRenderer->material = Material::polishedGold;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->isKinematic = true;
@@ -207,7 +207,7 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
 //    meshRenderer->mesh = (boulderType <= 1) ? (boulderType <= 0) ? Mesh::boulder1 : Mesh::boulder2 : Mesh::boulder3;
     meshRenderer->mesh = Mesh::sphere;
-    meshRenderer->shader = Shader::phong;
+    meshRenderer->shader = Shader::cell;
     meshRenderer->material = Material::brass;
     btTransform t;
     t.setIdentity();
@@ -234,7 +234,7 @@ GameObject *EntityFactory::createTerrain(World *world, int type, int size) {
     renderer->terrain->size = size;
     renderer->terrain->type = type;
     renderer->terrain->Generate();
-    renderer->shader = Shader::phong;
+    renderer->shader = Shader::cell;
     renderer->material = Material::bronze;
     return gameObject;
 }

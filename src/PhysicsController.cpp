@@ -107,7 +107,7 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                     
                     //is sheep, baa
                     
-                    if(go->name.compare("bunny"))
+                    if(go->name.compare("bunny") == 1)
                     {
                         CAudioEngine::instance()->PlaySound("baa.wav");
                         //std::printf("hit");
