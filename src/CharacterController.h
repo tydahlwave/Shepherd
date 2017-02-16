@@ -21,7 +21,7 @@ private:
 	float alpha = -M_PI / 2;
 	float beta = -M_PI / 2 * 3;
 	float turnSpeed = 0;
-	float moveSpeed = 30;
+	float moveSpeed = 50;
 	glm::vec2 mousePrev = { 0, 0 };
 };
 
