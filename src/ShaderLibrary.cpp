@@ -55,4 +55,23 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
     hud = new Shader(program);
+    
+    program = new Program();
+    program->setVerbose(true);
+    program->setShaderNames(resourceDir + "toon_cell_vert.glsl", resourceDir + "toon_cell_frag.glsl");
+    program->init();
+    program->addUniform("P");
+    program->addUniform("M");
+    program->addUniform("V");
+    program->addAttribute("vertPos");
+    program->addAttribute("vertNor");
+    program->addUniform("lightPos");
+    program->addUniform("lightColor");
+    program->addUniform("sunDir");
+    program->addUniform("sunColor");
+    program->addUniform("matDiffuseColor");
+    program->addUniform("matSpecularColor");
+    program->addUniform("matAmbientColor");
+    program->addUniform("matShine");
+    cell = new Shader(program);
 }

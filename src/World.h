@@ -14,6 +14,8 @@
 class GameObject;
 
 #include "GameObject.h"
+#include "AudioEngine.h"
+
 #ifdef WIN32
 #include <btBulletDynamicsCommon.h>
 #else
@@ -28,7 +30,6 @@ public:
     GameObject *mainCamera = nullptr;
     
     btDiscreteDynamicsWorld *dynamicsWorld;
-    
     
     std::vector<GameObject*> GetGameObjects();
     GameObject *CreateGameObject(std::string name);

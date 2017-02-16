@@ -25,6 +25,7 @@
 #include "Terrain.h"
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
+#include "AudioEngine.h"
 #include "TextureLoader.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
@@ -174,6 +175,10 @@ int main(int argc, char **argv) {
     BunnySpawnSystem bunnySpawnSystem = BunnySpawnSystem();
     WolfSystem wolfSystem = WolfSystem();
     
+    
+    //initialize audio engine
+    CAudioEngine::instance()->Init();
+    
     // Static Initializers
     ModelLibrary::LoadModels(resourceDir);
     ShaderLibrary::LoadShaders(resourceDir);
@@ -237,6 +242,10 @@ int main(int argc, char **argv) {
     float idealDeltaTime = 1.f/60.f;
     float accumulator = 0.0f;
     
+    CAudioEngine::instance()->LoadSounds(resourceDir);
+    CAudioEngine::instance()->PlaySound("back.wav");
+    CAudioEngine::instance()->PlaySound("herdAmbient.wav");
+    
     // Game loop
     while (!window.ShouldClose()) {
         long curTime = Time::Now();
@@ -256,7 +265,7 @@ int main(int argc, char **argv) {
         }
         cameraController.Update(world);
         renderer.Render(world, window);
-        
+        CAudioEngine::instance()->Update();
         if (window.drawGUI) drawTerrainWindow(window, terrain);
         window.Update();
     }

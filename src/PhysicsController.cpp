@@ -95,6 +95,8 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
             RigidBody* rb = (RigidBody*)go->GetComponent("RigidBody");
             if(rb && rb->bulletRigidBody)
             {
+                
+                
                 btVector3 objPos = btVector3(go->transform->GetPosition().x, go->transform->GetPosition().y, go->transform->GetPosition().z);
                 //btCollisionWorld::ClosestRayResultCallback RayCallback(camPos, endPoint);
                 //world->dynamicsWorld->rayTest(camPos, endPoint, RayCallback);
@@ -102,6 +104,14 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                 //if(RayCallback.m_collisionObject == rb->bulletRigidBody) {
                 if(isLyingInCone(objPos, camPos, endPoint, M_PI/4.0)) {
                     //rb->bulletRigidBody->applyForce(forceVector, camPos - objPos);
+                    
+                    //is sheep, baa
+                    
+                    if(go->name.compare("bunny") == 1)
+                    {
+                        CAudioEngine::instance()->PlaySound("baa.wav");
+                        //std::printf("hit");
+                    }
                     
                     rb->bulletRigidBody->setLinearVelocity(forceVector);
                     

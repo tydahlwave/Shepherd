@@ -41,7 +41,7 @@ private:
     static const int maxEntities = 50;
 	int count = 0;
     float elapsedTime = 0;
-    float spawnRate = 1.0; // seconds per spawn
+    float spawnRate = 3.0; // seconds per spawn
 	float maxSpeed = 3.5;
 	float angle = 0.0;
 	bool flockToCamera = false;

@@ -27,7 +27,9 @@ World::World() :gameObjects() {
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
     
     dynamicsWorld->setGravity(btVector3(0,-50,0));
+    
 }
+
 
 std::vector<GameObject*> World::GetGameObjects() {
     return gameObjects;
