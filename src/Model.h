@@ -35,6 +35,7 @@ private:
     std::string directory;
     
     void loadModel(std::string path);
+    void resize();
     void calculateBounds();
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
     std::vector<Texture2D> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);

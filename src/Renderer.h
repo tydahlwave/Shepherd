@@ -11,6 +11,7 @@
 
 #include "World.h"
 #include "Window.h"
+#include "Components/Camera.h"
 
 class Renderer {
 public:
@@ -19,6 +20,7 @@ public:
     
     void Initialize();
     void Render(World &world, Window &window);
+    bool ViewFrustCull(GameObject *gameObject, Camera *camera);
 };
 
 #endif /* Renderer_h */

@@ -156,6 +156,42 @@ static std::vector<std::vector<float>> GenerateSimplex(int size) {
     
     return map;
 }
+    
+    static std::vector<std::vector<float>> SmoothTerrain(std::vector<std::vector<float>> map, int size, int iterations, int kernelSize) {
+        OSN::Noise<2> noise(time(0));
+        std::vector<std::vector<float>> newMap;
+        
+        // Initialize map to all 0s
+        for (int row = 0; row < size; row++) {
+            std::vector<float> rowVector;
+            for (int col = 0; col < size; col++) {
+                rowVector.push_back(0);
+            }
+            newMap.push_back(rowVector);
+        }
+        
+        // Set map values
+        for (int steps = 0; steps < iterations; steps++) {
+            for (int y = 0; y < size; y++) {
+                for (int x = 0; x < size; x++) {
+                    newMap[y][x] = 0;
+                    int count = 0;
+                    for (int ky = -kernelSize/2; ky < kernelSize/2; ky++) {
+                        for (int kx = -kernelSize/2; kx < kernelSize/2; kx++) {
+                            if (y-ky >= 0 && y-ky < size && x-kx >= 0 && x-kx < size) {
+                                count++;
+                                newMap[y][x] += map[y-ky][x-kx];
+                            }
+                        }
+                    }
+                    newMap[y][x] /= count;
+                }
+            }
+            map = newMap;
+        }
+        
+        return newMap;
+    }
 };
 
 #endif /* Noise_h */

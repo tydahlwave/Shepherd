@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <GLFW/glfw3.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "CameraController.h"
 #include "Components/Camera.h"
@@ -40,6 +41,7 @@ void CameraController::Update(World &world) {
 //    if (world.mainCamera->transform->GetPosition().y < -1.99) {
 //        world.mainCamera->transform->SetPosition(glm::vec3(world.mainCamera->transform->GetPosition().x,-1.99,world.mainCamera->transform->GetPosition().z));
 //    }
+    
 }
 
 
@@ -48,7 +50,7 @@ void CameraController::KeyPressed(World *world, int windowWidth, int windowHeigh
     
     if (action == GLFW_PRESS) {
         if (key == GLFW_KEY_LEFT_SHIFT) {
-            cameraSpeed = 0.6;
+            cameraSpeed = 5;
         }
         if (key == GLFW_KEY_W) {
             rigidBody->velocity[2] = -cameraSpeed;

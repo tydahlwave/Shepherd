@@ -29,6 +29,7 @@ World* Window::world = nullptr;
 bool Window::drawGUI = true;
 bool Window::drawMouse = false;
 bool Window::drawWireframes = false;
+bool Window::drawAABBs = false;
 std::vector<WindowCallbackDelegate*> Window::windowCallbackDelegates;
 
 Window::Window(World *w) {
@@ -67,6 +68,8 @@ void Window::KeyCallback(GLFWwindow *window, int key, int scancode, int action, 
         } else if (key == GLFW_KEY_L) {
             drawWireframes = !drawWireframes;
             glPolygonMode(GL_FRONT_AND_BACK, drawWireframes ? GL_LINE : GL_FILL);
+        } else if (key == GLFW_KEY_V) {
+            drawAABBs = !drawAABBs;
         }
     }
 }

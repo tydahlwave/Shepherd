@@ -5,6 +5,7 @@
 #include "Program.h"
 #include "Noise/Noise.h"
 #include "TextureLoader.h"
+#include "SOIL/Soil.h"
 
 #define UP 0
 #define RIGHT 1
@@ -30,6 +31,13 @@ void Terrain::Generate() {
     default:
         heightMap = Noise::GenerateDiamondSquare(size);
         break;
+    }
+    
+    // Flatten heightmap
+    for (int i = 0; i < heightMap.size(); i++) {
+        for (int j = 0; j < heightMap[i].size(); j++) {
+            heightMapFlat.push_back(heightMap[j][i]);
+        }
     }
     
     auto width = heightMap[0].size();
@@ -64,6 +72,13 @@ void Terrain::Regenerate() {
         break;
     }
     
+    // Flatten heightmap
+    for (int i = 0; i < heightMap.size(); i++) {
+        for (int j = 0; j < heightMap[i].size(); j++) {
+            heightMapFlat.push_back(heightMap[j][i]);
+        }
+    }
+    
     auto width = heightMap[0].size();
     auto height = heightMap.size();
     std::cout << "Terrain size: " << width << "x" << height << std::endl;
@@ -90,16 +105,79 @@ void Terrain::Regenerate() {
     init();
 }
 
+void Terrain::GenerateFromImage(std::string imagePath) {
+    int width = 0, height = 0, channels = 0;
+    unsigned char* img = SOIL_load_image(imagePath.c_str(),
+                                         &width, &height, &channels,
+                                         SOIL_LOAD_AUTO);
+    std::cout << SOIL_last_result() << std::endl;
+    
+    this->size = width;
+    
+    std::vector<std::vector<float>> map;
+    // Initialize map to all 0s
+    for (int row = 0; row < size; row++) {
+        std::vector<float> rowVector;
+        for (int col = 0; col < size; col++) {
+            rowVector.push_back(0);
+        }
+        map.push_back(rowVector);
+    }
+    // Set map values
+    for (int y = 0; y < size; y++) {
+        for (int x = 0; x < size; x++) {
+//            std::cout << img[y*size + x] << " = " << (float)img[y*size + x] << std::endl;
+            
+            map[x][y] = (float)img[y*size*3 + x*3] - 127.0f;
+        }
+    }
+//    heightMap = map;
+    heightMap = Noise::SmoothTerrain(map, size, 3, 5);
+    
+    // Flatten heightmap
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            heightMapFlat.push_back(heightMap[j][i]);
+        }
+    }
+    
+//    auto width = heightMap[0].size();
+//    auto height = heightMap.size();
+    std::cout << "Terrain size: " << size << "x" << size << std::endl;
+    std::cout << "Image Channels: " << channels << std::endl;
+    
+    // Reset buffers
+    posBuf.clear();
+    norBuf.clear();
+    eleBuf.clear();
+    
+    // Initialize position, normal, and texture buffers to 0s
+    for (size_t v = 0; v < size*size*3; v++) {
+        posBuf.push_back(0);
+        norBuf.push_back(0);
+        // texBuf.push_back(0);
+    }
+    
+    // Initialize the element buffer to 0s
+    int totalElements = 2*(size-1)*size + 2*(size-2); // total vertices + degenerate vertices
+    for (size_t v = 0; v < totalElements; v++) {
+        eleBuf.push_back(0);
+    }
+    
+    UpdateBuffers();
+    init();
+}
+
 void Terrain::UpdateBuffers() {
-    auto width = heightMap[0].size();
-    auto height = heightMap.size();
+    auto width = size;//heightMap[0].size();
+    auto height = size;//heightMap.size();
     
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             int index = (y * width + x) * 3;
-            posBuf[index + 0] = x;// + posX;
+            posBuf[index + 0] = x - size/2.0f;
             posBuf[index + 1] = heightMap[x][y];// * 20;
-            posBuf[index + 2] = y;// + posZ;
+            posBuf[index + 2] = y - size/2.0f;
             // printf("Point %d: %d %.3f %d\n", x+width*y, x, posBuf[chunkIndex][index + 1], y);
         }
     }

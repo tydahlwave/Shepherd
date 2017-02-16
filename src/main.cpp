@@ -26,6 +26,7 @@
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
 #include "AudioEngine.h"
+#include "TreeSystem.h"
 #include "TextureLoader.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
@@ -162,6 +163,27 @@ void drawTerrainWindow(Window &window, GameObject *terrain) {
     glPolygonMode(GL_FRONT_AND_BACK, window.drawWireframes ? GL_LINE : GL_FILL);
 }
 
+void setupWorld(World *world, TreeSystem &treeSystem) {
+    // Create Cube (with bullet physics)
+    EntityFactory::createSphere(world, 2.0, glm::vec3(5,20,2.0), 4.0);
+    EntityFactory::createSphere(world, 2.0, glm::vec3(5,15,2.0), 4.0);
+    EntityFactory::createSphere(world, 2.0, glm::vec3(5,10,2.0), 4.0);
+    
+    // Create Physics Ground (below previous ground)
+    EntityFactory::createCube(world, glm::vec3(groundSize,0.1,groundSize), glm::vec3(5.5,-4,2.0),0);
+    
+    // Create boulders
+    randomlyPopulateWithBoulders(world);
+    
+    // Create trees
+    treeSystem.Spawn(world);
+    
+    EntityFactory::createHUD(world);
+    
+    //Create Path
+    GameObject *path = EntityFactory::createPath(world, 4);
+}
+
 int main(int argc, char **argv) {
     handleInput(argc, argv);
     
@@ -174,6 +196,7 @@ int main(int argc, char **argv) {
     TerrainController terrainController = TerrainController();
     BunnySpawnSystem bunnySpawnSystem = BunnySpawnSystem();
     WolfSystem wolfSystem = WolfSystem();
+    TreeSystem treeSystem = TreeSystem();
     
     
     //initialize audio engine
@@ -189,56 +212,18 @@ int main(int argc, char **argv) {
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController);
 	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem);
     
-    // Create ground
-//    GameObject *ground = EntityFactory::createGround(&world);
-//    ground->transform->SetPosition(glm::vec3(ground->transform->GetPosition().x,ground->transform->GetPosition().y - 2,ground->transform->GetPosition().z));
-//    ground->transform->SetScale(glm::vec3(30, 1, 30));
-    
-//    GameObject *barrier1 = EntityFactory::createBarrier(&world);
-//    barrier1->transform->SetPosition(glm::vec3(0, 0, -30));
-//    barrier1->transform->SetScale(glm::vec3(50, 5, 1));
-//    GameObject *barrier2 = EntityFactory::createBarrier(&world);
-//    barrier2->transform->SetPosition(glm::vec3(0, 0, 30));
-//    barrier2->transform->SetScale(glm::vec3(50, 5, 1));
-//    GameObject *barrier3 = EntityFactory::createBarrier(&world);
-//    barrier3->transform->SetPosition(glm::vec3(-30, 0, 0));
-//    barrier3->transform->SetScale(glm::vec3(1, 5, 50));
-//    GameObject *barrier4 = EntityFactory::createBarrier(&world);
-//    barrier4->transform->SetPosition(glm::vec3(30, 0, 0));
-//    barrier4->transform->SetScale(glm::vec3(1, 5, 50));
-    
-//    GameObject *sphere = EntityFactory::createTexturedSphere(&world);
-//    sphere->transform->SetPosition(glm::vec3(0, 0, -5));
-    
-    // Create Cube (with bullet physics)
-    EntityFactory::createSphere(&world, 2.0, glm::vec3(5,20,2.0), 4.0);
-    EntityFactory::createSphere(&world, 2.0, glm::vec3(5,15,2.0), 4.0);
-    EntityFactory::createSphere(&world, 2.0, glm::vec3(5,10,2.0), 4.0);
-    
-    // Create Physics Ground (below previous ground)
-    EntityFactory::createCube(&world, glm::vec3(groundSize,0.1,groundSize), glm::vec3(5.5,-4,2.0),0);
-    
-    // Create Terrain
-    GameObject *terrain = EntityFactory::createTerrain(&world, SIMPLEX_TERRAIN, 513);
-    terrain->transform->SetPosition(glm::vec3(-256, -100, -256));
+    // Create terrain
+    GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0, -100, 0));
     terrain->transform->SetScale(glm::vec3(1, 1, 1));
     
-    // Create boulders
-    randomlyPopulateWithBoulders(&world);
-    
-    EntityFactory::createHUD(&world);
-
-	//Create Path
-	GameObject *path = EntityFactory::createPath(&world, 4);
+    // Place game objects
+    setupWorld(&world, treeSystem);
 
     // Seed random generator
     srand(time(0));
     
     // Init times
     long oldTime = Time::Now();
-    
-    std::cout << "Bunnies Collected: 0" << std::endl;
-    
     float idealDeltaTime = 1.f/60.f;
     float accumulator = 0.0f;
     
@@ -258,8 +243,8 @@ int main(int argc, char **argv) {
         
         while(accumulator >= idealDeltaTime) {
             //update
-            bunnySpawnSystem.Update(idealDeltaTime, &world, path);
-            wolfSystem.Update(idealDeltaTime, &world);
+//            bunnySpawnSystem.Update(idealDeltaTime, &world, path);
+//            wolfSystem.Update(idealDeltaTime, &world);
             physics.Update(idealDeltaTime, world);
             accumulator -= idealDeltaTime;
         }

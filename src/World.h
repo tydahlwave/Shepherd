@@ -20,6 +20,7 @@ class GameObject;
 #include <btBulletDynamicsCommon.h>
 #else
 #include <BulletDynamics/btBulletDynamicsCommon.h>
+#include <BulletCollision/btBulletCollisionCommon.h>
 #endif
 
 class World {
@@ -35,6 +36,7 @@ public:
     GameObject *CreateGameObject(std::string name);
 private:
     std::vector<GameObject*> gameObjects;
+    //KDTree kdTree;
 };
 
 #endif /* World_h */

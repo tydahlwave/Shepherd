@@ -34,6 +34,7 @@ private:
     void UpdateBulletPhysics(float deltaTime, World &world);
     void ComputeCollisions(World &world);
     void ResolveCollisions(World &world, std::vector<Collision> collisions);
+    void HandleTerrainCollisions(World &world);
     static void *StepBullet( void *world);
 //    Bounds *BoundsForGameObject(GameObject *gameObject);
 };

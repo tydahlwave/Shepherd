@@ -25,6 +25,14 @@ public:
     static Model *boulder2;
     static Model *boulder3;
     static Model *wolf;
+    static Model *title;
+    static Model *tree1;
+    static Model *tree2;
+    static Model *tree3;
+    static Model *tree4;
+    static Model *tree5;
+    static Model *player;
+    static Model *gadget;
 };
 
 #endif /* ModelLibrary_h */
