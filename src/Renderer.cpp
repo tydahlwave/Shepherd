@@ -107,6 +107,8 @@ bool Renderer::ViewFrustCull(GameObject *gameObject, Camera *camera){
     return !intersectFrustumAABB(camera, b.getMin(), b.getMax());
 }
 
+
+
 void Renderer::Render(World &world, Window &window) {
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -134,6 +136,7 @@ void Renderer::Render(World &world, Window &window) {
             if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
             if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
             if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
+            if (shader->hasUniform("charge")) glUniform1f(shader->getUniform("charge"), 1.0);
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);

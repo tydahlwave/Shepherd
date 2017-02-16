@@ -17,6 +17,7 @@ Model *ModelLibrary::boulder1 = nullptr;
 Model *ModelLibrary::boulder2 = nullptr;
 Model *ModelLibrary::boulder3 = nullptr;
 Model *ModelLibrary::wolf = nullptr;
+Model *ModelLibrary::sheep = nullptr;
 Model *ModelLibrary::title = nullptr;
 Model *ModelLibrary::tree1 = nullptr;
 Model *ModelLibrary::tree2 = nullptr;
@@ -44,4 +45,5 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
 //    tree5           = new Model(resourceDir + "tree5.obj");
     player           = new Model(resourceDir + "player.obj");
     gadget           = new Model(resourceDir + "gadget.obj");
+    sheep           = new Model(resourceDir + "sheep.obj");
 }

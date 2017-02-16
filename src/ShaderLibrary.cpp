@@ -12,6 +12,8 @@ Shader *ShaderLibrary::phong = nullptr;
 Shader *ShaderLibrary::textured = nullptr;
 Shader *ShaderLibrary::hud = nullptr;
 Shader *ShaderLibrary::cell = nullptr;
+Shader *ShaderLibrary::chargeBar = nullptr;
+float *ShaderLibrary::charge = 0;
 
 void ShaderLibrary::LoadShaders(std::string resourceDir) {
     Program *program = new Program();
@@ -75,4 +77,16 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("matAmbientColor");
     program->addUniform("matShine");
     cell = new Shader(program);
+    
+    program = new Program();
+    program->setVerbose(true);
+    program->setShaderNames(resourceDir + "charge_vert.glsl", resourceDir + "charge_frag.glsl");
+    program->init();
+    program->addUniform("P");
+    program->addUniform("M");
+    program->addUniform("V");
+    program->addUniform("charge");
+    program->addAttribute("vertPos");
+    program->addAttribute("vertNor");
+    chargeBar = new Shader(program);
 }

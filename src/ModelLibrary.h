@@ -33,6 +33,7 @@ public:
     static Model *tree5;
     static Model *player;
     static Model *gadget;
+    static Model *sheep;
 };
 
 #endif /* ModelLibrary_h */

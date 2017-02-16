@@ -98,7 +98,7 @@ void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
         
         b->transform->SetPosition(randPosition);
         rigidBody->useGravity = true;
-        b->transform->SetRotation(vec3(0, -randomAngle+90, 0));
+        b->transform->SetRotation(vec3(0, -randomAngle, 0));
 		bunnyNode.insert(std::make_pair(b, 0));
     //}
 //    }
@@ -143,7 +143,7 @@ glm::vec3 BunnySpawnSystem::Seek(World *world, GameObject *bunny, glm::vec3 targ
         steering.y = 0;
 
         angle = atan2((target - bunny->transform->GetPosition()).x, (target - bunny->transform->GetPosition()).z) * 180.0 / 3.14;
-        bunny->transform->SetRotation(glm::vec3(0, angle+90, 0));
+        bunny->transform->SetRotation(glm::vec3(0, angle, 0));
 
 		return steering;
     }
@@ -166,7 +166,7 @@ void BunnySpawnSystem::Arrival(World *world, GameObject *bunny, glm::vec3 target
 		distX = position.x - bunny->transform->GetPosition().x;
 		distZ = position.z - bunny->transform->GetPosition().z;
         angle = atan2((position - bunny->transform->GetPosition()).x, (position - bunny->transform->GetPosition()).z) * 180.0 / 3.14;
-		bunny->transform->SetRotation(vec3(0, angle+90, 0));
+		bunny->transform->SetRotation(vec3(0, angle, 0));
 
         glm::vec3 desiredVel = glm::normalize(glm::vec3(distX, 0, distZ)) * maxSpeed;
         float dist = glm::length(desiredVel);

@@ -20,6 +20,8 @@ public:
     static Shader *textured;
     static Shader *hud;
     static Shader *cell;
+    static Shader *chargeBar;
+    static float *charge;
 };
 
 #endif /* ShaderLibrary_h */

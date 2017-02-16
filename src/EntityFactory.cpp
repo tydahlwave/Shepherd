@@ -41,8 +41,8 @@ GameObject *EntityFactory::createBunny(World *world) {
 //    rigidBody->isKinematic = true;
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->model = ModelLibrary::bunny;
-    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->model = ModelLibrary::sheep;
+    meshRenderer->shader = ShaderLibrary::cell;
     meshRenderer->material = MaterialLibrary::pearl;
     btTransform t;
     t.setIdentity();
@@ -69,7 +69,7 @@ GameObject *EntityFactory::createWolf(World *world) {
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::wolf;
-    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->shader = ShaderLibrary::cell;
     meshRenderer->material = MaterialLibrary::ruby;
     btTransform t;
     t.setIdentity();
@@ -93,6 +93,14 @@ GameObject *EntityFactory::createHUD(World *world) {
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::cube;
     meshRenderer->shader = ShaderLibrary::hud;
+    return gameObject;
+}
+
+GameObject *EntityFactory::createChargeBar(World *world) {
+    GameObject *gameObject = world->CreateGameObject("ChargeBar");
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->model = ModelLibrary::cube;
+    meshRenderer->shader = ShaderLibrary::chargeBar;
     return gameObject;
 }
 
@@ -157,7 +165,7 @@ GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 po
     GameObject *gameObject = world->CreateGameObject("Sphere");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::sphere;
-    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->shader = ShaderLibrary::cell;
     meshRenderer->material = MaterialLibrary::polishedGold;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->isKinematic = true;
@@ -212,7 +220,7 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
 //    meshRenderer->mesh = (boulderType <= 1) ? (boulderType <= 0) ? Mesh::boulder1 : Mesh::boulder2 : Mesh::boulder3;
     meshRenderer->model = ModelLibrary::sphere;
-    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->shader = ShaderLibrary::cell;
     meshRenderer->material = MaterialLibrary::brass;
     btTransform t;
     t.setIdentity();
@@ -276,7 +284,7 @@ GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
     GameObject *gameObject = world->CreateGameObject("Tree");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = (type == 0) ? ModelLibrary::tree1 : (type == 1) ? ModelLibrary::tree2 : ModelLibrary::tree3;
-    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->shader = ShaderLibrary::cell;
     meshRenderer->material = MaterialLibrary::grass;
     gameObject->AddComponent("BoxCollider");
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
