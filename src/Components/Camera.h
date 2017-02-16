@@ -19,7 +19,7 @@ enum ProjectionType {
 class Camera : public Component {
 public:
     Camera() { name = "Camera"; };
-    Camera(ProjectionType p, float n, float f, float _fov, glm::vec3 l, glm::vec3 u) :Camera()
+    Camera(ProjectionType p, float n, float f, float _fov, glm::vec3 l, glm::vec3 u, glm::vec3 o) :Camera()
     { projectionType = p; near = n; far = f; fov = _fov; lookAt = l; up = u; }
     virtual ~Camera() {};
     
@@ -88,6 +88,13 @@ public:
         l = glm::length(n);
         planes[5] = Far = Far/l;
     }
+	glm::vec3 vel = glm::vec3(0, 0, 0);
+	float dist = 10;
+	float aap = 0;
+	float pitch = 0;
+	float yaw = 0;
+	float roll = 0;
+	glm::vec3 pos = glm::vec3(0, 0, 0);
 };
 
 #endif /* Camera_h */
