@@ -211,7 +211,7 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
 //    meshRenderer->mesh = (boulderType <= 1) ? (boulderType <= 0) ? Mesh::boulder1 : Mesh::boulder2 : Mesh::boulder3;
-    meshRenderer->model = ModelLibrary::tree1;
+    meshRenderer->model = ModelLibrary::sphere;
     meshRenderer->shader = ShaderLibrary::phong;
     meshRenderer->material = MaterialLibrary::brass;
     btTransform t;
