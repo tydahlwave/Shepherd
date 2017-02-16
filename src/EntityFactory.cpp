@@ -30,14 +30,14 @@ GameObject *EntityFactory::createMainCamera(World *world) {
     rigidBody->isKinematic = true;
     gameObject->AddComponent("Camera");
     gameObject->AddComponent("BoxCollider");
-    gameObject->transform->SetScale(glm::vec3(0.2, 0.2, 0.2));
+    gameObject->transform->SetScale(glm::vec3(3, 3, 3));
     return gameObject;
 }
 
 GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
 	camera->AddComponent("Character");
 	MeshRenderer *meshRenderer = (MeshRenderer*)camera->AddComponent("MeshRenderer");
-	meshRenderer->model = ModelLibrary::cube;
+	meshRenderer->model = ModelLibrary::player;
 	meshRenderer->shader = ShaderLibrary::phong;
 	meshRenderer->material = MaterialLibrary::copper;
 	
