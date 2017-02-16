@@ -137,7 +137,8 @@ void Renderer::Render(World &world, Window &window) {
 
 			shader->bind();
 			glDepthMask(GL_FALSE);
-
+			glDepthRange(1, 1);
+			glDepthFunc(GL_LEQUAL);
 			glUniform1i(shader->getUniform("skybox"), 2);
 			glActiveTexture(GL_TEXTURE2);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubeMapTexture);
@@ -148,7 +149,9 @@ void Renderer::Render(World &world, Window &window) {
 			applyTransformMatrix(shader, gameObject->transform);
 
 			model->draw(shader);
-			glDepthMask(GL_TRUE);
+		    glDepthMask(GL_TRUE);
+			glDepthRange(0, 1);
+			glDepthFunc(GL_LESS);
 			shader->unbind();
 		}
 
