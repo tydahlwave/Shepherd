@@ -26,10 +26,18 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("lightColor");
     program->addUniform("sunDir");
     program->addUniform("sunColor");
+    program->addUniform("numLights");
+    program->addUniform("position");
+    program->addUniform("intensities");
+    program->addUniform("attenuation");
+    program->addUniform("ambientCoefficient");
+    program->addUniform("coneAngle");
+    program->addUniform("coneDirection");
     program->addUniform("matDiffuseColor");
     program->addUniform("matSpecularColor");
     program->addUniform("matAmbientColor");
     program->addUniform("matShine");
+    program->addUniform("cameraPos");
     phong = new Shader(program);
     
     program = new Program();

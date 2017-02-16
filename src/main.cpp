@@ -184,6 +184,8 @@ int main(int argc, char **argv) {
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController);
 	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem);
     
+    
+    
     // Create ground
 //    GameObject *ground = EntityFactory::createGround(&world);
 //    ground->transform->SetPosition(glm::vec3(ground->transform->GetPosition().x,ground->transform->GetPosition().y - 2,ground->transform->GetPosition().z));
@@ -224,7 +226,7 @@ int main(int argc, char **argv) {
     EntityFactory::createHUD(&world);
 
 	//Create Path
-	GameObject *path = EntityFactory::createPath(&world, 4);
+	GameObject *path = EntityFactory::createPath(&world, 5);
 
     // Seed random generator
     srand(time(0));

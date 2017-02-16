@@ -250,7 +250,8 @@ GameObject *EntityFactory::createPath(World *world, int size) {
 	renderer->path->radius = 5;
 	renderer->path->AddNode(glm::vec3(-30, 0, -30));
 	renderer->path->AddNode(glm::vec3(-30, 0, 30));
-	renderer->path->AddNode(glm::vec3(30, 0, 30));
+    renderer->path->AddNode(glm::vec3(30, 0, 30));
+    renderer->path->AddNode(glm::vec3(0, 0, 0));
 	renderer->path->AddNode(glm::vec3(30, 0, -30));
-	return gameObject;
+    return gameObject;
 }

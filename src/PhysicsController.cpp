@@ -74,7 +74,7 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
         btVector3 camPos = btVector3(world->mainCamera->transform->GetPosition().x,world->mainCamera->transform->GetPosition().y,world->mainCamera->transform->GetPosition().z);
         
         btVector3 camLookAt = btVector3(cam->lookAt.x,cam->lookAt.y,cam->lookAt.z);
-        btVector3 endPoint = (camLookAt - camPos)*1000.0; // multiplied by a large number to make sure i got far enough
+        btVector3 endPoint = camPos + (camLookAt - camPos)*30.0; // multiplied by a large number to make sure i got far enough
         
         
         btVector3 forceVector = camLookAt - camPos;
@@ -100,7 +100,7 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                 //world->dynamicsWorld->rayTest(camPos, endPoint, RayCallback);
                 
                 //if(RayCallback.m_collisionObject == rb->bulletRigidBody) {
-                if(isLyingInCone(objPos, camPos, endPoint, M_PI/4.0)) {
+                if(isLyingInCone(objPos, camPos, endPoint, M_PI/3.0)) {
                     //rb->bulletRigidBody->applyForce(forceVector, camPos - objPos);
                     
                     rb->bulletRigidBody->setLinearVelocity(forceVector);
