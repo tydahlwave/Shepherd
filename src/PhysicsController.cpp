@@ -135,7 +135,22 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                     if(go->name.compare("Bunny") == 0)
                     {
                         SoundLibrary::playRandSheep();
-                        std::printf("hit");
+                        
+                    }
+                    else if(go->name.compare("Wolf") == 0)
+                    {
+                        SoundLibrary::playWolfHurt();
+                        
+                    }
+                    else if(go->name.compare("Tree") == 0)
+                    {
+                        SoundLibrary::playTreeHit();
+                        
+                    }
+                    else if(go->name.compare("Rock") == 0)
+                    {
+                        SoundLibrary::playRockHit();
+                        
                     }
                     
                     rb->bulletRigidBody->setLinearVelocity(forceVector);

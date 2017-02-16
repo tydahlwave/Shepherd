@@ -9,6 +9,7 @@
 #include "WolfSystem.h"
 #include "EntityFactory.h"
 #include "Components/RigidBody.h"
+#include "SoundLibrary.h"
 
 void WolfSystem::Update(float deltaTime, World *world) {
     
@@ -39,6 +40,7 @@ void WolfSystem::Spawn(World *world) {
     wolf->transform->SetPosition(center + direction * distance);
     wolf->transform->SetScale(glm::vec3(3, 3, 3));
     wolves.push_back(wolf);
+    SoundLibrary::playWolfSpawn();
 }
 
 void WolfSystem::MoveWolf(GameObject *wolf, float deltaTime, World *world) {
