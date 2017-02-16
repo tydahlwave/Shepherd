@@ -255,9 +255,9 @@ void Physics::HandleTerrainCollisions(World &world) {
                     {terrain->getHeight(rowIndex, colIndex+1), terrain->getHeight(rowIndex, colIndex)}
                 };
                 
-                std::cout << "Height[" << rowIndex << "][" << colIndex << "] = " << terrain->getHeight(rowIndex, colIndex) << std::endl;
+//                std::cout << "Height[" << rowIndex << "][" << colIndex << "] = " << terrain->getHeight(rowIndex, colIndex) << std::endl;
                 float interpolatedHeight = BilinearInterpolate(neighbors, fColIndex-colIndex, fRowIndex-rowIndex);
-                std::cout << "Interpolated Height: " << interpolatedHeight << std::endl;
+//                std::cout << "Interpolated Height: " << interpolatedHeight << std::endl;
                 obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f, pos.z));
             }
         }

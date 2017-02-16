@@ -156,7 +156,7 @@ GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::v
 GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 position, float mass) {
     GameObject *gameObject = world->CreateGameObject("Sphere");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->model = ModelLibrary::player;
+    meshRenderer->model = ModelLibrary::sphere;
     meshRenderer->shader = ShaderLibrary::phong;
     meshRenderer->material = MaterialLibrary::polishedGold;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");

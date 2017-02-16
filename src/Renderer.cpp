@@ -26,7 +26,7 @@ Renderer::Renderer() {
 void applyProjectionMatrix(Program *program, Window &window, Camera *camera) {
     MatrixStack stack = MatrixStack();
     float aspectRatio = window.GetWidth()/(float)window.GetHeight();
-    stack.perspective(45.0f, aspectRatio, 0.01f, 10000.0f);
+    stack.perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
     glUniformMatrix4fv(program->getUniform("P"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
 
