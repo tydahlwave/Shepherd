@@ -19,6 +19,8 @@
 #include "Terrain.h"
 #include "Components/PathRenderer.h"
 #include  "Path.h"
+//#include <Bullet3Geometry>
+#include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
 
 #include <random>
 
@@ -72,13 +74,13 @@ GameObject *EntityFactory::createWolf(World *world) {
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 0, 0));
-    btSphereShape* sphere = new btSphereShape(1);
+    btBoxShape* collisionShape = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x, meshRenderer->model->bounds.halfwidths.y, meshRenderer->model->bounds.halfwidths.z));
     btVector3 inertia(0,0,0);
     float mass = 1.0f;
     if(mass != 0)
-        sphere->calculateLocalInertia(mass, inertia);
+        collisionShape->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
-    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, collisionShape);
     rigidBody->bulletRigidBody = new btRigidBody(info);
     rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     
@@ -230,15 +232,30 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     return gameObject;
 }
 
-GameObject *EntityFactory::createTerrain(World *world, int type, int size) {
+GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, int type, int size, glm::vec3 pos) {
     GameObject *gameObject = world->CreateGameObject("Terrain");
     TerrainRenderer *renderer = (TerrainRenderer*) gameObject->AddComponent("TerrainRenderer");
     renderer->terrain = new Terrain();
     renderer->terrain->size = size;
     renderer->terrain->type = type;
-    renderer->terrain->Generate();
+    renderer->terrain->GenerateFromImage(resourceDir + "terrain9.png");
     renderer->shader = ShaderLibrary::phong;
     renderer->material = MaterialLibrary::bronze;
+    RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
+    btTransform t;
+    t.setIdentity();
+    t.setOrigin(btVector3(pos.x, pos.y, pos.z));
+    btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(size, size,
+                                                                              renderer->terrain->heightMapFlat.data(), 1.0f,
+                                                                              -255.0f, 255.0f, // min/max heights
+                                                                              1, PHY_FLOAT,
+                                                                              false);
+    btMotionState* motion = new btDefaultMotionState(t);
+    btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, collisionShape);
+    rigidBody->bulletRigidBody = new btRigidBody(info);
+    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+    
+    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
 }
 
@@ -253,5 +270,35 @@ GameObject *EntityFactory::createPath(World *world, int size) {
     renderer->path->AddNode(glm::vec3(30, 0, 30));
     renderer->path->AddNode(glm::vec3(0, 0, 0));
 	renderer->path->AddNode(glm::vec3(30, 0, -30));
+    return gameObject;
+}
+
+GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
+    GameObject *gameObject = world->CreateGameObject("Tree");
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->model = (type == 0) ? ModelLibrary::tree1 : (type == 1) ? ModelLibrary::tree2 : ModelLibrary::tree3;
+    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->material = MaterialLibrary::grass;
+    gameObject->AddComponent("BoxCollider");
+    RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
+    rigidBody->isKinematic = true;
+    btTransform t;
+    t.setIdentity();
+    t.setOrigin(btVector3(pos.x, pos.y, pos.z));
+    btBoxShape* collisionShape = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x, meshRenderer->model->bounds.halfwidths.y, meshRenderer->model->bounds.halfwidths.z));
+//    btVector3 inertia(0,0,0);
+    float mass = 0;
+//    if (mass != 0)
+//        collisionShape->calculateLocalInertia(mass, inertia);
+    btMotionState* motion = new btDefaultMotionState(t);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, collisionShape);
+    rigidBody->bulletRigidBody = new btRigidBody(info);
+    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+//    rigidBody->bulletRigidBody->setFriction(1.f);
+//    rigidBody->bulletRigidBody->setRollingFriction(1.0f);
+//    rigidBody->bulletRigidBody->setSpinningFriction(1.0f);
+    rigidBody->bulletRigidBody->setCollisionFlags(0); // Make it a static object
+
+    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
 }

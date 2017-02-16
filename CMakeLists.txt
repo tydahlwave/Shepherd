@@ -64,6 +64,18 @@ else()
   target_link_libraries(${CMAKE_PROJECT_NAME} ${GLEW_DIR}/lib/libGLEW.a)
 endif()
 
+if(WIN32)
+	# Get the BULLET environment variable.
+	set(BULLET_LIB_DIR "$ENV{BULLET_DIR}")
+	if(NOT BULLET_LIB_DIR)
+		message (FATAL_ERROR "Please point the environment variable BULLET_DIR to the directory with the Bullet Libraries")
+	endif()
+	# With prebuilt binaries
+	target_link_libraries(${CMAKE_PROJECT_NAME} ${BULLET_LIB_DIR}/LinearMath_RelWithDebugInfo.lib)
+	target_link_libraries(${CMAKE_PROJECT_NAME} ${BULLET_LIB_DIR}/BulletCollision_RelWithDebugInfo.lib)
+	target_link_libraries(${CMAKE_PROJECT_NAME} ${BULLET_LIB_DIR}/BulletDynamics_RelWithDebugInfo.lib)
+endif()
+
 # Get the ASSIMP environment variable.
 set(ASSIMP_INCLUDE_DIR "$ENV{ASSIMP_INCLUDE_DIR}")
 if(NOT ASSIMP_INCLUDE_DIR)
@@ -71,7 +83,12 @@ if(NOT ASSIMP_INCLUDE_DIR)
 endif()
 include_directories(${ASSIMP_INCLUDE_DIR}/include)
 # With prebuilt binaries
-target_link_libraries(${CMAKE_PROJECT_NAME} ${ASSIMP_INCLUDE_DIR}/lib/libassimp.3.3.1.dylib)
+if(WIN32)
+	target_link_libraries(${CMAKE_PROJECT_NAME} ${ASSIMP_INCLUDE_DIR}/bin/RelWithDebInfo/assimp-vc140-mt.lib)
+	target_link_libraries(${CMAKE_PROJECT_NAME} ${ASSIMP_INCLUDE_DIR}/lib/RelWithDebInfo/zlibstatic.lib)
+else()
+	target_link_libraries(${CMAKE_PROJECT_NAME} ${ASSIMP_INCLUDE_DIR}/lib/libassimp.3.3.1.dylib)
+endif()
 
 # OS specific options and libraries
 if(WIN32)
