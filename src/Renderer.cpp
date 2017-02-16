@@ -128,7 +128,19 @@ void Renderer::Render(World &world, Window &window) {
     
     for (GameObject *gameObject : world.GetGameObjects()) {
         MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
-        if (meshRenderer && intersectFrustumAABB(camera, gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
+        if (meshRenderer && gameObject->name.compare("HUD") == 0) {
+            auto shader = meshRenderer->shader->program;
+            auto model = meshRenderer->model;
+            shader->bind();
+            
+            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+            applyProjectionMatrix(shader, window, camera);
+            applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            applyTransformMatrix(shader, gameObject->transform);
+            
+            model->draw(shader);
+            shader->unbind();
+        } else if (meshRenderer && intersectFrustumAABB(camera, gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
             auto shader = meshRenderer->shader->program;
             auto model = meshRenderer->model;
             shader->bind();
