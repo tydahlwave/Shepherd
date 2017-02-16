@@ -101,7 +101,7 @@ GameObject *EntityFactory::createWolf(World *world) {
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::wolf;
     meshRenderer->shader = ShaderLibrary::cell;
-    meshRenderer->material = MaterialLibrary::ruby;
+    meshRenderer->material = MaterialLibrary::brown;
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 0, 0));
@@ -264,7 +264,7 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     meshRenderer->model = (randNum <= 1) ? (randNum <= 0) ? ModelLibrary::boulder1 : ModelLibrary::boulder2 : ModelLibrary::boulder3;
 //    meshRenderer->model = ModelLibrary::sphere;
     meshRenderer->shader = ShaderLibrary::cell;
-    meshRenderer->material = MaterialLibrary::brass;
+    meshRenderer->material = MaterialLibrary::chrome;
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 0, 0));
