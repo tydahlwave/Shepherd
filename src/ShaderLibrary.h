@@ -23,6 +23,7 @@ public:
     static Shader *cell;
     static Shader *chargeBar;
     static Shader *ground;
+    static Shader *menu;
 
     static std::string ConstructLightUniformName(const char* propertyName, size_t lightIndex) {
         std::ostringstream ss;
