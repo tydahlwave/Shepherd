@@ -1,10 +1,6 @@
 #version 330 core
 in vec3 fragPos;
 in vec3 fragNor;
-uniform vec3 matDiffuseColor;
-uniform vec3 matSpecularColor;
-uniform vec3 matAmbientColor;
-uniform float matShine;
 uniform mat4 V;
 
 #define MAX_LIGHTS 10
@@ -116,7 +112,6 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     //linear color (color before gamma correction)
     return ambient + attenuation*(diffuse + specular);
 }
-
 
 void main()
 {

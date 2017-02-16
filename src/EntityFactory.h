@@ -21,6 +21,7 @@ public:
 	static GameObject *createTitle(World *world);
     static GameObject *createChargeBar(World *world);
     static GameObject *createTexturedSphere(World *world);
+    //static GameObject *createTexturedSphere(World *world);
     static GameObject *createGround(World *world);
     static GameObject *createBarrier(World *world);
     static GameObject *createCube(World *world, glm::vec3 dimensions, glm::vec3 position, float mass);
@@ -30,6 +31,7 @@ public:
     static GameObject *createTerrain(World *world, std::string resourceDir, int type, int size, glm::vec3 pos);
 	static GameObject *createPath(World *world, int nodes);
     static GameObject *createTree(World *world, int type, glm::vec3 pos);
+	static GameObject *createSkybox(World *world, std::string resourceDir);
 	static GameObject *upgradeCharacter(World *world, GameObject *camera);
 };
 
