@@ -39,7 +39,7 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
     title           = new Model(resourceDir + "title.obj");
     tree1           = new Model(resourceDir + "tree1.obj");
     tree2           = new Model(resourceDir + "tree2.obj");
-    tree3           = new Model(resourceDir + "tree3.obj");
+    tree3           = new Model(resourceDir + "tree4.obj");
 //    tree4           = new Model(resourceDir + "tree4.obj");
 //    tree5           = new Model(resourceDir + "tree5.obj");
     player           = new Model(resourceDir + "player.obj");

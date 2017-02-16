@@ -239,13 +239,13 @@ void Physics::HandleTerrainCollisions(World &world) {
     // Compare objects for collisions
     for (GameObject *obj : world.GetGameObjects()) {
         // If it's not terrain
-        if (obj->name.compare("Terrain") != 0 && obj->name.compare("Boulder") == 0) {
+        if (obj->name.compare("Terrain") != 0 && (obj->name.compare("Boulder") == 0 || obj->name.compare("Tree") == 0)) {
             Bounds bounds = obj->getBounds();
             
             // If the object is within XZ bounds of terrain
             glm::vec3 pos = obj->transform->GetPosition();
-            if (pos.x >= terrainMin.x && pos.x < terrainMax.x - 1 &&
-                pos.z >= terrainMin.z && pos.z < terrainMax.z - 1) {
+            if (pos.x >= terrainMin.x && pos.x < terrainMax.x - terrainObject->transform->GetScale().x &&
+                pos.z >= terrainMin.z && pos.z < terrainMax.z - terrainObject->transform->GetScale().z) {
                 float fColIndex = (pos.z - terrainMin.z) / terrainObject->transform->GetScale().z;
                 float fRowIndex = (pos.x - terrainMin.x) / terrainObject->transform->GetScale().x;
                 int rowIndex = (int)fRowIndex;// / (terrainSize.z/2.0f);
@@ -258,7 +258,7 @@ void Physics::HandleTerrainCollisions(World &world) {
                 std::cout << "Height[" << rowIndex << "][" << colIndex << "] = " << terrain->getHeight(rowIndex, colIndex) << std::endl;
                 float interpolatedHeight = BilinearInterpolate(neighbors, fColIndex-colIndex, fRowIndex-rowIndex);
                 std::cout << "Interpolated Height: " << interpolatedHeight << std::endl;
-                obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y, pos.z));
+                obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f, pos.z));
             }
         }
     }
