@@ -137,3 +137,4 @@ void main()
     //vec3 gamma = vec3(1.0/2.2);
     //color = vec4(pow(totalPhong, gamma), 1.0);
 }
+

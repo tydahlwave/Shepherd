@@ -42,3 +42,17 @@ void SoundLibrary::playRandSheep(){
         }
     }
 }
+
+void SoundLibrary::playWolfHurt(){
+    CAudioEngine::instance()->PlaySound("wolfOw.wav");
+    
+}
+void SoundLibrary::playWolfSpawn(){
+    CAudioEngine::instance()->PlaySound("wolfGrowl.wav");
+}
+ void SoundLibrary::playTreeHit(){
+    CAudioEngine::instance()->PlaySound("treeMove.wav");
+}
+ void SoundLibrary::playRockHit(){
+    CAudioEngine::instance()->PlaySound("rock.wav");
+}
