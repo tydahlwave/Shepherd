@@ -239,10 +239,10 @@ int main(int argc, char **argv) {
         
         while(accumulator >= idealDeltaTime) {
             //update
-			characterController.Update(&world, idealDeltaTime);
 //            bunnySpawnSystem.Update(idealDeltaTime, &world, path);
 //            wolfSystem.Update(idealDeltaTime, &world);
             physics.Update(idealDeltaTime, world);
+            characterController.Update(&world, idealDeltaTime);
             accumulator -= idealDeltaTime;
         }
         cameraController.Update(world);
