@@ -22,6 +22,7 @@ public:
     void KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action);
     void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY);
     void MouseClicked(World *world, double mouseX, double mouseY, int key, int action);
+	void MouseScrolled(World *world, double dx, double dy);
     
 private:
     bool isLyingInCone(btVector3 &x, btVector3 &t, btVector3 &b, float aperture);

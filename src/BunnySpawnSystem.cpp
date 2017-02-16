@@ -120,6 +120,9 @@ void BunnySpawnSystem::MouseClicked(World *world, double mouseX, double mouseY, 
 
 }
 
+void BunnySpawnSystem::MouseScrolled(World *world, double dx, double dy) {
+
+}
 
 void BunnySpawnSystem::Flock(World *world, GameObject *bunny, glm::vec3 target) {
 	Arrival(world, bunny, target);

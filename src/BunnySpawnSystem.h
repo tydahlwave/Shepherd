@@ -26,6 +26,7 @@ public:
 	void KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) override;
 	void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) override;
 	void MouseClicked(World *world, double mouseX, double mouseY, int key, int action) override;
+	void MouseScrolled(World *world, double dx, double dy);
 	void Flock(World *world, GameObject *bunny, glm::vec3 target);
 	glm::vec3 Seek(World *world, GameObject *bunny, glm::vec3 target);
 	void Arrival(World *world, GameObject *bunny, glm::vec3 target);

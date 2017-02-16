@@ -17,7 +17,7 @@
 void TerrainController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
     // Re-generated Terrain
     if (action == GLFW_PRESS) {
-        if (key == GLFW_KEY_SPACE) {
+        if (key == GLFW_KEY_T) {
             for (GameObject *go : world->GetGameObjects()) {
                 if (go->name.compare("Terrain") == 0) {
                     TerrainRenderer *terrainRenderer = (TerrainRenderer*) go->GetComponent("TerrainRenderer");
@@ -34,4 +34,9 @@ void TerrainController::MouseClicked(World *world, double mouseX, double mouseY,
 
 void TerrainController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {
     
+}
+
+
+void TerrainController::MouseScrolled(World *world, double dx, double dy) {
+
 }

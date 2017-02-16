@@ -32,9 +32,7 @@ void applyProjectionMatrix(Program *program, Window &window, Camera *camera) {
 
 void applyCameraMatrix(Program *program, Camera *camera, glm::vec3 position) {
     MatrixStack stack = MatrixStack();
-	glm::vec3 forw = camera->pos + glm::vec3(sin(camera->yaw), sin(glm::radians(camera->pitch)), cos(camera->yaw));
-	//forw.y += camera->pitch;
-    stack.lookAt(position, forw, camera->up);
+    stack.lookAt(position, camera->lookAt, camera->up);
     glUniformMatrix4fv(program->getUniform("V"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
 
@@ -122,7 +120,7 @@ void Renderer::Render(World &world, Window &window) {
     //glGetFloatv(GL_PROJECTION_MATRIX, P);
     float aspectRatio = window.GetWidth()/(float)window.GetHeight();
     mat4 P = glm::perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
-    mat4 V = glm::lookAt(camera->gameObject->transform->GetPosition(), camera->lookAt, camera->up);
+    mat4 V = glm::lookAt(camera->pos, camera->lookAt, camera->up);
     
     camera->ExtractVFPlanes(P, V);
     
