@@ -304,12 +304,15 @@ glm::vec3 BunnySpawnSystem::FollowPath(World *world, GameObject *bunny) {
         glm::vec3 bunnyPos = bunny->transform->GetPosition();
         bunnyPos.y = 0;
 		if (glm::distance(bunnyPos, target) <= (*path).radius) {
-			bunnyNode[bunny] = bunnyNode[bunny] + 1;
+            // If at end node, don't continue
+            if (glm::distance(nodes[path->size-1], target) > 0.1) {
+                bunnyNode[bunny] = bunnyNode[bunny] + 1;
 
-			if (bunnyNode[bunny] >= (*path).size) {
-				bunnyNode[bunny] = 0; //to loop around path
-				//bunnyNode[bunny] = (*path).size - 1;
-			}
+                if (bunnyNode[bunny] >= (*path).size) {
+                    bunnyNode[bunny] = 0; //to loop around path
+                    //bunnyNode[bunny] = (*path).size - 1;
+                }
+            }
 		}
 	}
 

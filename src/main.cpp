@@ -211,7 +211,7 @@ int main(int argc, char **argv) {
 	GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);
 
     // Create terrain
-    GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0, -100, 0));
+    GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0, 80, 0));
     terrain->transform->SetScale(glm::vec3(1, 1, 1));
     
 	world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera);
