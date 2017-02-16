@@ -150,7 +150,10 @@ void GameController::Init(std::string resourceDir) {
 }
 
 void GameController::Run() {
-	nextState = state = MainMenu;
+    audio->LoadSounds(resourceDir);
+    nextState = MainMenu;
+    state = MainMenu;
+    
 	while (state != Close) {
 		LoadState();
 		// Seed random generator
@@ -161,9 +164,10 @@ void GameController::Run() {
 		float idealDeltaTime = 1.f / 60.f;
 		float accumulator = 0.0f;
 
-		audio->LoadSounds(resourceDir);
+		
 
 		//audio->PlaySound("herdAmbient.wav");
+        
 
 		// Game loop
 		while (state == nextState) {
@@ -206,13 +210,15 @@ void GameController::LoadState() {
 	switch (state) {
 	case MainMenu:
 	{
-        gameMusic = audio->PlaySound("back.wav");
+        
+        std::cout<<"play menu";
+        
 		cameraController = new CameraController();
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
 
 		//load sign
 		EntityFactory::createTitle(&world);
-
+        gameMusic = audio->PlaySound("menu.wav");
 		break;
 	}
 	case Level1:
@@ -225,7 +231,7 @@ void GameController::LoadState() {
 		wolfSystem = new WolfSystem();
 		treeSystem = new TreeSystem();
 
-      
+        audio->toggleSound(gameMusic, true);
 		gameMusic = audio->PlaySound("back.wav");
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
