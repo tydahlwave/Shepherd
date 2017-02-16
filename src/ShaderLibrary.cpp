@@ -11,6 +11,7 @@
 Shader *ShaderLibrary::phong = nullptr;
 Shader *ShaderLibrary::textured = nullptr;
 Shader *ShaderLibrary::hud = nullptr;
+Shader *ShaderLibrary::cell = nullptr;
 
 void ShaderLibrary::LoadShaders(std::string resourceDir) {
     Program *program = new Program();
