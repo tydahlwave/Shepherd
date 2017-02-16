@@ -15,6 +15,7 @@
 #include "Components/MeshRenderer.h"
 #include "Components/Camera.h"
 #include "Components/TerrainRenderer.h"
+#include "Components/SkyboxRenderer.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
@@ -35,6 +36,14 @@ void applyCameraMatrix(Program *program, Camera *camera, glm::vec3 position) {
     stack.lookAt(position, camera->lookAt, camera->up);
     glUniformMatrix4fv(program->getUniform("V"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
+
+void applyCameraMatrixWithoutTrans(Program *program, Camera *camera, glm::vec3 position) {
+	MatrixStack stack = MatrixStack();
+	stack.lookAt(position, camera->lookAt, camera->up);
+	glm::mat4 view = glm::mat4(glm::mat3(stack.topMatrix()));
+	glUniformMatrix4fv(program->getUniform("V"), 1, GL_FALSE, value_ptr(view));
+}
+
 
 void applyTransformMatrix(Program *program, Transform *transform) {
     glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, value_ptr(transform->GetMatrix()));
@@ -110,6 +119,7 @@ bool Renderer::ViewFrustCull(GameObject *gameObject, Camera *camera){
 void Renderer::Render(World &world, Window &window) {
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
     
     Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
     //GLfloat P[16]; //glm::make_mat4(P)
@@ -121,6 +131,28 @@ void Renderer::Render(World &world, Window &window) {
     camera->ExtractVFPlanes(P, V);
     
     for (GameObject *gameObject : world.GetGameObjects()) {
+		SkyboxRenderer *skyboxRenderer = (SkyboxRenderer*)gameObject->GetComponent("SkyboxRenderer");
+		if (skyboxRenderer) {
+			auto skybox = skyboxRenderer->skybox;
+			auto shader = skyboxRenderer->shader->program;
+			auto model = skyboxRenderer->model;
+
+			shader->bind();
+			glDepthMask(GL_FALSE);
+
+			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+			applyProjectionMatrix(shader, window, camera);
+			applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+			applyTransformMatrix(shader, gameObject->transform);
+
+			glUniform1i(shader->getUniform("skybox"), 2);
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubeMapTexture);
+
+			model->draw(shader);
+			shader->unbind();
+		}
+
         MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
         if (meshRenderer && !ViewFrustCull(gameObject, camera)) {
             auto shader = meshRenderer->shader->program;

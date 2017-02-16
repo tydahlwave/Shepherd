@@ -19,6 +19,7 @@ public:
     static Shader *phong;
     static Shader *textured;
     static Shader *hud;
+	static Shader *skybox;
 };
 
 #endif /* ShaderLibrary_h */

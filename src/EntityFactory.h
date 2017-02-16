@@ -28,6 +28,7 @@ public:
     static GameObject *createTerrain(World *world, std::string resourceDir, int type, int size, glm::vec3 pos);
 	static GameObject *createPath(World *world, int nodes);
     static GameObject *createTree(World *world, int type, glm::vec3 pos);
+	static GameObject *createSkybox(World *world, std::string resourceDir);
 };
 
 #endif /* EntityFactory_h */
