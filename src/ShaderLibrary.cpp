@@ -12,6 +12,7 @@ Shader *ShaderLibrary::phong = nullptr;
 Shader *ShaderLibrary::textured = nullptr;
 Shader *ShaderLibrary::hud = nullptr;
 
+
 void ShaderLibrary::LoadShaders(std::string resourceDir) {
     Program *program = new Program();
     program->setVerbose(true);
@@ -22,22 +23,27 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("V");
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
-    program->addUniform("lightPos");
-    program->addUniform("lightColor");
-    program->addUniform("sunDir");
-    program->addUniform("sunColor");
     program->addUniform("numLights");
-    program->addUniform("position");
-    program->addUniform("intensities");
-    program->addUniform("attenuation");
-    program->addUniform("ambientCoefficient");
-    program->addUniform("coneAngle");
-    program->addUniform("coneDirection");
+    
+    for(int i = 0; i < 10; i++) {
+        std::string uniformName = ConstructLightUniformName("position", i);
+        program->addUniform(uniformName);
+        uniformName = ConstructLightUniformName("intensities", i);
+        program->addUniform(uniformName);
+        uniformName = ConstructLightUniformName("attenuation", i);
+        program->addUniform(uniformName);
+        uniformName = ConstructLightUniformName("ambientCoefficient", i);
+        program->addUniform(uniformName);
+        uniformName = ConstructLightUniformName("coneAngle", i);
+        program->addUniform(uniformName);
+        uniformName = ConstructLightUniformName("coneDirection", i);
+        program->addUniform(uniformName);
+    }
+    
     program->addUniform("matDiffuseColor");
     program->addUniform("matSpecularColor");
     program->addUniform("matAmbientColor");
     program->addUniform("matShine");
-    program->addUniform("cameraPos");
     phong = new Shader(program);
     
     program = new Program();

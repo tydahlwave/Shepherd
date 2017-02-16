@@ -10,9 +10,7 @@ out vec3 fragPos;
 out vec3 fragNor;
 
 out vec3 vertexNormal;
-out vec3 lightNormal;
 out vec3 viewNormal;
-out vec3 sunVertexNormal;
 
 void main()
 {
@@ -20,9 +18,7 @@ void main()
     
     // Normalize the vectors
     vertexNormal = (V * M * vec4(vertNor, 0.0)).xyz;
-    lightNormal = lightPos - (V * M * vertPos).xyz;
     viewNormal = -(V * M * vertPos).xyz;
-    sunVertexNormal = (M * vec4(vertNor, 0.0)).xyz;
     
     // Pass vertex position and normal to fragment shader
     fragPos = (V * M * vertPos).xyz;
