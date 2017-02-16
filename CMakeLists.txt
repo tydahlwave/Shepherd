@@ -90,6 +90,26 @@ else()
 	target_link_libraries(${CMAKE_PROJECT_NAME} ${ASSIMP_INCLUDE_DIR}/lib/libassimp.3.3.1.dylib)
 endif()
 
+if(WIN32)
+	# Get the FMOD environment variable.
+	set(FMOD_DIR "$ENV{FMOD_DIR}")
+	if(NOT FMOD_DIR)
+		message (FATAL_ERROR "Please point the environment variable FMOD_DIR to the root directory of your FMOD installation")
+	endif()
+	#includes
+	include_directories(${FMOD_DIR}/api/lowlevel/inc)
+	include_directories(${FMOD_DIR}/api/studio/inc)
+	# With prebuilt binaries
+	target_link_libraries(${CMAKE_PROJECT_NAME} ${FMOD_DIR}/api/lowlevel/lib/fmod_vc.lib)
+	target_link_libraries(${CMAKE_PROJECT_NAME} ${FMOD_DIR}/api/lowlevel/lib/fmod64_vc.lib)
+	target_link_libraries(${CMAKE_PROJECT_NAME} ${FMOD_DIR}/api/studio/lib/fmodstudio_vc.lib)
+	target_link_libraries(${CMAKE_PROJECT_NAME} ${FMOD_DIR}/api/studio/lib/fmodstudio64_vc.lib)
+	file(COPY ${FMOD_DIR}/api/lowlevel/lib/fmod.dll DESTINATION .)
+	file(COPY ${FMOD_DIR}/api/lowlevel/lib/fmod64.dll DESTINATION .)
+	file(COPY ${FMOD_DIR}/api/studio/lib/fmodstudio.dll DESTINATION .)
+	file(COPY ${FMOD_DIR}/api/studio/lib/fmodstudio64.dll DESTINATION .)
+endif()
+
 # OS specific options and libraries
 if(WIN32)
   # c++0x is enabled by default.

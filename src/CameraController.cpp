@@ -24,18 +24,19 @@ void CameraController::Update(World &world) {
 	glm::vec3 pos = world.mainCamera->transform->GetPosition();
 	//get main characters rotation
 	glm::vec3 rot = world.mainCamera->transform->GetRotation();
+	if (!camera->stat) {
+		if (camera->dist > 0) {
+			float offx = camera->dist * sin(glm::radians(camera->aap));
+			float offy = camera->dist * sin(glm::radians(camera->pitch));
+			float offz = camera->dist * cos(glm::radians(camera->aap));
 
-	if (camera->dist > 0) {
-		float offx = camera->dist * sin(glm::radians(camera->aap));
-		float offy = camera->dist * sin(glm::radians(camera->pitch));
-		float offz = camera->dist * cos(glm::radians(camera->aap));
-
-		pos.x = pos.x - offx;
-		pos.y = pos.y - offy;
-		pos.z = pos.z - offz;
+			pos.x = pos.x - offx;
+			pos.y = pos.y - offy;
+			pos.z = pos.z - offz;
+		}
+		pos.y += 5;
 	}
 	camera->yaw = glm::radians(camera->aap);
-	pos.y += 5;
 	camera->pos = pos;
 	camera->lookAt = camera->pos + glm::vec3(sin(camera->yaw), sin(glm::radians(camera->pitch)), cos(camera->yaw));
 }
@@ -51,6 +52,8 @@ void CameraController::MouseScrolled(World *world, double dx, double dy) {
 
 void CameraController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {
 	Camera * camera = (Camera*)world->mainCamera->GetComponent("Camera");
+	if (camera->stat)
+		return;
 	glm::vec2 mouseCurr(mouseX, mouseY);
 	if (mousePrev.x == 0 && mousePrev.y == 0) {
 		mousePrev = mouseCurr;

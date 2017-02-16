@@ -22,6 +22,7 @@
 #include "Time.h"
 
 Renderer::Renderer() {
+	printf("Rendering..\n");
     Initialize();
 }
 

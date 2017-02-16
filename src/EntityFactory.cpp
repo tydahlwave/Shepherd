@@ -58,7 +58,7 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
 	rigidBody->bulletRigidBody = new btRigidBody(info);
 	rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     rigidBody->bulletRigidBody->setCollisionFlags(0);
-
+	((Camera*)camera->GetComponent("Camera"))->stat = false;
 	world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
 	return camera;
 }
@@ -115,6 +115,18 @@ GameObject *EntityFactory::createWolf(World *world) {
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
+}
+
+GameObject *EntityFactory::createTitle(World *world) {
+	GameObject *gameObject = world->CreateGameObject("Title");
+	MeshRenderer *mesh = (MeshRenderer*)gameObject->AddComponent("MeshRenderer");
+	mesh->model = ModelLibrary::title;
+	mesh->shader = ShaderLibrary::phong;
+	mesh->material = MaterialLibrary::brass;
+	gameObject->transform->SetPosition(glm::vec3(0.f, 0.f, 2.f));
+	gameObject->transform->SetRotation(glm::vec3(0.f, 180.f, 0.f));
+
+	return gameObject;
 }
 
 GameObject *EntityFactory::createHUD(World *world) {
