@@ -67,7 +67,7 @@ std::vector<Light> setUpLights(World &world, Path *path) {
     std::vector<Light> lights;
     
     Light spotlight;
-    spotlight.position = glm::vec4(-4,50,10,1);
+    spotlight.position = glm::vec4(-4,100,10,1);
     spotlight.intensities = glm::vec3(2, 2, 2); //strong white light
     spotlight.attenuation = 0.1f;
     spotlight.ambientCoefficient = 0.0f; //no ambient light

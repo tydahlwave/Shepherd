@@ -1,6 +1,10 @@
 #version 330 core
 in vec3 fragPos;
 in vec3 fragNor;
+uniform vec3 matDiffuseColor;
+uniform vec3 matSpecularColor;
+uniform vec3 matAmbientColor;
+uniform float matShine;
 uniform mat4 V;
 
 #define MAX_LIGHTS 10
@@ -100,18 +104,19 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     vec3 ambient = light.ambientCoefficient * matAmbientColor * light.intensities;
     
     //diffuse
-    //vec3 diffuse = matDiffuseColor * max(dot(vertexN, lightN), 0) * light.intensities;
-    vec3 diffuse = matDiffuseColor * df;
+    vec3 diffuse = df * matDiffuseColor * max(dot(vertexN, lightN), 0) * light.intensities;
+    //vec3 diffuse = matDiffuseColor * df;
     
     //specular
     float alpha = matShine;
     vec3 halfValue = normalize(viewN + lightN);
-    //vec3 specular = matSpecularColor * pow(max(dot(vertexN, halfValue), 0), alpha) * light.intensities;
-    vec3 specular = matSpecularColor  * sf;
+    vec3 specular = sf * matSpecularColor * pow(max(dot(vertexN, halfValue), 0), alpha) * light.intensities;
+    //vec3 specular = matSpecularColor  * sf;
     
     //linear color (color before gamma correction)
     return ambient + attenuation*(diffuse + specular);
 }
+
 
 void main()
 {
@@ -127,7 +132,8 @@ void main()
     
     float edgeDetection = (dot(viewN, vertexN) > 0.3) ? 1 : 0;
     
-    color = vec4(edgeDetection*linearColor, 1.0);
+    //color = vec4(edgeDetection*linearColor, 1.0);
+    color = vec4(linearColor, 1.0);
     //final color (after gamma correction)
     //vec3 gamma = vec3(1.0/2.2);
     //color = vec4(pow(totalPhong, gamma), 1.0);
