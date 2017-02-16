@@ -94,6 +94,7 @@ public:
 	float pitch = 0;
 	float yaw = 0;
 	float roll = 0;
+	bool stat = true;
 	glm::vec3 pos = glm::vec3(0, 0, 0);
 };
 

@@ -34,6 +34,7 @@ public:
     static Model *player;
     static Model *gadget;
     static Model *sheep;
+	static Model *menuSign;
 };
 
 #endif /* ModelLibrary_h */
