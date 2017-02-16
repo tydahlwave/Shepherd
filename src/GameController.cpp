@@ -84,7 +84,7 @@ void GameController::displayStats(float deltaTime, World &world, Physics &physic
 //		std::cout << "Objects on Ground: " << groundedObjectsCount << std::endl;
 //		std::cout << "Bunnies Collected: " << physics.bunniesCollected << std::endl;
         
-        if (bunnyCount == 0 || bunniesAtEnd == bunnyCount) {
+        if (nextState == Level1 && (bunnyCount == 0 || bunniesAtEnd == bunnyCount)) {
 //            nextState = MainMenu;
             std::cout << "Game Over" << std::endl;
             exit(0);
