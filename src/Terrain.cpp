@@ -107,7 +107,7 @@ void Terrain::Regenerate() {
 
 void Terrain::GenerateFromImage(std::string imagePath) {
     int width = 0, height = 0, channels = 0;
-    unsigned char* img = SOIL_load_image("../../resources/SLOHeightMap.png",//imagePath.c_str(),
+    unsigned char* img = SOIL_load_image("../../resources/terrain9.png",//imagePath.c_str(),
                                          &width, &height, &channels,
                                          SOIL_LOAD_AUTO);
     std::cout << SOIL_last_result() << std::endl;
@@ -132,7 +132,7 @@ void Terrain::GenerateFromImage(std::string imagePath) {
         }
     }
 //    heightMap = map;
-    heightMap = Noise::SmoothTerrain(map, size, 3, 3);
+    heightMap = Noise::SmoothTerrain(map, size, 3, 5);
     
     // Flatten heightmap
     for (int i = 0; i < size; i++) {

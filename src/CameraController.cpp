@@ -50,7 +50,7 @@ void CameraController::KeyPressed(World *world, int windowWidth, int windowHeigh
     
     if (action == GLFW_PRESS) {
         if (key == GLFW_KEY_LEFT_SHIFT) {
-            cameraSpeed = 2;
+            cameraSpeed = 5;
         }
         if (key == GLFW_KEY_W) {
             rigidBody->velocity[2] = -cameraSpeed;

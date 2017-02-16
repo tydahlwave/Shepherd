@@ -76,9 +76,9 @@ void MaterialLibrary::InitializeMaterials() {
     polishedGold = new Material(new Color(ambient), new Color(diffuse), new Color(specular), shine);
     
     // Grassy
-    ambient = glm::vec4(0.0215, 0.1745, 0.0215, 1);
-    diffuse = glm::vec4(0.07568, 0.61424, 0.07568, 1);
-    specular = glm::vec4(0.633, 0.727811, 0.633, 1);
+    ambient = glm::vec4(78/255.0f/3, 114/255.0f/3, 66/255.0f/3, 1);
+    diffuse = glm::vec4(78/255.0f/2, 114/255.0f/2, 66/255.0f/2, 1);
+    specular = glm::vec4(78/255.0f/2, 114/255.0f/2, 66/255.0f/2, 1);
     shine = 12.0;
     grass = new Material(new Color(ambient), new Color(diffuse), new Color(specular), shine);
 }
