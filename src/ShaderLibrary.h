@@ -9,6 +9,7 @@
 #ifndef ShaderLibrary_h
 #define ShaderLibrary_h
 
+#include <sstream>
 #include <string>
 
 #include "Shader.h"
@@ -19,6 +20,13 @@ public:
     static Shader *phong;
     static Shader *textured;
     static Shader *hud;
+    static std::string ConstructLightUniformName(const char* propertyName, size_t lightIndex) {
+        std::ostringstream ss;
+        ss << "allLights[" << lightIndex << "]." << propertyName;
+        std::string uniformName = ss.str();
+        
+        return uniformName;
+    }
 };
 
 #endif /* ShaderLibrary_h */
