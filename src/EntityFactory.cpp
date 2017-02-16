@@ -96,6 +96,7 @@ GameObject *EntityFactory::createWolf(World *world) {
     rigidBody->useGravity = true;
 //    rigidBody->isKinematic = true;
     gameObject->AddComponent("BoxCollider");
+    gameObject->AddComponent("Death");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::wolf;
     meshRenderer->shader = ShaderLibrary::cell;
@@ -299,10 +300,11 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
 GameObject *EntityFactory::createPath(World *world, int size) {
 	GameObject *gameObject = world->CreateGameObject("Path");
 	PathRenderer *renderer = (PathRenderer*)gameObject->AddComponent("PathRenderer");
+    
 	renderer->path = new Path();
 	renderer->path->size = size;
 	renderer->path->radius = 5;
-	renderer->path->AddNode(glm::vec3(-30, 0, -30));
+	renderer->path->AddNode(glm::vec3(0, 0, 0));
 	renderer->path->AddNode(glm::vec3(-30, 0, 30));
     renderer->path->AddNode(glm::vec3(30, 0, 30));
     renderer->path->AddNode(glm::vec3(0, 0, 0));

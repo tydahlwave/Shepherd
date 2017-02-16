@@ -17,6 +17,7 @@
 #include "Components/TerrainRenderer.h"
 #include "Components/PathRenderer.h"
 #include "Components/Character.h"
+#include "Components/Death.h"
 
 GameObject::GameObject() :components() {
     name = "GameObject";
@@ -63,6 +64,9 @@ Component *GameObject::AddComponent(std::string name) {
 		else if (name.compare("TerrainRenderer") == 0) {
 			component = (Component*) new TerrainRenderer();
 		}
+        else if (name.compare("Death") == 0) {
+            component = (Component*) new Death();
+        }
 		else if (name.compare("PathRenderer") == 0) {
 			component = (Component*) new PathRenderer();
 		}

@@ -14,6 +14,7 @@
 #include "Components/RigidBody.h"
 #include "Time.h"
 #include "SoundLibrary.h"
+#include "Components/Death.h"
 
 
 bool PhysicsController::charge = false;
@@ -111,7 +112,8 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
         if(key == GLFW_MOUSE_BUTTON_LEFT) deltaTime = Time::Now() - LeftClickPressTime;
         else deltaTime = Time::Now() - RightClickPressTime;
         float forceScalar = deltaTime /30.;
-        if(forceScalar > 400.) forceScalar = 400.;
+        if(forceScalar > 200.) forceScalar = 200.;
+        if(forceScalar < 40.) forceScalar = 40.;
         
         forceVector = coef*forceVector*forceScalar;
         
@@ -140,7 +142,14 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                     else if(go->name.compare("Wolf") == 0)
                     {
                         SoundLibrary::playWolfHurt();
-                        
+                        Death* gD = (Death*) go->GetComponent("Death");
+                        if(gD){
+                            std::printf("found d comp");
+                            if(forceScalar > 60){
+                                std::printf("set die");
+                                gD->shouldDie = true;
+                            }
+                        }
                     }
                     else if(go->name.compare("Tree") == 0)
                     {

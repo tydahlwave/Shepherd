@@ -65,17 +65,17 @@ std::vector<Light> setUpLights() {
     std::vector<Light> lights;
 
     Light spotlight;
-    spotlight.position = glm::vec4(-4,10,10,1);
+    spotlight.position = glm::vec4(-4,50,10,1);
     spotlight.intensities = glm::vec3(2,2,2); //strong white light
     spotlight.attenuation = 0.1f;
     spotlight.ambientCoefficient = 0.0f; //no ambient light
     spotlight.coneAngle = 15.0f;
-    spotlight.coneDirection = glm::vec3(0,0,-1);
+    spotlight.coneDirection = glm::vec3(0,-1,0);
     
     Light directionalLight;
     directionalLight.position = glm::vec4(1, 0.8, 0.6, 0); //w == 0 indications a directional light
     directionalLight.intensities = glm::vec3(1,1,1); //weak yellowish light
-    directionalLight.ambientCoefficient = 0.06f;
+    directionalLight.ambientCoefficient = 0.15f;
     
     lights.push_back(spotlight);
     lights.push_back(directionalLight);

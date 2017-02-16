@@ -16,6 +16,7 @@
 #include "Components/TerrainRenderer.h"
 #include "MaterialLibrary.h"
 #include "Interpolation.h"
+#include "Components/Death.h"
 
 void Physics::Update(float deltaTime, World &world) {
     for (GameObject *gameObject : world.GetGameObjects()) {
@@ -146,7 +147,52 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
                     world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
                 }
             }
-        } else {
+        }
+        else if (collision.gameObject2->name.compare("Terrain") == 0 && collision.gameObject1->name.compare("Wolf") == 0) {
+            //            collision.gameObject1->Destroy();
+            
+            Death* gD = (Death*) collision.gameObject1->GetComponent("Death");
+            std::cout<<"got in d loop";
+            if(gD){
+                std::cout<<"found collision";
+                if(gD->shouldDie){
+                    std::cout<<"should die true";
+                    collision.gameObject1->RemoveComponent("MeshRenderer");
+                    collision.gameObject1->RemoveComponent("BoxCollider");
+                    RigidBody *rb = (RigidBody*) collision.gameObject1->GetComponent("RigidBody");
+                    if (rb) {
+                        collision.gameObject1->RemoveComponent("RigidBody");
+                        if (rb->bulletRigidBody) {
+                            world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
+                        }
+                    }
+                }
+            }
+            
+            
+        }else if (collision.gameObject2->name.compare("Wolf") == 0 && collision.gameObject1->name.compare("Terrain") == 0) {
+            //            collision.gameObject1->Destroy();
+            
+            Death* gD = (Death*) collision.gameObject2->GetComponent("Death");
+            std::cout<<"got in d loop";
+            if(gD){
+                std::cout<<"found collision";
+                if(gD->shouldDie){
+                    std::cout<<"should die true";
+                    collision.gameObject2->RemoveComponent("MeshRenderer");
+                    collision.gameObject2->RemoveComponent("BoxCollider");
+                    RigidBody *rb = (RigidBody*) collision.gameObject2->GetComponent("RigidBody");
+                    if (rb) {
+                        collision.gameObject2->RemoveComponent("RigidBody");
+                        if (rb->bulletRigidBody) {
+                            world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
+                        }
+                    }
+                }
+            }
+            
+            
+        }else {
         
         if (rigidBody1 && rigidBody2 && !rigidBody1->isKinematic && !rigidBody2->isKinematic) {
             // TODO: don't just move up
@@ -237,7 +283,7 @@ void Physics::HandleTerrainCollisions(World &world) {
     // Compare objects for collisions
     for (GameObject *obj : world.GetGameObjects()) {
         // If it's not terrain
-        if (obj->name.compare("Terrain") != 0 && (obj->name.compare("Boulder") == 0 || obj->name.compare("Tree") == 0)) {
+        if (obj->name.compare("Terrain") != 0 && (obj->name.compare("Boulder") == 0 || obj->name.compare("Tree") == 0) || obj->name.compare("Wolf") == 0) {
             Bounds bounds = obj->getBounds();
             
             // If the object is within XZ bounds of terrain
@@ -256,7 +302,33 @@ void Physics::HandleTerrainCollisions(World &world) {
 //                std::cout << "Height[" << rowIndex << "][" << colIndex << "] = " << terrain->getHeight(rowIndex, colIndex) << std::endl;
                 float interpolatedHeight = BilinearInterpolate(neighbors, fColIndex-colIndex, fRowIndex-rowIndex);
 //                std::cout << "Interpolated Height: " << interpolatedHeight << std::endl;
+                if(obj->name.compare("Wolf") != 0)
                 obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f, pos.z));
+                
+                if(obj->name.compare("Wolf") == 0 && obj->transform->GetPosition().y <= terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1){
+                    RigidBody *body = (RigidBody*)obj->GetComponent("RigidBody");
+                    if(body && body->bulletRigidBody->getLinearVelocity().y() < 0)
+                    {
+                    Death* gD = (Death*) obj->GetComponent("Death");
+                    std::cout<<"got in d loop";
+                    if(gD){
+                        std::cout<<"found collision";
+                        if(gD->shouldDie){
+                            std::cout<<"should die true";
+                            obj->RemoveComponent("MeshRenderer");
+                            obj->RemoveComponent("BoxCollider");
+                            RigidBody *rb = (RigidBody*) obj->GetComponent("RigidBody");
+                            if (rb) {
+                                obj->RemoveComponent("RigidBody");
+                                if (rb->bulletRigidBody) {
+                                    world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
+                                }
+                            }
+                        }
+                    }
+                    }
+                }
+                
             }
         }
     }

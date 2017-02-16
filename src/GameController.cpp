@@ -162,7 +162,7 @@ void GameController::Run() {
 		float accumulator = 0.0f;
 
 		audio->LoadSounds(resourceDir);
-		gameMusic = audio->PlaySound("back.wav");
+
 		//audio->PlaySound("herdAmbient.wav");
 
 		// Game loop
@@ -205,6 +205,7 @@ void GameController::LoadState() {
 	switch (state) {
 	case MainMenu:
 	{
+        gameMusic = audio->PlaySound("back.wav");
 		cameraController = new CameraController();
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
 		break;
@@ -219,6 +220,7 @@ void GameController::LoadState() {
 		wolfSystem = new WolfSystem();
 		treeSystem = new TreeSystem();
 
+      
 		gameMusic = audio->PlaySound("back.wav");
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
@@ -230,7 +232,7 @@ void GameController::LoadState() {
 
 
 		// Create terrain
-		terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0, -100, 0));
+		terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0,80, 0));
 		terrain->transform->SetScale(glm::vec3(1, 1, 1));
 
 		// Place game objects
@@ -242,7 +244,7 @@ void GameController::LoadState() {
 		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 10, 2.0), 4.0);
 
 		// Create Physics Ground (below previous ground)
-		EntityFactory::createCube(&world, glm::vec3(groundSize, 0.1, groundSize), glm::vec3(5.5, -4, 2.0), 0);
+		//EntityFactory::createCube(&world, glm::vec3(groundSize, 0.1, groundSize), glm::vec3(5.5, -4, 2.0), 0);
 
 		// Create boulders
 		randomlyPopulateWithBoulders();
@@ -288,6 +290,7 @@ void GameController::KeyPressed(World *world, int windowWidth, int windowHeight,
 	if (state == MainMenu) {
 		if (key == GLFW_KEY_ENTER && action == GLFW_PRESS) {
 			nextState = Level1;
+            audio->toggleSound(gameMusic, true);
 		}
 	}
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
