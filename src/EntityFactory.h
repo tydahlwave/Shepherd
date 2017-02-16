@@ -18,7 +18,7 @@ public:
     static GameObject *createBunny(World *world);
     static GameObject *createWolf(World *world);
     static GameObject *createHUD(World *world);
-    static GameObject *createTexturedSphere(World *world);
+    //static GameObject *createTexturedSphere(World *world);
     static GameObject *createGround(World *world);
     static GameObject *createBarrier(World *world);
     static GameObject *createCube(World *world, glm::vec3 dimensions, glm::vec3 position, float mass);

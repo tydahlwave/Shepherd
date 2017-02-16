@@ -237,7 +237,7 @@ void Physics::HandleTerrainCollisions(World &world) {
     // Compare objects for collisions
     for (GameObject *obj : world.GetGameObjects()) {
         // If it's not terrain
-        if (obj->name.compare("Terrain") != 0 && (obj->name.compare("Boulder") == 0 || obj->name.compare("Tree") == 0)) {
+        if (obj->name.compare("Terrain") != 0) {
             Bounds bounds = obj->getBounds();
             
             // If the object is within XZ bounds of terrain
@@ -256,7 +256,12 @@ void Physics::HandleTerrainCollisions(World &world) {
 //                std::cout << "Height[" << rowIndex << "][" << colIndex << "] = " << terrain->getHeight(rowIndex, colIndex) << std::endl;
                 float interpolatedHeight = BilinearInterpolate(neighbors, fColIndex-colIndex, fRowIndex-rowIndex);
 //                std::cout << "Interpolated Height: " << interpolatedHeight << std::endl;
-                obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f, pos.z));
+                if (obj->name.compare("Camera") == 0 || obj->name.compare("Bunny") == 0 || obj->name.compare("Wolf") == 0 || obj->name.compare("Boulder") == 0) {
+                    if (pos.y < terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f)
+                        obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1, pos.z));
+                } else {
+                    obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1, pos.z));
+                }
             }
         }
     }

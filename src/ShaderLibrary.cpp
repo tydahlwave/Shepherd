@@ -14,6 +14,7 @@ Shader *ShaderLibrary::hud = nullptr;
 Shader *ShaderLibrary::skybox = nullptr;
 
 
+
 void ShaderLibrary::LoadShaders(std::string resourceDir) {
     Program *program = new Program();
     program->setVerbose(true);

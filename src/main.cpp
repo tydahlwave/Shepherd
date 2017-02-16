@@ -170,18 +170,15 @@ void setupWorld(World *world, TreeSystem &treeSystem) {
     EntityFactory::createSphere(world, 2.0, glm::vec3(5,10,2.0), 4.0);
     
     // Create Physics Ground (below previous ground)
-    EntityFactory::createCube(world, glm::vec3(groundSize,0.1,groundSize), glm::vec3(5.5,-4,2.0),0);
+//    EntityFactory::createCube(world, glm::vec3(groundSize,0.1,groundSize), glm::vec3(5.5,-4,2.0),0);
     
     // Create boulders
     randomlyPopulateWithBoulders(world);
     
     // Create trees
-    treeSystem.Spawn(world);
+    treeSystem.Initialize(world);
     
     EntityFactory::createHUD(world);
-    
-    //Create Path
-    GameObject *path = EntityFactory::createPath(world, 4);
 }
 
 int main(int argc, char **argv) {
@@ -221,6 +218,9 @@ int main(int argc, char **argv) {
 
     // Place game objects
     setupWorld(&world, treeSystem);
+    
+    //Create Path
+    GameObject *path = EntityFactory::createPath(&world, 4);
 
     // Seed random generator
     srand(time(0));
@@ -242,12 +242,13 @@ int main(int argc, char **argv) {
         
         while(accumulator >= idealDeltaTime) {
             //update
-//            bunnySpawnSystem.Update(idealDeltaTime, &world, path);
-//            wolfSystem.Update(idealDeltaTime, &world);
+            bunnySpawnSystem.Update(idealDeltaTime, &world, path);
+            wolfSystem.Update(idealDeltaTime, &world);
             physics.Update(idealDeltaTime, world);
             characterController.Update(&world, idealDeltaTime);
             accumulator -= idealDeltaTime;
         }
+        treeSystem.Update(&world, world.mainCamera->transform->GetPosition());
         cameraController.Update(world);
         renderer.Render(world, window);
         
