@@ -27,7 +27,6 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
     program->addUniform("numLights");
-    
     for(int i = 0; i < 10; i++) {
         std::string uniformName = ConstructLightUniformName("position", i);
         program->addUniform(uniformName);
@@ -42,7 +41,6 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
         uniformName = ConstructLightUniformName("coneDirection", i);
         program->addUniform(uniformName);
     }
-    
     program->addUniform("matDiffuseColor");
     program->addUniform("matSpecularColor");
     program->addUniform("matAmbientColor");
@@ -83,7 +81,6 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
     program->addUniform("numLights");
-    
     for(int i = 0; i < 10; i++) {
         std::string uniformName = ConstructLightUniformName("position", i);
         program->addUniform(uniformName);
@@ -98,7 +95,6 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
         uniformName = ConstructLightUniformName("coneDirection", i);
         program->addUniform(uniformName);
     }
-    
     program->addUniform("matDiffuseColor");
     program->addUniform("matSpecularColor");
     program->addUniform("matAmbientColor");
@@ -115,7 +111,7 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
     program->addUniform("numLights");
-    
+
     for(int i = 0; i < 10; i++) {
         std::string uniformName = ConstructLightUniformName("position", i);
         program->addUniform(uniformName);
@@ -130,7 +126,7 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
         uniformName = ConstructLightUniformName("coneDirection", i);
         program->addUniform(uniformName);
     }
-    
+
     program->addUniform("matDiffuseColor");
     program->addUniform("matSpecularColor");
     program->addUniform("matAmbientColor");
