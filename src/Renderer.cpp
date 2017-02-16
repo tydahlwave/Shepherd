@@ -190,10 +190,10 @@ void Renderer::Render(World &world, Window &window) {
                 applyMaterial(shader, meshRenderer->material);
             }
             // all of this till next comment will be taken out
-            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
-            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 0, 0, 1);
-            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
-            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
+//            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
+//            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 0, 0, 1);
+//            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
+//            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
             
             // all of this till next comment will be taken out
             
@@ -246,10 +246,27 @@ void Renderer::Render(World &world, Window &window) {
             if (terrainRenderer->material) {
                 applyMaterial(shader, terrainRenderer->material);
             }
-            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
-            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
-            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
-            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
+//            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
+//            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
+//            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
+//            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
+            
+            if (shader->hasUniform("numLights")) glUniform1i(shader->getUniform("numLights"), lights.size());
+            
+            for(int i = 0; i < lights.size(); ++i){
+                std::string uniformName = ShaderLibrary::ConstructLightUniformName("position", i);
+                if (shader->hasUniform(uniformName)) glUniform4f(shader->getUniform(uniformName), lights[i].position.x,lights[i].position.y,lights[i].position.z,lights[i].position.w);
+                uniformName = ShaderLibrary::ConstructLightUniformName("intensities", i);
+                if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].intensities.x,lights[i].intensities.y,lights[i].intensities.z);
+                uniformName = ShaderLibrary::ConstructLightUniformName("attenuation", i);
+                if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].attenuation);
+                uniformName = ShaderLibrary::ConstructLightUniformName("ambientCoefficient", i);
+                if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].ambientCoefficient);
+                uniformName = ShaderLibrary::ConstructLightUniformName("coneAngle", i);
+                if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].coneAngle);
+                uniformName = ShaderLibrary::ConstructLightUniformName("coneDirection", i);
+                if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].coneDirection.x,lights[i].coneDirection.y,lights[i].coneDirection.z);
+            }
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);

@@ -144,9 +144,9 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                         SoundLibrary::playWolfHurt();
                         Death* gD = (Death*) go->GetComponent("Death");
                         if(gD){
-                            std::printf("found d comp");
+//                            std::printf("found d comp");
                             if(forceScalar > 50){
-                                std::printf("set die");
+//                                std::printf("set die");
                                 gD->shouldDie = true;
                             }
                         }

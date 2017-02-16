@@ -152,11 +152,11 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
             //            collision.gameObject1->Destroy();
             
             Death* gD = (Death*) collision.gameObject1->GetComponent("Death");
-            std::cout<<"got in d loop";
+//            std::cout<<"got in d loop";
             if(gD){
-                std::cout<<"found collision";
+//                std::cout<<"found collision";
                 if(gD->shouldDie){
-                    std::cout<<"should die true";
+//                    std::cout<<"should die true";
                     collision.gameObject1->RemoveComponent("MeshRenderer");
                     collision.gameObject1->RemoveComponent("BoxCollider");
                     RigidBody *rb = (RigidBody*) collision.gameObject1->GetComponent("RigidBody");
@@ -174,11 +174,11 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
             //            collision.gameObject1->Destroy();
             
             Death* gD = (Death*) collision.gameObject2->GetComponent("Death");
-            std::cout<<"got in d loop";
+//            std::cout<<"got in d loop";
             if(gD){
-                std::cout<<"found collision";
+//                std::cout<<"found collision";
                 if(gD->shouldDie){
-                    std::cout<<"should die true";
+//                    std::cout<<"should die true";
                     collision.gameObject2->RemoveComponent("MeshRenderer");
                     collision.gameObject2->RemoveComponent("BoxCollider");
                     RigidBody *rb = (RigidBody*) collision.gameObject2->GetComponent("RigidBody");
@@ -311,11 +311,11 @@ void Physics::HandleTerrainCollisions(World &world) {
                     if(body && body->bulletRigidBody->getLinearVelocity().y() < 0)
                     {
                     Death* gD = (Death*) obj->GetComponent("Death");
-                    std::cout<<"got in d loop";
+//                    std::cout<<"got in d loop";
                     if(gD){
-                        std::cout<<"found collision";
+//                        std::cout<<"found collision";
                         if(gD->shouldDie){
-                            std::cout<<"should die true";
+//                            std::cout<<"should die true";
                             obj->RemoveComponent("MeshRenderer");
                             obj->RemoveComponent("BoxCollider");
                             RigidBody *rb = (RigidBody*) obj->GetComponent("RigidBody");
@@ -333,7 +333,8 @@ void Physics::HandleTerrainCollisions(World &world) {
                 if (obj->name.compare("Camera") == 0 || obj->name.compare("Bunny") == 0 || obj->name.compare("Boulder") == 0) {
                     if (pos.y < terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f)
                         obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1, pos.z));
-                } else if (obj->name.compare("Wolf") != 0) {
+                } else {
+                    if (pos.y < terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f)
                     obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1, pos.z));
                 }
             }

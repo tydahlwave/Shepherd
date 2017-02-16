@@ -66,32 +66,32 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     
     //Stepmix!!!!
     if (df > A - W && df < A + W)
-        stepmix(A, B, W, df);
+    stepmix(A, B, W, df);
     
     else if (df > B - W && df < B + W)
-        stepmix(B, C, W, df);
+    stepmix(B, C, W, df);
     
     else if (df > C - W && df < C + W)
-        stepmix(C, D, W, df);
+    stepmix(C, D, W, df);
     
     else if (df > D - W && df < D + W)
-        stepmix(D, E, W, df);
+    stepmix(D, E, W, df);
     
     else if (df > E - W && df < E + W)
-        stepmix(E, F, W, df);
+    stepmix(E, F, W, df);
     //Else regular bands
     else if (df < A)
-        df = 0.0;
+    df = 0.0;
     else if (df < B)
-        df = B;
+    df = B;
     else if (df < C)
-        df = C;
+    df = C;
     else if (df < D)
-        df = D;
+    df = D;
     else if (df < E)
-        df = E;
+    df = E;
     else
-        df = F;
+    df = F;
     
     float sf = max(0.0, dot(vertexN, normalize(lightN + vec3(0,0,1))));
     
@@ -117,6 +117,7 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     return ambient + attenuation*(diffuse + specular);
 }
 
+
 void main()
 {
     // Normalize the vectors
@@ -136,4 +137,3 @@ void main()
     //vec3 gamma = vec3(1.0/2.2);
     //color = vec4(pow(totalPhong, gamma), 1.0);
 }
-
