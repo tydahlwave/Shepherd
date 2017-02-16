@@ -27,7 +27,8 @@ void CharacterController::Update(World *world, float deltaTime) {
 		vel.z = 0;
 	}
 	rigidBody->velocity = vel;
-
+	Camera *camera = (Camera*)world->mainCharacter->GetComponent("Camera");
+	world->mainCharacter->transform->SetRotation(glm::vec3(0, camera->aap, 0));
 }
 
 void CharacterController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
