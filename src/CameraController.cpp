@@ -26,7 +26,7 @@ void CameraController::Update(World &world) {
 	//float theta = camera->aap - glm::radians(world.mainCamera->transform->GetRotation().y);
 	//float theta = camera->aap;
 	glm::vec3 rot = world.mainCamera->transform->GetRotation();
-	std::cout << "aap " << camera->aap << " | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
+	//std::cout << "aap " << camera->aap << " | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
 	//float offx = camera->dist * cos(camera->pitch / 180 * M_PI) * sin(glm::radians(theta));
 	float offx = camera->dist * sin(glm::radians(camera->aap));
 	float offy = camera->dist * sin(glm::radians(camera->pitch));

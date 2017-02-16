@@ -251,18 +251,10 @@ int main(int argc, char **argv) {
 		
         while(accumulator >= idealDeltaTime) {
             //update
-			glm::vec3 rot = world.mainCamera->transform->GetRotation();
-			std::cout << "start | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
 			characterController.Update(&world, idealDeltaTime);
-			rot = world.mainCamera->transform->GetRotation();
-			std::cout << "char | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
             bunnySpawnSystem.Update(idealDeltaTime, &world, path);
             wolfSystem.Update(idealDeltaTime, &world);
-			rot = world.mainCamera->transform->GetRotation();
-			std::cout << "wb | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
             physics.Update(idealDeltaTime, world);
-			rot = world.mainCamera->transform->GetRotation();
-			std::cout << "phys | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
             accumulator -= idealDeltaTime;
         }
         cameraController.Update(world);

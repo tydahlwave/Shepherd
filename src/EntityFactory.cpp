@@ -42,7 +42,7 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *character)
 	character->transform->SetScale(glm::vec3(.2, .2, .2));
 
 	RigidBody *rigidBody = (RigidBody*)character->AddComponent("RigidBody");
-	//rigidBody->isKinematic = false;
+	rigidBody->isKinematic = false;
 	rigidBody->useGravity = true;
 	
 	btTransform t;

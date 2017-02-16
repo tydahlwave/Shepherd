@@ -28,11 +28,7 @@ void Physics::Update(float deltaTime, World &world) {
     }
 
 
-	glm::vec3 rot = world.mainCamera->transform->GetRotation();
-	std::cout << "update | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
     ComputeCollisions(world);
-
-	rot = world.mainCamera->transform->GetRotation();
 }
 
 void Physics::UpdateBulletPhysics(float deltaTime, World &world) {
@@ -88,11 +84,7 @@ void Physics::ComputeCollisions(World &world) {
             }
         }
     }
-	glm::vec3 rot = world.mainCamera->transform->GetRotation();
-	std::cout << "update1 | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
     ResolveCollisions(world, collisions);
-	rot = world.mainCamera->transform->GetRotation();
-	std::cout << "update2 | Rot " << rot.x << ", " << rot.y << ", " << rot.z << std::endl;
 }
 
 void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions) {

@@ -12,8 +12,9 @@
 
 
 void Transform::SetPosition(glm::vec3 pos) {
-    position = pos;
-    
+
+	if (pos.x != pos.x || pos.y != pos.y || pos.z != pos.z)
+		return;
     RigidBody* rb = (RigidBody*)gameObject->GetComponent("RigidBody");
     if(rb && rb->bulletRigidBody) {
         if (!rb->bulletRigidBody->isKinematicObject()) {
@@ -29,10 +30,13 @@ void Transform::SetPosition(glm::vec3 pos) {
             rb->bulletRigidBody->getMotionState()->setWorldTransform(form);
         }
     }
+	position = pos;
 }
 
 void Transform::SetRotation(glm::vec3 rot) {
-    
+
+	if (rot.x != rot.x || rot.y != rot.y || rot.z != rot.z)
+		return;
     // Below might be wonky
     RigidBody* rb = (RigidBody*)gameObject->GetComponent("RigidBody");
     if(rb && rb->bulletRigidBody) {
@@ -51,8 +55,6 @@ void Transform::SetRotation(glm::vec3 rot) {
 //            rb->bulletRigidBody->getMotionState()->setWorldTransform(form);
 //        }
     }
-	if (rot.x != rot.x || rot.y != rot.y || rot.z != rot.z)
-		return;
 	rotation = rot;
 }
 

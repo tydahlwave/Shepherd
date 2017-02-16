@@ -88,7 +88,12 @@ void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
                 positionClear = true;
                 randPosition = vec3(randX, 0, randZ);
 				b->transform->SetPosition(randPosition);
-            }
+			}
+			else {
+				positionClear = true;
+				randPosition = vec3(randX, 3, randZ);
+				b->transform->SetPosition(randPosition);
+			}
         }
 
 		if (count == 0) {

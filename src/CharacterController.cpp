@@ -43,6 +43,11 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
 		//	character->currentTurnSpeed = -30;
 			character->vel[0] = -5.f;
 		}
+		else if (key == GLFW_KEY_SPACE) {
+			glm::vec3 pos = world->mainCharacter->transform->GetPosition();
+			pos.y += 100;
+			world->mainCharacter->transform->SetPosition(pos);
+		}
 	}
 	else if (action == GLFW_RELEASE) {
 		if (key == GLFW_KEY_LEFT_SHIFT) {
@@ -71,13 +76,13 @@ void CharacterController::MouseMoved(World *world, int windowWidth, int windowHe
 	glm::vec2 dv = mouseCurr - mousePrev;
 	if (!dv.x)
 		return;
-	std::cout << "Moving mouse! Angle change " << dv.x << std::endl;
+	//std::cout << "Moving mouse! Angle change " << dv.x << std::endl;
 	glm::vec3 rot = world->mainCharacter->transform->GetRotation();
-	std::cout << rot.y << std::endl;
+	//std::cout << rot.y << std::endl;
 	rot.y = rot.y - dv.x;
-	std::cout << rot.y << std::endl;
+	//std::cout << rot.y << std::endl;
 	world->mainCharacter->transform->SetRotation(rot);
-	std::cout << world->mainCharacter->transform->GetRotation().y << std::endl;
+	//std::cout << world->mainCharacter->transform->GetRotation().y << std::endl;
 
 	mousePrev = mouseCurr;
 
