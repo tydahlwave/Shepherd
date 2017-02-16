@@ -317,6 +317,7 @@ void Physics::HandleTerrainCollisions(World &world) {
 //                        std::cout<<"found collision";
                         if(gD->shouldDie){
 //                            std::cout<<"should die true";
+                            CAudioEngine::instance()->PlaySound("wolfHurt.wav");
                             obj->RemoveComponent("MeshRenderer");
                             obj->RemoveComponent("BoxCollider");
                             RigidBody *rb = (RigidBody*) obj->GetComponent("RigidBody");
