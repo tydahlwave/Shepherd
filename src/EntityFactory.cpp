@@ -276,7 +276,7 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
     renderer->terrain->size = size;
     renderer->terrain->type = type;
     renderer->terrain->GenerateFromImage(resourceDir + "terrain9.png");
-    renderer->shader = ShaderLibrary::phong;
+    renderer->shader = ShaderLibrary::cell;
     renderer->material = MaterialLibrary::bronze;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     btTransform t;

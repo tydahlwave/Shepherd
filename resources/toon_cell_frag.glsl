@@ -5,6 +5,7 @@ uniform vec3 matDiffuseColor;
 uniform vec3 matSpecularColor;
 uniform vec3 matAmbientColor;
 uniform float matShine;
+uniform mat4 V;
 
 #define MAX_LIGHTS 10
 uniform int numLights;
@@ -29,22 +30,28 @@ float stepmix(float edge0, float edge1, float E, float x)
     return mix(edge0, edge1, T);
 }
 
-vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN) {
+vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     
     vec3 lightN;
     float attenuation = 1.0;
     if(light.position.w == 0.0) {
         //directional light
-        lightN = normalize(light.position.xyz);
+        lightN = normalize(lightPos);
         attenuation = 1.0; //no attenuation for directional lights
     } else {
         //point light
-        lightN = normalize(light.position.xyz - fragPos);
+        lightN = normalize(lightPos - fragPos);
         float a = 0;
         float b = 0.5;
         float c = 0;
-        float distanceToLight = length(light.position.xyz - fragPos);
+        float distanceToLight = length(lightPos - fragPos);
         float attenuation = 1 / (a + b * distanceToLight + c * pow(distanceToLight, 2));
+        
+        //cone restrictions (affects attenuation)
+        float lightToSurfaceAngle = degrees(acos(dot(-lightN, normalize(light.coneDirection))));
+        if(lightToSurfaceAngle > light.coneAngle){
+            attenuation = 0.0;
+        }
     }
     
     const float A = 0.1;
@@ -119,7 +126,8 @@ void main()
     //combine color from all the lights
     vec3 linearColor = vec3(0);
     for(int i = 0; i < numLights; ++i){
-        linearColor += ApplyLight(allLights[i], vertexN, viewN);
+        vec3 pos = vec3(V * vec4(vec3(allLights[i].position), 1));
+        linearColor += ApplyLight(allLights[i], vertexN, viewN, pos);
     }
     
     float edgeDetection = (dot(viewN, vertexN) > 0.3) ? 1 : 0;
