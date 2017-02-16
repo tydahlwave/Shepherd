@@ -32,6 +32,8 @@ bool Window::drawWireframes = false;
 bool Window::drawAABBs = false;
 std::vector<WindowCallbackDelegate*> Window::windowCallbackDelegates;
 
+
+
 Window::Window(World *w) {
     Window::world = w;
     Initialize();
@@ -106,6 +108,10 @@ static void resize_callback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
+
+void Window::DeleteCallbackDelegates() {
+	windowCallbackDelegates.clear();
+}
 int Window::Initialize() {
     // Set error callback.
     glfwSetErrorCallback(error_callback);

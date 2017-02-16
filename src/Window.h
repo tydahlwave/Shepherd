@@ -27,6 +27,7 @@ struct WindowSize {
 class Window {
 public:
     Window(World *w);
+	Window() {};
     virtual ~Window();
     
     static bool drawGUI;
@@ -49,6 +50,7 @@ public:
     static void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 	static void MouseScrollCallback(GLFWwindow *window, double dx, double dy);
     static void AddWindowCallbackDelegate(WindowCallbackDelegate *delegate);
+	static void DeleteCallbackDelegates();
 private:
     GLFWwindow *window; // Main application window
     static World *world;
