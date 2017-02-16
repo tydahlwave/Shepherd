@@ -362,7 +362,7 @@ GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
     t.setOrigin(btVector3(pos.x, pos.y, pos.z));
     btBoxShape* collisionShape = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x, meshRenderer->model->bounds.halfwidths.y, meshRenderer->model->bounds.halfwidths.z));
 //    btVector3 inertia(0,0,0);
-    float mass = 0;
+    float mass = 0.0f;
 //    if (mass != 0)
 //        collisionShape->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
