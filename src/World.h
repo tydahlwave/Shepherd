@@ -37,6 +37,7 @@ public:
     
     std::vector<GameObject*> GetGameObjects();
     GameObject *CreateGameObject(std::string name);
+	void ClearGameObjects();
 private:
     std::vector<GameObject*> gameObjects;
     KDTree *kdTree;

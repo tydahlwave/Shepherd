@@ -202,12 +202,17 @@ void GameController::LoadState() {
 	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)this);
 
 	audio->toggleSound(gameMusic, true);
+	world.ClearGameObjects();
 	switch (state) {
 	case MainMenu:
 	{
         gameMusic = audio->PlaySound("back.wav");
 		cameraController = new CameraController();
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
+
+		//load sign
+		EntityFactory::createTitle(&world);
+
 		break;
 	}
 	case Level1:
@@ -228,6 +233,8 @@ void GameController::LoadState() {
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)bunnySpawnSystem);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)characterController);
 
+
+		world.mainCamera = EntityFactory::createMainCamera(&world);
 		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera);
 
 

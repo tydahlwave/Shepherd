@@ -18,6 +18,7 @@ public:
     static GameObject *createBunny(World *world);
     static GameObject *createWolf(World *world);
     static GameObject *createHUD(World *world);
+	static GameObject *createTitle(World *world);
     static GameObject *createChargeBar(World *world);
     static GameObject *createTexturedSphere(World *world);
     static GameObject *createGround(World *world);

@@ -30,5 +30,5 @@ void main()
     // Pass vertex position and normal to fragment shader
     fragPos = (V * M * vertPos).xyz;
     fragNor = (V * M * vec4(vertNor, 0.0)).xyz;
-    
+
 }

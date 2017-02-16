@@ -122,7 +122,8 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
             RigidBody* rb = (RigidBody*)go->GetComponent("RigidBody");
             if(rb && rb->bulletRigidBody)
             {
-                
+				if (!rb->isPushPullable)
+					continue;
                 
                 btVector3 objPos = btVector3(go->transform->GetPosition().x, go->transform->GetPosition().y, go->transform->GetPosition().z);
                 //btCollisionWorld::ClosestRayResultCallback RayCallback(camPos, endPoint);
@@ -133,7 +134,6 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                     //rb->bulletRigidBody->applyForce(forceVector, camPos - objPos);
                     //rb->bulletRigidBody->applyImpulse(forceVector, camPos - objPos);
                     //is sheep, baa
-                    
                     if(go->name.compare("Bunny") == 0)
                     {
                         SoundLibrary::playRandSheep();
