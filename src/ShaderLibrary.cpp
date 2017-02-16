@@ -15,6 +15,7 @@ Shader *ShaderLibrary::hud = nullptr;
 Shader *ShaderLibrary::cell = nullptr;
 Shader *ShaderLibrary::chargeBar = nullptr;
 Shader *ShaderLibrary::ground = nullptr;
+Shader *ShaderLibrary::menu = nullptr;
 
 
 void ShaderLibrary::LoadShaders(std::string resourceDir) {
@@ -131,6 +132,18 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("matAmbientColor");
     program->addUniform("matShine");
     ground = new Shader(program);
+    
+    program = new Program();
+    program->setVerbose(true);
+    program->setShaderNames(resourceDir + "menu_vert.glsl", resourceDir + "menu_frag.glsl");
+    program->init();
+    program->addUniform("P");
+    program->addUniform("M");
+    program->addUniform("V");
+    program->addAttribute("vertPos");
+    program->addAttribute("vertNor");
+
+    menu = new Shader(program);
     
     program = new Program();
     program->setVerbose(true);

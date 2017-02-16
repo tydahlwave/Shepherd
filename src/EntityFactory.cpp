@@ -121,7 +121,7 @@ GameObject *EntityFactory::createTitle(World *world) {
 	GameObject *gameObject = world->CreateGameObject("Title");
 	MeshRenderer *mesh = (MeshRenderer*)gameObject->AddComponent("MeshRenderer");
 	mesh->model = ModelLibrary::title;
-	mesh->shader = ShaderLibrary::phong;
+	mesh->shader = ShaderLibrary::menu;
 	mesh->material = MaterialLibrary::brass;
 	gameObject->transform->SetPosition(glm::vec3(0.f, 0.f, 2.f));
 	gameObject->transform->SetRotation(glm::vec3(0.f, 180.f, 0.f));

@@ -174,22 +174,16 @@ void Renderer::Render(World &world, Window &window) {
             for(int i = 0; i < lights.size(); ++i){
                 std::string uniformName = ShaderLibrary::ConstructLightUniformName("position", i);
                 if (shader->hasUniform(uniformName)) glUniform4f(shader->getUniform(uniformName), lights[i].position.x,lights[i].position.y,lights[i].position.z,lights[i].position.w);
-                else {std::cout << "TEST\n" << endl;}
                 uniformName = ShaderLibrary::ConstructLightUniformName("intensities", i);
                 if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].intensities.x,lights[i].intensities.y,lights[i].intensities.z);
-                else {std::cout << "TEST\n" << endl;}
                 uniformName = ShaderLibrary::ConstructLightUniformName("attenuation", i);
                 if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].attenuation);
-                else {std::cout << "TEST\n" << endl;}
                 uniformName = ShaderLibrary::ConstructLightUniformName("ambientCoefficient", i);
                 if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].ambientCoefficient);
-                else {std::cout << "TEST\n" << endl;}
                 uniformName = ShaderLibrary::ConstructLightUniformName("coneAngle", i);
                 if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].coneAngle);
-                else {std::cout << "TEST\n" << endl;}
                 uniformName = ShaderLibrary::ConstructLightUniformName("coneDirection", i);
                 if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].coneDirection.x,lights[i].coneDirection.y,lights[i].coneDirection.z);
-                else {std::cout << "TEST\n" << endl;}
             }
 
             
