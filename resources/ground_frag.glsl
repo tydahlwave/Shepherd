@@ -117,7 +117,6 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     return ambient + attenuation*(diffuse + specular);
 }
 
-
 void main()
 {
     // Normalize the vectors

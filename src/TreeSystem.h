@@ -20,7 +20,9 @@ public:
     
     int maxTreeCount = 5;
     
+    void Initialize(World *world);
     void Spawn(World *world);
+    void Update(World *world, glm::vec3 playerPos);
 private:
     std::vector<GameObject*> trees;
 };

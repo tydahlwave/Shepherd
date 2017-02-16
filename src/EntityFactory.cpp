@@ -13,11 +13,12 @@
 #include "Components/MeshRenderer.h"
 #include "Components/RigidBody.h"
 #include "Components/TerrainRenderer.h"
+#include "Components/PathRenderer.h"
+#include "Components/SkyboxRenderer.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
 #include "Terrain.h"
-#include "Components/PathRenderer.h"
 #include  "Path.h"
 //#include <Bullet3Geometry>
 #include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
@@ -260,23 +261,27 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     rigidBody->isKinematic = true;
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-//    meshRenderer->mesh = (boulderType <= 1) ? (boulderType <= 0) ? Mesh::boulder1 : Mesh::boulder2 : Mesh::boulder3;
-    meshRenderer->model = ModelLibrary::sphere;
-    meshRenderer->shader = ShaderLibrary::cell;
+    int randNum = rand() % 3;
+    meshRenderer->model = (randNum <= 1) ? (randNum <= 0) ? ModelLibrary::boulder1 : ModelLibrary::boulder2 : ModelLibrary::boulder3;
+//    meshRenderer->model = ModelLibrary::sphere;
+    meshRenderer->shader = ShaderLibrary::phong;
     meshRenderer->material = MaterialLibrary::brass;
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 0, 0));
     btSphereShape* sphere = new btSphereShape(radius);
     btVector3 inertia(0,0,0);
-    float mass = 0.0;
+    float mass = 10.0;
     if (mass != 0)
         sphere->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
     btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
     rigidBody->bulletRigidBody = new btRigidBody(info);
     rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
-    rigidBody->bulletRigidBody->setCollisionFlags(0); // Make it a static object
+    rigidBody->bulletRigidBody->setFriction(1.f);
+    rigidBody->bulletRigidBody->setRollingFriction(0.3f);
+    rigidBody->bulletRigidBody->setAnisotropicFriction(sphere->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+//    rigidBody->bulletRigidBody->setCollisionFlags(0); // Make it a static object
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
@@ -314,20 +319,27 @@ GameObject *EntityFactory::createPath(World *world, int size) {
 	PathRenderer *renderer = (PathRenderer*)gameObject->AddComponent("PathRenderer");
     
 	renderer->path = new Path();
-	renderer->path->size = size;
+	renderer->path->size = 6;
 	renderer->path->radius = 5;
-	renderer->path->AddNode(glm::vec3(0, 0, 0));
-	renderer->path->AddNode(glm::vec3(-30, 0, 30));
-    renderer->path->AddNode(glm::vec3(30, 0, 30));
-    renderer->path->AddNode(glm::vec3(0, 0, 0));
-	renderer->path->AddNode(glm::vec3(30, 0, -30));
+//	renderer->path->AddNode(glm::vec3(-30, 0, -30));
+//	renderer->path->AddNode(glm::vec3(-30, 0, 30));
+//    renderer->path->AddNode(glm::vec3(30, 0, 30));
+//    renderer->path->AddNode(glm::vec3(0, 0, 0));
+//	renderer->path->AddNode(glm::vec3(30, 0, -30));
+    renderer->path->AddNode(glm::vec3(-30, 0, -30));
+    renderer->path->AddNode(glm::vec3(-30, 0, -100));
+    renderer->path->AddNode(glm::vec3(30, 0, -200));
+    renderer->path->AddNode(glm::vec3(100, 0, -300));
+    renderer->path->AddNode(glm::vec3(200, 0, -400));
+    renderer->path->AddNode(glm::vec3(300, 0, -500));
     return gameObject;
 }
 
 GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
     GameObject *gameObject = world->CreateGameObject("Tree");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->model = (type == 0) ? ModelLibrary::tree1 : (type == 1) ? ModelLibrary::tree2 : ModelLibrary::tree3;
+//    meshRenderer->model = (type == 0) ? ModelLibrary::tree1 : (type == 1) ? ModelLibrary::tree2 : ModelLibrary::tree3;
+    meshRenderer->model = (type == 0) ? ModelLibrary::tree2 : ModelLibrary::tree3;
     meshRenderer->shader = ShaderLibrary::cell;
     meshRenderer->material = MaterialLibrary::grass;
     gameObject->AddComponent("BoxCollider");
@@ -353,4 +365,14 @@ GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
 
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
+}
+
+GameObject *EntityFactory::createSkybox(World *world, std::string resourceDir) {
+	GameObject *gameObject = world->CreateGameObject("Skybox");
+	SkyboxRenderer *renderer = (SkyboxRenderer*)gameObject->AddComponent("SkyboxRenderer");
+	renderer->skybox = new Skybox(resourceDir);
+	renderer->model = ModelLibrary::cube;
+	renderer->shader = ShaderLibrary::skybox;
+
+	return gameObject;
 }

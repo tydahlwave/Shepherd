@@ -64,5 +64,6 @@ int main(int argc, char **argv) {
 	GameController gameController = GameController();
 	gameController.Init(resourceDir);
 	gameController.Run();   
+
     return 0;
 }

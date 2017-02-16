@@ -16,7 +16,7 @@ Shader *ShaderLibrary::cell = nullptr;
 Shader *ShaderLibrary::chargeBar = nullptr;
 Shader *ShaderLibrary::ground = nullptr;
 Shader *ShaderLibrary::menu = nullptr;
-
+Shader *ShaderLibrary::skybox = nullptr;
 
 void ShaderLibrary::LoadShaders(std::string resourceDir) {
     Program *program = new Program();
@@ -156,4 +156,16 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
     chargeBar = new Shader(program);
+
+	program = new Program();
+	program->setVerbose(true);
+	program->setShaderNames(resourceDir + "skybox_vert.glsl", resourceDir + "skybox_frag.glsl");
+	program->init();
+	program->addUniform("P");
+	program->addUniform("M");
+	program->addUniform("V");
+	program->addUniform("skybox");
+	program->addAttribute("vertPos");
+	program->addAttribute("vertNor");
+	skybox = new Shader(program);
 }
