@@ -331,6 +331,7 @@ GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
     gameObject->AddComponent("BoxCollider");
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->isKinematic = true;
+	//rigidBody->isPushPullable = false;
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(pos.x, pos.y, pos.z));
