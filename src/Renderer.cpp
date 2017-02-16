@@ -86,18 +86,19 @@ std::vector<Light> setUpLights(World &world, Path *path) {
     //    lights.push_back(playerLight);
     
     // Add lights at path nodes
-//    if (path) {
+    if (path) {
+        glm::vec3 nodePos = path->GetNodes()[path->size-1];
 //        for (glm::vec3 nodePos : path->GetNodes()) {
-//            Light nodeLight;
-//            nodeLight.position = glm::vec4(nodePos, 1);
-//            nodeLight.intensities = glm::vec3(1, 1, 1); //strong white light
-//            nodeLight.attenuation = 0.1f;
-//            nodeLight.ambientCoefficient = 0.0f; //no ambient light
-//            nodeLight.coneAngle = 15.0f;
-//            nodeLight.coneDirection = glm::vec3(0,-1,0);
-//            lights.push_back(nodeLight);
+            Light nodeLight;
+            nodeLight.position = glm::vec4(nodePos, 1);
+            nodeLight.intensities = glm::vec3(1, 1, 1); //strong white light
+            nodeLight.attenuation = 0.1f;
+            nodeLight.ambientCoefficient = 0.0f; //no ambient light
+            nodeLight.coneAngle = 15.0f;
+            nodeLight.coneDirection = glm::vec3(0,-1,0);
+            lights.push_back(nodeLight);
 //        }
-//    }
+    }
     
     Light directionalLight;
     directionalLight.position = glm::vec4(1, 0.8, 0.6, 0); //w == 0 indications a directional light
