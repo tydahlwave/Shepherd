@@ -12,8 +12,10 @@
 #include <vector>
 
 class GameObject;
+class KDTree;
 
 #include "GameObject.h"
+#include "KDTree.h"
 #ifdef WIN32
 #include <btBulletDynamicsCommon.h>
 #else
@@ -35,7 +37,7 @@ public:
     GameObject *CreateGameObject(std::string name);
 private:
     std::vector<GameObject*> gameObjects;
-    //KDTree kdTree;
+    KDTree *kdTree;
 };
 
 #endif /* World_h */
