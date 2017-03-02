@@ -23,7 +23,7 @@ out vec4 color;
 in vec3 vertexNormal;
 in vec3 viewNormal;
 
-//helper
+//interpolation helper
 float stepmix(float edge0, float edge1, float E, float x)
 {
     float T = clamp(0.5 * (x - edge0 + E) / E, 0.0, 1.0);
@@ -64,21 +64,21 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     float df = max(0.0, dot(vertexN, lightN));
     float W = fwidth(df);
     
-    //Stepmix!!!!
+    //Stepmix!!!! for anti aliasing
     if (df > A - W && df < A + W)
-    stepmix(A, B, W, df);
+    df = stepmix(A, B, W, df);
     
     else if (df > B - W && df < B + W)
-    stepmix(B, C, W, df);
+    df = stepmix(B, C, W, df);
     
     else if (df > C - W && df < C + W)
-    stepmix(C, D, W, df);
+    df = stepmix(C, D, W, df);
     
     else if (df > D - W && df < D + W)
-    stepmix(D, E, W, df);
+    df = stepmix(D, E, W, df);
     
     else if (df > E - W && df < E + W)
-    stepmix(E, F, W, df);
+    df = stepmix(E, F, W, df);
     //Else regular bands
     else if (df < A)
     df = 0.0;
@@ -92,6 +92,7 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     df = E;
     else
     df = F;
+    df = df * attenuation;
     
     float sf = max(0.0, dot(vertexN, normalize(lightN + vec3(0,0,1))));
     
@@ -99,19 +100,20 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     
     sf = step(0.5, sf);
     
+    sf = sf * attenuation;
     
     //ambient
     vec3 ambient = light.ambientCoefficient * matAmbientColor * light.intensities;
     
     //diffuse
-    //vec3 diffuse = matDiffuseColor * max(dot(vertexN, lightN), 0) * light.intensities;
-    vec3 diffuse = matDiffuseColor * df;
+    vec3 diffuse = matDiffuseColor * max(dot(vertexN, lightN), 0) * light.intensities * df;
+    //vec3 diffuse = matDiffuseColor * df;
     
     //specular
     float alpha = matShine;
     vec3 halfValue = normalize(viewN + lightN);
-    //vec3 specular = matSpecularColor * pow(max(dot(vertexN, halfValue), 0), alpha) * light.intensities;
-    vec3 specular = matSpecularColor  * sf;
+    vec3 specular = matSpecularColor * pow(max(dot(vertexN, halfValue), 0), alpha) * light.intensities * sf;
+    //vec3 specular = matSpecularColor  * sf;
     
     //linear color (color before gamma correction)
     return ambient + attenuation*(diffuse + specular);
