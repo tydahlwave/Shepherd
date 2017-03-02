@@ -46,6 +46,12 @@ void World::ClearGameObjects() {
 	gameObjects.clear();
 }
 
+void World::RemoveGameObject(GameObject *go) {
+    auto it = std::find(gameObjects.begin(), gameObjects.end(), go);
+    if(it != gameObjects.end())
+        gameObjects.erase(it);
+}
+
 void World::SerializeWorld() {
     std::vector<std::string> mylist{"Sphere", "Boulder", "Tree"}; // types of objects to serialize
 
@@ -85,7 +91,10 @@ Transform *World::DeserializeTransform(rapidjson::Value &v) {
 void World::DeserializeSphere(rapidjson::Value &v) {
     rapidjson::Value& v2 = v["Components"]["Transform"];
     Transform *t = DeserializeTransform(v2);
-    EntityFactory::createSphere(this, 2, t->GetPosition(), 2);
+    GameObject *sphere = EntityFactory::createSphere(this, 2, t->GetPosition(), 2);
+    sphere->transform->SetPosition(t->GetPosition());
+    sphere->transform->SetRotation(t->GetRotation());
+    sphere->transform->SetScale(t->GetScale());
 }
 
 void World::DeserializeBoulder(rapidjson::Value &v) {
@@ -93,9 +102,9 @@ void World::DeserializeBoulder(rapidjson::Value &v) {
     Transform *t = DeserializeTransform(v2);
     int type = rand() % 3;
     GameObject *boulder = EntityFactory::createBoulder(this, type, 1,t->GetPosition());
-    float scale = rand() % 4 + 1;
-    boulder->transform->SetRotation(glm::vec3(0, rand() % 360, 0));
-    boulder->transform->SetScale(vec3(scale));
+    boulder->transform->SetPosition(t->GetPosition());
+    boulder->transform->SetRotation(t->GetRotation());
+    boulder->transform->SetScale(t->GetScale());
 }
 
 void World::DeserializeTree(rapidjson::Value &v) {
@@ -104,8 +113,8 @@ void World::DeserializeTree(rapidjson::Value &v) {
     int type = (rand() % 2) + 1;
     GameObject *tree = EntityFactory::createTree(this, type,t->GetPosition());
     tree->transform->SetPosition(t->GetPosition());
-    tree->transform->SetRotation(glm::vec3(0, rand() % 360, 0));
-    tree->transform->SetScale(glm::vec3(10, 10, 10));
+    tree->transform->SetRotation(t->GetRotation());
+    tree->transform->SetScale(t->GetScale());
     
 }
 

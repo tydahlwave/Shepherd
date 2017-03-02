@@ -99,6 +99,7 @@ bool show_test_window = true;
 bool show_another_window = true;
 ImVec4 clear_color = ImColor(114, 144, 154);
 
+
 void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
 	TerrainRenderer *terrainRenderer = (TerrainRenderer*)terrain->GetComponent("TerrainRenderer");
 	TextureLoader *textureTest = terrainRenderer->terrain->getTexture();
@@ -136,39 +137,72 @@ void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
     {
         ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
         ImGui::Begin("Object Creation Tool");
+        static GameObject *mostRecentlyPlacedGameObject = nullptr;
         const char* items[] = {"Sphere", "Boulder", "Tree"};
         static int item = 0;
         static float position[3] = { 0.f, 0.f, 0.f };
+        static float rotation[3] = { 0.f, 0.f, 0.f };
+        static float scale = 1.f;
+        static int type = 0;
         if (ImGui::Combo("Objects", &item, items, 3)) {
             
         }
-        if (ImGui::Button("Add Item")) {
-            if(item == 0) EntityFactory::createSphere(&world, 2, vec3(position[0],position[1],position[2]), 2);
+        if (ImGui::Button("Add Item") && !mostRecentlyPlacedGameObject) {
+            if(item == 0) {
+                mostRecentlyPlacedGameObject = EntityFactory::createSphere(&world, 2, vec3(position[0],position[1],position[2]), 2);
+            }
             if(item == 1) {
-                GameObject *boulder = EntityFactory::createBoulder(&world, rand() % 3, 1, vec3(position[0],position[1],position[2]));
-                float scale = rand() % 4 + 1;
-                boulder->transform->SetRotation(glm::vec3(0, rand() % 360, 0));
-                boulder->transform->SetScale(glm::vec3(scale));
+                type = rand() % 3;
+                mostRecentlyPlacedGameObject = EntityFactory::createBoulder(&world, type, 1, vec3(position[0],position[1],position[2]));
             }
             if(item == 2) {
-                int type = (rand() % 2) + 1;
-                GameObject *tree = EntityFactory::createTree(&world, type, vec3(position[0],position[1],position[2]));
-                tree->transform->SetPosition(vec3(position[0],position[1],position[2]));
-                tree->transform->SetRotation(glm::vec3(0, rand() % 360, 0));
-                tree->transform->SetScale(glm::vec3(10, 10, 10));
+                type = (rand() % 2) + 1;
+                mostRecentlyPlacedGameObject = EntityFactory::createTree(&world, type, vec3(position[0],position[1],position[2]));
             }
+            //set transform
+            mostRecentlyPlacedGameObject->transform->SetPosition(vec3(position[0],position[1],position[2]));
+            mostRecentlyPlacedGameObject->transform->SetRotation(vec3(rotation[0],rotation[1],rotation[2]));
+            mostRecentlyPlacedGameObject->transform->SetScale(glm::vec3(scale));
+            //remove all physics
+            RigidBody *rb = (RigidBody *)mostRecentlyPlacedGameObject->GetComponent("RigidBody");
+            rb->bulletRigidBody = nullptr;
+        }
+        if (ImGui::Button("Finalize Item") && mostRecentlyPlacedGameObject) {
+            world.RemoveGameObject(mostRecentlyPlacedGameObject);
+            // then add it to world without removing physics
+            if(mostRecentlyPlacedGameObject->name == "Sphere") {
+                mostRecentlyPlacedGameObject = EntityFactory::createSphere(&world, 2, vec3(position[0],position[1],position[2]), 2);
+            }
+            else if(mostRecentlyPlacedGameObject->name == "Boulder") {
+                mostRecentlyPlacedGameObject = EntityFactory::createBoulder(&world, type, 1, vec3(position[0],position[1],position[2]));
+            }
+            else if(mostRecentlyPlacedGameObject->name == "Tree") {
+                mostRecentlyPlacedGameObject = EntityFactory::createTree(&world, type, vec3(position[0],position[1],position[2]));
+
+            }
+            mostRecentlyPlacedGameObject->transform->SetPosition(vec3(position[0],position[1],position[2]));
+            mostRecentlyPlacedGameObject->transform->SetRotation(vec3(rotation[0],rotation[1],rotation[2]));
+            mostRecentlyPlacedGameObject->transform->SetScale(glm::vec3(scale));
+            mostRecentlyPlacedGameObject = nullptr;
         }
         if (ImGui::Button("Get Current Position")) {
             GameObject *go = world.mainCamera;
             position[0] = go->transform->GetPosition().x;
             position[1] = go->transform->GetPosition().y;
             position[2] = go->transform->GetPosition().z;
-            std::cout << item;
         }
         if (ImGui::DragFloat3("Position", position)) {
-            std::cout << position[0];
+            if(mostRecentlyPlacedGameObject != nullptr)
+                mostRecentlyPlacedGameObject->transform->SetPosition(vec3(position[0],position[1],position[2]));
         }
-        
+        if (ImGui::DragFloat3("Rotation", rotation)) {
+            if(mostRecentlyPlacedGameObject != nullptr)
+                mostRecentlyPlacedGameObject->transform->SetRotation(vec3(rotation[0],rotation[1],rotation[2]));
+        }
+        if (ImGui::DragFloat("Scale", &scale)) {
+            if(mostRecentlyPlacedGameObject != nullptr)
+                mostRecentlyPlacedGameObject->transform->SetScale(vec3(scale));
+        }
         ImGui::End();
     }
         

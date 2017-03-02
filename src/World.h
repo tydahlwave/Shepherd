@@ -45,6 +45,7 @@ public:
     std::vector<GameObject*> GetGameObjects();
     GameObject *CreateGameObject(std::string name);
 	void ClearGameObjects();
+    void RemoveGameObject(GameObject *go);
     void SerializeWorld();
     void DeserializeWorld();
 private:
