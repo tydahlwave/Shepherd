@@ -99,7 +99,7 @@ bool show_test_window = true;
 bool show_another_window = true;
 ImVec4 clear_color = ImColor(114, 144, 154);
 
-void drawTerrainWindow(Window &window, GameObject *terrain) {
+void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
 	TerrainRenderer *terrainRenderer = (TerrainRenderer*)terrain->GetComponent("TerrainRenderer");
 	TextureLoader *textureTest = terrainRenderer->terrain->getTexture();
 
@@ -133,7 +133,45 @@ void drawTerrainWindow(Window &window, GameObject *terrain) {
 	//        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
 	//        ImGui::ShowTestWindow(&show_test_window);
 	//    }
-
+    {
+        ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
+        ImGui::Begin("Object Creation Tool");
+        const char* items[] = {"Sphere", "Boulder", "Tree"};
+        static int item = 0;
+        static float position[3] = { 0.f, 0.f, 0.f };
+        if (ImGui::Combo("Objects", &item, items, 3)) {
+            
+        }
+        if (ImGui::Button("Add Item")) {
+            if(item == 0) EntityFactory::createSphere(&world, 2, vec3(position[0],position[1],position[2]), 2);
+            if(item == 1) {
+                GameObject *boulder = EntityFactory::createBoulder(&world, rand() % 3, 1, vec3(position[0],position[1],position[2]));
+                float scale = rand() % 4 + 1;
+                boulder->transform->SetRotation(glm::vec3(0, rand() % 360, 0));
+                boulder->transform->SetScale(glm::vec3(scale));
+            }
+            if(item == 2) {
+                int type = (rand() % 2) + 1;
+                GameObject *tree = EntityFactory::createTree(&world, type, vec3(position[0],position[1],position[2]));
+                tree->transform->SetPosition(vec3(position[0],position[1],position[2]));
+                tree->transform->SetRotation(glm::vec3(0, rand() % 360, 0));
+                tree->transform->SetScale(glm::vec3(10, 10, 10));
+            }
+        }
+        if (ImGui::Button("Get Current Position")) {
+            GameObject *go = world.mainCamera;
+            position[0] = go->transform->GetPosition().x;
+            position[1] = go->transform->GetPosition().y;
+            position[2] = go->transform->GetPosition().z;
+            std::cout << item;
+        }
+        if (ImGui::DragFloat3("Position", position)) {
+            std::cout << position[0];
+        }
+        
+        ImGui::End();
+    }
+        
 	{
 		ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiSetCond_FirstUseEver);
 		ImGui::Begin("Terrain Settings");
@@ -295,15 +333,14 @@ void GameController::LoadState() {
 		//Create Path
 		path = EntityFactory::createPath(&world, terrain, 4);
 
-		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 20, 2.0), 4.0);
-		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 15, 2.0), 4.0);
-		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 10, 2.0), 4.0);
-
-		// Create Physics Ground (below previous ground)
-		//EntityFactory::createCube(&world, glm::vec3(groundSize, 0.1, groundSize), glm::vec3(5.5, -4, 2.0), 0);
-
+        
+        world.DeserializeWorld();
+//		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 20, 2.0), 4.0);
+//		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 15, 2.0), 4.0);
+//		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 10, 2.0), 4.0);
+        
 		// Create boulders
-		randomlyPopulateWithBoulders();
+		//randomlyPopulateWithBoulders();
 
 		// Create trees
 		treeSystem->Spawn(&world);
@@ -333,10 +370,10 @@ void GameController::randomlyPopulateWithBoulders() {
 	for (int i = 0; i < 15; i++) {
 		int type = rand() % 3;
 		float scale = rand() % 4 + 1;
-		GameObject *boulder = EntityFactory::createBoulder(&world, type, 1);
-		float posX = (rand() % (int)groundSize) - groundSize / 2;
-		float posZ = (rand() % (int)groundSize) - groundSize / 2;
-		boulder->transform->SetPosition(glm::vec3(posX, -4, posZ));
+        float posX = (rand() % (int)groundSize) - groundSize / 2;
+        float posZ = (rand() % (int)groundSize) - groundSize / 2;
+        vec3 position = glm::vec3(posX, -4, posZ);
+		GameObject *boulder = EntityFactory::createBoulder(&world, type, 1, position);
 		boulder->transform->SetRotation(glm::vec3(0, rand() % 360, 0));
 		boulder->transform->SetScale(glm::vec3(scale, scale, scale));
 	}
@@ -351,6 +388,8 @@ void GameController::KeyPressed(World *world, int windowWidth, int windowHeight,
 	}
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		nextState = Close;
+    if (key == GLFW_KEY_P && action == GLFW_PRESS)
+        world->SerializeWorld();
 }
 void GameController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {
 }

@@ -9,7 +9,53 @@
 #include <stdio.h>
 #include <algorithm>    // std::sort
 #include "KDTree.h"
+#include "Components/Camera.h"
 
+bool intersectFrustumAABB2(Camera *cam, vec3 min, vec3 max) {
+    // Indexed for the 'index trick' later
+    vec3 box[] = {min, max};
+    
+    // We only need to do 6 point-plane tests
+    for (int i = 0; i < 6; ++i)
+    {
+        // This is the current plane
+        vec4 plane = cam->planes[i];
+        
+        // p-vertex selection (with the index trick)
+        // According to the plane normal we can know the
+        // indices of the positive vertex
+        const int px = static_cast<int>(plane.x > 0.0f);
+        const int py = static_cast<int>(plane.y > 0.0f);
+        const int pz = static_cast<int>(plane.z > 0.0f);
+        
+        // Dot product
+        // project p-vertex on plane normal
+        // (How far is p-vertex from the origin)
+        const float dp =
+        (plane.x*box[px].x) +
+        (plane.y*box[py].y) +
+        (plane.z*box[pz].z);
+        
+        // Doesn't intersect if it is behind the plane
+        if (dp < -plane.w) { return false; }
+    }
+    return true;
+}
+
+std::vector<GameObject*> KDTree::getStaticObjectsInViewFrustrumRec(Camera *camera, Node *root) {
+    std::vector<GameObject*> objects;
+    if(intersectFrustumAABB2(camera, root->minVals, root->maxVals)) {
+        std::vector<GameObject*> leftObjects = getStaticObjectsInViewFrustrumRec(camera, root->left);
+        std::vector<GameObject*> rightObjects = getStaticObjectsInViewFrustrumRec(camera, root->right);
+        objects.insert(objects.end(), leftObjects.begin(), leftObjects.end());
+        objects.insert(objects.end(), rightObjects.begin(), rightObjects.end());
+    }
+    return objects;
+}
+
+std::vector<GameObject*> KDTree::getStaticObjectsInViewFrustrum(Camera *camera) {
+    getStaticObjectsInViewFrustrumRec(camera, root);
+}
 
 bool KDTree::gameObjectDimensionCmp(GameObject *obj1, GameObject *obj2, int dimension) {
     return obj1->transform->GetPosition()[dimension] < obj2->transform->GetPosition()[dimension];

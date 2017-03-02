@@ -30,7 +30,6 @@ class Renderer {
 public:
     Renderer();
     virtual ~Renderer() {};
-    
     void Initialize();
     void Render(World &world, Window &window);
 };

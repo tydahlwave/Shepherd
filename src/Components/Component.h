@@ -12,6 +12,8 @@
 #include "glm/glm.hpp"
 
 #include "../Object.h"
+#include "../rapidjson/prettywriter.h"
+
 class GameObject;
 
 class Component : public Object {
@@ -21,6 +23,9 @@ public:
     virtual ~Component() {};
     
     GameObject *gameObject = nullptr;
+    
+    // Note: this cannot be made pure virtual because Components are allocated... to make pure virtual, say "=0" instead of "{}"
+    void virtual Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) { puts("If this prints, that means the function wasn't overridden properly." ); };
 };
 
 #endif /* Component_h */

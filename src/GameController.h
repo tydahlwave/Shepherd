@@ -75,6 +75,7 @@ private:
 	int gameMusic = 0;
     
     void displayStats(float deltaTime, World &world, Physics &physics);
+    void drawTerrainWindow(Window &window, GameObject *terrain);
 };
 
 #endif /* CharacterController_h */

@@ -110,3 +110,18 @@ void GameObject::Destroy() {
 //        delete this;
 //    }
 }
+
+//template <typename Writer>
+void GameObject::Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) {
+    writer.StartObject();
+    writer.Key("ObjectType");
+    writer.String(name.c_str());
+    writer.Key("Components");
+    writer.StartObject();
+    transform->Serialize(writer);
+    // iterate through all components
+        //for (std::map<std::string, Component*>::iterator it=components.begin(); it!=components.end(); ++it)
+            //it->second->Serialize(writer);
+    writer.EndObject();
+    writer.EndObject();
+}

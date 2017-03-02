@@ -20,6 +20,7 @@ class Component;
 #include "World.h"
 #include "Components/Transform.h"
 #include "Bounds.h"
+#include "rapidjson/prettywriter.h"
 
 class GameObject : public Object {
 public:
@@ -39,6 +40,9 @@ public:
     
     // Safely remove game object from game
     void Destroy();
+    
+    //template <typename Writer> // i changed the type from Writer to PrettyWriter to get it to compile
+    void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer);
 private:
     std::map<std::string, Component*> components;
 };

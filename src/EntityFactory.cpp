@@ -253,7 +253,7 @@ GameObject *EntityFactory::createPhysicsGround(World *world) {
     return gameObject;
 }
 
-GameObject *EntityFactory::createBoulder(World *world, int boulderType, float radius) {
+GameObject *EntityFactory::createBoulder(World *world, int boulderType, float radius, vec3 position) {
     GameObject *gameObject = world->CreateGameObject("Boulder");
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->useGravity = true;
@@ -267,7 +267,7 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
     meshRenderer->material = MaterialLibrary::chrome;
     btTransform t;
     t.setIdentity();
-    t.setOrigin(btVector3(0, 0, 0));
+    t.setOrigin(btVector3(position.x,position.y,position.z));
     btSphereShape* sphere = new btSphereShape(radius);
     btVector3 inertia(0,0,0);
     float mass = 10.0;

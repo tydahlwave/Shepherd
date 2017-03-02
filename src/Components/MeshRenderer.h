@@ -24,6 +24,10 @@ public:
     Shader *shader = nullptr;
     Material *material = nullptr;
     Texture *texture = nullptr;
+    
+    void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) {
+        
+    }
 };
 
 #endif /* MeshRenderer_h */
