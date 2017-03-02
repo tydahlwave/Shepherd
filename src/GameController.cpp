@@ -28,6 +28,7 @@
 #include "Time.h"
 #include "Components/MeshRenderer.h"
 #include "Components/PathRenderer.h"
+#include "Serializer.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
@@ -368,7 +369,7 @@ void GameController::LoadState() {
 		path = EntityFactory::createPath(&world, terrain, 4);
 
         
-        world.DeserializeWorld();
+        Serializer::DeserializeWorld(&world);
 //		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 20, 2.0), 4.0);
 //		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 15, 2.0), 4.0);
 //		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 10, 2.0), 4.0);
@@ -423,7 +424,7 @@ void GameController::KeyPressed(World *world, int windowWidth, int windowHeight,
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		nextState = Close;
     if (key == GLFW_KEY_P && action == GLFW_PRESS)
-        world->SerializeWorld();
+        Serializer::SerializeWorld(world);
 }
 void GameController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {
 }

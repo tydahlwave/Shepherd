@@ -110,7 +110,7 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     //specular
     float alpha = matShine;
     vec3 halfValue = normalize(viewN + lightN);
-    vec3 specular = sf * matSpecularColor * pow(max(dot(vertexN, halfValue), 0), alpha) * light.intensities;
+    vec3 specular = vec3(0);//sf * matSpecularColor * pow(max(dot(vertexN, halfValue), 0), alpha) * light.intensities;
     //vec3 specular = matSpecularColor  * sf;
     
     //linear color (color before gamma correction)
