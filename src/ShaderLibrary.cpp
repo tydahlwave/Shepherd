@@ -105,7 +105,7 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     
     program = new Program();
     program->setVerbose(true);
-    program->setShaderNames(resourceDir + "ground_vert.glsl", resourceDir + "ground_frag.glsl");
+    program->setShaderNames(resourceDir + "ground_vert.glsl", resourceDir + "terrainGeometryFlat.vs", resourceDir + "ground_frag.glsl");
     program->init();
     program->addUniform("P");
     program->addUniform("M");
