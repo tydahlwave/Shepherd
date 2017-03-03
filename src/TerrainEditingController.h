@@ -1,32 +1,28 @@
 //
-//  FreeCameraController.h
+//  TerrainEditingController.h
 //  Shepherd
 //
 //  Created by Tyler Dahl on 3/3/17.
 //
 //
 
-#ifndef FreeCameraController_h
-#define FreeCameraController_h
-
-#include <cmath>
+#ifndef TerrainEditingController_h
+#define TerrainEditingController_h
 
 #include "WindowCallbackDelegate.h"
 
-class FreeCameraController : WindowCallbackDelegate {
+class TerrainRenderer;
+
+class TerrainEditingController : WindowCallbackDelegate {
 public:
-    void Update(World &world);
+    void SetTerrain(TerrainRenderer *terrainRenderer) { this->terrainRenderer = terrainRenderer; };
+    
     void KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action);
     void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY);
     void MouseClicked(World *world, double mouseX, double mouseY, int key, int action);
     void MouseScrolled(World *world, double dx, double dy);
 private:
-    const float FAST_CAMERA_SPEED = 10.0f;
-    const float SLOW_CAMERA_SPEED = 1.0f;
-    const float STOP_THRESHOLD = 0.1;
-    double alpha = -M_PI/2;
-    double beta = -M_PI/2;
-    float cameraSpeed = SLOW_CAMERA_SPEED;
+    TerrainRenderer *terrainRenderer;
 };
 
-#endif /* FreeCameraController_h */
+#endif /* TerrainEditingController_h */

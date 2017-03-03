@@ -4,6 +4,8 @@ uniform vec3 matSpecularColor;
 uniform vec3 matAmbientColor;
 uniform float matShine;
 uniform mat4 V;
+uniform int terrainMin;
+uniform int terrainMax;
 
 #define MAX_LIGHTS 10
 uniform int numLights;
@@ -148,37 +150,41 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
 
 
 void main() {
-//    vec3 ambientColor = matAmbientColor;
-//    vec3 diffuseColor = matDiffuseColor;
-//    vec3 specularColor = matSpecularColor;
-//    vec3 modelN = normalize(modelNor);
-//    if (vertPos.y < -1000) {
-//        ambientColor = diffuseColor = vec3(0, 0, 1);
-//    } else if (vertPos.y < -600) {
-//        ambientColor = diffuseColor = modelN.y*vec3(0, 0, 1) + (1-modelN.y)*vec3(0, 1, 0);
-//    } else if (vertPos.y < -200) {
-//        ambientColor = diffuseColor = modelN.y*vec3(0, 1, 0) + (1-modelN.y)*vec3(0.5, 0.5, 0.5);
+    vec3 ambientColor = matAmbientColor;
+    vec3 diffuseColor = matDiffuseColor;
+    vec3 specularColor = matSpecularColor;
+    vec3 modelN = normalize(modelNor);
+    float heightValue = (vertPos.y-terrainMin) / (terrainMax-terrainMin);
+//    if (heightValue < 0.1) {
+//        ambientColor = diffuseColor = vec3(0, 0, 0.5);
+//    } else if (heightValue < 0.3) {
+//        ambientColor = diffuseColor = modelN.y*vec3(0, 0, 0.5) + (1-modelN.y)*vec3(0, 0.5, 0);
+//    } else if (heightValue < 0.7) {
+//        ambientColor = diffuseColor = modelN.y*vec3(0, 0.5, 0) + (1-modelN.y)*vec3(0.25, 0.25, 0.25);
 //    } else {
-//        ambientColor = diffuseColor = modelN.y*vec3(0.5, 0.5, 0.5) + (1-modelN.y)*vec3(1, 1, 1);
+//        ambientColor = diffuseColor = modelN.y*vec3(0.25, 0.25, 0.25) + (1-modelN.y)*vec3(0.5, 0.5, 0.5);
 //    }
 //    vec3 finalColor = (diffuseColor + ambientColor);
 //    color = vec4(finalColor, 1.0);
+    ambientColor = diffuseColor = vec3(0.5, 0.5, 0.5);
+    vec3 finalColor = heightValue * pow(modelN.y, 3) * (diffuseColor + ambientColor);
+    color = vec4(finalColor, 1.0);
 
-    // Normalize the vectors
-    vec3 vertexN = normalize(vertNor);
-    vec3 viewN = normalize(viewNor);
-    //combine color from all the lights
-    vec3 linearColor = vec3(0);
-    for(int i = 0; i < numLights; ++i){
-        vec3 pos = vec3(V * vec4(vec3(allLights[i].position), 1));
-        linearColor += ApplyLight(allLights[i], vertexN, viewN, pos);
-    }
-    
-    float edgeDetection = (dot(viewN, vertexN) > 0.3) ? 1 : 0;
-    
-    //color = vec4(edgeDetection*linearColor, 1.0);
-    color = vec4(linearColor, 1.0);
-    //final color (after gamma correction)
-    //vec3 gamma = vec3(1.0/2.2);
-    //color = vec4(pow(totalPhong, gamma), 1.0);
+//    // Normalize the vectors
+//    vec3 vertexN = normalize(vertNor);
+//    vec3 viewN = normalize(viewNor);
+//    //combine color from all the lights
+//    vec3 linearColor = vec3(0);
+//    for(int i = 0; i < numLights; ++i){
+//        vec3 pos = vec3(V * vec4(vec3(allLights[i].position), 1));
+//        linearColor += ApplyLight(allLights[i], vertexN, viewN, pos);
+//    }
+//    
+//    float edgeDetection = (dot(viewN, vertexN) > 0.3) ? 1 : 0;
+//    
+//    //color = vec4(edgeDetection*linearColor, 1.0);
+//    color = vec4(linearColor, 1.0);
+//    //final color (after gamma correction)
+//    //vec3 gamma = vec3(1.0/2.2);
+//    //color = vec4(pow(totalPhong, gamma), 1.0);
 }

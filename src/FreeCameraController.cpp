@@ -9,6 +9,7 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 
+#include "World.h"
 #include "FreeCameraController.h"
 #include "Components/Camera.h"
 #include "Components/RigidBody.h"

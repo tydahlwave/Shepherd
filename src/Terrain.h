@@ -19,6 +19,8 @@ public:
     virtual ~Terrain();
     
     int size = 256;
+    int max = 0;
+    int min = 0;
     int type = SIMPLEX_TERRAIN;
     std::vector<std::vector<float>> heightMap;
     std::vector<float> heightMapFlat;

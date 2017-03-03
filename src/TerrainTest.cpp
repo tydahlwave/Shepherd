@@ -19,7 +19,7 @@
 #include "Renderer.h"
 #include "FreeCameraController.h"
 #include "PhysicsController.h"
-#include "TerrainController.h"
+#include "TerrainEditingController.h"
 #include "Components/RigidBody.h"
 #include "Components/TerrainRenderer.h"
 #include "Terrain.h"
@@ -150,7 +150,7 @@ int main(int argc, char **argv) {
     Renderer renderer = Renderer();
     FreeCameraController cameraController = FreeCameraController();
     PhysicsController physicsController = PhysicsController();
-    TerrainController terrainController = TerrainController();
+    TerrainEditingController terrainController = TerrainEditingController();
     
     // Static Initializers
     ModelLibrary::LoadModels(resourceDir);
@@ -164,11 +164,12 @@ int main(int argc, char **argv) {
     // Initialize main camera position and lookvector
     world.mainCamera->transform->SetPosition(glm::vec3(0, 900, 0));
     Camera *mainCamera = (Camera*)world.mainCamera->GetComponent("Camera");
-    mainCamera->lookAt = glm::vec3(-0.1, -1, 0); // Initial lookvector to orient the camera along x axis (can't be (0,-1,0))
+    mainCamera->lookAt = glm::vec3(0, -1, -0.1); // Initial lookvector to orient the camera to look along -z axis (can't be (0,-1,0))
     
     // Create terrain
     GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0, -100, 0));
     terrain->transform->SetScale(glm::vec3(1, 1, 1));
+    terrainController.SetTerrain((TerrainRenderer*)terrain->GetComponent("TerrainRenderer"));
     
     // Seed random generator
     srand(time(0));
