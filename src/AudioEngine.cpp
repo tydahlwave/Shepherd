@@ -110,6 +110,11 @@ void CAudioEngine::UnLoadSound(const std::string& strSoundName)
 
 int CAudioEngine::PlaySound(const string& strSoundName, const glm::vec3& vPosition, float fVolumedB)
 {
+    if (CAudioEngine::instance()->ErrorCheck(FMOD_ERR_UNINITIALIZED)) {
+        std::cout << "FMOD Uninitialized - Can't play sound " << strSoundName << std::endl;
+        return -1;
+    }
+    
     int nChannelId = sgpImplementation->mnNextChannelId++;
     
     string location = resourceDir + strSoundName;
@@ -146,6 +151,11 @@ int CAudioEngine::PlaySound(const string& strSoundName, const glm::vec3& vPositi
 
 void CAudioEngine::toggleSound(int channelId, bool state)
 {
+    if (CAudioEngine::instance()->ErrorCheck(FMOD_ERR_UNINITIALIZED)) {
+        std::cout << "FMOD Uninitialized - Can't toggle sound" << std::endl;
+        return;
+    }
+    
     auto channel = sgpImplementation->mChannels.find(channelId);
     channel->second->setPaused(state);
 }

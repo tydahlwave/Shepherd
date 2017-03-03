@@ -34,7 +34,7 @@ std::vector<WindowCallbackDelegate*> Window::windowCallbackDelegates;
 
 
 
-Window::Window(World *w) {
+Window::Window(World *w, int width, int height) :_width(width), _height(height) {
     Window::world = w;
     Initialize();
 }
@@ -67,6 +67,10 @@ void Window::KeyCallback(GLFWwindow *window, int key, int scancode, int action, 
             drawMouse = !drawMouse;
             // Disable cursor (allows unlimited scrolling)
             glfwSetInputMode(window, GLFW_CURSOR, drawMouse ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+            // If cursor is becoming disabled, move it to the center of the screen
+            if (!drawMouse) {
+                glfwSetCursorPos(window, width/2, height/2);
+            }
         } else if (key == GLFW_KEY_L) {
             drawWireframes = !drawWireframes;
             glPolygonMode(GL_FRONT_AND_BACK, drawWireframes ? GL_LINE : GL_FILL);
@@ -130,7 +134,7 @@ int Window::Initialize() {
 #endif
 
     // Create a windowed mode window and its OpenGL context.
-    window = glfwCreateWindow(1080, 920, "Tyler's Awesome Window", NULL, NULL);
+    window = glfwCreateWindow(_width, _height, "Tyler's Awesome Window", NULL, NULL);
     if(!window) {
         glfwTerminate();
         return -1;
@@ -166,6 +170,9 @@ int Window::Initialize() {
 	glfwSetScrollCallback(window, Window::MouseScrollCallback);
     //set the window resize call back
     glfwSetFramebufferSizeCallback(window, resize_callback);
+    
+    // Set cursor to center of screen if disabled
+    if (!drawMouse) glfwSetCursorPos(window, _width/2, _height/2);
     
     return 0;
 }

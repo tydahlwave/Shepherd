@@ -129,7 +129,7 @@ void Serializer::DeserializeWorld(World *world) {
     
     assert(d.IsObject());
     assert(d.HasMember("GameObjects"));
-    assert(d["GameObjects"].isArray());
+    assert(d["GameObjects"].IsArray());
     for (int i = 0; i < d["GameObjects"].Size(); i++) {// Uses SizeType instead of size_t
         rapidjson::Value& v = d["GameObjects"][i];
         // i have now gotten 1 game object

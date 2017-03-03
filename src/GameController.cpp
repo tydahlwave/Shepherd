@@ -35,10 +35,6 @@
 #include "imgui/imgui_impl_glfw_gl3.h"
 #include "Path.h"
 
-#define SIMPLEX_TERRAIN 0
-#define DIAMOND_SQUARE_TERRAIN 1
-
-
 void GameController::displayStats(float deltaTime, World &world, Physics &physics) {
 	static float elapsedTime = 0.5;
 	static long frames = 0;
@@ -415,8 +411,8 @@ void GameController::LoadState() {
         GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);
         
 		// Create terrain
-		terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0,80, 0));
-		terrain->transform->SetScale(glm::vec3(10, 10, 10));
+		terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0, 0, 0));
+		terrain->transform->SetScale(glm::vec3(1, 1, 1));
 		
 		//create skybox
 		skybox = EntityFactory::createSkybox(&world, resourceDir);

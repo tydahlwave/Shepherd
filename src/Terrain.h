@@ -7,6 +7,9 @@
 
 #include "glm/glm.hpp"
 
+#define SIMPLEX_TERRAIN 0
+#define DIAMOND_SQUARE_TERRAIN 1
+
 class Program;
 class TextureLoader;
 
@@ -16,8 +19,7 @@ public:
     virtual ~Terrain();
     
     int size = 256;
-    // 0 = Simplex, 1 = Diamond-Square
-    int type = 0;
+    int type = SIMPLEX_TERRAIN;
     std::vector<std::vector<float>> heightMap;
     std::vector<float> heightMapFlat;
     

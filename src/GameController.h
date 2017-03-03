@@ -40,7 +40,7 @@ enum State {
 
 class GameController : WindowCallbackDelegate {
 public:
-	GameController() : window(&world) { };
+	GameController() : window(&world, 1080, 920) { };
 	virtual ~GameController() {};
 	State state;
 	State nextState;

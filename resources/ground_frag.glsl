@@ -17,7 +17,9 @@ uniform struct Light {
 } allLights[MAX_LIGHTS];
 
 in vec3 fragPos;
-in vec3 fragNor;
+in vec3 vertPos;
+in vec3 modelNor;
+in vec3 vertNor;
 in vec3 viewNor;
 
 out vec4 color;
@@ -28,6 +30,18 @@ float stepmix(float edge0, float edge1, float E, float x)
     float T = clamp(0.5 * (x - edge0 + E) / E, 0.0, 1.0);
     return mix(edge0, edge1, T);
 }
+
+//void setTerrainColor() {
+//    if (fragPos.y < 0) {
+//        matDiffuseColor = vec3(0, 0, 1);
+//        matSpecularColor = vec3(0, 0, 1);
+//        matAmbientColor = vec3(0, 0, 1);
+//    } else {
+//        matDiffuseColor = vec3(0, 1, 0);
+//        matSpecularColor = vec3(0, 1, 0);
+//        matAmbientColor = vec3(0, 1, 0);
+//    }
+//}
 
 vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     
@@ -97,18 +111,35 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     
     sf = step(0.5, sf);
     
-    
+//    setTerrainColor();
+    vec3 ambientColor = matAmbientColor;
+    vec3 diffuseColor = matDiffuseColor;
+    vec3 specularColor = matSpecularColor;
+//    if (vertPos.y < -1000) {
+//        ambientColor = vec3(0, 0, 1);
+//        diffuseColor = vec3(0, 0, 1);
+//    } else if (vertPos.y < -600) {
+//        ambientColor = vec3(0, 1, 0);
+//        diffuseColor = vec3(0, 1, 0);
+//    } else if (vertPos.y < -200) {
+//        ambientColor = vec3(0.5, 0.5, 0.5);
+//        diffuseColor = vec3(0.5, 0.5, 0.5);
+//    } else {
+//        ambientColor = vec3(1, 1, 1);
+//        diffuseColor = vec3(1, 1, 1);
+//    }
+
     //ambient
-    vec3 ambient = light.ambientCoefficient * matAmbientColor * light.intensities;
+    vec3 ambient = light.ambientCoefficient * ambientColor * light.intensities;
     
     //diffuse
-    vec3 diffuse = df * matDiffuseColor * max(dot(vertexN, lightN), 0) * light.intensities;
+    vec3 diffuse = df * diffuseColor * max(dot(vertexN, lightN), 0) * light.intensities;
     //vec3 diffuse = matDiffuseColor * df;
     
     //specular
     float alpha = matShine;
     vec3 halfValue = normalize(viewN + lightN);
-    vec3 specular = vec3(0);//sf * matSpecularColor * pow(max(dot(vertexN, halfValue), 0), alpha) * light.intensities;
+    vec3 specular = vec3(0);//sf * specularColor * pow(max(dot(vertexN, halfValue), 0), alpha) * light.intensities;
     //vec3 specular = matSpecularColor  * sf;
     
     //linear color (color before gamma correction)
@@ -117,8 +148,24 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
 
 
 void main() {
+//    vec3 ambientColor = matAmbientColor;
+//    vec3 diffuseColor = matDiffuseColor;
+//    vec3 specularColor = matSpecularColor;
+//    vec3 modelN = normalize(modelNor);
+//    if (vertPos.y < -1000) {
+//        ambientColor = diffuseColor = vec3(0, 0, 1);
+//    } else if (vertPos.y < -600) {
+//        ambientColor = diffuseColor = modelN.y*vec3(0, 0, 1) + (1-modelN.y)*vec3(0, 1, 0);
+//    } else if (vertPos.y < -200) {
+//        ambientColor = diffuseColor = modelN.y*vec3(0, 1, 0) + (1-modelN.y)*vec3(0.5, 0.5, 0.5);
+//    } else {
+//        ambientColor = diffuseColor = modelN.y*vec3(0.5, 0.5, 0.5) + (1-modelN.y)*vec3(1, 1, 1);
+//    }
+//    vec3 finalColor = (diffuseColor + ambientColor);
+//    color = vec4(finalColor, 1.0);
+
     // Normalize the vectors
-    vec3 vertexN = normalize(fragNor);
+    vec3 vertexN = normalize(vertNor);
     vec3 viewN = normalize(viewNor);
     //combine color from all the lights
     vec3 linearColor = vec3(0);

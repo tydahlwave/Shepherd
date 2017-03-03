@@ -32,7 +32,7 @@ Renderer::Renderer() {
 void applyProjectionMatrix(Program *program, Window &window, Camera *camera) {
     MatrixStack stack = MatrixStack();
     float aspectRatio = window.GetWidth()/(float)window.GetHeight();
-    stack.perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
+    stack.perspective(45.0f, aspectRatio, 0.01f, 5000.0f);
     glUniformMatrix4fv(program->getUniform("P"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
 
@@ -299,7 +299,11 @@ void Renderer::Render(World &world, Window &window) {
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, camera->pos);
+            if (world.mainCharacter) {
+                applyCameraMatrix(shader, camera, camera->pos);
+            } else {
+                applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            }
             applyTransformMatrix(shader, gameObject->transform);
             
             model->draw(shader);
@@ -352,7 +356,11 @@ void Renderer::Render(World &world, Window &window) {
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, camera->pos);
+            if (world.mainCharacter) {
+                applyCameraMatrix(shader, camera, camera->pos);
+            } else {
+                applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            }
             applyTransformMatrix(shader, gameObject->transform);
             
             terrain->draw(shader);

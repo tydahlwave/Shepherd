@@ -26,7 +26,7 @@ struct WindowSize {
 
 class Window {
 public:
-    Window(World *w);
+    Window(World *w, int width, int height);
 	Window() {};
     virtual ~Window();
     
@@ -53,6 +53,8 @@ public:
 	static void DeleteCallbackDelegates();
 private:
     GLFWwindow *window; // Main application window
+    int _width;
+    int _height;
     static World *world;
     static std::vector<WindowCallbackDelegate*> windowCallbackDelegates;
 };
