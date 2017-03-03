@@ -33,12 +33,11 @@ void Terrain::Generate() {
         break;
     }
     
-    // Flatten heightmap and record max/min
+    // Record max/min
     max = INT_MIN;
     min = INT_MAX;
     for (int i = 0; i < heightMap.size(); i++) {
         for (int j = 0; j < heightMap[i].size(); j++) {
-            heightMapFlat.push_back(heightMap[j][i]);
             if (heightMap[j][i] > max) max = heightMap[j][i];
             if (heightMap[j][i] < min) min = heightMap[j][i];
         }
@@ -76,12 +75,11 @@ void Terrain::Regenerate() {
         break;
     }
     
-    // Flatten heightmap and record max/min
+    // Record max/min
     max = INT_MIN;
     min = INT_MAX;
     for (int i = 0; i < heightMap.size(); i++) {
         for (int j = 0; j < heightMap[i].size(); j++) {
-            heightMapFlat.push_back(heightMap[j][i]);
             if (heightMap[j][i] > max) max = heightMap[j][i];
             if (heightMap[j][i] < min) min = heightMap[j][i];
         }
@@ -142,10 +140,13 @@ void Terrain::GenerateFromImage(std::string imagePath) {
 //    heightMap = map;
     heightMap = Noise::SmoothTerrain(map, size, 3, 5);
     
-    // Flatten heightmap
+    // Record max/min
+    max = INT_MIN;
+    min = INT_MAX;
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
-            heightMapFlat.push_back(heightMap[j][i]);
+            if (heightMap[j][i] > max) max = heightMap[j][i];
+            if (heightMap[j][i] < min) min = heightMap[j][i];
         }
     }
     

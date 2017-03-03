@@ -23,7 +23,6 @@ public:
     int min = 0;
     int type = SIMPLEX_TERRAIN;
     std::vector<std::vector<float>> heightMap;
-    std::vector<float> heightMapFlat;
     
     void Generate();
     void Regenerate();
@@ -32,6 +31,15 @@ public:
     
     TextureLoader *getTexture() { return texture; };
     float getHeight(int row, int col) { return heightMap[row][col]; }
+    std::vector<float> flattenHeightMap() {
+        std::vector<float> heightMapFlat;
+        for (int i = 0; i < heightMap.size(); i++) {
+            for (int j = 0; j < heightMap[i].size(); j++) {
+                heightMapFlat.push_back(heightMap[j][i]);
+            }
+        }
+        return heightMapFlat;
+    }
 private:
     std::vector<unsigned int> eleBuf;
     std::vector<float> posBuf;

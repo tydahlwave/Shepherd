@@ -305,7 +305,7 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
     t.setIdentity();
     t.setOrigin(btVector3(pos.x, pos.y, pos.z));
     btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(size, size,
-                                                                              renderer->terrain->heightMapFlat.data(), 1.0f,
+                                                                              renderer->terrain->flattenHeightMap().data(), 1.0f,
                                                                               -255.0f, 255.0f, // min/max heights
                                                                               1, PHY_FLOAT,
                                                                               false);
