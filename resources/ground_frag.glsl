@@ -20,6 +20,7 @@ uniform struct Light {
 
 in vec3 fragPos;
 in vec3 vertPos;
+in vec3 facePos;
 in vec3 modelNor;
 in vec3 vertNor;
 in vec3 viewNor;
@@ -148,27 +149,72 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     return ambient + attenuation*(diffuse + specular);
 }
 
+//float rand(vec2 co) {
+//    highp float a = 12.9898;
+//    highp float b = 78.233;
+//    highp float c = 43758.5453;
+//    highp float dt= dot(co.xy ,vec2(a,b));
+//    highp float sn= mod(dt,3.14);
+//    return fract(sin(sn) * c);
+//}
+
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+/*
+ height colors:
+ water  (0)
+ sand   (<=0.02)
+ grass  (<=0.2)
+ rock   (<=0.7)
+ snow   (<=1)
+ 
+ 
+ */
+
+const int NumHeightColors = 4;
+float heights[NumHeightColors] = float[](
+//    0,      // Water
+//    0.02,   // Sand
+    0.1,    // Grass
+    0.2,    // Light grass
+    0.7,    // Rock
+    1       // Snow
+);
+
+vec3 colors[NumHeightColors] = vec3[](
+//    vec3(68/255.0f, 68/255.0f, 122/255.0f),     // Water
+//    vec3(210/255.0f, 185/255.0f, 139/255.0f),   // Sand
+    vec3(85/255.0f, 153/255.0f, 68/255.0f),     // Grass
+    vec3(136/255.0f, 153/255.0f, 119/255.0f),   // Light grass
+    vec3(136/255.0f, 136/255.0f, 136/255.0f),   // Rock
+    vec3(221/255.0f, 221/255.0f, 228/255.0f)    // Snow
+);
+
 
 void main() {
     vec3 ambientColor = matAmbientColor;
     vec3 diffuseColor = matDiffuseColor;
     vec3 specularColor = matSpecularColor;
     vec3 modelN = normalize(modelNor);
-    float heightValue = (vertPos.y-terrainMin) / (terrainMax-terrainMin);
-//    if (heightValue < 0.1) {
-//        ambientColor = diffuseColor = vec3(0, 0, 0.5);
-//    } else if (heightValue < 0.3) {
-//        ambientColor = diffuseColor = modelN.y*vec3(0, 0, 0.5) + (1-modelN.y)*vec3(0, 0.5, 0);
-//    } else if (heightValue < 0.7) {
-//        ambientColor = diffuseColor = modelN.y*vec3(0, 0.5, 0) + (1-modelN.y)*vec3(0.25, 0.25, 0.25);
-//    } else {
-//        ambientColor = diffuseColor = modelN.y*vec3(0.25, 0.25, 0.25) + (1-modelN.y)*vec3(0.5, 0.5, 0.5);
-//    }
+    float heightValue = (facePos.y-terrainMin) / (terrainMax-terrainMin);
+    vec3 heightColor;
+//    float probability = rand();
+
+    for (int i = 0; i < NumHeightColors; i++) {
+        float height = heights[i];
+        if (heightValue <= height) {
+            heightColor = colors[i];
+            break;
+        }
+    }
+    vec3 randIntensity = rand(facePos.xz) * vec3(0.01, 0.01, 0.01);
 //    vec3 finalColor = (diffuseColor + ambientColor);
 //    color = vec4(finalColor, 1.0);
-    ambientColor = diffuseColor = vec3(0.5, 0.5, 0.5);
-    vec3 finalColor = heightValue * pow(modelN.y, 3) * (diffuseColor + ambientColor);
-    color = vec4(finalColor, 1.0);
+//    ambientColor = diffuseColor = vec3(0.5, 0.5, 0.5);
+    vec3 finalColor = heightValue * modelN.y * heightColor + randIntensity;
+    color = vec4(heightColor*modelN.y, 1.0);
 
 //    // Normalize the vectors
 //    vec3 vertexN = normalize(vertNor);

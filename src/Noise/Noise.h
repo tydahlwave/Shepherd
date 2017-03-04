@@ -139,18 +139,27 @@ static std::vector<std::vector<float>> GenerateSimplex(int size) {
     }
     
     // Set map values
-//    float frequency = 1.0f;
-    float octaves = 4;
+    float frequency = 2.0f;
+    float octaves = 5;
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
-            float nx = ((float)x/size - 0.5f) * 1.5;
-            float ny = ((float)y/size - 0.5f) * 1.5;
+            float nx = ((float)x/size - 0.5f) * frequency;
+            float ny = ((float)y/size - 0.5f) * frequency;
+            
+            float scale = pow(2, 1);
+            map[y][x] += 20.0f/scale * (0.4+noise.eval(scale * nx, scale * ny));
+            
             // Increase octaves for more detailed terrain
-            for (int oct = 0; oct < octaves; oct++) {
+            for (int oct = 1; oct < octaves; oct++) {
                 float scale = pow(2, oct);
-                map[y][x] += 100.0f/scale * noise.eval(scale * nx, scale * ny);
+                map[y][x] += map[y][x]/scale * (0.4+noise.eval(scale * nx, scale * ny));
             }
-//            map[y][x] = pow(map[y][x], 1.5);
+//            map[y][x] = pow(map[y][x], 1.2);
+            map[y][x] = (map[y][x] >= 0) ? pow(map[y][x], 1.3) : 0;
+//            map[y][x] = -std::fabsf(map[y][x]);
+            
+            scale = pow(2, 5);
+            map[y][x] += map[y][x]/scale * (0.4+noise.eval(scale * nx*5, scale * ny*5));
         }
     }
     
