@@ -177,9 +177,9 @@ const int NumHeightColors = 4;
 float heights[NumHeightColors] = float[](
 //    0,      // Water
 //    0.02,   // Sand
-    0.1,    // Grass
-    0.2,    // Light grass
-    0.7,    // Rock
+    0.05,    // Grass
+    0.1,    // Light grass
+    0.4,    // Rock
     1       // Snow
 );
 
@@ -189,7 +189,8 @@ vec3 colors[NumHeightColors] = vec3[](
     vec3(85/255.0f, 153/255.0f, 68/255.0f),     // Grass
     vec3(136/255.0f, 153/255.0f, 119/255.0f),   // Light grass
     vec3(136/255.0f, 136/255.0f, 136/255.0f),   // Rock
-    vec3(221/255.0f, 221/255.0f, 228/255.0f)    // Snow
+    vec3(255/255.0f, 255/255.0f, 255/255.0f)    // Snow
+//    vec3(221/255.0f, 221/255.0f, 228/255.0f)    // Snow
 );
 
 
@@ -199,22 +200,29 @@ void main() {
     vec3 specularColor = matSpecularColor;
     vec3 modelN = normalize(modelNor);
     float heightValue = (facePos.y-terrainMin) / (terrainMax-terrainMin);
-    vec3 heightColor;
-//    float probability = rand();
+    vec3 heightColor = vec3(221/255.0f, 221/255.0f, 228/255.0f);
 
     for (int i = 0; i < NumHeightColors; i++) {
         float height = heights[i];
         if (heightValue <= height) {
-            heightColor = colors[i];
+            if (i > 0) {
+                float prevHeight = heights[i-1];
+                float heightDist = height - prevHeight;
+                float contribution = pow((heightValue - prevHeight) / heightDist, 1);
+                heightColor = (1-contribution) * colors[i-1] + contribution * colors[i];
+            } else {
+                heightColor = colors[i];
+            }
             break;
         }
     }
-    vec3 randIntensity = rand(facePos.xz) * vec3(0.01, 0.01, 0.01);
+    // Make triangles vary in brightness slightly for a more low-poly look
+    vec3 randIntensity = rand(facePos.xz) * vec3(0.02, 0.02, 0.02);
 //    vec3 finalColor = (diffuseColor + ambientColor);
 //    color = vec4(finalColor, 1.0);
 //    ambientColor = diffuseColor = vec3(0.5, 0.5, 0.5);
     vec3 finalColor = heightValue * modelN.y * heightColor + randIntensity;
-    color = vec4(heightColor*modelN.y, 1.0);
+    color = vec4(heightColor*modelN.y + randIntensity, 1.0);
 
 //    // Normalize the vectors
 //    vec3 vertexN = normalize(vertNor);

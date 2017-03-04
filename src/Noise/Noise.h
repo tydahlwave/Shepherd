@@ -139,7 +139,8 @@ static std::vector<std::vector<float>> GenerateSimplex(int size) {
     }
     
     // Set map values
-    float frequency = 2.0f;
+    float frequency = 5.0f;
+    float initialHeight = 40.0f / frequency;
     float octaves = 5;
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
@@ -147,7 +148,7 @@ static std::vector<std::vector<float>> GenerateSimplex(int size) {
             float ny = ((float)y/size - 0.5f) * frequency;
             
             float scale = pow(2, 1);
-            map[y][x] += 20.0f/scale * (0.4+noise.eval(scale * nx, scale * ny));
+            map[y][x] += initialHeight/scale * (0.4+noise.eval(scale * nx, scale * ny));
             
             // Increase octaves for more detailed terrain
             for (int oct = 1; oct < octaves; oct++) {
