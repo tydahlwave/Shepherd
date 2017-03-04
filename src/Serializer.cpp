@@ -20,8 +20,6 @@
 
 
 void Serializer::SerializeWorld(World *world) {
-    //std::vector<std::string> mylist{"Sphere", "Boulder", "Tree"}; // types of objects to serialize
-    
     rapidjson::StringBuffer sb;
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
     
@@ -29,13 +27,10 @@ void Serializer::SerializeWorld(World *world) {
     writer.Key("GameObjects");
     writer.StartArray();
     for (int i = 0; i < world->GetGameObjects().size(); i++) {
-        //if(std::find(std::begin(mylist), std::end(mylist), world->GetGameObjects()[i]->name) != std::end(mylist)) {
         if(world->GetGameObjects()[i]->isSerializable) {
-            if(world->GetGameObjects()[i]->name == "Light") cout << "TESTING IS LIGHT SERIALIZED" << endl;
-            
+            if(world->GetGameObjects()[i]->name == "Light")
                 world->GetGameObjects()[i]->Serialize(writer);
-            }
-        //}
+        }
     }
     writer.EndArray();
     writer.EndObject();

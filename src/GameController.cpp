@@ -101,16 +101,24 @@ bool show_test_window = true;
 bool show_another_window = true;
 ImVec4 clear_color = ImColor(114, 144, 154);
 
+void GameController::drawImGUIStuff(Window &window, GameObject *terrain) {
+    
+    // Prevent gui from being drawn in wireframe mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    
+    ImGui_ImplGlfwGL3_NewFrame();
+    
+    if(terrain) drawTerrainWindow(window, terrain);
+    drawLevelEditor(window);
+    ImGui::Render();
+    
+    // Revert wireframe mode to how it was
+    glPolygonMode(GL_FRONT_AND_BACK, window.drawWireframes ? GL_LINE : GL_FILL);
+}
 
 void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
-	TerrainRenderer *terrainRenderer = (TerrainRenderer*)terrain->GetComponent("TerrainRenderer");
-	TextureLoader *textureTest = terrainRenderer->terrain->getTexture();
-
-	// Prevent gui from being drawn in wireframe mode
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	ImGui_ImplGlfwGL3_NewFrame();
-
+    TerrainRenderer *terrainRenderer = (TerrainRenderer*)terrain->GetComponent("TerrainRenderer");
+    TextureLoader *textureTest = terrainRenderer->terrain->getTexture();
 	// 1. Show a simple window
 	// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
 	{
@@ -136,7 +144,6 @@ void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
 	//        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
 	//        ImGui::ShowTestWindow(&show_test_window);
 	//    }
-
         
 	{
 		ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiSetCond_FirstUseEver);
@@ -147,17 +154,9 @@ void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
 		ImGui::End();
 	}
 
-	ImGui::Render();
-
-	// Revert wireframe mode to how it was
-	glPolygonMode(GL_FRONT_AND_BACK, window.drawWireframes ? GL_LINE : GL_FILL);
 }
 
 void GameController::drawLevelEditor(Window &window) {
-    // Prevent gui from being drawn in wireframe mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    
-    ImGui_ImplGlfwGL3_NewFrame();
 
     {
         ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
@@ -226,7 +225,7 @@ void GameController::drawLevelEditor(Window &window) {
                 Light *light = (Light *)mostRecentlyPlacedGameObject->GetComponent("Light");
                 if(light) light->coneAngle = coneAngle;
             };
-            if (ImGui::DragFloat3("Cone Direction", coneDirection) && mostRecentlyPlacedGameObject) {
+            if (ImGui::SliderFloat3("Cone Direction", coneDirection, -1, 1) && mostRecentlyPlacedGameObject) {
                 Light *light = (Light *)mostRecentlyPlacedGameObject->GetComponent("Light");
                 if(light) light->coneDirection = vec3(coneDirection[0],coneDirection[1],coneDirection[2]);
             };
@@ -278,11 +277,6 @@ void GameController::drawLevelEditor(Window &window) {
         }
         ImGui::End();
     }
-
-    ImGui::Render();
-    
-    // Revert wireframe mode to how it was
-    glPolygonMode(GL_FRONT_AND_BACK, window.drawWireframes ? GL_LINE : GL_FILL);
 }
 
 
@@ -354,8 +348,7 @@ void GameController::Run() {
 				cameraController->Update(world);
 			renderer.Render(world, window);
 			CAudioEngine::instance()->Update();
-			if (window.drawGUI && terrain) drawTerrainWindow(window, terrain);
-            if (window.drawGUI) drawLevelEditor(window);
+            if(window.drawGUI) drawImGUIStuff(window, terrain);
 			window.Update();
             displayStats(elapsedTime, world, physics);
             
