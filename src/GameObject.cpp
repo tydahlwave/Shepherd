@@ -19,6 +19,7 @@
 #include "Components/SkyboxRenderer.h"
 #include "Components/Character.h"
 #include "Components/Death.h"
+#include "Components/Light.h"
 
 GameObject::GameObject() :components() {
     name = "GameObject";
@@ -33,6 +34,43 @@ GameObject::GameObject(std::string name) :components() {
 GameObject::GameObject(std::string name, std::vector<std::string> componentNames) :GameObject(name) {
     for (std::string componentName : componentNames) {
         AddComponent(componentName);
+    }
+}
+
+bool GameObject::GetIsStatic() {
+    return IsStatic;
+}
+
+void GameObject::SetIsStatic(bool isStatic) {
+    if(isStatic) {
+        IsStatic = true;
+        RigidBody *rb = (RigidBody*)GetComponent("RigidBody");
+        if(rb && rb->bulletRigidBody) {
+            world->dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
+            rb->bulletRigidBody = nullptr;
+        }
+    }
+    else {
+        IsStatic = false;
+//        RigidBody *rb = (RigidBody*)GetComponent("RigidBody");
+//        btTransform t;
+//        t.setIdentity();
+//        t.setOrigin(btVector3(transform->GetPosition().x,transform->GetPosition().y,transform->GetPosition().z));
+//        btSphereShape* sphere = new btSphereShape(glm::distance(getBounds().getMin(), getBounds().getMax())/2.0);
+//        btVector3 inertia(0,0,0);
+//        float mass = 5.0;
+//        if (mass != 0)
+//            sphere->calculateLocalInertia(mass, inertia);
+//        btMotionState* motion = new btDefaultMotionState(t);
+//        btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
+//        rb->bulletRigidBody = new btRigidBody(info);
+//        rb->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+//        rb->bulletRigidBody->setFriction(1.f);
+//        rb->bulletRigidBody->setRollingFriction(0.3f);
+//        rb->bulletRigidBody->setAnisotropicFriction(sphere->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+//        //    rigidBody->bulletRigidBody->setCollisionFlags(0); // Make it a static object
+//        
+//        world->dynamicsWorld->addRigidBody(rb->bulletRigidBody);
     }
 }
 
@@ -76,7 +114,10 @@ Component *GameObject::AddComponent(std::string name) {
 		}
 		else if (name.compare("Character") == 0) {
 			component = (Component *) new Character();
-		} else {
+        }
+        else if (name.compare("Light") == 0) {
+            component = (Component *) new Light();
+        } else {
             component = nullptr;
             std::cout << name << " component does not exist." << std::endl;
         }
@@ -98,17 +139,9 @@ void GameObject::RemoveComponent(std::string name) {
 }
 
 void GameObject::Destroy() {
-//    for(std::map<std::string, Component*>::iterator it = components.begin(); it != components.end(); it++) {
-        // iterator->first = key
-        // iterator->second = value
-        // Repeat if you also want to iterate through the second map.
-//        if (components[it->first]) {
-//            components[it->first]->gameObject = nullptr;
-//            components[it->first] = nullptr;
-//        }
-//        world->GetGameObjects()
-//        delete this;
-//    }
+    auto it = std::find(world->GetGameObjects().begin(), world->GetGameObjects().end(), this);
+    if(it != world->GetGameObjects().end())
+        world->GetGameObjects().erase(it);
 }
 
 //template <typename Writer>
@@ -116,12 +149,13 @@ void GameObject::Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) {
     writer.StartObject();
     writer.Key("ObjectType");
     writer.String(name.c_str());
+    writer.Key("Static");
+    writer.Bool(IsStatic);
     writer.Key("Components");
     writer.StartObject();
+    Light *light = (Light *)GetComponent("Light");
+    if (light) light->Serialize(writer);
     transform->Serialize(writer);
-    // iterate through all components
-        //for (std::map<std::string, Component*>::iterator it=components.begin(); it!=components.end(); ++it)
-            //it->second->Serialize(writer);
     writer.EndObject();
     writer.EndObject();
 }

@@ -31,6 +31,7 @@ public:
 	static GameObject *createPath(World *world, GameObject *terrain, int nodes);
     static GameObject *createTree(World *world, int type, glm::vec3 pos);
 	static GameObject *createSkybox(World *world, std::string resourceDir);
+    static GameObject *createLight(World *world, glm::vec3 position, bool isDirectional, glm::vec3 intensities, float attenuation,float ambientCoefficient,float coneAngle, glm::vec3 coneDirection);
 	static GameObject *upgradeCharacter(World *world, GameObject *camera);
 };
 

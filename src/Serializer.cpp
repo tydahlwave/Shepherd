@@ -20,7 +20,7 @@
 
 
 void Serializer::SerializeWorld(World *world) {
-    std::vector<std::string> mylist{"Sphere", "Boulder", "Tree"}; // types of objects to serialize
+    //std::vector<std::string> mylist{"Sphere", "Boulder", "Tree"}; // types of objects to serialize
     
     rapidjson::StringBuffer sb;
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
@@ -28,9 +28,15 @@ void Serializer::SerializeWorld(World *world) {
     writer.StartObject();
     writer.Key("GameObjects");
     writer.StartArray();
-    for (int i = 0; i < world->GetGameObjects().size(); i++)
-        if(std::find(std::begin(mylist), std::end(mylist), world->GetGameObjects()[i]->name) != std::end(mylist))
-            world->GetGameObjects()[i]->Serialize(writer);
+    for (int i = 0; i < world->GetGameObjects().size(); i++) {
+        //if(std::find(std::begin(mylist), std::end(mylist), world->GetGameObjects()[i]->name) != std::end(mylist)) {
+        if(world->GetGameObjects()[i]->isSerializable) {
+            if(world->GetGameObjects()[i]->name == "Light") cout << "TESTING IS LIGHT SERIALIZED" << endl;
+            
+                world->GetGameObjects()[i]->Serialize(writer);
+            }
+        //}
+    }
     writer.EndArray();
     writer.EndObject();
     
@@ -54,16 +60,35 @@ Transform *Serializer::DeserializeTransform(rapidjson::Value &v) {
     return new Transform(position,rotation,scale);
 }
 
-void Serializer::DeserializeSphere(rapidjson::Value &v, World *world) {
+Light *Serializer::DeserializeLightComponent(rapidjson::Value &v) {
+    assert(v.HasMember("IsDirectional"));
+    float isDirectional = v["IsDirectional"].GetDouble();
+    assert(v.HasMember("Intensities"));
+    rapidjson::Value& intense = v["Intensities"];
+    vec3 intensities = vec3(intense[0].GetDouble(),intense[1].GetDouble(),intense[2].GetDouble());
+    assert(v.HasMember("Attenuation"));
+    float attenuation = v["Attenuation"].GetDouble();
+    assert(v.HasMember("AmbientCoefficient"));
+    float ambientCoefficient = v["AmbientCoefficient"].GetDouble();
+    assert(v.HasMember("ConeAngle"));
+    float coneAngle = v["ConeAngle"].GetDouble();
+    assert(v.HasMember("ConeDirection"));
+    rapidjson::Value& cd = v["ConeDirection"];
+    vec3 coneDirection = (vec3(cd[0].GetDouble(),cd[1].GetDouble(),cd[2].GetDouble()));
+    return new Light(isDirectional, intensities, attenuation, ambientCoefficient, coneAngle, coneDirection);
+}
+
+GameObject *Serializer::DeserializeSphere(rapidjson::Value &v, World *world) {
     rapidjson::Value& v2 = v["Components"]["Transform"];
     Transform *t = DeserializeTransform(v2);
     GameObject *sphere = EntityFactory::createSphere(world, 2, t->GetPosition(), 2);
     sphere->transform->SetPosition(t->GetPosition());
     sphere->transform->SetRotation(t->GetRotation());
     sphere->transform->SetScale(t->GetScale());
+    return sphere;
 }
 
-void Serializer::DeserializeBoulder(rapidjson::Value &v, World *world) {
+GameObject *Serializer::DeserializeBoulder(rapidjson::Value &v, World *world) {
     rapidjson::Value& v2 = v["Components"]["Transform"];
     Transform *t = DeserializeTransform(v2);
     int type = rand() % 3;
@@ -71,9 +96,10 @@ void Serializer::DeserializeBoulder(rapidjson::Value &v, World *world) {
     boulder->transform->SetPosition(t->GetPosition());
     boulder->transform->SetRotation(t->GetRotation());
     boulder->transform->SetScale(t->GetScale());
+    return boulder;
 }
 
-void Serializer::DeserializeTree(rapidjson::Value &v, World *world) {
+GameObject *Serializer::DeserializeTree(rapidjson::Value &v, World *world) {
     rapidjson::Value& v2 = v["Components"]["Transform"];
     Transform *t = DeserializeTransform(v2);
     int type = (rand() % 2) + 1;
@@ -81,7 +107,19 @@ void Serializer::DeserializeTree(rapidjson::Value &v, World *world) {
     tree->transform->SetPosition(t->GetPosition());
     tree->transform->SetRotation(t->GetRotation());
     tree->transform->SetScale(t->GetScale());
+    return tree;
+}
+
+GameObject *Serializer::DeserializeLightObject(rapidjson::Value &v, World *world) {
+    rapidjson::Value& v2 = v["Components"]["Transform"];
+    Transform *t = DeserializeTransform(v2);
+    Light *lightComp = DeserializeLightComponent(v["Components"]["Light"]);
+    GameObject *lightObj = EntityFactory::createLight(world, t->GetPosition(), lightComp->isDirectional, lightComp->intensities, lightComp->attenuation, lightComp->ambientCoefficient, lightComp->coneAngle, lightComp->coneDirection);
+    lightObj->transform->SetPosition(t->GetPosition());
+    lightObj->transform->SetRotation(t->GetRotation());
+    lightObj->transform->SetScale(t->GetScale());
     
+    return lightObj;
 }
 
 void Serializer::DeserializeWorld(World *world) {
@@ -90,7 +128,7 @@ void Serializer::DeserializeWorld(World *world) {
     std::stringstream strStream;
     strStream << inFile.rdbuf();//read the file
     std::string json = strStream.str();//str holds the content of the file
-    
+
     rapidjson::Document d;
     d.Parse(json.c_str());
     
@@ -101,8 +139,13 @@ void Serializer::DeserializeWorld(World *world) {
         rapidjson::Value& v = d["GameObjects"][i];
         // i have now gotten 1 game object
         assert(v.HasMember("ObjectType"));
-        if(v["ObjectType"] == "Sphere") DeserializeSphere(v, world);
-        else if(v["ObjectType"] == "Boulder") DeserializeBoulder(v, world);
-        else if(v["ObjectType"] == "Tree") DeserializeTree(v, world);
+        GameObject *go;
+        if(v["ObjectType"] == "Sphere") go = DeserializeSphere(v, world);
+        else if(v["ObjectType"] == "Boulder") go = DeserializeBoulder(v, world);
+        else if(v["ObjectType"] == "Tree") go = DeserializeTree(v, world);
+        else if(v["ObjectType"] == "Light") go = DeserializeLightObject(v, world);
+        else cout << "DESERIALIZATION OF THIS OBJECT TYPE NOT SUPPORTED\n";
+        assert(v.HasMember("Static"));
+        go->SetIsStatic(v["Static"].GetBool());
     }
 }

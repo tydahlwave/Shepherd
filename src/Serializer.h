@@ -10,6 +10,7 @@
 
 
 #include "World.h"
+#include "Components/Light.h"
 #include "rapidjson/document.h"
 
 class Serializer {
@@ -17,10 +18,12 @@ public:
     static void SerializeWorld(World *world);
     static void DeserializeWorld(World *world);
 private:
-    static void DeserializeSphere(rapidjson::Value &v, World *world);
-    static void DeserializeBoulder(rapidjson::Value &v, World *world);
-    static void DeserializeTree(rapidjson::Value &v, World *world);
+    static GameObject *DeserializeSphere(rapidjson::Value &v, World *world);
+    static GameObject *DeserializeBoulder(rapidjson::Value &v, World *world);
+    static GameObject *DeserializeTree(rapidjson::Value &v, World *world);
+    static GameObject *DeserializeLightObject(rapidjson::Value &v, World *world);
     static Transform *DeserializeTransform(rapidjson::Value &v);
+    static Light *DeserializeLightComponent(rapidjson::Value &v);
 };
 
 #endif /* World_h */

@@ -15,6 +15,7 @@
 #include "Components/TerrainRenderer.h"
 #include "Components/PathRenderer.h"
 #include "Components/SkyboxRenderer.h"
+#include "Components/Light.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
@@ -205,6 +206,7 @@ GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::v
 
 GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 position, float mass) {
     GameObject *gameObject = world->CreateGameObject("Sphere");
+    gameObject->isSerializable = true;
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::sphere;
     meshRenderer->shader = ShaderLibrary::cell;
@@ -227,7 +229,6 @@ GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 po
     rigidBody->bulletRigidBody->setFriction(1.f);
     rigidBody->bulletRigidBody->setRollingFriction(0.3f);
     rigidBody->bulletRigidBody->setAnisotropicFriction(sphere->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
-
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
@@ -253,8 +254,11 @@ GameObject *EntityFactory::createPhysicsGround(World *world) {
     return gameObject;
 }
 
+//GameObject *EntityFactory::createBoulder(World *world, int boulderType, float radius, vec3 position)
+
 GameObject *EntityFactory::createBoulder(World *world, int boulderType, float radius, vec3 position) {
     GameObject *gameObject = world->CreateGameObject("Boulder");
+    gameObject->isSerializable = true;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->useGravity = true;
     rigidBody->isKinematic = true;
@@ -348,6 +352,7 @@ GameObject *EntityFactory::createPath(World *world, GameObject *terrainObject, i
 
 GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
     GameObject *gameObject = world->CreateGameObject("Tree");
+    gameObject->isSerializable = true;
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
 //    meshRenderer->model = (type == 0) ? ModelLibrary::tree1 : (type == 1) ? ModelLibrary::tree2 : ModelLibrary::tree3;
     meshRenderer->model = (type == 0) ? ModelLibrary::tree2 : ModelLibrary::tree3;
@@ -384,6 +389,19 @@ GameObject *EntityFactory::createSkybox(World *world, std::string resourceDir) {
 	renderer->skybox = new Skybox(resourceDir);
 	renderer->model = ModelLibrary::cube;
 	renderer->shader = ShaderLibrary::skybox;
-
 	return gameObject;
+}
+
+GameObject *EntityFactory::createLight(World *world, glm::vec3 position, bool isDirectional, glm::vec3 intensities, float attenuation,float ambientCoefficient,float coneAngle, glm::vec3 coneDirection) {
+    GameObject *gameObject = world->CreateGameObject("Light");
+    gameObject->isSerializable = true;
+    gameObject->transform->SetPosition(position);
+    Light *light = (Light*)gameObject->AddComponent("Light");
+    light->isDirectional = isDirectional;
+    light->intensities = intensities;
+    light->attenuation = attenuation;
+    light->ambientCoefficient = ambientCoefficient;
+    light->coneAngle = coneAngle;
+    light->coneDirection = coneDirection;
+    return gameObject;
 }

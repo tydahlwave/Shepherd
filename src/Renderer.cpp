@@ -17,6 +17,7 @@
 #include "Components/TerrainRenderer.h"
 #include "Components/SkyboxRenderer.h"
 #include "Components/PathRenderer.h"
+#include "Components/Light.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
@@ -63,17 +64,17 @@ void Renderer::Initialize() {
     glEnable(GL_DEPTH_TEST);
 }
 
-std::vector<Light> setUpLights(World &world, Path *path) {
-    std::vector<Light> lights;
-    
-    Light spotlight;
-    spotlight.position = glm::vec4(-4,100,10,1);
-    spotlight.intensities = glm::vec3(2, 2, 2); //strong white light
-    spotlight.attenuation = 0.1f;
-    spotlight.ambientCoefficient = 0.0f; //no ambient light
-    spotlight.coneAngle = 15.0f;
-    spotlight.coneDirection = glm::vec3(0,-1,0);
-    lights.push_back(spotlight);
+std::vector<LightStruct> setUpLights(World &world, Path *path) {
+    std::vector<LightStruct> lights;
+  
+//    LightStruct spotlight;
+//    spotlight.position = glm::vec4(-4,50,10,1);
+//    spotlight.intensities = glm::vec3(2, 2, 2); //strong white light
+//    spotlight.attenuation = 0.1f;
+//    spotlight.ambientCoefficient = 0.0f; //no ambient light
+//    spotlight.coneAngle = 45.0f;
+//    spotlight.coneDirection = glm::vec3(0,-1,0);
+//    lights.push_back(spotlight);
     
     // Spotlight on the player
     //    Light playerLight;
@@ -90,7 +91,7 @@ std::vector<Light> setUpLights(World &world, Path *path) {
         glm::vec3 nodePos = path->GetNodes()[path->size-1];
         nodePos.y += 20.0f;
 //        for (glm::vec3 nodePos : path->GetNodes()) {
-            Light nodeLight;
+            LightStruct nodeLight;
             nodeLight.position = glm::vec4(nodePos, 1);
             nodeLight.intensities = glm::vec3(2, 2, 2); //strong white light
             nodeLight.attenuation = 0.1f;
@@ -101,7 +102,7 @@ std::vector<Light> setUpLights(World &world, Path *path) {
 //        }
     }
     
-    Light directionalLight;
+    LightStruct directionalLight;
     directionalLight.position = glm::vec4(1, 0.8, 0.6, 0); //w == 0 indications a directional light
     directionalLight.intensities = glm::vec3(1,1,1); //weak yellowish light
     directionalLight.ambientCoefficient = 0.15f;
@@ -164,7 +165,13 @@ void Renderer::Render(World &world, Window &window) {
         }
     }
     
-    std::vector<Light> lights = setUpLights(world, path);
+    std::vector<LightStruct> lights = setUpLights(world, path);
+    for (GameObject *gameObject : world.GetGameObjects()) {
+        Light *light = (Light*)gameObject->GetComponent("Light");
+        if (light) {
+            lights.push_back(light->GetLight());
+        }
+    }
     
     for (GameObject *gameObject : world.GetGameObjects()) {
 		SkyboxRenderer *skyboxRenderer = (SkyboxRenderer*)gameObject->GetComponent("SkyboxRenderer");
@@ -251,7 +258,7 @@ void Renderer::Render(World &world, Window &window) {
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            applyCameraMatrix(shader, camera, camera->pos);
             applyTransformMatrix(shader, gameObject->transform);
             
             model->draw(shader);

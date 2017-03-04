@@ -41,12 +41,11 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     } else {
         //point light
         lightN = normalize(lightPos - fragPos);
-        float a = 0;
-        float b = 0.5;
-        float c = 0;
         float distanceToLight = length(lightPos - fragPos);
-        float attenuation = 1 / (a + b * distanceToLight + c * pow(distanceToLight, 2));
-        
+
+        //attenuation = 1.0 / (1.0 + light.attenuation * pow(distanceToLight, 2.0));
+        attenuation = clamp( 10.0 / (1.0 + light.attenuation * distanceToLight), 0.0, 1.0);
+
         //cone restrictions (affects attenuation)
         float lightToSurfaceAngle = degrees(acos(dot(-lightN, normalize(light.coneDirection))));
         if(lightToSurfaceAngle > light.coneAngle){

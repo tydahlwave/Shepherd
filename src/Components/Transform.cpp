@@ -63,3 +63,4 @@ void Transform::SetScale(glm::vec3 sc) {
         gameObject->world->dynamicsWorld->updateSingleAabb(rb->bulletRigidBody);
     }
 }
+

@@ -41,9 +41,14 @@ public:
     // Safely remove game object from game
     void Destroy();
     
+    bool GetIsStatic();
+    void SetIsStatic(bool isStatic);
+    
+    bool isSerializable = false;
     //template <typename Writer> // i changed the type from Writer to PrettyWriter to get it to compile
     void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer);
 private:
+    bool IsStatic = false;
     std::map<std::string, Component*> components;
 };
 
