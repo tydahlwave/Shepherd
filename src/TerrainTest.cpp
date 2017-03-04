@@ -160,6 +160,8 @@ int main(int argc, char **argv) {
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController);
+    CAudioEngine::instance()->Init();
+    CAudioEngine::instance()->LoadSounds(resourceDir);
     
     // Initialize main camera position and lookvector
     world.mainCamera->transform->SetPosition(glm::vec3(0, 900, 0));
@@ -194,6 +196,7 @@ int main(int argc, char **argv) {
         }
         
         cameraController.Update(world);
+        CAudioEngine::instance()->Update();
         renderer.Render(world, window);
         
         if (window.drawGUI) drawTerrainWindow(window, terrain);
