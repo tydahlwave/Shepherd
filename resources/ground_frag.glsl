@@ -1,6 +1,4 @@
 #version 330 core
-in vec3 fragPos;
-in vec3 fragNor;
 uniform vec3 matDiffuseColor;
 uniform vec3 matSpecularColor;
 uniform vec3 matAmbientColor;
@@ -18,10 +16,11 @@ uniform struct Light {
     vec3 coneDirection;
 } allLights[MAX_LIGHTS];
 
-out vec4 color;
+in vec3 fragPos;
+in vec3 fragNor;
+in vec3 viewNor;
 
-in vec3 vertexNormal;
-in vec3 viewNormal;
+out vec4 color;
 
 //helper
 float stepmix(float edge0, float edge1, float E, float x)
@@ -117,11 +116,10 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
 }
 
 
-void main()
-{
+void main() {
     // Normalize the vectors
-    vec3 vertexN = normalize(vertexNormal);
-    vec3 viewN = normalize(viewNormal);
+    vec3 vertexN = normalize(fragNor);
+    vec3 viewN = normalize(viewNor);
     //combine color from all the lights
     vec3 linearColor = vec3(0);
     for(int i = 0; i < numLights; ++i){
