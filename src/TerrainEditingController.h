@@ -23,6 +23,9 @@ public:
     void MouseScrolled(World *world, double dx, double dy);
 private:
     TerrainRenderer *terrainRenderer;
+    
+    void elevate(int row, int col, float height, int radius);
+    void flatten(int x, int y, float height, int radius);
 };
 
 #endif /* TerrainEditingController_h */

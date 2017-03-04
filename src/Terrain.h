@@ -27,6 +27,9 @@ public:
     void Generate();
     void Regenerate();
     void GenerateFromImage(std::string imagePath);
+    void UpdateBuffers();
+    void init();
+    void update();
     void draw(Program *prog) const;
     
     TextureLoader *getTexture() { return texture; };
@@ -53,9 +56,9 @@ private:
     
     TextureLoader *texture;
     
-    void UpdateBuffers();
+//    void UpdateBuffers();
     void ComputeNormals();
-    void init();
+//    void init();
     void makeTexture();
 };
 
