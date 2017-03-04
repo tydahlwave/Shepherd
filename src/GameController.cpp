@@ -136,6 +136,29 @@ void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
 	//        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
 	//        ImGui::ShowTestWindow(&show_test_window);
 	//    }
+
+        
+	{
+		ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiSetCond_FirstUseEver);
+		ImGui::Begin("Terrain Settings");
+		ImVec2 uv0 = ImVec2(0, 0);
+		ImVec2 uv1 = ImVec2(1, 1);
+		ImGui::Image((void*)textureTest->getTextureId(), ImVec2(128, 128), uv0, uv1, ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
+		ImGui::End();
+	}
+
+	ImGui::Render();
+
+	// Revert wireframe mode to how it was
+	glPolygonMode(GL_FRONT_AND_BACK, window.drawWireframes ? GL_LINE : GL_FILL);
+}
+
+void GameController::drawLevelEditor(Window &window) {
+    // Prevent gui from being drawn in wireframe mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    
+    ImGui_ImplGlfwGL3_NewFrame();
+
     {
         ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
         ImGui::Begin("Object Creation Tool");
@@ -157,7 +180,7 @@ void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
         
         const char* items[] = {"Sphere", "Boulder", "Tree", "Light"};
         if (ImGui::Combo("Objects", &item, items, 4)) {
-
+            
         }
         if (ImGui::Button("Add Item") && !mostRecentlyPlacedGameObject) {
             if(item == 0) {
@@ -255,20 +278,11 @@ void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
         }
         ImGui::End();
     }
-        
-	{
-		ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiSetCond_FirstUseEver);
-		ImGui::Begin("Terrain Settings");
-		ImVec2 uv0 = ImVec2(0, 0);
-		ImVec2 uv1 = ImVec2(1, 1);
-		ImGui::Image((void*)textureTest->getTextureId(), ImVec2(128, 128), uv0, uv1, ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
-		ImGui::End();
-	}
 
-	ImGui::Render();
-
-	// Revert wireframe mode to how it was
-	glPolygonMode(GL_FRONT_AND_BACK, window.drawWireframes ? GL_LINE : GL_FILL);
+    ImGui::Render();
+    
+    // Revert wireframe mode to how it was
+    glPolygonMode(GL_FRONT_AND_BACK, window.drawWireframes ? GL_LINE : GL_FILL);
 }
 
 
@@ -341,6 +355,7 @@ void GameController::Run() {
 			renderer.Render(world, window);
 			CAudioEngine::instance()->Update();
 			if (window.drawGUI && terrain) drawTerrainWindow(window, terrain);
+            if (window.drawGUI) drawLevelEditor(window);
 			window.Update();
             displayStats(elapsedTime, world, physics);
             

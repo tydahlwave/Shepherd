@@ -76,6 +76,7 @@ private:
     
     void displayStats(float deltaTime, World &world, Physics &physics);
     void drawTerrainWindow(Window &window, GameObject *terrain);
+    void drawLevelEditor(Window &window);
 };
 
 #endif /* CharacterController_h */
