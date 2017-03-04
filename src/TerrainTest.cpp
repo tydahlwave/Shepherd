@@ -87,60 +87,6 @@ void displayStats(float deltaTime, World &world, Physics &physics) {
     }
 }
 
-bool show_test_window = true;
-bool show_another_window = true;
-ImVec4 clear_color = ImColor(114, 144, 154);
-
-void drawTerrainWindow(Window &window, GameObject *terrain) {
-    TerrainRenderer *terrainRenderer = (TerrainRenderer*) terrain->GetComponent("TerrainRenderer");
-    TextureLoader *textureTest = terrainRenderer->terrain->getTexture();
-    
-    // Prevent gui from being drawn in wireframe mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    
-    ImGui_ImplGlfwGL3_NewFrame();
-    
-    // 1. Show a simple window
-    // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
-    {
-        ImGui::SetNextWindowPos(ImVec2(300, 20), ImGuiSetCond_FirstUseEver);
-        ImGui::SetNextWindowContentSize(ImVec2(100, 20));
-        ImGui::Begin("Debug");
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        ImGui::End();
-    }
-    
-    // 2. Show another simple window, this time using an explicit Begin/End pair
-    //    if (show_another_window)
-    //    {
-    //        ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
-    //        ImGui::Begin("Another Window", &show_another_window);
-    //        ImGui::Text("Hello");
-    //        ImGui::End();
-    //    }
-    
-    // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
-    //    if (show_test_window)
-    //    {
-    //        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-    //        ImGui::ShowTestWindow(&show_test_window);
-    //    }
-    
-    {
-        ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiSetCond_FirstUseEver);
-        ImGui::Begin("Terrain Settings");
-        ImVec2 uv0 = ImVec2(0, 0);
-        ImVec2 uv1 = ImVec2(1, 1);
-        ImGui::Image((void*)textureTest->getTextureId(), ImVec2(128, 128), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
-        ImGui::End();
-    }
-    
-    ImGui::Render();
-    
-    // Revert wireframe mode to how it was
-    glPolygonMode(GL_FRONT_AND_BACK, window.drawWireframes ? GL_LINE : GL_FILL);
-}
-
 int main(int argc, char **argv) {
     handleInput(argc, argv);
     
@@ -160,6 +106,7 @@ int main(int argc, char **argv) {
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController);
+    Window::AddImguiUpdateDelegate((ImguiUpdateDelegate*)&terrainController);
     CAudioEngine::instance()->Init();
     CAudioEngine::instance()->LoadSounds(resourceDir);
     
@@ -199,7 +146,6 @@ int main(int argc, char **argv) {
         CAudioEngine::instance()->Update();
         renderer.Render(world, window);
         
-        if (window.drawGUI) drawTerrainWindow(window, terrain);
         window.Update();
     }
     

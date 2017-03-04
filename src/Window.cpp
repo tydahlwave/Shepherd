@@ -31,8 +31,7 @@ bool Window::drawMouse = false;
 bool Window::drawWireframes = false;
 bool Window::drawAABBs = false;
 std::vector<WindowCallbackDelegate*> Window::windowCallbackDelegates;
-
-
+std::vector<ImguiUpdateDelegate*> Window::imguiUpdateDelegates;
 
 Window::Window(World *w, int width, int height) :_width(width), _height(height) {
     Window::world = w;
@@ -117,6 +116,7 @@ static void resize_callback(GLFWwindow *window, int width, int height) {
 
 void Window::DeleteCallbackDelegates() {
 	windowCallbackDelegates.clear();
+    imguiUpdateDelegates.clear();
 }
 int Window::Initialize() {
     // Set error callback.
@@ -185,54 +185,27 @@ void Window::Terminate() {
 
 void Window::Update() {
     PollEvents();
-    
-//    bool show_test_window = true;
-//    bool show_another_window = true;
-//    ImVec4 clear_color = ImColor(114, 144, 154);
-    
-//    ImGui_ImplGlfwGL3_NewFrame();
-//    
-//    // 1. Show a simple window
-//    // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
-//    {
-//        static float f = 0.0f;
-//        ImGui::Text("Hello, world!");
-//        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-//        ImGui::ColorEdit3("clear color", (float*)&clear_color);
-//        if (ImGui::Button("Test Window")) show_test_window ^= 1;
-//        if (ImGui::Button("Another Window")) show_another_window ^= 1;
-//        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-//    }
-//    
-//    // 2. Show another simple window, this time using an explicit Begin/End pair
-//    if (show_another_window)
-//    {
-//        ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
-//        ImGui::Begin("Another Window", &show_another_window);
-//        ImGui::Text("Hello");
-//        ImGui::End();
-//    }
-//    
-//    // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
-//    if (show_test_window)
-//    {
-//        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-//        ImGui::ShowTestWindow(&show_test_window);
-//    }
-//    
-//    {
-//        ImGui::SetNextWindowPos(ImVec2(300, 20), ImGuiSetCond_FirstUseEver);
-//        ImGui::Begin("Terrain Settings");
-//        ImGui::Text("Testing");
-//        ImVec2 uv0 = ImVec2(0, 0);
-//        ImVec2 uv1 = ImVec2(1, 1);
-//        ImGui::Image((void*)textureTest->getTextureId(), ImVec2(128,128), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
-//        ImGui::End();
-//    }
-//    
-//    ImGui::Render();
-    
+    if (drawGUI) UpdateImgui();
     SwapBuffers();
+}
+
+void Window::UpdateImgui() {
+    // Prevent gui from being drawn in wireframe mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    
+    // Begin next gui frame
+    ImGui_ImplGlfwGL3_NewFrame();
+    
+    // Execute all registered callbacks
+    for (ImguiUpdateDelegate *delegate : imguiUpdateDelegates) {
+        delegate->ImguiUpdate(world);
+    }
+    
+    // Render the gui windows
+    ImGui::Render();
+    
+    // Revert wireframe mode to how it was
+    glPolygonMode(GL_FRONT_AND_BACK, drawWireframes ? GL_LINE : GL_FILL);
 }
 
 int Window::GetHeight() {
@@ -263,4 +236,8 @@ void Window::PollEvents() {
 
 void Window::AddWindowCallbackDelegate(WindowCallbackDelegate *delegate) {
     windowCallbackDelegates.push_back(delegate);
+}
+
+void Window::AddImguiUpdateDelegate(ImguiUpdateDelegate *delegate) {
+    imguiUpdateDelegates.push_back(delegate);
 }

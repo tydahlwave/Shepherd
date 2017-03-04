@@ -11,6 +11,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw_gl3.h"
+
 #include "World.h"
 #include "Components/TerrainRenderer.h"
 
@@ -101,5 +104,44 @@ void TerrainEditingController::flatten(int x, int y, float height, int radius) {
                 terrain->heightMap[row][col] = height;
             }
         }
+    }
+}
+
+void TerrainEditingController::ImguiUpdate(World *world) {
+    TextureLoader *textureTest = terrainRenderer->terrain->getTexture();
+    
+    // 1. Show a simple window
+    // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+    {
+        ImGui::SetNextWindowPos(ImVec2(300, 20), ImGuiSetCond_FirstUseEver);
+        ImGui::SetNextWindowContentSize(ImVec2(100, 20));
+        ImGui::Begin("Debug");
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::End();
+    }
+    
+    // 2. Show another simple window, this time using an explicit Begin/End pair
+    //    if (show_another_window)
+    //    {
+    //        ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
+    //        ImGui::Begin("Another Window", &show_another_window);
+    //        ImGui::Text("Hello");
+    //        ImGui::End();
+    //    }
+    
+    // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
+    //    if (show_test_window)
+    //    {
+    //        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+    //        ImGui::ShowTestWindow(&show_test_window);
+    //    }
+    
+    {
+        ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiSetCond_FirstUseEver);
+        ImGui::Begin("Terrain Settings");
+        ImVec2 uv0 = ImVec2(0, 0);
+        ImVec2 uv1 = ImVec2(1, 1);
+        ImGui::Image((void*)textureTest->getTextureId(), ImVec2(128, 128), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
+        ImGui::End();
     }
 }

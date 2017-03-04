@@ -10,10 +10,11 @@
 #define TerrainEditingController_h
 
 #include "WindowCallbackDelegate.h"
+#include "ImguiUpdateDelegate.h"
 
 class TerrainRenderer;
 
-class TerrainEditingController : WindowCallbackDelegate {
+class TerrainEditingController : WindowCallbackDelegate, ImguiUpdateDelegate {
 public:
     void SetTerrain(TerrainRenderer *terrainRenderer) { this->terrainRenderer = terrainRenderer; };
     
@@ -21,6 +22,7 @@ public:
     void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY);
     void MouseClicked(World *world, double mouseX, double mouseY, int key, int action);
     void MouseScrolled(World *world, double dx, double dy);
+    void ImguiUpdate(World *world);
 private:
     TerrainRenderer *terrainRenderer;
     

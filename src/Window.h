@@ -17,6 +17,7 @@
 #include "glm/glm.hpp"
 #include "World.h"
 #include "WindowCallbackDelegate.h"
+#include "ImguiUpdateDelegate.h"
 
 typedef void (*MouseCallback)(int, int, double, double); // windowWidth, windowHeight, mouseX, mouseY
 
@@ -45,11 +46,13 @@ public:
     bool ShouldClose();
     void SwapBuffers();
     void PollEvents();
+    void UpdateImgui();
     static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
     static void MouseMoveCallback(GLFWwindow *window, double posX, double posY);
     static void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 	static void MouseScrollCallback(GLFWwindow *window, double dx, double dy);
     static void AddWindowCallbackDelegate(WindowCallbackDelegate *delegate);
+    static void AddImguiUpdateDelegate(ImguiUpdateDelegate *delegate);
 	static void DeleteCallbackDelegates();
 private:
     GLFWwindow *window; // Main application window
@@ -57,6 +60,7 @@ private:
     int _height;
     static World *world;
     static std::vector<WindowCallbackDelegate*> windowCallbackDelegates;
+    static std::vector<ImguiUpdateDelegate*> imguiUpdateDelegates;
 };
 
 #endif /* Window_h */
