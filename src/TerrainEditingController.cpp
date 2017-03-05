@@ -179,6 +179,14 @@ void TerrainEditingController::ImguiUpdate(World *world) {
             terrain->makeTexture();
         }
         
+        if (ImGui::SliderFloat("Octave Height", &terrainProps.octaveHeight, 0.0f, 100.0f)) {
+            std::cout << "Octaves: " << terrainProps.octaveHeight << std::endl;
+            terrain->GenerateHeightmap(terrainProps, terrain->seed);
+            terrain->makeTexture();
+        }
+        
+        ImGui::Separator();
+        
         for (int i = 0; i < terrainRenderer->regionColors.size(); i++) {
             std::string heightStr = "Height" + to_string(i);
             std::string colorStr = "Color" + to_string(i);

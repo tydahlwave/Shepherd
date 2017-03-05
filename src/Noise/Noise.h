@@ -142,7 +142,8 @@ static std::vector<std::vector<float>> GenerateDiamondSquare(int size) {
         
         // Set map values
         float frequency = properties.frequency;
-        float initialHeight = 40.0f / frequency;
+        float initialHeight = properties.octaveHeight / properties.frequency;
+//        float initialHeight = 40.0f / frequency;
         float octaves = properties.octaves;
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {

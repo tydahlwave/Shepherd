@@ -15,6 +15,7 @@ struct NoiseProperties {
     time_t seed = 0;
     float frequency = 5.0f;
     int octaves = 3;
+    float octaveHeight = 40.0f;
 };
 
 #endif /* NoiseProperties_h */
