@@ -15,6 +15,8 @@
 #include "OpenSimplexNoise.hh"
 #include "glm/glm.hpp"
 
+#include "NoiseProperties.h"
+
 class Noise {
 public:
 
@@ -124,6 +126,48 @@ static std::vector<std::vector<float>> GenerateDiamondSquare(int size) {
 //glm::mat2 Noise::generatePerlin(int size) {
 //    
 //}
+    
+    static std::vector<std::vector<float>> GenerateSimplex(NoiseProperties &properties, int size) {
+        OSN::Noise<2> noise(properties.seed);
+        std::vector<std::vector<float>> map;
+        
+        // Initialize map to all 0s
+        for (int row = 0; row < size; row++) {
+            std::vector<float> rowVector;
+            for (int col = 0; col < size; col++) {
+                rowVector.push_back(0);
+            }
+            map.push_back(rowVector);
+        }
+        
+        // Set map values
+        float frequency = properties.frequency;
+        float initialHeight = 40.0f / frequency;
+        float octaves = properties.octaves;
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                float nx = ((float)x/size - 0.5f) * frequency;
+                float ny = ((float)y/size - 0.5f) * frequency;
+                
+                float scale = pow(2, 1);
+                map[y][x] += initialHeight/scale * (0.4+noise.eval(scale * nx, scale * ny));
+                
+                // Increase octaves for more detailed terrain
+                for (int oct = 1; oct < octaves; oct++) {
+                    float scale = pow(2, oct);
+                    map[y][x] += map[y][x]/scale * (0.4+noise.eval(scale * nx, scale * ny));
+                }
+                //            map[y][x] = pow(map[y][x], 1.2);
+                map[y][x] = (map[y][x] >= 0) ? pow(map[y][x], 1.3) : 0;
+                //            map[y][x] = -std::fabsf(map[y][x]);
+                
+                scale = pow(2, 5);
+                map[y][x] += map[y][x]/scale * (0.4+noise.eval(scale * nx*5, scale * ny*5));
+            }
+        }
+        
+        return map;
+    }
 
 static std::vector<std::vector<float>> GenerateSimplex(int size) {
     OSN::Noise<2> noise(time(0));

@@ -341,6 +341,10 @@ void Renderer::Render(World &world, Window &window) {
             
             if (shader->hasUniform("numLights")) glUniform1i(shader->getUniform("numLights"), lights.size());
             
+            // Send terrain colors to GPU
+            if (shader->hasUniform("regions")) glUniform1fv(shader->getUniform("regions"), terrainRenderer->regions.size(), terrainRenderer->regions.data());
+            if (shader->hasUniform("regionColors")) glUniform3fv(shader->getUniform("regionColors"), terrainRenderer->regionColors.size()*3, &terrainRenderer->regionColors[0][0]);
+            
             for(int i = 0; i < lights.size(); ++i){
                 std::string uniformName = ShaderLibrary::ConstructLightUniformName("position", i);
                 if (shader->hasUniform(uniformName)) glUniform4f(shader->getUniform(uniformName), lights[i].position.x,lights[i].position.y,lights[i].position.z,lights[i].position.w);

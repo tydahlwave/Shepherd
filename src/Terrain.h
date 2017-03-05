@@ -7,6 +7,8 @@
 
 #include "glm/glm.hpp"
 
+#include "Noise/NoiseProperties.h"
+
 #define SIMPLEX_TERRAIN 0
 #define DIAMOND_SQUARE_TERRAIN 1
 
@@ -22,14 +24,18 @@ public:
     int max = 0;
     int min = 0;
     int type = SIMPLEX_TERRAIN;
+    time_t seed = 0;
     std::vector<std::vector<float>> heightMap;
     
     void Generate();
     void Regenerate();
+    void GenerateHeightmap(time_t seed);
+    void GenerateHeightmap(NoiseProperties &properties, time_t seed);
     void GenerateFromImage(std::string imagePath);
     void UpdateBuffers();
     void init();
     void update();
+    void makeTexture();
     void draw(Program *prog) const;
     
     TextureLoader *getTexture() { return texture; };
@@ -59,7 +65,7 @@ private:
 //    void UpdateBuffers();
     void ComputeNormals();
 //    void init();
-    void makeTexture();
+//    void makeTexture();
 };
 
 #endif

@@ -14,8 +14,13 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
 
+#include "Noise/NoiseProperties.h"
+
 #include "World.h"
 #include "Components/TerrainRenderer.h"
+
+bool heightmapNeedsUpdate = false;
+NoiseProperties terrainProps;
 
 void TerrainEditingController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
     // Re-generate Terrain
@@ -62,6 +67,8 @@ void TerrainEditingController::MouseClicked(World *world, double mouseX, double 
         flatten(col, row, 0, 5);
         terrain->UpdateBuffers();
         terrain->update();
+//        terrain->makeTexture();
+//        heightmapNeedsUpdate = true;
     }
 }
 
@@ -108,7 +115,7 @@ void TerrainEditingController::flatten(int x, int y, float height, int radius) {
 }
 
 void TerrainEditingController::ImguiUpdate(World *world) {
-    TextureLoader *textureTest = terrainRenderer->terrain->getTexture();
+    Terrain *terrain = terrainRenderer->terrain;
     
     // 1. Show a simple window
     // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
@@ -136,12 +143,55 @@ void TerrainEditingController::ImguiUpdate(World *world) {
     //        ImGui::ShowTestWindow(&show_test_window);
     //    }
     
+    // Display terrain heightmap
     {
-        ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiSetCond_FirstUseEver);
-        ImGui::Begin("Terrain Settings");
+        ImGui::Begin("Terrain Heightmap");
+        ImGui::SetWindowPos(ImVec2(10, 10));
+        ImGui::SetWindowSize(ImVec2(terrain->size + 18, terrain->size + 37));
         ImVec2 uv0 = ImVec2(0, 0);
         ImVec2 uv1 = ImVec2(1, 1);
-        ImGui::Image((void*)textureTest->getTextureId(), ImVec2(128, 128), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
+        ImGui::Image((void*)terrain->getTexture()->getTextureId(), ImVec2(terrain->size, terrain->size), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
+        ImGui::End();
+    }
+    
+    {
+        ImGui::Begin("Terrain Settings");
+        ImGui::SetWindowPos(ImVec2(10, terrain->size + 37 + 20));
+        ImGui::SetWindowSize(ImVec2(terrain->size + 18, 350));
+        
+        if (ImGui::Button("New Seed")) {
+            terrainProps.seed = time(0);
+            terrain->GenerateHeightmap(terrainProps, terrain->seed);
+            terrain->UpdateBuffers();
+            terrain->update();
+        }
+        ImGui::LabelText("Seed", "%zu", terrainProps.seed ? terrainProps.seed : terrain->seed);
+        
+        if (ImGui::SliderFloat("Frequency", &terrainProps.frequency, 0.0f, 10.0f)) {
+            std::cout << "Frequency: " << terrainProps.frequency << std::endl;
+            terrain->GenerateHeightmap(terrainProps, terrain->seed);
+            terrain->makeTexture();
+        }
+        
+        if (ImGui::SliderInt("Octaves", &terrainProps.octaves, 0.0f, 10.0f)) {
+            std::cout << "Octaves: " << terrainProps.octaves << std::endl;
+            terrain->GenerateHeightmap(terrainProps, terrain->seed);
+            terrain->makeTexture();
+        }
+        
+        for (int i = 0; i < terrainRenderer->regionColors.size(); i++) {
+            std::string heightStr = "Height" + to_string(i);
+            std::string colorStr = "Color" + to_string(i);
+            ImGui::SliderFloat(heightStr.c_str(), &terrainRenderer->regions[i], 0.0f, 1.0f);
+            ImGui::DragFloat3(colorStr.c_str(), &terrainRenderer->regionColors[i][0], 0.02f, 0.0f, 1.0f);
+        }
+        
+        if (ImGui::Button("Generate")) {
+            terrain->GenerateHeightmap(terrainProps, terrain->seed);
+            terrain->UpdateBuffers();
+            terrain->update();
+        }
+        
         ImGui::End();
     }
 }

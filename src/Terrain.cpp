@@ -23,26 +23,9 @@ Terrain::Terrain() :
 Terrain::~Terrain() {}
 
 void Terrain::Generate() {
-    srand(time(0));
-    switch (type) {
-    case 0:
-        heightMap = Noise::GenerateSimplex(size);
-        break;
-    default:
-        heightMap = Noise::GenerateDiamondSquare(size);
-        break;
-    }
-    
-    // Record max/min
-    max = INT_MIN;
-    min = INT_MAX;
-    for (int i = 0; i < heightMap.size(); i++) {
-        for (int j = 0; j < heightMap[i].size(); j++) {
-            if (heightMap[j][i] > max) max = heightMap[j][i];
-            if (heightMap[j][i] < min) min = heightMap[j][i];
-        }
-    }
-    
+    seed = time(0);
+    GenerateHeightmap(seed);
+        
     auto width = heightMap[0].size();
     auto height = heightMap.size();
     std::cout << "Terrain size: " << width << "x" << height << std::endl;
@@ -52,25 +35,8 @@ void Terrain::Generate() {
 }
 
 void Terrain::Regenerate() {
-    srand(time(0));
-    switch (type) {
-    case 0:
-        heightMap = Noise::GenerateSimplex(size);
-        break;
-    default:
-        heightMap = Noise::GenerateDiamondSquare(size);
-        break;
-    }
-    
-    // Record max/min
-    max = INT_MIN;
-    min = INT_MAX;
-    for (int i = 0; i < heightMap.size(); i++) {
-        for (int j = 0; j < heightMap[i].size(); j++) {
-            if (heightMap[j][i] > max) max = heightMap[j][i];
-            if (heightMap[j][i] < min) min = heightMap[j][i];
-        }
-    }
+    seed = time(0);
+    GenerateHeightmap(seed);
     
     auto width = heightMap[0].size();
     auto height = heightMap.size();
@@ -78,6 +44,30 @@ void Terrain::Regenerate() {
     
     UpdateBuffers();
     update();
+}
+
+void Terrain::GenerateHeightmap(time_t seed) {
+    srand(seed);
+    switch (type) {
+        case 0:
+            heightMap = Noise::GenerateSimplex(size);
+            break;
+        default:
+            heightMap = Noise::GenerateDiamondSquare(size);
+            break;
+    }
+}
+
+void Terrain::GenerateHeightmap(NoiseProperties &properties, time_t seed) {
+    srand(seed);
+    switch (type) {
+        case 0:
+            heightMap = Noise::GenerateSimplex(properties, size);
+            break;
+        default:
+            heightMap = Noise::GenerateDiamondSquare(size);
+            break;
+    }
 }
 
 void Terrain::GenerateFromImage(std::string imagePath) {
@@ -109,16 +99,6 @@ void Terrain::GenerateFromImage(std::string imagePath) {
 //    heightMap = map;
     heightMap = Noise::SmoothTerrain(map, size, 3, 5);
     
-    // Record max/min
-    max = INT_MIN;
-    min = INT_MAX;
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            if (heightMap[j][i] > max) max = heightMap[j][i];
-            if (heightMap[j][i] < min) min = heightMap[j][i];
-        }
-    }
-    
 //    auto width = heightMap[0].size();
 //    auto height = heightMap.size();
     std::cout << "Terrain size: " << size << "x" << size << std::endl;
@@ -131,6 +111,16 @@ void Terrain::GenerateFromImage(std::string imagePath) {
 void Terrain::UpdateBuffers() {
     auto width = size;//heightMap[0].size();
     auto height = size;//heightMap.size();
+    
+    // Record max/min
+    max = INT_MIN;
+    min = INT_MAX;
+    for (int i = 0; i < heightMap.size(); i++) {
+        for (int j = 0; j < heightMap[i].size(); j++) {
+            if (heightMap[j][i] > max) max = heightMap[j][i];
+            if (heightMap[j][i] < min) min = heightMap[j][i];
+        }
+    }
     
     // Reset buffers
     posBuf.clear();

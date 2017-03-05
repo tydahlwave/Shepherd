@@ -7,6 +7,10 @@ uniform mat4 V;
 uniform int terrainMin;
 uniform int terrainMax;
 
+const int NumRegions = 4;
+uniform float regions[4];
+uniform vec3 regionColors[4];
+
 #define MAX_LIGHTS 10
 uniform int numLights;
 uniform struct Light {
@@ -162,38 +166,6 @@ float rand(vec2 co){
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
-/*
- height colors:
- water  (0)
- sand   (<=0.02)
- grass  (<=0.2)
- rock   (<=0.7)
- snow   (<=1)
- 
- 
- */
-
-const int NumHeightColors = 4;
-float heights[NumHeightColors] = float[](
-//    0,      // Water
-//    0.02,   // Sand
-    0.05,    // Grass
-    0.1,    // Light grass
-    0.4,    // Rock
-    1       // Snow
-);
-
-vec3 colors[NumHeightColors] = vec3[](
-//    vec3(68/255.0f, 68/255.0f, 122/255.0f),     // Water
-//    vec3(210/255.0f, 185/255.0f, 139/255.0f),   // Sand
-    vec3(85/255.0f, 153/255.0f, 68/255.0f),     // Grass
-    vec3(136/255.0f, 153/255.0f, 119/255.0f),   // Light grass
-    vec3(136/255.0f, 136/255.0f, 136/255.0f),   // Rock
-    vec3(255/255.0f, 255/255.0f, 255/255.0f)    // Snow
-//    vec3(221/255.0f, 221/255.0f, 228/255.0f)    // Snow
-);
-
-
 void main() {
     vec3 ambientColor = matAmbientColor;
     vec3 diffuseColor = matDiffuseColor;
@@ -202,16 +174,16 @@ void main() {
     float heightValue = (facePos.y-terrainMin) / (terrainMax-terrainMin);
     vec3 heightColor = vec3(221/255.0f, 221/255.0f, 228/255.0f);
 
-    for (int i = 0; i < NumHeightColors; i++) {
-        float height = heights[i];
+    for (int i = 0; i < NumRegions; i++) {
+        float height = regions[i];
         if (heightValue <= height) {
             if (i > 0) {
-                float prevHeight = heights[i-1];
+                float prevHeight = regions[i-1];
                 float heightDist = height - prevHeight;
                 float contribution = pow((heightValue - prevHeight) / heightDist, 1);
-                heightColor = (1-contribution) * colors[i-1] + contribution * colors[i];
+                heightColor = (1-contribution) * regionColors[i-1] + contribution * regionColors[i];
             } else {
-                heightColor = colors[i];
+                heightColor = regionColors[i];
             }
             break;
         }
