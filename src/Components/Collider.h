@@ -18,6 +18,9 @@ protected:
     virtual ~Collider() {};
     
 //    RigidBody *rigidBody; // The rigidbody of the gameobject the component is attached to
+    void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) {
+        
+    }
 };
 
 #endif /* Collider_h */

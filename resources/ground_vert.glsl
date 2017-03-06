@@ -10,25 +10,17 @@ uniform vec3 matSpecularColor;
 uniform vec3 matAmbientColor;
 uniform float matShine;
 
-//send them to fragment shader
+out VS_OUT {
+    vec3 fragPos;
+    vec3 fragNor;
+    vec3 viewNor;
+} vs_out;
 
-out vec3 fragPos;
-out vec3 fragNor;
-
-out vec3 vertexNormal;
-out vec3 viewNormal;
-
-void main()
-{
-    
+void main() {
     gl_Position = P * V * M * vertPos;
     
-    // Normalize the vectors
-    vertexNormal = (V * M * vec4(vertNor, 0.0)).xyz;
-    viewNormal = -(V * M * vertPos).xyz;
-    
     // Pass vertex position and normal to fragment shader
-    fragPos = (V * M * vertPos).xyz;
-    fragNor = (V * M * vec4(vertNor, 0.0)).xyz;
-
+    vs_out.fragPos = (V * M * vertPos).xyz;
+    vs_out.fragNor = (V * M * vec4(vertNor, 0.0)).xyz;
+    vs_out.viewNor = -(V * M * vertPos).xyz;
 }

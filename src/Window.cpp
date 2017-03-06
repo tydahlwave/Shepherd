@@ -83,6 +83,7 @@ void Window::MouseMoveCallback(GLFWwindow *window, double posX, double posY) {
     
     // Execute all registered callbacks
     for (WindowCallbackDelegate *delegate : windowCallbackDelegates) {
+        if(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) return;
         delegate->MouseMoved(world, width, height, posX, posY);
     }
 }
@@ -93,6 +94,7 @@ void Window::MouseButtonCallback(GLFWwindow *window, int button, int action, int
     
     // Execute all registered callbacks
     for (WindowCallbackDelegate *delegate : windowCallbackDelegates) {
+        if(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) return;
         delegate->MouseClicked(world, xPos, yPos, button, action);
     }
 }

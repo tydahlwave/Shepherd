@@ -100,21 +100,22 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
         if (!Bounds::Intersects(bounds1, bounds2)) continue;
         
         if (collision.gameObject1->name.compare("Camera") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
-            MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject2->GetComponent("MeshRenderer");
+            /*MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject2->GetComponent("MeshRenderer");
             if (meshRenderer->material != MaterialLibrary::polishedGold) {
                 meshRenderer->material = MaterialLibrary::polishedGold;
                 rigidBody2->isKinematic = true;
                 bunniesCollected += 1;
 //                std::cout << "Bunnies Collected: " << bunniesCollected << std::endl;
-            }
+            }*/
         } else if (collision.gameObject2->name.compare("Camera") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
+            /*
             MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject1->GetComponent("MeshRenderer");
             if (meshRenderer->material != MaterialLibrary::polishedGold) {
                 meshRenderer->material = MaterialLibrary::polishedGold;
                 rigidBody2->isKinematic = true;
                 bunniesCollected += 1;
 //                std::cout << "Bunnies Collected: " << bunniesCollected << std::endl;
-            }
+            }*/
         } else if (collision.gameObject1->name.compare("Barrier") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
             rigidBody2->velocity.x *= -1;
             rigidBody2->velocity.z *= -1;
@@ -152,11 +153,11 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
             //            collision.gameObject1->Destroy();
             
             Death* gD = (Death*) collision.gameObject1->GetComponent("Death");
-            std::cout<<"got in d loop";
+//            std::cout<<"got in d loop";
             if(gD){
-                std::cout<<"found collision";
+//                std::cout<<"found collision";
                 if(gD->shouldDie){
-                    std::cout<<"should die true";
+//                    std::cout<<"should die true";
                     collision.gameObject1->RemoveComponent("MeshRenderer");
                     collision.gameObject1->RemoveComponent("BoxCollider");
                     RigidBody *rb = (RigidBody*) collision.gameObject1->GetComponent("RigidBody");
@@ -174,11 +175,11 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
             //            collision.gameObject1->Destroy();
             
             Death* gD = (Death*) collision.gameObject2->GetComponent("Death");
-            std::cout<<"got in d loop";
+//            std::cout<<"got in d loop";
             if(gD){
-                std::cout<<"found collision";
+//                std::cout<<"found collision";
                 if(gD->shouldDie){
-                    std::cout<<"should die true";
+//                    std::cout<<"should die true";
                     collision.gameObject2->RemoveComponent("MeshRenderer");
                     collision.gameObject2->RemoveComponent("BoxCollider");
                     RigidBody *rb = (RigidBody*) collision.gameObject2->GetComponent("RigidBody");
@@ -283,7 +284,7 @@ void Physics::HandleTerrainCollisions(World &world) {
     // Compare objects for collisions
     for (GameObject *obj : world.GetGameObjects()) {
         // If it's not terrain
-        if (obj->name.compare("Terrain") != 0 && (obj->name.compare("Boulder") == 0 || obj->name.compare("Tree") == 0) || obj->name.compare("Wolf") == 0) {
+        if (obj->name.compare("Terrain") != 0) {
             Bounds bounds = obj->getBounds();
             
             // If the object is within XZ bounds of terrain
@@ -302,19 +303,21 @@ void Physics::HandleTerrainCollisions(World &world) {
 //                std::cout << "Height[" << rowIndex << "][" << colIndex << "] = " << terrain->getHeight(rowIndex, colIndex) << std::endl;
                 float interpolatedHeight = BilinearInterpolate(neighbors, fColIndex-colIndex, fRowIndex-rowIndex);
 //                std::cout << "Interpolated Height: " << interpolatedHeight << std::endl;
-                if(obj->name.compare("Wolf") != 0)
-                obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f, pos.z));
+                
+//                if(obj->name.compare("Wolf") != 0)
+//                obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f, pos.z));
                 
                 if(obj->name.compare("Wolf") == 0 && obj->transform->GetPosition().y <= terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1){
                     RigidBody *body = (RigidBody*)obj->GetComponent("RigidBody");
                     if(body && body->bulletRigidBody->getLinearVelocity().y() < 0)
                     {
                     Death* gD = (Death*) obj->GetComponent("Death");
-                    std::cout<<"got in d loop";
+//                    std::cout<<"got in d loop";
                     if(gD){
-                        std::cout<<"found collision";
+//                        std::cout<<"found collision";
                         if(gD->shouldDie){
-                            std::cout<<"should die true";
+//                            std::cout<<"should die true";
+                            CAudioEngine::instance()->PlaySound("wolfHurt.wav");
                             obj->RemoveComponent("MeshRenderer");
                             obj->RemoveComponent("BoxCollider");
                             RigidBody *rb = (RigidBody*) obj->GetComponent("RigidBody");
@@ -329,14 +332,15 @@ void Physics::HandleTerrainCollisions(World &world) {
                     }
                 }
                 
-
-                if (obj->name.compare("Camera") == 0 || obj->name.compare("Bunny") == 0 || obj->name.compare("Wolf") == 0 || obj->name.compare("Boulder") == 0) {
+                if (obj->name.compare("Camera") == 0 || obj->name.compare("Bunny") == 0 || obj->name.compare("Boulder") == 0) {
                     if (pos.y < terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f)
                         obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1, pos.z));
-                } else {
+                } else if (obj->name.compare("Wolf") == 0) {
+                    if (pos.y < terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f)
+                    obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1, pos.z));
+                } else if (obj->name.compare("Tree") == 0) {
                     obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1, pos.z));
                 }
-
             }
         }
     }

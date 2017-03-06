@@ -16,6 +16,8 @@
 #include "Components/Camera.h"
 #include "Components/TerrainRenderer.h"
 #include "Components/SkyboxRenderer.h"
+#include "Components/PathRenderer.h"
+#include "Components/Light.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
@@ -62,23 +64,48 @@ void Renderer::Initialize() {
     glEnable(GL_DEPTH_TEST);
 }
 
-std::vector<Light> setUpLights() {
-    std::vector<Light> lights;
-
-    Light spotlight;
-    spotlight.position = glm::vec4(-4,50,10,1);
-    spotlight.intensities = glm::vec3(2,2,2); //strong white light
-    spotlight.attenuation = 0.1f;
-    spotlight.ambientCoefficient = 0.0f; //no ambient light
-    spotlight.coneAngle = 15.0f;
-    spotlight.coneDirection = glm::vec3(0,-1,0);
+std::vector<LightStruct> setUpLights(World &world, Path *path) {
+    std::vector<LightStruct> lights;
+  
+//    LightStruct spotlight;
+//    spotlight.position = glm::vec4(-4,50,10,1);
+//    spotlight.intensities = glm::vec3(2, 2, 2); //strong white light
+//    spotlight.attenuation = 0.1f;
+//    spotlight.ambientCoefficient = 0.0f; //no ambient light
+//    spotlight.coneAngle = 45.0f;
+//    spotlight.coneDirection = glm::vec3(0,-1,0);
+//    lights.push_back(spotlight);
     
-    Light directionalLight;
+    // Spotlight on the player
+    //    Light playerLight;
+    //    playerLight.position = glm::vec4(world.mainCamera->transform->GetPosition(), 1);
+    //    playerLight.intensities = glm::vec3(2,2,2); //strong white light
+    //    playerLight.attenuation = 0.1f;
+    //    playerLight.ambientCoefficient = 0.0f; //no ambient light
+    //    playerLight.coneAngle = 15.0f;
+    //    playerLight.coneDirection = glm::vec3(0,-1,0);
+    //    lights.push_back(playerLight);
+    
+    // Add lights at path nodes
+    if (path) {
+        glm::vec3 nodePos = path->GetNodes()[path->size-1];
+        nodePos.y += 20.0f;
+//        for (glm::vec3 nodePos : path->GetNodes()) {
+            LightStruct nodeLight;
+            nodeLight.position = glm::vec4(nodePos, 1);
+            nodeLight.intensities = glm::vec3(2, 2, 2); //strong white light
+            nodeLight.attenuation = 0.1f;
+            nodeLight.ambientCoefficient = 0.0f; //no ambient light
+            nodeLight.coneAngle = 15.0f;
+            nodeLight.coneDirection = glm::vec3(0,-1,0);
+            lights.push_back(nodeLight);
+//        }
+    }
+    
+    LightStruct directionalLight;
     directionalLight.position = glm::vec4(1, 0.8, 0.6, 0); //w == 0 indications a directional light
     directionalLight.intensities = glm::vec3(1,1,1); //weak yellowish light
     directionalLight.ambientCoefficient = 0.15f;
-    
-    lights.push_back(spotlight);
     //lights.push_back(directionalLight);
     
     return lights;
@@ -129,7 +156,22 @@ void Renderer::Render(World &world, Window &window) {
     
     camera->ExtractVFPlanes(P, V);
     
-    std::vector<Light> lights = setUpLights();
+    // Find the path from the game objects
+    Path *path = nullptr;
+    for (GameObject *gameObject : world.GetGameObjects()) {
+        PathRenderer *pathRenderer = (PathRenderer*)gameObject->GetComponent("PathRenderer");
+        if (pathRenderer && pathRenderer->path) {
+            path = pathRenderer->path;
+        }
+    }
+    
+    std::vector<LightStruct> lights = setUpLights(world, path);
+    for (GameObject *gameObject : world.GetGameObjects()) {
+        Light *light = (Light*)gameObject->GetComponent("Light");
+        if (light) {
+            lights.push_back(light->GetLight());
+        }
+    }
     
     for (GameObject *gameObject : world.GetGameObjects()) {
 		SkyboxRenderer *skyboxRenderer = (SkyboxRenderer*)gameObject->GetComponent("SkyboxRenderer");
@@ -157,6 +199,46 @@ void Renderer::Render(World &world, Window &window) {
 			glDepthFunc(GL_LESS);
 			shader->unbind();
 		}
+        
+        PathRenderer *pathRenderer = (PathRenderer*)gameObject->GetComponent("PathRenderer");
+        if (pathRenderer && pathRenderer->path) {
+            Path *path = pathRenderer->path;
+            for (glm::vec3 nodePos : path->GetNodes()) {
+                auto shader = ShaderLibrary::phong->program;
+                shader->bind();
+                
+                applyMaterial(shader, MaterialLibrary::emerald);
+                Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+                applyProjectionMatrix(shader, window, camera);
+                applyCameraMatrix(shader, camera, camera->pos);//world.mainCamera->transform->GetPosition());
+                applyTransformMatrix(shader, gameObject->transform);
+                MatrixStack stack = MatrixStack();
+                stack.loadIdentity();
+                stack.translate(nodePos);
+                stack.scale(glm::vec3(1, 1, 1));
+                glUniformMatrix4fv(shader->getUniform("M"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
+                
+                // Send lights to GPU
+                if (shader->hasUniform("numLights")) glUniform1i(shader->getUniform("numLights"), lights.size());
+                for(int i = 0; i < lights.size(); ++i){
+                    std::string uniformName = ShaderLibrary::ConstructLightUniformName("position", i);
+                    if (shader->hasUniform(uniformName)) glUniform4f(shader->getUniform(uniformName), lights[i].position.x,lights[i].position.y,lights[i].position.z,lights[i].position.w);
+                    uniformName = ShaderLibrary::ConstructLightUniformName("intensities", i);
+                    if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].intensities.x,lights[i].intensities.y,lights[i].intensities.z);
+                    uniformName = ShaderLibrary::ConstructLightUniformName("attenuation", i);
+                    if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].attenuation);
+                    uniformName = ShaderLibrary::ConstructLightUniformName("ambientCoefficient", i);
+                    if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].ambientCoefficient);
+                    uniformName = ShaderLibrary::ConstructLightUniformName("coneAngle", i);
+                    if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].coneAngle);
+                    uniformName = ShaderLibrary::ConstructLightUniformName("coneDirection", i);
+                    if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].coneDirection.x,lights[i].coneDirection.y,lights[i].coneDirection.z);
+                }
+                
+                ModelLibrary::sphere->draw(shader);
+                shader->unbind();
+            }
+        }
 
         MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
 		if (meshRenderer && meshRenderer->draw == false) continue;
@@ -177,7 +259,7 @@ void Renderer::Render(World &world, Window &window) {
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            applyCameraMatrix(shader, camera, camera->pos);
             applyTransformMatrix(shader, gameObject->transform);
             
             model->draw(shader);
@@ -191,10 +273,10 @@ void Renderer::Render(World &world, Window &window) {
                 applyMaterial(shader, meshRenderer->material);
             }
             // all of this till next comment will be taken out
-            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
-            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 0, 0, 1);
-            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
-            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
+//            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
+//            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 0, 0, 1);
+//            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
+//            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
             
             // all of this till next comment will be taken out
             
@@ -247,10 +329,27 @@ void Renderer::Render(World &world, Window &window) {
             if (terrainRenderer->material) {
                 applyMaterial(shader, terrainRenderer->material);
             }
-            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
-            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
-            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
-            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
+//            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
+//            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
+//            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
+//            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
+            
+            if (shader->hasUniform("numLights")) glUniform1i(shader->getUniform("numLights"), lights.size());
+            
+            for(int i = 0; i < lights.size(); ++i){
+                std::string uniformName = ShaderLibrary::ConstructLightUniformName("position", i);
+                if (shader->hasUniform(uniformName)) glUniform4f(shader->getUniform(uniformName), lights[i].position.x,lights[i].position.y,lights[i].position.z,lights[i].position.w);
+                uniformName = ShaderLibrary::ConstructLightUniformName("intensities", i);
+                if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].intensities.x,lights[i].intensities.y,lights[i].intensities.z);
+                uniformName = ShaderLibrary::ConstructLightUniformName("attenuation", i);
+                if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].attenuation);
+                uniformName = ShaderLibrary::ConstructLightUniformName("ambientCoefficient", i);
+                if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].ambientCoefficient);
+                uniformName = ShaderLibrary::ConstructLightUniformName("coneAngle", i);
+                if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].coneAngle);
+                uniformName = ShaderLibrary::ConstructLightUniformName("coneDirection", i);
+                if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].coneDirection.x,lights[i].coneDirection.y,lights[i].coneDirection.z);
+            }
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);

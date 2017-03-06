@@ -28,6 +28,10 @@ public:
     bool isKinematic = false; // Kinematic objects are not affected by forces/physics
 	bool isPushPullable = true;
     btRigidBody *bulletRigidBody = nullptr;
+    
+    void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) {
+        
+    }
 };
 
 #endif /* RigidBody_h */

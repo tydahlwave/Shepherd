@@ -45,3 +45,10 @@ GameObject *World::CreateGameObject(std::string name) {
 void World::ClearGameObjects() {
 	gameObjects.clear();
 }
+
+void World::RemoveGameObject(GameObject *go) {
+    auto it = std::find(gameObjects.begin(), gameObjects.end(), go);
+    if(it != gameObjects.end())
+        gameObjects.erase(it);
+}
+

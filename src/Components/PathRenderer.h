@@ -11,6 +11,10 @@ public:
     virtual ~PathRenderer() {};
     
     Path *path = nullptr;
+    
+    void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) {
+        
+    }
 };
 
 #endif /* PathRenderer_h */

@@ -36,6 +36,31 @@ public:
         stack.scale(scale);
         return stack.topMatrix();
     }
+    
+    void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) {
+        writer.Key("Transform");
+        writer.StartObject();
+        writer.Key("Position");
+        writer.StartArray();
+        writer.Double(position.x);
+        writer.Double(position.y);
+        writer.Double(position.z);
+        writer.EndArray();
+        writer.Key("Rotation");
+        writer.StartArray();
+        writer.Double(rotation.x);
+        writer.Double(rotation.y);
+        writer.Double(rotation.z);
+        writer.EndArray();
+        writer.Key("Scale");
+        writer.StartArray();
+        writer.Double(scale.x);
+        writer.Double(scale.y);
+        writer.Double(scale.z);
+        writer.EndArray();
+        writer.EndObject();
+    }
+    
 private:
     glm::vec3 position = glm::vec3(0, 0, 0);
     glm::vec3 rotation = glm::vec3(0, 0, 0);

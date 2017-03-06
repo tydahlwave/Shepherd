@@ -15,6 +15,7 @@
 #include "Components/TerrainRenderer.h"
 #include "Components/PathRenderer.h"
 #include "Components/SkyboxRenderer.h"
+#include "Components/Light.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
@@ -101,7 +102,7 @@ GameObject *EntityFactory::createWolf(World *world) {
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::wolf;
     meshRenderer->shader = ShaderLibrary::cell;
-    meshRenderer->material = MaterialLibrary::ruby;
+    meshRenderer->material = MaterialLibrary::brown;
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 0, 0));
@@ -124,8 +125,7 @@ GameObject *EntityFactory::createTitle(World *world) {
 	MeshRenderer *mesh = (MeshRenderer*)gameObject->AddComponent("MeshRenderer");
 	mesh->model = ModelLibrary::title;
 	mesh->shader = ShaderLibrary::menu;
-	mesh->material = MaterialLibrary::brass;
-	gameObject->transform->SetPosition(glm::vec3(0.f, 0.f, 2.f));
+	gameObject->transform->SetPosition(glm::vec3(0.f, .5f, 2.f));
 	gameObject->transform->SetRotation(glm::vec3(0.f, 180.f, 0.f));
 
 	return gameObject;
@@ -206,6 +206,7 @@ GameObject *EntityFactory::createCube(World *world, glm::vec3 dimensions, glm::v
 
 GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 position, float mass) {
     GameObject *gameObject = world->CreateGameObject("Sphere");
+    gameObject->isSerializable = true;
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::sphere;
     meshRenderer->shader = ShaderLibrary::cell;
@@ -228,7 +229,6 @@ GameObject *EntityFactory::createSphere(World *world, float radius, glm::vec3 po
     rigidBody->bulletRigidBody->setFriction(1.f);
     rigidBody->bulletRigidBody->setRollingFriction(0.3f);
     rigidBody->bulletRigidBody->setAnisotropicFriction(sphere->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
-
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
@@ -254,27 +254,24 @@ GameObject *EntityFactory::createPhysicsGround(World *world) {
     return gameObject;
 }
 
-GameObject *EntityFactory::createBoulder(World *world, int boulderType, float radius) {
+//GameObject *EntityFactory::createBoulder(World *world, int boulderType, float radius, vec3 position)
+
+GameObject *EntityFactory::createBoulder(World *world, int boulderType, float radius, vec3 position) {
     GameObject *gameObject = world->CreateGameObject("Boulder");
+    gameObject->isSerializable = true;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->useGravity = true;
     rigidBody->isKinematic = true;
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-/*
-//    meshRenderer->mesh = (boulderType <= 1) ? (boulderType <= 0) ? Mesh::boulder1 : Mesh::boulder2 : Mesh::boulder3;
-    meshRenderer->model = ModelLibrary::sphere;
-    meshRenderer->shader = ShaderLibrary::cell;
-*/
     int randNum = rand() % 3;
     meshRenderer->model = (randNum <= 1) ? (randNum <= 0) ? ModelLibrary::boulder1 : ModelLibrary::boulder2 : ModelLibrary::boulder3;
 //    meshRenderer->model = ModelLibrary::sphere;
     meshRenderer->shader = ShaderLibrary::cell;
-
-    meshRenderer->material = MaterialLibrary::brass;
+    meshRenderer->material = MaterialLibrary::chrome;
     btTransform t;
     t.setIdentity();
-    t.setOrigin(btVector3(0, 0, 0));
+    t.setOrigin(btVector3(position.x,position.y,position.z));
     btSphereShape* sphere = new btSphereShape(radius);
     btVector3 inertia(0,0,0);
     float mass = 10.0;
@@ -300,8 +297,8 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
     renderer->terrain->size = size;
     renderer->terrain->type = type;
     renderer->terrain->GenerateFromImage(resourceDir + "terrain9.png");
-    renderer->shader = ShaderLibrary::cell;
-    renderer->material = MaterialLibrary::bronze;
+    renderer->shader = ShaderLibrary::ground;
+    renderer->material = MaterialLibrary::grass;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     btTransform t;
     t.setIdentity();
@@ -320,10 +317,22 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
     return gameObject;
 }
 
-GameObject *EntityFactory::createPath(World *world, int size) {
+float getTerrainHeightForPosition(GameObject *terrainObject, Terrain *terrain, int x, int z) {
+    glm::vec3 terrainSize = terrainObject->transform->GetScale() * glm::vec3(terrain->size, 1, terrain->size);
+    glm::vec3 terrainPos = terrainObject->transform->GetPosition();
+    glm::vec3 terrainMin = terrainObject->transform->GetPosition() - terrainSize/2.0f;
+//    glm::vec3 terrainMax = terrainObject->transform->GetPosition() + terrainSize/2.0f;
+    
+    return terrainPos.y + terrain->getHeight((int)((x - terrainMin.x) / terrainObject->transform->GetScale().x), (int)((z - terrainMin.z) / terrainObject->transform->GetScale().z)) * terrainObject->transform->GetScale().y + 90;
+}
+
+GameObject *EntityFactory::createPath(World *world, GameObject *terrainObject, int size) {
 	GameObject *gameObject = world->CreateGameObject("Path");
 	PathRenderer *renderer = (PathRenderer*)gameObject->AddComponent("PathRenderer");
     
+    TerrainRenderer *terrainRenderer = (TerrainRenderer*)terrainObject->GetComponent("TerrainRenderer");
+    Terrain *terrain = terrainRenderer->terrain;
+
 	renderer->path = new Path();
 	renderer->path->size = 6;
 	renderer->path->radius = 5;
@@ -332,25 +341,23 @@ GameObject *EntityFactory::createPath(World *world, int size) {
 //    renderer->path->AddNode(glm::vec3(30, 0, 30));
 //    renderer->path->AddNode(glm::vec3(0, 0, 0));
 //	renderer->path->AddNode(glm::vec3(30, 0, -30));
-    renderer->path->AddNode(glm::vec3(-30, 0, -30));
-    renderer->path->AddNode(glm::vec3(-30, 0, -100));
-    renderer->path->AddNode(glm::vec3(30, 0, -200));
-    renderer->path->AddNode(glm::vec3(100, 0, -300));
-    renderer->path->AddNode(glm::vec3(200, 0, -400));
-    renderer->path->AddNode(glm::vec3(300, 0, -500));
+    renderer->path->AddNode(glm::vec3(-30, getTerrainHeightForPosition(terrainObject, terrain, -30, -30), -30));
+    renderer->path->AddNode(glm::vec3(-30, getTerrainHeightForPosition(terrainObject, terrain, -30, -100), -100));
+    renderer->path->AddNode(glm::vec3(30, getTerrainHeightForPosition(terrainObject, terrain, 30, -200), -200));
+    renderer->path->AddNode(glm::vec3(100, getTerrainHeightForPosition(terrainObject, terrain, 100, -300), -300));
+    renderer->path->AddNode(glm::vec3(200, getTerrainHeightForPosition(terrainObject, terrain, 200, -400), -400));
+    renderer->path->AddNode(glm::vec3(300, getTerrainHeightForPosition(terrainObject, terrain, 300, -500), -500));
     return gameObject;
 }
 
 GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
     GameObject *gameObject = world->CreateGameObject("Tree");
+    gameObject->isSerializable = true;
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->model = (type == 0) ? ModelLibrary::tree1 : (type == 1) ? ModelLibrary::tree2 : ModelLibrary::tree3;
-    meshRenderer->shader = ShaderLibrary::cell;
 //    meshRenderer->model = (type == 0) ? ModelLibrary::tree1 : (type == 1) ? ModelLibrary::tree2 : ModelLibrary::tree3;
-    //meshRenderer->model = (type == 0) ? ModelLibrary::tree2 : ModelLibrary::tree3;
-    //meshRenderer->shader = ShaderLibrary::phong;
-
-    meshRenderer->material = MaterialLibrary::grass;
+    meshRenderer->model = (type == 0) ? ModelLibrary::tree2 : ModelLibrary::tree3;
+    meshRenderer->shader = ShaderLibrary::cell;
+    meshRenderer->material = MaterialLibrary::emerald;
     gameObject->AddComponent("BoxCollider");
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->isKinematic = true;
@@ -360,7 +367,7 @@ GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
     t.setOrigin(btVector3(pos.x, pos.y, pos.z));
     btBoxShape* collisionShape = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x, meshRenderer->model->bounds.halfwidths.y, meshRenderer->model->bounds.halfwidths.z));
 //    btVector3 inertia(0,0,0);
-    float mass = 0;
+    float mass = 0.0f;
 //    if (mass != 0)
 //        collisionShape->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
@@ -382,6 +389,19 @@ GameObject *EntityFactory::createSkybox(World *world, std::string resourceDir) {
 	renderer->skybox = new Skybox(resourceDir);
 	renderer->model = ModelLibrary::cube;
 	renderer->shader = ShaderLibrary::skybox;
-
 	return gameObject;
+}
+
+GameObject *EntityFactory::createLight(World *world, glm::vec3 position, bool isDirectional, glm::vec3 intensities, float attenuation,float ambientCoefficient,float coneAngle, glm::vec3 coneDirection) {
+    GameObject *gameObject = world->CreateGameObject("Light");
+    gameObject->isSerializable = true;
+    gameObject->transform->SetPosition(position);
+    Light *light = (Light*)gameObject->AddComponent("Light");
+    light->isDirectional = isDirectional;
+    light->intensities = intensities;
+    light->attenuation = attenuation;
+    light->ambientCoefficient = ambientCoefficient;
+    light->coneAngle = coneAngle;
+    light->coneDirection = coneDirection;
+    return gameObject;
 }

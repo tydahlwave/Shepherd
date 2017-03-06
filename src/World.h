@@ -25,6 +25,13 @@ class KDTree;
 #include <BulletCollision/btBulletCollisionCommon.h>
 #endif
 
+//#include "rapidjson/prettywriter.h"
+//#include "rapidjson/document.h"
+//#include "rapidjson/writer.h"
+//#include "rapidjson/stringbuffer.h"
+//#include <fstream>
+//#include <sstream>
+
 class World {
 public:
     World();
@@ -38,9 +45,11 @@ public:
     std::vector<GameObject*> GetGameObjects();
     GameObject *CreateGameObject(std::string name);
 	void ClearGameObjects();
+    void RemoveGameObject(GameObject *go);
 private:
     std::vector<GameObject*> gameObjects;
     KDTree *kdTree;
+
 };
 
 #endif /* World_h */

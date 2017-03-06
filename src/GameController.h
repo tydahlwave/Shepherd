@@ -70,8 +70,14 @@ private:
 	GameObject *path = nullptr;
 	GameObject *terrain = nullptr;
 	GameObject *skybox = nullptr;
+    GameObject *sign = nullptr;
 	float groundSize = 100.0f;
 	int gameMusic = 0;
+    
+    void displayStats(float deltaTime, World &world, Physics &physics);
+    void drawImGUIStuff(Window &window, GameObject *terrain);
+    void drawTerrainWindow(Window &window, GameObject *terrain);
+    void drawLevelEditor(Window &window);
 };
 
 #endif /* CharacterController_h */
