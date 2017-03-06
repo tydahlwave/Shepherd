@@ -19,8 +19,15 @@
 #include "World.h"
 #include "Components/TerrainRenderer.h"
 
-bool heightmapNeedsUpdate = false;
+struct ToolProperties {
+    int tool = 0;
+    int radius = 10;
+    float height = 20.0f;
+};
+
+bool mousePressed = false;
 NoiseProperties terrainProps;
+ToolProperties toolProps;
 
 void TerrainEditingController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
     // Re-generate Terrain
@@ -33,9 +40,44 @@ void TerrainEditingController::KeyPressed(World *world, int windowWidth, int win
     }
 }
 
-void TerrainEditingController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {}
+void TerrainEditingController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {
+    if (!mousePressed) return;
+    
+    Terrain *terrain = terrainRenderer->terrain;
+    Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
+    glm::vec3 position = world->mainCamera->transform->GetPosition();
+    glm::vec3 direction = glm::normalize(camera->lookAt - position);
+    float planeA = 0.0f;
+    float planeB = 1.0f;
+    float planeC = 0.0f;
+    float planeD = 0.0f;
+    
+    // Plane normal dot direction
+    float denominator = (planeA*direction.x + planeB*direction.y + planeC*direction.z);
+    if (denominator != 0) {
+        float numerator = -(planeA*position.x + planeB*position.y + planeC*position.z + planeD);
+        float intersectionTime = numerator / denominator;
+        
+        // Get the location of the intersection
+        glm::vec3 hit = position + direction * intersectionTime;
+        
+        // Get the heightmap coords of the intersection
+        int row = (int)hit.x + terrain->size/2;
+        int col = (int)hit.z + terrain->size/2;
+        
+        std::cout << "Change height: (" << col << "," << row << ")" << std::endl;
+        
+        terrain->getHeight(row, col);
+        //        elevate(col, row, 20, 5);
+        flatten(col, row, 0, 5);
+        terrain->UpdateBuffers();
+        terrain->update();
+        //        terrain->makeTexture();
+    }
+}
 
 void TerrainEditingController::MouseClicked(World *world, double mouseX, double mouseY, int key, int action) {
+    mousePressed = (action == GLFW_PRESS);
     if (action != GLFW_PRESS) return;
     
     Terrain *terrain = terrainRenderer->terrain;
@@ -63,8 +105,11 @@ void TerrainEditingController::MouseClicked(World *world, double mouseX, double 
         std::cout << "Change height: (" << col << "," << row << ")" << std::endl;
         
         terrain->getHeight(row, col);
-//        elevate(col, row, 20, 5);
-        flatten(col, row, 0, 5);
+        if (toolProps.tool == 0) {
+            elevate(col, row, toolProps.height, toolProps.radius);
+        } else if (toolProps.tool == 1) {
+            flatten(col, row, toolProps.height, toolProps.radius);
+        }
         terrain->UpdateBuffers();
         terrain->update();
 //        terrain->makeTexture();
@@ -154,6 +199,7 @@ void TerrainEditingController::ImguiUpdate(World *world) {
         ImGui::End();
     }
     
+    // Display terrain noise properties
     {
         ImGui::Begin("Terrain Settings");
         ImGui::SetWindowPos(ImVec2(10, terrain->size + 37 + 20));
@@ -165,7 +211,8 @@ void TerrainEditingController::ImguiUpdate(World *world) {
             terrain->UpdateBuffers();
             terrain->update();
         }
-        ImGui::LabelText("Seed", "%zu", terrainProps.seed ? terrainProps.seed : terrain->seed);
+        ImGui::SameLine();
+        ImGui::LabelText("", "%zu", terrainProps.seed ? terrainProps.seed : terrain->seed);
         
         if (ImGui::SliderFloat("Frequency", &terrainProps.frequency, 0.0f, 10.0f)) {
             std::cout << "Frequency: " << terrainProps.frequency << std::endl;
@@ -199,6 +246,25 @@ void TerrainEditingController::ImguiUpdate(World *world) {
             terrain->UpdateBuffers();
             terrain->update();
         }
+        
+        ImGui::End();
+    }
+    
+    // Display terrain tool properties
+    {
+        ImGui::Begin("Tool Settings");
+        
+        static int tool = 0;
+        if (ImGui::RadioButton("Elevate", &tool, 0)) {
+            toolProps.tool = 0;
+        }
+        if (ImGui::RadioButton("Flatten", &tool, 1)) {
+            toolProps.tool = 1;
+        }
+        ImGui::Separator();
+        
+        ImGui::SliderInt("Radius", &toolProps.radius, 1, 25);
+        ImGui::SliderFloat("Height", &toolProps.height, -100.0f, 100.0f);
         
         ImGui::End();
     }
