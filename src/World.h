@@ -48,7 +48,7 @@ public:
     void RemoveGameObject(GameObject *go);
 private:
     std::vector<GameObject*> gameObjects;
-    KDTree *kdTree;
+//    KDTree *kdTree;
 
 };
 

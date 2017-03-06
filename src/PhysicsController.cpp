@@ -92,7 +92,7 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
         
         
         GameObject *mainCharacter = (world->mainCharacter) ? world->mainCharacter : world->mainCamera;
-        Camera* cam = (Camera*)mainCharacter->GetComponent("Camera");
+//        Camera* cam = (Camera*)mainCharacter->GetComponent("Camera");
 
 		glm::vec3 rot = mainCharacter->transform->GetRotation();
 		glm::vec3 pos = mainCharacter->transform->GetPosition();

@@ -139,7 +139,10 @@ void Serializer::DeserializeWorld(World *world) {
         else if(v["ObjectType"] == "Boulder") go = DeserializeBoulder(v, world);
         else if(v["ObjectType"] == "Tree") go = DeserializeTree(v, world);
         else if(v["ObjectType"] == "Light") go = DeserializeLightObject(v, world);
-        else cout << "DESERIALIZATION OF THIS OBJECT TYPE NOT SUPPORTED\n";
+        else {
+            cout << "DESERIALIZATION OF THIS OBJECT TYPE NOT SUPPORTED\n";
+            return;
+        }
         assert(v.HasMember("Static"));
         go->SetIsStatic(v["Static"].GetBool());
     }
