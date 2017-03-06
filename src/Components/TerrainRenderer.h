@@ -34,7 +34,7 @@ public:
         0.05,   // Grass
         0.1,    // Light grass
         0.4,    // Rock
-        1       // Snow
+        0.8     // Snow
     };
     std::vector<glm::vec3> regionColors = {
     //    glm::vec3(68/255.0f, 68/255.0f, 122/255.0f),     // Water

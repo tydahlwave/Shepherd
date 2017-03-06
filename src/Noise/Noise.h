@@ -140,15 +140,17 @@ static std::vector<std::vector<float>> GenerateDiamondSquare(int size) {
             map.push_back(rowVector);
         }
         
+        float range = 256.0f;
+        float halfScale = (size / range / 2);
+        
         // Set map values
         float frequency = properties.frequency;
         float initialHeight = properties.octaveHeight / properties.frequency;
-//        float initialHeight = 40.0f / frequency;
         float octaves = properties.octaves;
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
-                float nx = ((float)x/size - 0.5f) * frequency;
-                float ny = ((float)y/size - 0.5f) * frequency;
+                float nx = ((float)x/range - halfScale) * frequency;
+                float ny = ((float)y/range - halfScale) * frequency;
                 
                 float scale = pow(2, 1);
                 map[y][x] += initialHeight/scale * (0.4+noise.eval(scale * nx, scale * ny));
@@ -183,14 +185,17 @@ static std::vector<std::vector<float>> GenerateSimplex(int size) {
         map.push_back(rowVector);
     }
     
+    float range = 256.0f;
+    float halfScale = (size / range / 2);
+    
     // Set map values
     float frequency = 5.0f;
     float initialHeight = 40.0f / frequency;
     float octaves = 5;
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
-            float nx = ((float)x/size - 0.5f) * frequency;
-            float ny = ((float)y/size - 0.5f) * frequency;
+            float nx = ((float)x/range - halfScale) * frequency;
+            float ny = ((float)y/range - halfScale) * frequency;
             
             float scale = pow(2, 1);
             map[y][x] += initialHeight/scale * (0.4+noise.eval(scale * nx, scale * ny));

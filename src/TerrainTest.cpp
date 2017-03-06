@@ -120,6 +120,8 @@ int main(int argc, char **argv) {
     terrain->transform->SetScale(glm::vec3(1, 1, 1));
     terrainController.SetTerrain((TerrainRenderer*)terrain->GetComponent("TerrainRenderer"));
     
+    EntityFactory::createSphere(&world, 2, glm::vec3(0, 100, 0), 10);
+    
     // Seed random generator
     srand(time(0));
     
