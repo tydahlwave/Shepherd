@@ -19,6 +19,7 @@
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
+#include "TextureLibrary.h"
 #include "Terrain.h"
 #include  "Path.h"
 //#include <Bullet3Geometry>
@@ -300,6 +301,7 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
 //    renderer->terrain->GenerateFromImage(resourceDir + "terrain9.png");
     renderer->shader = ShaderLibrary::ground;
     renderer->material = MaterialLibrary::grass;
+    renderer->texture = TextureLibrary::texTest;
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     btTransform t;
     t.setIdentity();

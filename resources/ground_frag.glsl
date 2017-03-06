@@ -7,6 +7,8 @@ uniform mat4 V;
 uniform int terrainMin;
 uniform int terrainMax;
 
+//uniform sampler2D myTexture;
+
 const int NumRegions = 4;
 uniform float regions[4];
 uniform vec3 regionColors[4];
@@ -195,6 +197,7 @@ void main() {
 //    ambientColor = diffuseColor = vec3(0.5, 0.5, 0.5);
     vec3 finalColor = heightValue * modelN.y * heightColor + randIntensity;
     color = vec4(heightColor*modelN.y + randIntensity, 1.0);
+//    color = vec4(texture(myTexture, vertPos.xz));
 
 //    // Normalize the vectors
 //    vec3 vertexN = normalize(vertNor);

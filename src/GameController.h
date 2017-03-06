@@ -5,7 +5,7 @@
 #include <cmath>
 
 #include "Mesh.h"
-#include "Texture.h"
+#include "TextureLibrary.h"
 #include "Material.h"
 #include "Shader.h"
 #include "EntityFactory.h"
@@ -23,7 +23,6 @@
 #include "WolfSystem.h"
 #include "AudioEngine.h"
 #include "TreeSystem.h"
-#include "TextureLoader.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"

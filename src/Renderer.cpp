@@ -369,6 +369,9 @@ void Renderer::Render(World &world, Window &window) {
             }
             applyTransformMatrix(shader, gameObject->transform);
             
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, terrainRenderer->texture->texID);
+            glUniform1i(shader->getUniform("myTexture"), 0);
             terrain->draw(shader);
             
             shader->unbind();

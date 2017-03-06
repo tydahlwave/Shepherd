@@ -3,7 +3,7 @@
 #include <ctime>
 
 #include "Mesh.h"
-#include "Texture.h"
+#include "TextureLibrary.h"
 #include "Material.h"
 #include "Shader.h"
 #include "EntityFactory.h"
@@ -22,7 +22,6 @@
 #include "WolfSystem.h"
 #include "AudioEngine.h"
 #include "TreeSystem.h"
-#include "TextureLoader.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
@@ -114,7 +113,6 @@ void GameController::drawImGUIStuff(Window &window, GameObject *terrain) {
 
 void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
     TerrainRenderer *terrainRenderer = (TerrainRenderer*)terrain->GetComponent("TerrainRenderer");
-    TextureLoader *textureTest = terrainRenderer->terrain->getTexture();
 	// 1. Show a simple window
 	// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
 	{
@@ -146,7 +144,7 @@ void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
 		ImGui::Begin("Terrain Settings");
 		ImVec2 uv0 = ImVec2(0, 0);
 		ImVec2 uv1 = ImVec2(1, 1);
-		ImGui::Image((void*)textureTest->getTextureId(), ImVec2(128, 128), uv0, uv1, ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
+		ImGui::Image((void*)terrainRenderer->texture->texID, ImVec2(128, 128), uv0, uv1, ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
 		ImGui::End();
 	}
 
@@ -294,7 +292,7 @@ void GameController::Init(std::string resourceDir) {
 	// Static Initializers
 	ModelLibrary::LoadModels(resourceDir);
 	ShaderLibrary::LoadShaders(resourceDir);
-	Texture::LoadTextures(resourceDir);
+	TextureLibrary::LoadTextures(resourceDir);
 	MaterialLibrary::InitializeMaterials();
 }
 

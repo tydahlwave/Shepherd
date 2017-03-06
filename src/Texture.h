@@ -1,26 +1,37 @@
 //
 //  Texture.h
-//  SimpleGame
+//  Shepherd
 //
-//  Created by Tyler Dahl on 1/22/17.
+//  Created by Tyler Dahl on 3/6/17.
 //
 //
 
 #ifndef Texture_h
 #define Texture_h
 
-#include "TextureLoader.h"
+#include <string>
+
+#include <GL/glew.h>
+
+struct TextureProperties {
+    GLint wrapS = GL_MIRRORED_REPEAT;
+    GLint wrapT = GL_MIRRORED_REPEAT;
+    GLint minFilter = GL_LINEAR_MIPMAP_LINEAR;
+    GLint magFilter = GL_LINEAR;
+    bool mipmapped = true;
+};
 
 class Texture {
 public:
-    Texture() {};
-    Texture(TextureLoader *t) { texture = t; };
-    virtual ~Texture() {};
+    Texture(std::string filePath);
     
-    TextureLoader *texture = nullptr;
+    GLuint texID;
+    int width;
+    int height;
+    std::string filePath;
+    TextureProperties properties;
     
-    static void LoadTextures(std::string resourceDir);
-    static Texture *hair;
+    void Load();
 };
 
 #endif /* Texture_h */

@@ -17,7 +17,6 @@
 
 #include "Components/Camera.h"
 #include "Components/RigidBody.h"
-#include "TextureLoader.h"
 
 #define CAMERA_SPEED 0.2
 #define CAMERA_STOPPED_THRESHOLD 0.1

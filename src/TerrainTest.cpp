@@ -11,7 +11,7 @@
 
 #include "Time.h"
 #include "Mesh.h"
-#include "Texture.h"
+#include "TextureLibrary.h"
 #include "Material.h"
 #include "Shader.h"
 #include "EntityFactory.h"
@@ -23,7 +23,6 @@
 #include "Components/RigidBody.h"
 #include "Components/TerrainRenderer.h"
 #include "Terrain.h"
-#include "TextureLoader.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
@@ -101,7 +100,7 @@ int main(int argc, char **argv) {
     // Static Initializers
     ModelLibrary::LoadModels(resourceDir);
     ShaderLibrary::LoadShaders(resourceDir);
-    Texture::LoadTextures(resourceDir);
+    TextureLibrary::LoadTextures(resourceDir);
     MaterialLibrary::InitializeMaterials();
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
