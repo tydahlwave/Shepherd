@@ -68,8 +68,11 @@ void TerrainEditingController::MouseMoved(World *world, int windowWidth, int win
         std::cout << "Change height: (" << col << "," << row << ")" << std::endl;
         
         terrain->getHeight(row, col);
-        //        elevate(col, row, 20, 5);
-        flatten(col, row, 0, 5);
+        if (toolProps.tool == 0) {
+            elevate(col, row, toolProps.height, toolProps.radius);
+        } else if (toolProps.tool == 1) {
+            flatten(col, row, toolProps.height, toolProps.radius);
+        }
         terrain->UpdateBuffers();
         terrain->update();
         //        terrain->makeTexture();
