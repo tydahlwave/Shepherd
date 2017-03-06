@@ -238,7 +238,7 @@ void TerrainEditingController::ImguiUpdate(World *world) {
             std::string heightStr = "Height" + to_string(i);
             std::string colorStr = "Color" + to_string(i);
             ImGui::SliderFloat(heightStr.c_str(), &terrainRenderer->regions[i], 0.0f, 1.0f);
-            ImGui::DragFloat3(colorStr.c_str(), &terrainRenderer->regionColors[i][0], 0.02f, 0.0f, 1.0f);
+            ImGui::ColorEdit3(colorStr.c_str(), &terrainRenderer->regionColors[i][0]);
         }
         
         if (ImGui::Button("Generate")) {
