@@ -14,7 +14,10 @@
 class TextureLibrary {
 public:
     static void LoadTextures(std::string resourceDir);
-    static Texture *texTest;
+    static Texture *crate;
+    static Texture *grass;
+    static Texture *mountain;
+    static Texture *snow;
 };
 
 #endif /* Texture_h */

@@ -166,6 +166,11 @@ static std::vector<std::vector<float>> GenerateDiamondSquare(int size) {
                 
                 scale = pow(2, 5);
                 map[y][x] += map[y][x]/scale * (0.4+noise.eval(scale * nx*5, scale * ny*5));
+                
+                // Increase height with distance from center
+//                float dist = sqrt(pow(y-size/2, 2) + pow(x-size/2, 2));
+//                map[y][x] = (map[y][x]+dist/10.0f);// * (1 + dist/256.0f);
+//                map[y][x] += -fabs(50.0f * noise.eval(nx / 2.0f, ny / 2.0f));
             }
         }
         

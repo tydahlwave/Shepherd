@@ -131,7 +131,9 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("terrainMax");
     program->addUniform("regions");
     program->addUniform("regionColors");
-//    program->addUniform("myTexture");
+    program->addUniform("Grass");
+    program->addUniform("Mountain");
+    program->addUniform("Snow");
     program->addUniform("matDiffuseColor");
     program->addUniform("matSpecularColor");
     program->addUniform("matAmbientColor");

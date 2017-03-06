@@ -25,6 +25,7 @@
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
+#include "TextureLoader.h"
 #include "Time.h"
 #include "Components/MeshRenderer.h"
 #include "Components/PathRenderer.h"
@@ -144,7 +145,7 @@ void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
 		ImGui::Begin("Terrain Settings");
 		ImVec2 uv0 = ImVec2(0, 0);
 		ImVec2 uv1 = ImVec2(1, 1);
-		ImGui::Image((void*)(size_t)terrainRenderer->texture->texID, ImVec2(128, 128), uv0, uv1, ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
+		ImGui::Image((void*)(size_t)terrainRenderer->terrain->getTexture()->getTextureId(), ImVec2(128, 128), uv0, uv1, ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
 		ImGui::End();
 	}
 

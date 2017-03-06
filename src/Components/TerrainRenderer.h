@@ -20,13 +20,13 @@
 class TerrainRenderer : public Component {
 public:
     TerrainRenderer() { name = "TerrainRenderer"; };
-    TerrainRenderer(Terrain *t, Shader *s, Material *mat, Texture *tex) :TerrainRenderer() { terrain = t; shader = s; material = mat; texture = tex; }
+    TerrainRenderer(Terrain *t, Shader *s, Material *mat, std::vector<Texture*> texs) :TerrainRenderer() { terrain = t; shader = s; material = mat; textures = texs; }
     virtual ~TerrainRenderer() {};
     
     Terrain *terrain = nullptr;
     Shader *shader = nullptr;
     Material *material = nullptr;
-    Texture *texture = nullptr;
+    std::vector<Texture*> textures;
     
     std::vector<float> regions = {
     //    0,      // Water
@@ -45,6 +45,8 @@ public:
         glm::vec3(255/255.0f, 255/255.0f, 255/255.0f)    // Snow
     //    glm::vec3(221/255.0f, 221/255.0f, 228/255.0f)    // Snow
     };
+    
+//    void AddTexture(Texture *texture) { textures.push_back(texture); }
     
     void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) {
         

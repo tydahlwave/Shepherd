@@ -301,7 +301,9 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
 //    renderer->terrain->GenerateFromImage(resourceDir + "terrain9.png");
     renderer->shader = ShaderLibrary::ground;
     renderer->material = MaterialLibrary::grass;
-    renderer->texture = TextureLibrary::texTest;
+    renderer->textures.push_back(TextureLibrary::grass);
+    renderer->textures.push_back(TextureLibrary::mountain);
+    renderer->textures.push_back(TextureLibrary::snow);
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     btTransform t;
     t.setIdentity();

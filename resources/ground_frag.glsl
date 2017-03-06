@@ -7,7 +7,9 @@ uniform mat4 V;
 uniform int terrainMin;
 uniform int terrainMax;
 
-//uniform sampler2D myTexture;
+uniform sampler2D Grass;
+uniform sampler2D Mountain;
+uniform sampler2D Snow;
 
 const int NumRegions = 4;
 uniform float regions[4];
@@ -175,15 +177,26 @@ void main() {
     vec3 modelN = normalize(modelNor);
     float heightValue = (facePos.y-terrainMin) / (terrainMax-terrainMin);
     vec3 heightColor = vec3(221/255.0f, 221/255.0f, 228/255.0f);
+    vec3 textureColors[4] = vec3[](
+        texture(Grass, vertPos.xz).xyz,
+        texture(Grass, vertPos.xz).xyz,
+        texture(Mountain, vertPos.xz).xyz,
+        texture(Snow, vertPos.xz).xyz
+        );
+    vec3 textureColor = textureColors[3];
 
     for (int i = 0; i < NumRegions; i++) {
         float height = regions[i];
         if (heightValue <= height) {
+            if (i <= 1) textureColor = texture(Grass, vertPos.xz).xyz;
+            else if (i == 2) textureColor = texture(Mountain, vertPos.xz).xyz;
+            else textureColor = texture(Snow, vertPos.xz).xyz;
             if (i > 0) {
                 float prevHeight = regions[i-1];
                 float heightDist = height - prevHeight;
                 float contribution = pow((heightValue - prevHeight) / heightDist, 1);
                 heightColor = (1-contribution) * regionColors[i-1] + contribution * regionColors[i];
+                textureColor = (1-contribution) * textureColors[i-1] + contribution * textureColors[i];
             } else {
                 heightColor = regionColors[i];
             }
@@ -196,8 +209,8 @@ void main() {
 //    color = vec4(finalColor, 1.0);
 //    ambientColor = diffuseColor = vec3(0.5, 0.5, 0.5);
     vec3 finalColor = heightValue * modelN.y * heightColor + randIntensity;
-    color = vec4(heightColor*modelN.y + randIntensity, 1.0);
-//    color = vec4(texture(myTexture, vertPos.xz));
+//    color = vec4(heightColor*modelN.y + randIntensity, 1.0);
+    color = vec4(textureColor*modelN.y, 1.0);
 
 //    // Normalize the vectors
 //    vec3 vertexN = normalize(vertNor);

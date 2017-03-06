@@ -18,6 +18,7 @@
 
 #include "World.h"
 #include "Components/TerrainRenderer.h"
+#include "TextureLoader.h"
 
 struct ToolProperties {
     int tool = 0;
@@ -199,7 +200,7 @@ void TerrainEditingController::ImguiUpdate(World *world) {
         ImVec2 uv0 = ImVec2(0, 0);
         ImVec2 uv1 = ImVec2(1, 1);
 //        ImGui::Image((void*)terrain->getTexture()->getTextureId(), ImVec2(terrain->size, terrain->size), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
-        ImGui::Image((void*)(size_t)terrainRenderer->texture->texID, ImVec2(terrain->size, terrain->size), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
+        ImGui::Image((void*)(size_t)terrainRenderer->terrain->getTexture()->getTextureId(), ImVec2(terrain->size, terrain->size), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
         ImGui::End();
     }
     

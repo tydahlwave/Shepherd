@@ -10,9 +10,8 @@
 
 #include "SOIL/SOIL.h"
 
-Texture::Texture(std::string filePath) {
-    this->filePath = filePath;
-    
+Texture::Texture(std::string name, std::string filePath)
+: name(name), filePath(filePath) {
     // Generate the texture reference id
     glGenTextures(1, &texID);
 }
