@@ -116,7 +116,7 @@ int main(int argc, char **argv) {
     mainCamera->lookAt = glm::vec3(0, -1, -0.1); // Initial lookvector to orient the camera to look along -z axis (can't be (0,-1,0))
     
     // Create terrain
-    GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, -100, 0));
+    GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, 0, 0));
     terrain->transform->SetScale(glm::vec3(1, 1, 1));
     terrainController.SetTerrain((TerrainRenderer*)terrain->GetComponent("TerrainRenderer"));
     
@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
         
         accumulator += elapsedTime;
         while(accumulator >= idealDeltaTime) {
-//            physics.Update(idealDeltaTime, world);
+            physics.Update(idealDeltaTime, world);
             accumulator -= idealDeltaTime;
         }
         
