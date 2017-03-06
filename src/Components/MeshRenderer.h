@@ -24,6 +24,7 @@ public:
     Shader *shader = nullptr;
     Material *material = nullptr;
     Texture *texture = nullptr;
+	bool draw = true;
 };
 
 #endif /* MeshRenderer_h */

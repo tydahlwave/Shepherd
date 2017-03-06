@@ -159,6 +159,7 @@ void Renderer::Render(World &world, Window &window) {
 		}
 
         MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
+		if (meshRenderer && meshRenderer->draw == false) continue;
         if (meshRenderer && (gameObject->name.compare("HUD") == 0 || gameObject->name.compare("ChargeBar") == 0)) {
             auto shader = meshRenderer->shader->program;
             auto model = meshRenderer->model;

@@ -312,5 +312,3 @@ void GameController::MouseClicked(World *world, double mouseX, double mouseY, in
 } 
 void GameController::MouseScrolled(World *world, double dx, double dy) {
 }
-
-
