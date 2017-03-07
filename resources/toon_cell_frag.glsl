@@ -20,11 +20,15 @@ uniform struct Light {
 
 out vec4 color;
 
-in vec3 vertexNormal;
-in vec3 viewNormal;
+in VS_OUT {
+    vec3 fragPos;
+    vec3 vertPos;
+    vec3 modelNor;
+    vec3 vertNor;
+    vec3 viewNor;
+    vec3 modelPos;
+} vs_out;
 
-in vec3 modelPos;
-in vec3 modelNor;
 
 //helper
 float stepmix(float edge0, float edge1, float E, float x)
@@ -43,8 +47,8 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
         attenuation = 1.0; //no attenuation for directional lights
     } else {
         //point light
-        lightN = normalize(light.position.xyz - modelPos);
-        float distanceToLight = length(light.position.xyz - modelPos);
+        lightN = normalize(light.position.xyz - vs_out.modelPos);
+        float distanceToLight = length(light.position.xyz - vs_out.modelPos);
         
         //attenuation = 1.0 / (1.0 + light.attenuation * pow(distanceToLight, 2.0));
         attenuation = clamp( 10.0 / (1.0 + light.attenuation * distanceToLight), 0.0, 1.0);
@@ -126,8 +130,8 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
 void main()
 {
     // Normalize the vectors
-    vec3 vertexN = normalize(modelNor);
-    vec3 viewN = normalize(viewNormal);
+    vec3 vertexN = normalize(vs_out.modelNor);
+    vec3 viewN = normalize(vs_out.viewNor);
     //combine color from all the lights
     vec3 linearColor = matAmbientColor;//vec3(0);
     for(int i = 0; i < numLights; ++i){
@@ -135,9 +139,9 @@ void main()
         linearColor += ApplyLight(allLights[i], vertexN, viewN, pos);
     }
     
-    float edgeDetection = (dot(viewN, vertexN) > 0.3) ? 1 : 0;
+    float edgeDetection = (dot(viewN, vs_out.modelNor) > 0.3) ? 1 : 0;
     
-    color = vec4(edgeDetection*linearColor, 1.0);
+    color = vec4(linearColor, 1.0);
     //final color (after gamma correction)
     //vec3 gamma = vec3(1.0/2.2);
     //color = vec4(pow(totalPhong, gamma), 1.0);
