@@ -275,7 +275,10 @@ void Renderer::Render(World &world, Window &window) {
                 glUniform1f(shader->getUniform("charge"), charge);
                 
             }
-            
+			if (gameObject->name.compare("HUD") == 0) {
+				glUniform1i(shader->getUniform("width"), window.GetWidth());
+				glUniform1i(shader->getUniform("height"), window.GetHeight());
+			}
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
             applyCameraMatrix(shader, camera, camera->pos);

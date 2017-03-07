@@ -71,6 +71,8 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("P");
     program->addUniform("M");
     program->addUniform("V");
+	program->addUniform("width");
+	program->addUniform("height");
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
     hud = new Shader(program);
