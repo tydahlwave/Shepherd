@@ -27,6 +27,7 @@
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
 #include "Time.h"
+#include "ImguiUpdateDelegate.h"
 
 enum State {
 	Close = -2,
@@ -37,7 +38,7 @@ enum State {
 	Level3 = 3,
 };
 
-class GameController : WindowCallbackDelegate {
+class GameController : WindowCallbackDelegate, ImguiUpdateDelegate {
 public:
 	GameController() : window(&world, 1080, 920) { };
 	virtual ~GameController() {};
@@ -50,6 +51,7 @@ public:
 	void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY);
 	void MouseClicked(World *world, double mouseX, double mouseY, int key, int action);
 	void MouseScrolled(World *world, double dx, double dy);
+    void ImguiUpdate(World *world);
 	void randomlyPopulateWithBoulders();
 private:
 	glm::vec2 mousePrev = { 0, 0 };

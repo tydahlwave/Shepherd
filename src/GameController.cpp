@@ -98,19 +98,9 @@ bool show_test_window = true;
 bool show_another_window = true;
 ImVec4 clear_color = ImColor(114, 144, 154);
 
-void GameController::drawImGUIStuff(Window &window, GameObject *terrain) {
-    
-    // Prevent gui from being drawn in wireframe mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    
-    ImGui_ImplGlfwGL3_NewFrame();
-    
+void GameController::ImguiUpdate(World *world) {
     if(terrain) drawTerrainWindow(window, terrain);
-    LevelEditor::drawLevelEditor(window, &world);
-    ImGui::Render();
-    
-    // Revert wireframe mode to how it was
-    glPolygonMode(GL_FRONT_AND_BACK, window.drawWireframes ? GL_LINE : GL_FILL);
+    LevelEditor::drawLevelEditor(window, world);
 }
 
 void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
@@ -220,7 +210,6 @@ void GameController::Run() {
 				cameraController->Update(world);
 			renderer.Render(world, window);
 			CAudioEngine::instance()->Update();
-            if(window.drawGUI) drawImGUIStuff(window, terrain);
 			window.Update();
             displayStats(elapsedTime, world, physics);
             
@@ -278,6 +267,7 @@ void GameController::LoadState() {
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)terrainController);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)bunnySpawnSystem);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)characterController);
+        Window::AddImguiUpdateDelegate(this);
 
 
 		world.mainCamera = EntityFactory::createMainCamera(&world);
