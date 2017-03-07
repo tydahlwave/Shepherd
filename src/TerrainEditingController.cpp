@@ -27,6 +27,8 @@ struct ToolProperties {
     int tool = 0;
     int radius = 10;
     float height = 20.0f;
+    int kernel = 3;
+    int kernelType = 0;
 };
 
 bool mousePressed = false;
@@ -79,6 +81,8 @@ void TerrainEditingController::MouseMoved(World *world, int windowWidth, int win
             elevate(col, row, toolProps.height, toolProps.radius);
         } else if (toolProps.tool == 1) {
             flatten(col, row, toolProps.height, toolProps.radius);
+        } else if (toolProps.tool == 2) {
+            smooth(col, row, toolProps.kernel, toolProps.radius, toolProps.kernelType == 0);
         }
         terrain->UpdateBuffers();
         terrain->update();
@@ -119,6 +123,8 @@ void TerrainEditingController::MouseClicked(World *world, double mouseX, double 
             elevate(col, row, toolProps.height, toolProps.radius);
         } else if (toolProps.tool == 1) {
             flatten(col, row, toolProps.height, toolProps.radius);
+        } else if (toolProps.tool == 2) {
+            smooth(col, row, toolProps.kernel, toolProps.radius, toolProps.kernelType == 0);
         }
         terrain->UpdateBuffers();
         terrain->update();
@@ -164,6 +170,59 @@ void TerrainEditingController::flatten(int x, int y, float height, int radius) {
             // If this (row,col) is within radius
             if (pow(row-y, 2) + pow(col-x, 2) < radiusSquared) {
                 terrain->heightMap[row][col] = height;
+            }
+        }
+    }
+}
+
+void TerrainEditingController::smooth(int x, int y, int kernel, int radius, bool square) {
+    Terrain *terrain = terrainRenderer->terrain;
+    int radiusSquared = radius * radius;
+    int kernelSquared = kernel*kernel;
+    
+    // For every row within bounds
+    for (int row = y - radius; row < y + radius; row++) {
+        if (row < 0 || row >= terrain->size) continue;
+        
+        // For every column within bounds
+        for (int col = x - radius; col < x + radius; col++) {
+            if (col < 0 || col >= terrain->size) continue;
+            
+            // If this (row,col) is within radius
+            if (pow(row-y, 2) + pow(col-x, 2) < radiusSquared) {
+                
+                bool square = true;
+                if (square) {
+                    int count = 0;
+                    float smoothedHeight = 0;
+                    for (int ky = -kernel; ky < kernel; ky++) {
+                        for (int kx = -kernel; kx < kernel; kx++) {
+                            if (row-ky >= 0 && row-ky < terrain->size && col-kx >= 0 && col-kx < terrain->size) {
+                                count++;
+                                smoothedHeight += terrain->heightMap[row-ky][col-kx];
+                            }
+                        }
+                    }
+                    smoothedHeight /= count;
+                    terrain->heightMap[row][col] = smoothedHeight;
+                } else {
+                    int count = 0;
+//                    int sum = 0;
+                    float smoothedHeight = 0;
+                    for (int ky = -kernel; ky < kernel; ky++) {
+                        for (int kx = -kernel; kx < kernel; kx++) {
+                            if (row-ky >= 0 && row-ky < terrain->size && col-kx >= 0 && col-kx < terrain->size) {
+                                // If within the kernel radius
+                                if (pow(row-y, 2) + pow(col-x, 2) < kernelSquared) {
+                                    count++;
+                                    smoothedHeight += terrain->heightMap[row-ky][col-kx];
+                                }
+                            }
+                        }
+                    }
+                    smoothedHeight /= count;
+                    terrain->heightMap[row][col] = smoothedHeight;
+                }
             }
         }
     }
@@ -221,6 +280,7 @@ void TerrainEditingController::ImguiUpdate(World *world) {
             terrain->GenerateHeightmap(terrainProps, terrain->seed);
             terrain->UpdateBuffers();
             terrain->update();
+            EntityFactory::UpdateTerrain(world, terrainRenderer->gameObject, terrain);
         }
         ImGui::SameLine();
         ImGui::LabelText("", "%zu", terrainProps.seed ? terrainProps.seed : terrain->seed);
@@ -254,6 +314,7 @@ void TerrainEditingController::ImguiUpdate(World *world) {
             terrain->GenerateHeightmap(terrainProps, terrain->seed);
             terrain->UpdateBuffers();
             terrain->update();
+            EntityFactory::UpdateTerrain(world, terrainRenderer->gameObject, terrain);
         }
         ImGui::SameLine();
         if (ImGui::Button("Save")) {
@@ -280,16 +341,33 @@ void TerrainEditingController::ImguiUpdate(World *world) {
         if (ImGui::RadioButton("Elevate", &tool, 0)) {
             toolProps.tool = 0;
         }
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Smooth", &tool, 2)) {
+            toolProps.tool = 2;
+        }
         if (ImGui::RadioButton("Flatten", &tool, 1)) {
             toolProps.tool = 1;
         }
-        if (ImGui::RadioButton("None", &tool, 2)) {
-            toolProps.tool = 2;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("None", &tool, 3)) {
+            toolProps.tool = 3;
         }
         ImGui::Separator();
         
-        ImGui::SliderInt("Radius", &toolProps.radius, 1, 25);
-        ImGui::SliderFloat("Height", &toolProps.height, -100.0f, 100.0f);
+        if (tool == 0) {
+            ImGui::SliderInt("Radius", &toolProps.radius, 1, 25);
+            ImGui::SliderFloat("Height", &toolProps.height, -100.0f, 100.0f);
+        } else if (tool == 1) {
+            ImGui::SliderInt("Radius", &toolProps.radius, 1, 25);
+            ImGui::SliderFloat("Height", &toolProps.height, -100.0f, 100.0f);
+        } else if (tool == 2) {
+            ImGui::SliderInt("Radius", &toolProps.radius, 1, 25);
+            ImGui::SliderInt("Kernel", &toolProps.kernel, 1, 25);
+            ImGui::LabelText("Kernel Type", "Kernel Type");
+            ImGui::RadioButton("Square", &toolProps.kernelType, 0);
+            ImGui::SameLine();
+            ImGui::RadioButton("Circle", &toolProps.kernelType, 1);
+        }
         
         ImGui::End();
     }

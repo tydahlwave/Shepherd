@@ -28,6 +28,7 @@ private:
     
     void elevate(int row, int col, float height, int radius);
     void flatten(int x, int y, float height, int radius);
+    void smooth(int x, int y, int kernel, int radius, bool square);
 };
 
 #endif /* TerrainEditingController_h */

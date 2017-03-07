@@ -322,6 +322,28 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
     return gameObject;
 }
 
+void EntityFactory::UpdateTerrain(World *world, GameObject *terrainObj, Terrain *terrain) {
+    RigidBody *rigidBody = (RigidBody*) terrainObj->GetComponent("RigidBody");
+    if (rigidBody) {
+        world->dynamicsWorld->removeRigidBody(rigidBody->bulletRigidBody);
+        
+        btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(terrain->size, terrain->size,
+                                                                                  terrain->flattenHeightMap().data(), 1.0f,
+                                                                                  -255.0f, 255.0f, // min/max heights
+                                                                                  1, PHY_FLOAT,
+                                                                                  false);
+        btTransform t;
+        t.setIdentity();
+        t.setOrigin(btVector3(terrainObj->transform->GetPosition().x, terrainObj->transform->GetPosition().y, terrainObj->transform->GetPosition().z));
+        btMotionState* motion = new btDefaultMotionState(t);
+        btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, collisionShape);
+        rigidBody->bulletRigidBody = new btRigidBody(info);
+        rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+        
+        world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    }
+}
+
 float getTerrainHeightForPosition(GameObject *terrainObject, Terrain *terrain, int x, int z) {
     glm::vec3 terrainSize = terrainObject->transform->GetScale() * glm::vec3(terrain->size, 1, terrain->size);
     glm::vec3 terrainPos = terrainObject->transform->GetPosition();

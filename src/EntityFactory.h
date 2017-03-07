@@ -12,6 +12,8 @@
 #include "GameObject.h"
 #include "World.h"
 
+class Terrain;
+
 class EntityFactory {
 public:
     static GameObject *createMainCamera(World *world);
@@ -33,6 +35,7 @@ public:
 	static GameObject *createSkybox(World *world, std::string resourceDir);
     static GameObject *createLight(World *world, glm::vec3 position, bool isDirectional, glm::vec3 intensities, float attenuation,float ambientCoefficient,float coneAngle, glm::vec3 coneDirection);
 	static GameObject *upgradeCharacter(World *world, GameObject *camera);
+    static void UpdateTerrain(World *world, GameObject *terrainObj, Terrain *terrain);
 };
 
 #endif /* EntityFactory_h */
