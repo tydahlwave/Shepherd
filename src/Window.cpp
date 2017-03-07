@@ -52,6 +52,10 @@ void Window::KeyCallback(GLFWwindow *window, int key, int scancode, int action, 
     
     // Execute all registered callbacks
     for (WindowCallbackDelegate *delegate : windowCallbackDelegates) {
+
+		if ((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) && (delegate->type == 0) ||
+			(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) && (delegate->type == 1) ||
+			(delegate->type == 2))
         delegate->KeyPressed(world, width, height, key, action);
     }
     

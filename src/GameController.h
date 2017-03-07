@@ -55,6 +55,7 @@ public:
     void ImguiUpdate(World *world);
 	void randomlyPopulateWithBoulders();
 	int incrState();
+	int endState();
 private:
 	glm::vec2 mousePrev = { 0, 0 };
 	std::string resourceDir;

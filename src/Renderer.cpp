@@ -417,6 +417,16 @@ void Renderer::Render(World &world, Window &window) {
 			applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
 			//applyTransformMatrix(shader, gameObject->transform);
 
+			// Bind all textures for the terrain
+			/*for (int i = 0; i < terrainRenderer->textures.size(); i++) {
+				glActiveTexture(GL_TEXTURE0 + i);
+				glBindTexture(GL_TEXTURE_2D, terrainRenderer->textures[i]->texID);
+				glUniform1i(shader->getUniform(terrainRenderer->textures[i]->name), i);
+			}
+			*/
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, hr->texture->texID);
+			glUniform1i(shader->getUniform("ButtonTexture"), 0);
 			model->draw(shader);
 			shader->unbind();
 

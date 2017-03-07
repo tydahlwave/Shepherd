@@ -17,6 +17,7 @@
 #include "Components/Button.h"
 #include "Components/RigidBody.h"
 #include "Components/TerrainRenderer.h"
+#include "Components/HUDRenderer.h"
 #include "Components/Light.h"
 #include "Terrain.h"
 #include "BunnySpawnSystem.h"
@@ -241,15 +242,22 @@ void GameController::LoadState() {
 		startButton->transform->SetScale(glm::vec3(70.f, 30.f, 0.f));
 		Button * bt = (Button *)(startButton->AddComponent("Button"));
 		bt->callback = &GameController::incrState;
-
+		HUDRenderer *hr = (HUDRenderer *)(startButton->GetComponent("HudRenderer"));
+		hr->texture = TextureLibrary::startButton;
+		
 		GameObject *startButton2 = EntityFactory::createHUD2(&world);
 		startButton2->transform->SetPosition(glm::vec3(0.5f, 0.8f, 0));
 		startButton2->transform->SetScale(glm::vec3(70.f, 30.f, 0.f));
+		bt = (Button *)(startButton2->AddComponent("Button"));
+		bt->callback = &GameController::endState;
+		hr = (HUDRenderer *)(startButton2->GetComponent("HudRenderer"));
+		hr->texture = TextureLibrary::quitButton;
 
+		/*
 		GameObject *startButton3 = EntityFactory::createHUD2(&world);
 		startButton3->transform->SetPosition(glm::vec3(0.8f, 0.5f, 0));
 		startButton3->transform->SetScale(glm::vec3(70.f, 30.f, 0.f));
-
+		*/
 		window.drawMouse = true;
 
 		world.mainCamera = EntityFactory::createMainCamera(&world);
@@ -420,5 +428,10 @@ void GameController::MouseScrolled(World *world, double dx, double dy) {
 
 int GameController::incrState() {
 	nextState = static_cast<State>(state + 1);
+	return nextState;
+}
+
+int GameController::endState() {
+	nextState = State::Close;
 	return nextState;
 }
