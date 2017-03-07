@@ -1,3 +1,4 @@
 {
-    "GameObjects": []
+    "GameObjects": [{"ObjectType":"Light","Static":false,"Components":{"Light":{"IsDirectional":false,"Intensities":[1.0,1.0,1.0],"Attenuation":0.10000000149011612,"AmbientCoefficient":0.15000000596046449,"ConeAngle":360.0,"ConeDirection":[0.0,1.0,0.0]},"Transform":{"Position":[0.0,72.2770004272461,0.0],"Rotation":[0.0,0.0,0.0],"Scale":[1.0,1.0,1.0]}}}
+    ]
 }
