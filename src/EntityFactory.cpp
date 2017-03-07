@@ -391,7 +391,7 @@ GameObject *EntityFactory::createPath(World *world, GameObject *terrainObject, i
     Terrain *terrain = terrainRenderer->terrain;
 
 	renderer->path = new Path();
-	renderer->path->size = 3;
+	renderer->path->size = 5;
 	renderer->path->radius = 5;
     renderer->path->AddNode(glm::vec3(-220, getTerrainHeightForPosition(terrainObject, terrain, -220, 500), 500));
     renderer->path->AddNode(glm::vec3(-124, getTerrainHeightForPosition(terrainObject, terrain, -124, 210), 210));
