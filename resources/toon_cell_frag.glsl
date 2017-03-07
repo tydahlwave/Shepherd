@@ -39,7 +39,7 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     float attenuation = 1.0;
     if(light.position.w == 0.0) {
         //directional light
-        lightN = normalize(lightPos);
+        lightN = normalize(light.position.xyz);
         attenuation = 1.0; //no attenuation for directional lights
     } else {
         //point light

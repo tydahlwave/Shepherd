@@ -55,7 +55,10 @@ void LevelEditor::drawLevelEditor(Window &window, World *world){
         mostRecentlyPlacedGameObject->transform->SetScale(glm::vec3(scale));
         //remove all physics
         RigidBody *rb = (RigidBody *)mostRecentlyPlacedGameObject->GetComponent("RigidBody");
-        if(rb) rb->bulletRigidBody = nullptr;
+        if(rb) {
+            world->dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
+            rb->bulletRigidBody = nullptr;
+        }
     }
     if(item == 3) {
         // Light menu stuff
