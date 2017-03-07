@@ -162,10 +162,12 @@ bool intersectFrustumAABB(Camera *cam, vec3 min, vec3 max) {
 }
 
 void Renderer::Render(World &world, Window &window) {
+#define DEBUG
+#ifndef DEBUG
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
-    
+ 
     Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
     //GLfloat P[16]; //glm::make_mat4(P)
     //glGetFloatv(GL_PROJECTION_MATRIX, P);
@@ -421,13 +423,6 @@ void Renderer::Render(World &world, Window &window) {
 			applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
 			//applyTransformMatrix(shader, gameObject->transform);
 
-			// Bind all textures for the terrain
-			/*for (int i = 0; i < terrainRenderer->textures.size(); i++) {
-				glActiveTexture(GL_TEXTURE0 + i);
-				glBindTexture(GL_TEXTURE_2D, terrainRenderer->textures[i]->texID);
-				glUniform1i(shader->getUniform(terrainRenderer->textures[i]->name), i);
-			}
-			*/
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, hr->texture->texID);
 			glUniform1i(shader->getUniform("ButtonTexture"), 0);
@@ -437,8 +432,7 @@ void Renderer::Render(World &world, Window &window) {
 		}
 	}
 	glEnable(GL_DEPTH_TEST);
-	/*
-
+#else
 	glClearColor(0.0f, 0.f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -460,33 +454,56 @@ void Renderer::Render(World &world, Window &window) {
 		if (!cl)
 			continue;
 		HUDRenderer *hr = (HUDRenderer*)gameObject->GetComponent("HudRenderer");
-		if (!hr || hr->draw == false) continue;
+		MeshRenderer *mr = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
+		if (hr && hr->draw) {
+			if (!hr || hr->draw == false) continue;
 
 
-		auto shader = cl->shader->program;
-		auto model = hr->model;
+			auto shader = cl->shader->program;
+			auto model = hr->model;
 
 
-		shader->bind();
-		int r = (cl->id & 0x000000FF) >> 0;
-		int g = (cl->id & 0x0000FF00) >> 8;
-		int b = (cl->id & 0x00FF0000) >> 16;
-		glUniform4f(shader->getUniform("PickingColor"), r / 255.f, g / 255.f, b / 255.f, 1.0f);
-		Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
-		//applyProjectionMatrix(shader, window, camera);
-		applyOrthographicMatrix(shader, window, camera);
-		applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
-		//applyTransformMatrix(shader, gameObject->transform);
+			shader->bind();
+			int r = (cl->id & 0x000000FF) >> 0;
+			int g = (cl->id & 0x0000FF00) >> 8;
+			int b = (cl->id & 0x00FF0000) >> 16;
+			glUniform4f(shader->getUniform("PickingColor"), r / 255.f, g / 255.f, b / 255.f, 1.0f);
+			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+			//applyProjectionMatrix(shader, window, camera);
+			applyOrthographicMatrix(shader, window, camera);
+			applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
+			//applyTransformMatrix(shader, gameObject->transform);
 
-		model->draw(shader);
-		shader->unbind();
+			model->draw(shader);
+			shader->unbind();
+		}
+		if (mr && mr->draw) {
+			auto shader = cl->shader->program;
+			auto model = mr->model;
 
+
+			shader->bind();
+			int r = (cl->id & 0x000000FF) >> 0;
+			int g = (cl->id & 0x0000FF00) >> 8;
+			int b = (cl->id & 0x00FF0000) >> 16;
+			glUniform4f(shader->getUniform("PickingColor"), r / 255.f, g / 255.f, b / 255.f, 1.0f);
+			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+			applyProjectionMatrix(shader, window, camera);
+			//applyOrthographicMatrix(shader, window, camera);
+			//applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
+			if (world.mainCharacter) {
+				applyCameraMatrix(shader, camera, camera->pos);
+			}
+			else {
+				applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+			}
+			applyTransformMatrix(shader, gameObject->transform);
+
+			model->draw(shader);
+			shader->unbind();
+		}
 	}
-
-	glClearColor(0.0f, 170/255.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	*/
+#endif
 }
 
 
@@ -571,6 +588,7 @@ int Renderer::checkClickable(World &world, Window &window, int mx, int my) {
 	my = (window.GetHeight() - my);
 	glReadPixels(mx, my, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	int id = data[0] + data[1] * 256 + data[2] * 256 * 256;
+	printf("Clicked! got %d\n", id);
 
 	glClearColor(0.0f, 170 / 255.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
