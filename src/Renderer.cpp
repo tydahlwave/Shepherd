@@ -511,26 +511,54 @@ int Renderer::checkClickable(World &world, Window &window, int mx, int my) {
 		if (!cl)
 			continue;
 		HUDRenderer *hr = (HUDRenderer*)gameObject->GetComponent("HudRenderer");
-		if (!hr || hr->draw == false) continue;
-
-		
-		auto shader = cl->shader->program;
-		auto model = hr->model;
+		MeshRenderer *mr = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
+		if (hr && hr->draw) {
+			if (!hr || hr->draw == false) continue;
 
 
-		shader->bind();
-		int r = (cl->id & 0x000000FF) >> 0;
-		int g = (cl->id & 0x0000FF00) >> 8;
-		int b = (cl->id & 0x00FF0000) >> 16;
-		glUniform4f(shader->getUniform("PickingColor"), r / 255.f, g / 255.f, b / 255.f, 1.0f);
-		Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
-		//applyProjectionMatrix(shader, window, camera);
-		applyOrthographicMatrix(shader, window, camera);
-		applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
-		//applyTransformMatrix(shader, gameObject->transform);
+			auto shader = cl->shader->program;
+			auto model = hr->model;
 
-		model->draw(shader);
-		shader->unbind();
+
+			shader->bind();
+			int r = (cl->id & 0x000000FF) >> 0;
+			int g = (cl->id & 0x0000FF00) >> 8;
+			int b = (cl->id & 0x00FF0000) >> 16;
+			glUniform4f(shader->getUniform("PickingColor"), r / 255.f, g / 255.f, b / 255.f, 1.0f);
+			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+			//applyProjectionMatrix(shader, window, camera);
+			applyOrthographicMatrix(shader, window, camera);
+			applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
+			//applyTransformMatrix(shader, gameObject->transform);
+
+			model->draw(shader);
+			shader->unbind();
+		}
+		else if (mr && mr->draw) {
+			auto shader = cl->shader->program;
+			auto model = mr->model;
+
+
+			shader->bind();
+			int r = (cl->id & 0x000000FF) >> 0;
+			int g = (cl->id & 0x0000FF00) >> 8;
+			int b = (cl->id & 0x00FF0000) >> 16;
+			glUniform4f(shader->getUniform("PickingColor"), r / 255.f, g / 255.f, b / 255.f, 1.0f);
+			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+			applyProjectionMatrix(shader, window, camera);
+			//applyOrthographicMatrix(shader, window, camera);
+			//applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
+			if (world.mainCharacter) {
+				applyCameraMatrix(shader, camera, camera->pos);
+			}
+			else {
+				applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+			}
+			applyTransformMatrix(shader, gameObject->transform);
+
+			model->draw(shader);
+			shader->unbind();
+		}
 		
 	}
 	glFlush();
