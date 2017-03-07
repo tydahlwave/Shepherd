@@ -54,6 +54,60 @@ float stepmix(float edge0, float edge1, float E, float x)
 //    }
 //}
 
+//float rand(vec2 co) {
+//    highp float a = 12.9898;
+//    highp float b = 78.233;
+//    highp float c = 43758.5453;
+//    highp float dt= dot(co.xy ,vec2(a,b));
+//    highp float sn= mod(dt,3.14);
+//    return fract(sin(sn) * c);
+//}
+
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+vec4 getColor() {
+    vec3 modelN = normalize(modelNor);
+    float heightValue = (facePos.y-terrainMin) / (terrainMax-terrainMin);
+    vec3 heightColor = vec3(221/255.0f, 221/255.0f, 228/255.0f);
+    vec3 textureColors[4] = vec3[](
+    texture(Grass, vertPos.xz).xyz,
+    texture(Grass, vertPos.xz).xyz,
+    texture(Mountain, vertPos.xz).xyz,
+    texture(Snow, vertPos.xz).xyz
+    );
+    vec3 textureColor = textureColors[3];
+    
+    for (int i = 0; i < NumRegions; i++) {
+        float height = regions[i];
+        if (heightValue <= height) {
+            if (i <= 1) textureColor = texture(Grass, vertPos.xz).xyz;
+            else if (i == 2) textureColor = texture(Mountain, vertPos.xz).xyz;
+            else textureColor = texture(Snow, vertPos.xz).xyz;
+            if (i > 0) {
+                float prevHeight = regions[i-1];
+                float heightDist = height - prevHeight;
+                float contribution = pow((heightValue - prevHeight) / heightDist, 1);
+                heightColor = (1-contribution) * regionColors[i-1] + contribution * regionColors[i];
+                textureColor = (1-contribution) * textureColors[i-1] + contribution * textureColors[i];
+            } else {
+                heightColor = regionColors[i];
+            }
+            break;
+        }
+    }
+    // Make triangles vary in brightness slightly for a more low-poly look
+    vec3 randIntensity = rand(facePos.xz) * vec3(0.02, 0.02, 0.02);
+    //    vec3 finalColor = (diffuseColor + ambientColor);
+    //    color = vec4(finalColor, 1.0);
+    //    ambientColor = diffuseColor = vec3(0.5, 0.5, 0.5);
+    vec3 finalColor = heightValue * modelN.y * heightColor + randIntensity;
+    //    color = vec4(heightColor*modelN.y + randIntensity, 1.0);
+    //    color = vec4(textureColor*modelN.y, 1.0);
+    return vec4(textureColor*modelN.y, 1.0);
+}
+
 vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     
     vec3 lightN;
@@ -126,36 +180,7 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     vec3 ambientColor = matAmbientColor;
     vec3 diffuseColor = matDiffuseColor;
     vec3 specularColor = matSpecularColor;
-//    vec3 modelN = normalize(modelNor);
-//    float heightValue = (facePos.y-terrainMin) / (terrainMax-terrainMin);
-//    vec3 heightColor = vec3(221/255.0f, 221/255.0f, 228/255.0f);
-//    vec3 textureColors[4] = vec3[](
-//        texture(Grass, vertPos.xz).xyz,
-//        texture(Grass, vertPos.xz).xyz,
-//        texture(Mountain, vertPos.xz).xyz,
-//        texture(Snow, vertPos.xz).xyz
-//    );
-//    vec3 textureColor = textureColors[3];
-//    
-//    for (int i = 0; i < NumRegions; i++) {
-//        float height = regions[i];
-//        if (heightValue <= height) {
-//            if (i <= 1) textureColor = texture(Grass, vertPos.xz).xyz;
-//            else if (i == 2) textureColor = texture(Mountain, vertPos.xz).xyz;
-//            else textureColor = texture(Snow, vertPos.xz).xyz;
-//            if (i > 0) {
-//                float prevHeight = regions[i-1];
-//                float heightDist = height - prevHeight;
-//                float contribution = pow((heightValue - prevHeight) / heightDist, 1);
-//                heightColor = (1-contribution) * regionColors[i-1] + contribution * regionColors[i];
-//                textureColor = (1-contribution) * textureColors[i-1] + contribution * textureColors[i];
-//            } else {
-//                heightColor = regionColors[i];
-//            }
-//            break;
-//        }
-//    }
-//    ambientColor = diffuseColor = specularColor = heightColor / 3.0f;
+    ambientColor = diffuseColor = specularColor = getColor().xyz / 3.0f;
 
     //ambient
     vec3 ambient = light.ambientCoefficient * ambientColor * light.intensities;
@@ -174,76 +199,24 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     return ambient + attenuation*(diffuse + specular);
 }
 
-//float rand(vec2 co) {
-//    highp float a = 12.9898;
-//    highp float b = 78.233;
-//    highp float c = 43758.5453;
-//    highp float dt= dot(co.xy ,vec2(a,b));
-//    highp float sn= mod(dt,3.14);
-//    return fract(sin(sn) * c);
-//}
-
-float rand(vec2 co){
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
-}
-
 void main() {
-    vec3 ambientColor = matAmbientColor;
-    vec3 diffuseColor = matDiffuseColor;
-    vec3 specularColor = matSpecularColor;
-    vec3 modelN = normalize(modelNor);
-    float heightValue = (facePos.y-terrainMin) / (terrainMax-terrainMin);
-    vec3 heightColor = vec3(221/255.0f, 221/255.0f, 228/255.0f);
-    vec3 textureColors[4] = vec3[](
-        texture(Grass, vertPos.xz).xyz,
-        texture(Grass, vertPos.xz).xyz,
-        texture(Mountain, vertPos.xz).xyz,
-        texture(Snow, vertPos.xz).xyz
-        );
-    vec3 textureColor = textureColors[3];
+//    color = getColor();
 
-    for (int i = 0; i < NumRegions; i++) {
-        float height = regions[i];
-        if (heightValue <= height) {
-            if (i <= 1) textureColor = texture(Grass, vertPos.xz).xyz;
-            else if (i == 2) textureColor = texture(Mountain, vertPos.xz).xyz;
-            else textureColor = texture(Snow, vertPos.xz).xyz;
-            if (i > 0) {
-                float prevHeight = regions[i-1];
-                float heightDist = height - prevHeight;
-                float contribution = pow((heightValue - prevHeight) / heightDist, 1);
-                heightColor = (1-contribution) * regionColors[i-1] + contribution * regionColors[i];
-                textureColor = (1-contribution) * textureColors[i-1] + contribution * textureColors[i];
-            } else {
-                heightColor = regionColors[i];
-            }
-            break;
-        }
+    // Normalize the vectors
+    vec3 vertexN = normalize(vertNor);
+    vec3 viewN = normalize(viewNor);
+    //combine color from all the lights
+    vec3 linearColor = vec3(0);
+    for(int i = 0; i < numLights; ++i){
+        vec3 pos = vec3(V * vec4(vec3(allLights[i].position), 1));
+        linearColor += ApplyLight(allLights[i], vertexN, viewN, pos);
     }
-    // Make triangles vary in brightness slightly for a more low-poly look
-    vec3 randIntensity = rand(facePos.xz) * vec3(0.02, 0.02, 0.02);
-//    vec3 finalColor = (diffuseColor + ambientColor);
-//    color = vec4(finalColor, 1.0);
-//    ambientColor = diffuseColor = vec3(0.5, 0.5, 0.5);
-    vec3 finalColor = heightValue * modelN.y * heightColor + randIntensity;
-//    color = vec4(heightColor*modelN.y + randIntensity, 1.0);
-    color = vec4(textureColor*modelN.y, 1.0);
-
-//    // Normalize the vectors
-//    vec3 vertexN = normalize(vertNor);
-//    vec3 viewN = normalize(viewNor);
-//    //combine color from all the lights
-//    vec3 linearColor = vec3(0);
-//    for(int i = 0; i < numLights; ++i){
-//        vec3 pos = vec3(V * vec4(vec3(allLights[i].position), 1));
-//        linearColor += ApplyLight(allLights[i], vertexN, viewN, pos);
-//    }
-//    
-//    float edgeDetection = (dot(viewN, vertexN) > 0.3) ? 1 : 0;
-//    
-//    //color = vec4(edgeDetection*linearColor, 1.0);
-//    color = vec4(linearColor, 1.0);
-//    //final color (after gamma correction)
-//    //vec3 gamma = vec3(1.0/2.2);
-//    //color = vec4(pow(totalPhong, gamma), 1.0);
+    
+    float edgeDetection = (dot(viewN, vertexN) > 0.3) ? 1 : 0;
+    
+    //color = vec4(edgeDetection*linearColor, 1.0);
+    color = vec4(linearColor, 1.0);
+    //final color (after gamma correction)
+    //vec3 gamma = vec3(1.0/2.2);
+    //color = vec4(pow(totalPhong, gamma), 1.0);
 }
