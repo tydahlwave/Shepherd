@@ -28,6 +28,8 @@ public:
     Bounds bounds;
     
     void draw(Program *shader);//Shader shader);
+
+	void drawHud(Program *shader);//Shader shader);
 private:
     std::vector<Mesh> meshes;
     // Stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.

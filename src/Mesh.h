@@ -49,6 +49,8 @@ public:
     std::vector<Texture2D> textures;
     
     void draw(Program *shader);
+
+	void drawHud(Program *shader);
     void calculateBounds();
     void setupMesh();
 private:

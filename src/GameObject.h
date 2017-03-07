@@ -27,7 +27,7 @@ public:
     GameObject();
     GameObject(std::string name);
     GameObject(std::string name, std::vector<std::string> componentNames);
-    virtual ~GameObject() {};
+    virtual ~GameObject();
     
     World *world = nullptr;
     Transform *transform = nullptr;

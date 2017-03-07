@@ -19,6 +19,7 @@ public:
     static Model *bunny;
     static Model *cube;
     static Model *plane;
+	static Model *button;
     static Model *sphere;
     static Model *sphere_textured;
     static Model *boulder1;

@@ -47,11 +47,13 @@ public:
 	void Init(std::string);
 	void Run();
 	void LoadState();
+	void UnloadState();
 	void KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action);
 	void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY);
 	void MouseClicked(World *world, double mouseX, double mouseY, int key, int action);
 	void MouseScrolled(World *world, double dx, double dy);
 	void randomlyPopulateWithBoulders();
+	int incrState();
 private:
 	glm::vec2 mousePrev = { 0, 0 };
 	std::string resourceDir;

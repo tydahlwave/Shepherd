@@ -17,6 +17,9 @@
 #include "Components/TerrainRenderer.h"
 #include "Components/PathRenderer.h"
 #include "Components/SkyboxRenderer.h"
+#include "Components/Clickable.h"
+#include "Components/Button.h"
+#include "Components/HUDRenderer.h"
 #include "Components/Character.h"
 #include "Components/Death.h"
 #include "Components/Light.h"
@@ -112,6 +115,15 @@ Component *GameObject::AddComponent(std::string name) {
 		else if (name.compare("SkyboxRenderer") == 0) {
 			component = (Component*) new SkyboxRenderer();
 		}
+		else if (name.compare("HudRenderer") == 0) {
+			component = (Component*) new HUDRenderer();
+		}
+		else if (name.compare("Clickable") == 0) {
+			component = (Component*) new Clickable();
+		}
+		else if (name.compare("Button") == 0) {
+			component = (Component*) new Button();
+		}
 		else if (name.compare("Character") == 0) {
 			component = (Component *) new Character();
         }
@@ -130,11 +142,18 @@ Component *GameObject::AddComponent(std::string name) {
     return nullptr;
 }
 
+GameObject::~GameObject() {
+	for (auto it = components.begin(); it != components.end(); ++it) {
+		delete it->second;
+	}
+}
+
 Component *GameObject::GetComponent(std::string name) {
     return components[name];
 }
 
 void GameObject::RemoveComponent(std::string name) {
+	delete components[name];
     components[name] = nullptr;
 }
 

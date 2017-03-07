@@ -54,7 +54,7 @@ std::vector<GameObject*> KDTree::getStaticObjectsInViewFrustrumRec(Camera *camer
 }
 
 std::vector<GameObject*> KDTree::getStaticObjectsInViewFrustrum(Camera *camera) {
-    getStaticObjectsInViewFrustrumRec(camera, root);
+    return getStaticObjectsInViewFrustrumRec(camera, root);
 }
 
 bool KDTree::gameObjectDimensionCmp(GameObject *obj1, GameObject *obj2, int dimension) {

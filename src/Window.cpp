@@ -76,6 +76,10 @@ void Window::KeyCallback(GLFWwindow *window, int key, int scancode, int action, 
     }
 }
 
+void Window::checkMouse() {
+	glfwSetInputMode(window, GLFW_CURSOR, drawMouse ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+}
+
 void Window::MouseMoveCallback(GLFWwindow *window, double posX, double posY) {
     // Get current window size.
     int width, height;
@@ -83,26 +87,33 @@ void Window::MouseMoveCallback(GLFWwindow *window, double posX, double posY) {
     
     // Execute all registered callbacks
     for (WindowCallbackDelegate *delegate : windowCallbackDelegates) {
-        if(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) return;
-        delegate->MouseMoved(world, width, height, posX, posY);
+		if ((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) && (delegate->type == 0) ||
+			(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) && (delegate->type == 1) ||
+			(delegate->type == 2))
+			delegate->MouseMoved(world, width, height, posX, posY);
     }
 }
 
 void Window::MouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
-    double xPos, yPos;
-    glfwGetCursorPos(window, &xPos, &yPos);
-    
-    // Execute all registered callbacks
-    for (WindowCallbackDelegate *delegate : windowCallbackDelegates) {
-        if(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) return;
-        delegate->MouseClicked(world, xPos, yPos, button, action);
+	double xPos, yPos;
+	glfwGetCursorPos(window, &xPos, &yPos);
+
+	// Execute all registered callbacks
+	for (WindowCallbackDelegate *delegate : windowCallbackDelegates) {
+		if ((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) && (delegate->type == 0) ||
+			(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) && (delegate->type == 1) ||
+			(delegate->type == 2))
+			delegate->MouseClicked(world, xPos, yPos, button, action);
     }
 }
 
 void Window::MouseScrollCallback(GLFWwindow *window, double dx, double dy) {
 	// Execute all registered callbacks
 	for (WindowCallbackDelegate *delegate : windowCallbackDelegates) {
-		delegate->MouseScrolled(world, dx, dy);
+		if ((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) && (delegate->type == 0) ||
+			(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) && (delegate->type == 1) ||
+			(delegate->type == 2))
+			delegate->MouseScrolled(world, dx, dy);
 	}
 }
 
@@ -254,6 +265,13 @@ void Window::PollEvents() {
     glfwPollEvents();
 }
 
-void Window::AddWindowCallbackDelegate(WindowCallbackDelegate *delegate) {
+
+/*
+ * type : 0 - only when mouse is drawn
+ *		: 1 - only when mouse is not drawn
+ *		: 2 - both
+*/
+void Window::AddWindowCallbackDelegate(WindowCallbackDelegate *delegate, int type) {
+	delegate->type = type;
     windowCallbackDelegates.push_back(delegate);
 }

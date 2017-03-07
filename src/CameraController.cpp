@@ -68,20 +68,20 @@ void CameraController::MouseScrolled(World *world, double dx, double dy) {
 }
 
 void CameraController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {
-	Camera * camera = (Camera*)world->mainCamera->GetComponent("Camera");
-	if (camera->stat)
-		return;
-	glm::vec2 mouseCurr(mouseX, mouseY);
-	if (mousePrev.x == 0 && mousePrev.y == 0) {
+		Camera * camera = (Camera*)world->mainCamera->GetComponent("Camera");
+		if (camera->stat)
+			return;
+		glm::vec2 mouseCurr(mouseX, mouseY);
+		if (mousePrev.x == 0 && mousePrev.y == 0) {
+			mousePrev = mouseCurr;
+		}
+		glm::vec2 dv = mouseCurr - mousePrev;
+
+		camera->aap -= dv.x;
+		camera->pitch -= dv.y;
+
+		capVal(camera->pitch, -60.f, 60.f);
 		mousePrev = mouseCurr;
-	}
-	glm::vec2 dv = mouseCurr - mousePrev;
-
-	camera->aap -= dv.x;
-	camera->pitch -= dv.y;
-
-	capVal(camera->pitch, -60.f, 60.f);
-	mousePrev = mouseCurr;
 }
 
 void CameraController::MouseClicked(World *world, double mouseX, double mouseY, int key, int action) {
