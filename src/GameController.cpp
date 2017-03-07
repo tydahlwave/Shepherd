@@ -281,6 +281,12 @@ void GameController::LoadState() {
         mesh->model = ModelLibrary::title;
         mesh->shader = ShaderLibrary::cell;*/
         
+        // Create terrain
+        EntityFactory::createStartMenuTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, -20, 0));
+        
+        //Create skybox
+        EntityFactory::createSkybox(&world, resourceDir);
+        
         gameMusic = audio->PlaySound("menu.wav");
 		break;
 	}

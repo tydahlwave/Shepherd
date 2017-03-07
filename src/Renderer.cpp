@@ -122,7 +122,7 @@ std::vector<LightStruct> setUpLights(World &world, Path *path) {
     }
     
     LightStruct directionalLight;
-    directionalLight.position = glm::vec4(1, 0.8, 0.6, 0); //w == 0 indications a directional light
+    directionalLight.position = glm::vec4(-0.6, 0.8, -1, 0); //w == 0 indications a directional light
     directionalLight.intensities = glm::vec3(2, 2, 2); //weak yellowish light
     directionalLight.ambientCoefficient = 0.15f;
     lights.push_back(directionalLight);
