@@ -34,7 +34,6 @@ in vec3 vertNor;
 in vec3 viewNor;
 
 in vec3 modelPos;
-in vec3 modelNor;
 
 out vec4 color;
 

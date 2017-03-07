@@ -16,7 +16,6 @@ out VS_OUT {
     vec3 vertNor;
     vec3 viewNor;
     vec3 modelPos;
-    vec3 modelNor;
 } vs_out;
 
 void main() {
@@ -30,5 +29,4 @@ void main() {
     vs_out.viewNor = -(V * M * vertPos).xyz;
     
     vs_out.modelPos = (M * vertPos).xyz;
-    vs_out.modelNor = (M * vec4(vertNor, 0)).xyz;
 }
