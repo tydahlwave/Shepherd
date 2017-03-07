@@ -48,7 +48,7 @@ void TreeSystem::Initialize(World *world) {
 void TreeSystem::Spawn(World *world) {
     srand(time(0));
     for (int i = 0; i < maxTreeCount; i++) {
-        int type = (rand() % 2) + 1;
+        int type = rand() % 6;
         glm::vec3 randPos(rand() % 150 - 50, 0, rand() % 300 - 200);
         GameObject *tree = EntityFactory::createTree(world, type, randPos);
         

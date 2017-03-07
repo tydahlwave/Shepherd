@@ -32,6 +32,7 @@ public:
     static Model *tree3;
     static Model *tree4;
     static Model *tree5;
+    static Model *tree6;
     static Model *player;
     static Model *gadget;
     static Model *sheep;

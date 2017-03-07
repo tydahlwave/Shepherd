@@ -408,6 +408,26 @@ GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
     GameObject *gameObject = world->CreateGameObject("Tree");
     gameObject->isSerializable = true;
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    switch (type) {
+        case 0:
+            meshRenderer->model = ModelLibrary::tree1;
+            break;
+        case 1:
+            meshRenderer->model = ModelLibrary::tree2;
+            break;
+        case 2:
+            meshRenderer->model = ModelLibrary::tree3;
+            break;
+        case 3:
+            meshRenderer->model = ModelLibrary::tree4;
+            break;
+        case 4:
+            meshRenderer->model = ModelLibrary::tree5;
+            break;
+        default:
+            meshRenderer->model = ModelLibrary::tree5;
+            break;
+    }
 //    meshRenderer->model = (type == 0) ? ModelLibrary::tree1 : (type == 1) ? ModelLibrary::tree2 : ModelLibrary::tree3;
     meshRenderer->model = (type == 0) ? ModelLibrary::tree2 : ModelLibrary::tree3;
     meshRenderer->shader = ShaderLibrary::cell;
