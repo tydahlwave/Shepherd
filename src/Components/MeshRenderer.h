@@ -24,6 +24,7 @@ public:
     Shader *shader = nullptr;
     Material *material = nullptr;
     Texture *texture = nullptr;
+	bool draw = true;
     
     void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) {
         

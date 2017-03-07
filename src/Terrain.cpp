@@ -296,7 +296,10 @@ void Terrain::draw(Program *prog) const {
     // Draw
     glDrawElements(GL_TRIANGLE_STRIP, (int)eleBuf.size(), GL_UNSIGNED_INT, (const void *)0);
     GLenum err_code = glGetError();
-    if (err_code != 0) std::cout << "Terrain Draw Error: " << err_code << std::endl;
+	if (err_code != 0) {
+		std::cout << "Terrain Draw Error: " << err_code << std::endl;
+		//printf("%s\n", gluErrorString(err_code));
+	}
    
     // Disable and unbind
     if(h_tex != -1) {

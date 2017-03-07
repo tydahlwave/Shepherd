@@ -51,9 +51,10 @@ void Physics::UpdateBulletPhysics(float deltaTime, World &world) {
 //            btMatrix3x3 mat = form->getBasis();
 //            mat.getEulerYPR(yaw, pitch, roll);
 
-            btVector3 rot = form->getRotation().getAngle() * (form->getRotation().getAxis());
-            
-            go->transform->SetRotation(glm::vec3(glm::degrees(rot.x()),glm::degrees(rot.y()),glm::degrees(rot.z())));
+            if(go->name != "Camera") {
+                btVector3 rot = form->getRotation().getAngle() * (form->getRotation().getAxis());
+                go->transform->SetRotation(glm::vec3(glm::degrees(rot.x()),glm::degrees(rot.y()),glm::degrees(rot.z())));
+            }
         }
         
     }

@@ -108,6 +108,7 @@ vec4 getColor() {
     //    color = vec4(heightColor*modelN.y + randIntensity, 1.0);
     //    color = vec4(textureColor*modelN.y, 1.0);
     return vec4(textureColor*modelN.y, 1.0);
+//    return vec4(heightColor*modelN.y + randIntensity, 1.0);
 }
 
 vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {

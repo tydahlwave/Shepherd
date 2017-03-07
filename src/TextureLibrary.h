@@ -18,6 +18,9 @@ public:
     static Texture *grass;
     static Texture *mountain;
     static Texture *snow;
+	static Texture *startButton;
+	static Texture *quitButton;
+
 };
 
 #endif /* Texture_h */

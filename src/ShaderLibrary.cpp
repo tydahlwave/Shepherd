@@ -12,8 +12,10 @@
 Shader *ShaderLibrary::phong = nullptr;
 Shader *ShaderLibrary::textured = nullptr;
 Shader *ShaderLibrary::hud = nullptr;
+Shader *ShaderLibrary::hud2 = nullptr;
 Shader *ShaderLibrary::cell = nullptr;
 Shader *ShaderLibrary::chargeBar = nullptr;
+Shader *ShaderLibrary::clickable = nullptr;
 Shader *ShaderLibrary::ground = nullptr;
 Shader *ShaderLibrary::menu = nullptr;
 Shader *ShaderLibrary::skybox = nullptr;
@@ -72,7 +74,31 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
     hud = new Shader(program);
-    
+
+	program = new Program();
+	program->setVerbose(true);
+	program->setShaderNames(resourceDir + "hud2_vert.glsl", resourceDir + "hud2_frag.glsl");
+	program->init();
+	program->addUniform("P");
+	program->addUniform("M");
+	program->addUniform("V");
+	program->addUniform("ButtonTexture");
+	program->addAttribute("vertPos");
+	program->addAttribute("vertNor");
+	hud2 = new Shader(program);
+
+	program = new Program();
+	program->setVerbose(true);
+	program->setShaderNames(resourceDir + "click_vert.glsl", resourceDir + "click_frag.glsl");
+	program->init();
+	program->addUniform("P");
+	program->addUniform("M");
+	program->addUniform("V");
+	program->addUniform("PickingColor");
+	program->addAttribute("vertPos");
+	program->addAttribute("vertNor");
+	clickable = new Shader(program);
+
     program = new Program();
     program->setVerbose(true);
     program->setShaderNames(resourceDir + "toon_cell_vert.glsl", resourceDir + "toon_cell_frag.glsl");

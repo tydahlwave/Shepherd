@@ -11,6 +11,7 @@
 #include "Components/Collider.h"
 #include "Components/Camera.h"
 #include "Components/MeshRenderer.h"
+#include "Components/HUDRenderer.h"
 #include "Components/RigidBody.h"
 #include "Components/TerrainRenderer.h"
 #include "Components/PathRenderer.h"
@@ -129,6 +130,18 @@ GameObject *EntityFactory::createTitle(World *world) {
 	mesh->shader = ShaderLibrary::menu;
 	gameObject->transform->SetPosition(glm::vec3(0.f, .5f, 2.f));
 	gameObject->transform->SetRotation(glm::vec3(0.f, 180.f, 0.f));
+
+	return gameObject;
+}
+
+GameObject *EntityFactory::createHUD2(World *world) {
+	GameObject *gameObject = world->CreateGameObject("HUD2");
+	HUDRenderer *hd = (HUDRenderer*)gameObject->AddComponent("HudRenderer");
+	gameObject->AddComponent("Clickable");
+	hd->model = ModelLibrary::button;
+	hd->shader = ShaderLibrary::hud2;
+	//gameObject->transform->SetPosition(glm::vec3(.5f, .5f, 0.f)); //moves to center
+	//gameObject->transform->SetScale(glm::vec3(100.f, 50.f, 00.f)); //makes 100px wide / 50px tall
 
 	return gameObject;
 }

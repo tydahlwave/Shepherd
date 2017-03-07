@@ -14,8 +14,10 @@
 #include "GameController.h"
 #include "PhysicsController.h"
 #include "TerrainController.h"
+#include "Components/Button.h"
 #include "Components/RigidBody.h"
 #include "Components/TerrainRenderer.h"
+#include "Components/HUDRenderer.h"
 #include "Components/Light.h"
 #include "Terrain.h"
 #include "BunnySpawnSystem.h"
@@ -30,6 +32,7 @@
 #include "Components/MeshRenderer.h"
 #include "Components/PathRenderer.h"
 #include "Serializer.h"
+#include "Components/Clickable.h"
 #include "LevelEditor.h"
 
 #include "imgui/imgui.h"
@@ -105,6 +108,9 @@ void GameController::ImguiUpdate(World *world) {
 
 void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
     TerrainRenderer *terrainRenderer = (TerrainRenderer*)terrain->GetComponent("TerrainRenderer");
+	if (!terrainRenderer)
+		return;
+    TextureLoader *textureTest = terrainRenderer->terrain->getTexture();
 	// 1. Show a simple window
 	// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
 	{
@@ -143,14 +149,6 @@ void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
 }
 
 void GameController::Init(std::string resourceDir) {
-	/*world = World();
-	printf("world generated\n");
-	window = Window(&world);
-	printf("window generated\n");
-	physics = Physics();
-	printf("phys generated\n");
-	renderer = Renderer();
-	printf("rend generated\n");*/
 	
 	//initialize audio engine
 	audio = CAudioEngine::instance();
@@ -171,6 +169,8 @@ void GameController::Run() {
     
 	while (state != Close) {
 		LoadState();
+
+		window.checkMouse();
 		// Seed random generator
 		srand(time(0));
 
@@ -186,7 +186,7 @@ void GameController::Run() {
 
 		// Game loop
 		while (state == nextState) {
-            sign->transform->SetRotation(vec3(0,180,cos(Time::Now() / 1000.0) * 2));
+            if (state == MainMenu) sign->transform->SetRotation(vec3(0,180,cos(Time::Now() / 1000.0) * 2));
             //sign->transform->SetPosition(vec3(0,sin(Time::Now() / 2000.0) * .02 + .5 ,2));
 			long curTime = Time::Now();
 			float elapsedTime = (curTime - oldTime) / 1000.0f;
@@ -214,13 +214,14 @@ void GameController::Run() {
             displayStats(elapsedTime, world, physics);
             
 		}
+		UnloadState();
 		state = nextState;
 	}
 }
 
 void GameController::LoadState() {
 	Window::DeleteCallbackDelegates();
-	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)this);
+	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)this, 0);
 
 	audio->toggleSound(gameMusic, true);
 	world.ClearGameObjects();
@@ -231,10 +232,35 @@ void GameController::LoadState() {
         std::cout<<"play menu";
         
 		cameraController = new CameraController();
-		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
+		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController, 1);
 
 		//load sign
         sign = EntityFactory::createTitle(&world);
+		//load enterbutton
+		GameObject *startButton = EntityFactory::createHUD2(&world);
+		startButton->transform->SetPosition(glm::vec3(0.5f, 0.7f, 0));
+		startButton->transform->SetScale(glm::vec3(70.f, 30.f, 0.f));
+		Button * bt = (Button *)(startButton->AddComponent("Button"));
+		bt->callback = &GameController::incrState;
+		HUDRenderer *hr = (HUDRenderer *)(startButton->GetComponent("HudRenderer"));
+		hr->texture = TextureLibrary::startButton;
+		
+		GameObject *startButton2 = EntityFactory::createHUD2(&world);
+		startButton2->transform->SetPosition(glm::vec3(0.5f, 0.8f, 0));
+		startButton2->transform->SetScale(glm::vec3(70.f, 30.f, 0.f));
+		bt = (Button *)(startButton2->AddComponent("Button"));
+		bt->callback = &GameController::endState;
+		hr = (HUDRenderer *)(startButton2->GetComponent("HudRenderer"));
+		hr->texture = TextureLibrary::quitButton;
+
+		/*
+		GameObject *startButton3 = EntityFactory::createHUD2(&world);
+		startButton3->transform->SetPosition(glm::vec3(0.8f, 0.5f, 0));
+		startButton3->transform->SetScale(glm::vec3(70.f, 30.f, 0.f));
+		*/
+		window.drawMouse = true;
+
+		world.mainCamera = EntityFactory::createMainCamera(&world);
         //Create skybox
         //GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);
         
@@ -258,15 +284,15 @@ void GameController::LoadState() {
 		bunnySpawnSystem = new BunnySpawnSystem();
 		wolfSystem = new WolfSystem();
 		treeSystem = new TreeSystem();
-
+		printf("Loading level 1\n");
         audio->toggleSound(gameMusic, true);
 		gameMusic = audio->PlaySound("back.wav");
         audio->SetChannelvolume(gameMusic, 2);
-		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
-		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
-		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)terrainController);
-		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)bunnySpawnSystem);
-		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)characterController);
+		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController, 1);
+		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController, 1);
+		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)terrainController, 1);
+		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)bunnySpawnSystem, 1);
+		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)characterController, 1);
         Window::AddImguiUpdateDelegate(this);
 
 
@@ -322,6 +348,35 @@ void GameController::LoadState() {
 	}
 }
 
+void GameController::UnloadState() {
+	Window::DeleteCallbackDelegates();
+	Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)this, 0);
+
+	audio->toggleSound(gameMusic, true);
+	world.ClearGameObjects();
+	if (bunnySpawnSystem) {
+		delete bunnySpawnSystem;
+		bunnySpawnSystem = nullptr;
+	}
+	if (wolfSystem) {
+		delete wolfSystem;
+		wolfSystem = nullptr;
+	}
+	if (characterController) {
+		delete characterController;
+		characterController = nullptr;
+	}
+	if (terrainController) {
+		delete terrainController;
+		terrainController = nullptr;
+	}
+	if (physicsController) {
+		delete physicsController;
+		physicsController = nullptr;
+	}
+	window.drawMouse = false;
+}
+
 
 void GameController::randomlyPopulateWithBoulders() {
 	for (int i = 0; i < 15; i++) {
@@ -347,12 +402,36 @@ void GameController::KeyPressed(World *world, int windowWidth, int windowHeight,
 		nextState = Close;
     if (key == GLFW_KEY_P && action == GLFW_PRESS)
         Serializer::SerializeWorld(world);
+	if (key == GLFW_KEY_F1 && action == GLFW_PRESS)
+		nextState = MainMenu;
 }
 void GameController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {
+	//printf("mousemoving!");
 }
-void GameController::MouseClicked(World *world, double mouseX, double mouseY, int key, int action) {
+void GameController::MouseClicked(World *world2, double mouseX, double mouseY, int key, int action) {
+	if (window.drawMouse == true) {
+		int id = renderer.checkClickable(world, window, mouseX, mouseY);
+		for (GameObject *go : world.GetGameObjects()) {
+			Clickable *cl = (Clickable *)go->GetComponent("Clickable");
+			if (!cl || cl->id != id)
+				continue;
+			Button *b = (Button *)go->GetComponent("Button");
+			if (!b || !b->callback)
+				continue;
+			ButtonFunc bf = b->callback;
+			(this->*bf)();
+		}
+	}
 } 
 void GameController::MouseScrolled(World *world, double dx, double dy) {
 }
 
+int GameController::incrState() {
+	nextState = static_cast<State>(state + 1);
+	return nextState;
+}
 
+int GameController::endState() {
+	nextState = State::Close;
+	return nextState;
+}

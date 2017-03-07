@@ -109,11 +109,11 @@ int main(int argc, char **argv) {
     ShaderLibrary::LoadShaders(resourceDir);
     TextureLibrary::LoadTextures(resourceDir);
     MaterialLibrary::InitializeMaterials();
-    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController);
-    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
-    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController);
-//    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&playerController);
-//    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController);
+    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController, 1);
+    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController, 1);
+    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController, 1);
+//    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&playerController, 1);
+//    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController, 1);
     Window::AddImguiUpdateDelegate((ImguiUpdateDelegate*)&terrainController);
     CAudioEngine::instance()->Init();
     CAudioEngine::instance()->LoadSounds(resourceDir);
@@ -158,8 +158,8 @@ int main(int argc, char **argv) {
             if (!playerControllersLinked) {
                 playerControllersLinked = true;
                 physics.enabled = true;
-                Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&playerController);
-                Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController);
+                Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&playerController, 1);
+                Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController, 1);
             }
             playerController.Update(world);
         } else {

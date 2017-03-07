@@ -26,6 +26,12 @@ void Model::draw(Program *shader) {
     }
 }
 
+void Model::drawHud(Program *shader) {
+	for (auto i = 0; i < this->meshes.size(); i++) {
+		this->meshes[i].drawHud(shader);
+	}
+}
+
 void Model::loadModel(std::string path) {
     // Load model using Assimp
     Assimp::Importer import;

@@ -11,6 +11,7 @@
 Model *ModelLibrary::bunny = nullptr;
 Model *ModelLibrary::cube = nullptr;
 Model *ModelLibrary::plane = nullptr;
+Model *ModelLibrary::button = nullptr;
 Model *ModelLibrary::sphere = nullptr;
 Model *ModelLibrary::sphere_textured = nullptr;
 Model *ModelLibrary::boulder1 = nullptr;
@@ -33,6 +34,7 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
     bunny           = new Model(resourceDir + "bunny.obj");
     cube            = new Model(resourceDir + "cube.obj");
     plane           = new Model(resourceDir + "plane.obj");
+	button			= new Model(resourceDir + "button.obj");
     sphere          = new Model(resourceDir + "sphere.obj");
     sphere_textured = new Model(resourceDir + "sphere_textured.obj");
     boulder1        = new Model(resourceDir + "Boulder1.obj");

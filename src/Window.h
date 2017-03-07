@@ -34,7 +34,7 @@ public:
     static bool drawGUI;
     static bool drawMouse;
     static bool drawWireframes;
-    static bool drawAABBs;
+	static bool drawAABBs;
     
     int Initialize();
     void Terminate();
@@ -46,12 +46,14 @@ public:
     bool ShouldClose();
     void SwapBuffers();
     void PollEvents();
+	void checkMouse();
+
     void UpdateImgui();
     static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
     static void MouseMoveCallback(GLFWwindow *window, double posX, double posY);
     static void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 	static void MouseScrollCallback(GLFWwindow *window, double dx, double dy);
-    static void AddWindowCallbackDelegate(WindowCallbackDelegate *delegate);
+    static void AddWindowCallbackDelegate(WindowCallbackDelegate *delegate, int type);
     static void AddImguiUpdateDelegate(ImguiUpdateDelegate *delegate);
 	static void DeleteCallbackDelegates();
 private:
