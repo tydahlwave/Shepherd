@@ -25,7 +25,7 @@
 #endif
 
 World* Window::world = nullptr;
-bool Window::drawGUI = true;
+bool Window::drawGUI = false;
 bool Window::drawMouse = false;
 bool Window::drawWireframes = false;
 bool Window::drawAABBs = false;

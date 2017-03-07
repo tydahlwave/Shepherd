@@ -333,14 +333,14 @@ void GameController::LoadState() {
 
 
 		world.mainCamera = EntityFactory::createMainCamera(&world);
-		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera);
+        world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera, glm::vec3(60, -20, 40));
         world.cameraController = (GameObject*)cameraController;
 
         //Create skybox
         GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);
         
 		// Create terrain
-		terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, 0, 0));
+		terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 541, glm::vec3(0, 0, 0));
 		terrain->transform->SetScale(glm::vec3(5, 5, 5));
 		
 		//create skybox
