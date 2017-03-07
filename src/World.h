@@ -39,6 +39,7 @@ public:
     
     GameObject *mainCharacter = nullptr;
 	GameObject *mainCamera = nullptr;
+    GameObject *cameraController = nullptr;
     
     btDiscreteDynamicsWorld *dynamicsWorld;
     

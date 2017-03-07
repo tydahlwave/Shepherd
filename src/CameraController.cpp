@@ -10,6 +10,7 @@
 #include "Components/Camera.h"
 #include "Components/MeshRenderer.h"
 #include "Components/RigidBody.h"
+#include "Time.h"
 
 #include <iostream>
 #include <GLFW/glfw3.h>
@@ -46,7 +47,30 @@ void CameraController::Update(World &world) {
 	}
 	camera->yaw = glm::radians(camera->aap);
 	camera->pos = pos;
-	camera->lookAt = camera->pos + glm::vec3(sin(camera->yaw), sin(glm::radians(camera->pitch)), cos(camera->yaw));
+    float xAdjustment = 0;
+    float yAdjustment = 0;
+    if(shakesRemaining > 0)
+    {
+        float shakeFreqX = 20;
+        float shakeFreqY = .5;
+        float shakeFreqY2 = 25;
+        float shakeSizeX = .5;
+        float shakeSizeY = .5;
+        float shakeSizeY2 = 5;
+        float t = Time::Now();
+        xAdjustment = sin( t*shakeIntensity ) / 50;
+        yAdjustment = sin( t*shakeIntensity ) / 75 + cos( t * shakeFreqY2 ) / 20;
+
+        shakesRemaining--;
+    }
+    
+	camera->lookAt = camera->pos + glm::vec3(sin(camera->yaw) + xAdjustment, sin(glm::radians(camera->pitch)) + yAdjustment, cos(camera->yaw));
+}
+
+void CameraController::BeginShaking(int framesToShake, float intensity)
+{
+    shakesRemaining = framesToShake;
+    shakeIntensity = intensity;
 }
 
 

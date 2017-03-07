@@ -319,6 +319,7 @@ void GameController::LoadState() {
 
 		world.mainCamera = EntityFactory::createMainCamera(&world);
 		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera);
+        world.cameraController = (GameObject*)cameraController;
 
         //Create skybox
         GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);

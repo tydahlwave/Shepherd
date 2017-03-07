@@ -24,10 +24,13 @@ public:
     void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY);
     void MouseClicked(World *world, double mouseX, double mouseY, int key, int action);
 	void MouseScrolled(World *world, double dx, double dy);
+    void BeginShaking(int framesToShake, float intensity);
 private:
 //    float alpha = -M_PI/2;
 //    float beta = -M_PI/2*3;
 	glm::vec2 mousePrev = { 0.f, 0.f };
+    int shakesRemaining = 0;
+    float shakeIntensity = 0;
 //	float rfactor = .01;
 };
 
