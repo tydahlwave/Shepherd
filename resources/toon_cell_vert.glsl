@@ -2,6 +2,7 @@
 #version 330
 layout(location = 0) in vec4 vertPos;
 layout(location = 1) in vec3 vertNor;
+layout(location = 2) in vec2 vertTex;
 uniform mat4 P;
 uniform mat4 M;
 uniform mat4 V;
@@ -18,6 +19,7 @@ out VS_OUT {
     vec3 vertNor;
     vec3 viewNor;
     vec3 modelPos;
+    vec2 vertTex;
 } vs_out;
 
 
@@ -33,5 +35,6 @@ void main()
     vs_out.viewNor = -(V * M * vertPos).xyz;
     
     vs_out.modelPos = (M * vertPos).xyz;
+    vs_out.vertTex = vertTex;
     
 }

@@ -53,7 +53,7 @@ public:
 	void MouseClicked(World *world, double mouseX, double mouseY, int key, int action);
 	void MouseScrolled(World *world, double dx, double dy);
     void ImguiUpdate(World *world);
-	void randomlyPopulateWithBoulders();
+	void randomlyPopulateWithBoulders(Path *path);
 	int incrState();
 	int endState();
 private:

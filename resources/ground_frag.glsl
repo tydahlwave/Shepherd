@@ -75,19 +75,19 @@ vec4 getColor() {
     float heightValue = (facePos.y/terrainScale.y-terrainMin) / (terrainMax-terrainMin);
     vec3 heightColor = vec3(221/255.0f, 221/255.0f, 228/255.0f);
     vec3 textureColors[4] = vec3[](
-    texture(Grass, vertPos.xz).xyz,
-    texture(Grass, vertPos.xz).xyz,
-    texture(Mountain, vertPos.xz).xyz,
-    texture(Snow, vertPos.xz).xyz
+    texture(Grass, vertPos.xz / 3).xyz,
+    texture(Grass, vertPos.xz / 3).xyz,
+    texture(Mountain, vertPos.xz / 3).xyz,
+    texture(Snow, vertPos.xz / 3).xyz
     );
     vec3 textureColor = textureColors[3];
     
     for (int i = 0; i < NumRegions; i++) {
         float height = regions[i];
         if (heightValue <= height) {
-            if (i <= 1) textureColor = texture(Grass, vertPos.xz).xyz;
-            else if (i == 2) textureColor = texture(Mountain, vertPos.xz).xyz;
-            else textureColor = texture(Snow, vertPos.xz).xyz;
+            if (i <= 1) textureColor = texture(Grass, vertPos.xz / 3).xyz;
+            else if (i == 2) textureColor = texture(Mountain, vertPos.xz / 3).xyz;
+            else textureColor = texture(Snow, vertPos.xz / 3).xyz;
             if (i > 0) {
                 float prevHeight = regions[i-1];
                 float heightDist = height - prevHeight;

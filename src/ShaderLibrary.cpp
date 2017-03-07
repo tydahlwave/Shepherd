@@ -110,6 +110,7 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("V");
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
+    program->addAttribute("vertTex");
     program->addUniform("numLights");
     for(int i = 0; i < MAX_NUM_LIGHTS; i++) {
         std::string uniformName = ConstructLightUniformName("position", i);
@@ -129,6 +130,8 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("matSpecularColor");
     program->addUniform("matAmbientColor");
     program->addUniform("matShine");
+    program->addUniform("myTexture");
+    program->addUniform("useTexture");
     cell = new Shader(program);
     
     program = new Program();

@@ -313,8 +313,8 @@ glm::vec3 BunnySpawnSystem::FollowPath(World *world, GameObject *bunny) {
                 bunnyNode[bunny] = bunnyNode[bunny] + 1;
 
                 if (bunnyNode[bunny] >= (*path).size) {
-//                    bunnyNode[bunny] = 0; //to loop around path
-                    bunnyNode[bunny] = (*path).size - 1;
+                    bunnyNode[bunny] = 0; //to loop around path
+//                    bunnyNode[bunny] = (*path).size - 1;
                 }
 //            }
 		}
