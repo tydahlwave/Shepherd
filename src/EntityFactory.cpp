@@ -255,8 +255,6 @@ GameObject *EntityFactory::createPhysicsGround(World *world) {
     return gameObject;
 }
 
-//GameObject *EntityFactory::createBoulder(World *world, int boulderType, float radius, vec3 position)
-
 GameObject *EntityFactory::createBoulder(World *world, int boulderType, float radius, vec3 position) {
     GameObject *gameObject = world->CreateGameObject("Boulder");
     gameObject->isSerializable = true;

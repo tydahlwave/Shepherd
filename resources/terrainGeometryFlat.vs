@@ -8,6 +8,8 @@ out vec3 facePos;
 out vec3 modelNor;
 out vec3 vertNor;
 out vec3 viewNor;
+out vec3 modelPos;
+out vec3 modelNor;
 
 in VS_OUT {
     vec3 fragPos;
@@ -15,7 +17,10 @@ in VS_OUT {
     vec3 modelNor;
     vec3 vertNor;
     vec3 viewNor;
+    vec3 modelPos;
+    vec3 modelNor;
 } gs_in[];
+
 
 void makeTriangle() {
     vec3 facePosition = (gs_in[0].vertPos + gs_in[1].vertPos + gs_in[2].vertPos) / 3;
@@ -30,6 +35,8 @@ void makeTriangle() {
 //        modelNor = faceModelNormal;
         vertNor = faceNormal;
         viewNor = gs_in[i].viewNor;
+        modelPos = gs_in[i].modelPos;
+        modelNor = gs_in[i].modelNor;
         EmitVertex();
     }
     EndPrimitive();

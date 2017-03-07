@@ -33,6 +33,9 @@ in vec3 modelNor;
 in vec3 vertNor;
 in vec3 viewNor;
 
+in vec3 modelPos;
+in vec3 modelNor;
+
 out vec4 color;
 
 //helper
@@ -114,12 +117,12 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     float attenuation = 1.0;
     if(light.position.w == 0.0) {
         //directional light
-        lightN = normalize(lightPos);
+        lightN = normalize(light.position.xyz);
         attenuation = 1.0; //no attenuation for directional lights
     } else {
         //point light
-        lightN = normalize(lightPos - fragPos);
-        float distanceToLight = length(lightPos - fragPos);
+        lightN = normalize(light.position.xyz - modelPos);
+        float distanceToLight = length(light.position.xyz - modelPos);
 
         //attenuation = 1.0 / (1.0 + light.attenuation * pow(distanceToLight, 2.0));
         attenuation = clamp( 10.0 / (1.0 + light.attenuation * distanceToLight), 0.0, 1.0);
@@ -190,10 +193,12 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     //vec3 diffuse = matDiffuseColor * df;
     
     //specular
-    float alpha = matShine;
-    vec3 halfValue = normalize(viewN + lightN);
-    vec3 specular = vec3(0);//sf * specularColor * pow(max(dot(vertexN, halfValue), 0), alpha) * light.intensities;
-    //vec3 specular = matSpecularColor  * sf;
+    vec3 specular;
+//    float alpha = matShine;
+//    vec3 halfValue = normalize(viewN + lightN);
+//    vec3 specular = sf * matSpecularColor * pow(max(dot(vertexN, halfValue), 0), alpha) * light.intensities;
+    //specular = matSpecularColor  * sf;
+    specular = vec3(0);
     
     //linear color (color before gamma correction)
     return ambient + attenuation*(diffuse + specular);
@@ -203,7 +208,7 @@ void main() {
 //    color = getColor();
 
     // Normalize the vectors
-    vec3 vertexN = normalize(vertNor);
+    vec3 vertexN = normalize(modelNor);
     vec3 viewN = normalize(viewNor);
     //combine color from all the lights
     vec3 linearColor = vec3(0);
@@ -213,10 +218,5 @@ void main() {
     }
     
     float edgeDetection = (dot(viewN, vertexN) > 0.3) ? 1 : 0;
-    
-    //color = vec4(edgeDetection*linearColor, 1.0);
     color = vec4(linearColor, 1.0);
-    //final color (after gamma correction)
-    //vec3 gamma = vec3(1.0/2.2);
-    //color = vec4(pow(totalPhong, gamma), 1.0);
 }
