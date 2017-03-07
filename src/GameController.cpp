@@ -3,7 +3,7 @@
 #include <ctime>
 
 #include "Mesh.h"
-#include "Texture.h"
+#include "TextureLibrary.h"
 #include "Material.h"
 #include "Shader.h"
 #include "EntityFactory.h"
@@ -23,23 +23,20 @@
 #include "WolfSystem.h"
 #include "AudioEngine.h"
 #include "TreeSystem.h"
-#include "TextureLoader.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
+#include "TextureLoader.h"
 #include "Time.h"
 #include "Components/MeshRenderer.h"
 #include "Components/PathRenderer.h"
 #include "Serializer.h"
 #include "Components/Clickable.h"
+#include "LevelEditor.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
 #include "Path.h"
-
-#define SIMPLEX_TERRAIN 0
-#define DIAMOND_SQUARE_TERRAIN 1
-
 
 void GameController::displayStats(float deltaTime, World &world, Physics &physics) {
 	static float elapsedTime = 0.5;
@@ -103,19 +100,9 @@ bool show_test_window = true;
 bool show_another_window = true;
 ImVec4 clear_color = ImColor(114, 144, 154);
 
-void GameController::drawImGUIStuff(Window &window, GameObject *terrain) {
-    
-    // Prevent gui from being drawn in wireframe mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    
-    ImGui_ImplGlfwGL3_NewFrame();
-    
+void GameController::ImguiUpdate(World *world) {
     if(terrain) drawTerrainWindow(window, terrain);
-    drawLevelEditor(window);
-    ImGui::Render();
-    
-    // Revert wireframe mode to how it was
-    glPolygonMode(GL_FRONT_AND_BACK, window.drawWireframes ? GL_LINE : GL_FILL);
+    LevelEditor::drawLevelEditor(window, world);
 }
 
 void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
@@ -154,135 +141,11 @@ void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
 		ImGui::Begin("Terrain Settings");
 		ImVec2 uv0 = ImVec2(0, 0);
 		ImVec2 uv1 = ImVec2(1, 1);
-		ImGui::Image((void*)textureTest->getTextureId(), ImVec2(128, 128), uv0, uv1, ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
+		ImGui::Image((void*)(size_t)terrainRenderer->terrain->getTexture()->getTextureId(), ImVec2(128, 128), uv0, uv1, ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
 		ImGui::End();
 	}
 
 }
-
-void GameController::drawLevelEditor(Window &window) {
-
-    {
-        ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
-        ImGui::Begin("Object Creation Tool");
-        static GameObject *mostRecentlyPlacedGameObject = nullptr;
-        static int item = 0;
-        static float position[3] = { 0.f, 0.f, 0.f };
-        static float rotation[3] = { 0.f, 0.f, 0.f };
-        static float scale = 1.f;
-        static int type = 0;
-        static bool isStatic = false;
-        
-        //for lights
-        static bool isDirectional = false;
-        static float intensities[3] = { 1.f, 1.f, 1.f };
-        static float attenuation = 0.1;
-        static float ambientCoefficient = 0.15;
-        static float coneAngle = 360;
-        static float coneDirection[3] = { 0.f, 1.f, 0.f };
-        
-        const char* items[] = {"Sphere", "Boulder", "Tree", "Light"};
-        if (ImGui::Combo("Objects", &item, items, 4)) {
-            
-        }
-        if (ImGui::Button("Add Item") && !mostRecentlyPlacedGameObject) {
-            if(item == 0) {
-                mostRecentlyPlacedGameObject = EntityFactory::createSphere(&world, 2, vec3(0), 2);
-            }
-            if(item == 1) {
-                type = rand() % 3;
-                mostRecentlyPlacedGameObject = EntityFactory::createBoulder(&world, type, 1, vec3(0));
-            }
-            if(item == 2) {
-                type = (rand() % 2) + 1;
-                mostRecentlyPlacedGameObject = EntityFactory::createTree(&world, type, vec3(0));
-            }
-            if(item == 3) {
-                mostRecentlyPlacedGameObject = EntityFactory::createLight(&world, vec3(0), isDirectional, vec3(intensities[0],intensities[1],intensities[2]), attenuation, ambientCoefficient, coneAngle, vec3(coneDirection[0],coneDirection[1],coneDirection[2]));
-            }
-            //set transform
-            mostRecentlyPlacedGameObject->transform->SetPosition(vec3(position[0],position[1],position[2]));
-            mostRecentlyPlacedGameObject->transform->SetRotation(vec3(rotation[0],rotation[1],rotation[2]));
-            mostRecentlyPlacedGameObject->transform->SetScale(glm::vec3(scale));
-            //remove all physics
-            RigidBody *rb = (RigidBody *)mostRecentlyPlacedGameObject->GetComponent("RigidBody");
-            if(rb) rb->bulletRigidBody = nullptr;
-        }
-        if(item == 3) {
-            // Light menu stuff
-            ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
-            ImGui::Begin("Light Creation Tool");
-            
-            if(ImGui::Checkbox("isDirectional", &isDirectional) && mostRecentlyPlacedGameObject) {
-                Light *light = (Light *)mostRecentlyPlacedGameObject->GetComponent("Light");
-                if(light) light->isDirectional = isDirectional;
-            };
-            if (ImGui::SliderFloat3("Intensities", intensities, 0, 1) && mostRecentlyPlacedGameObject) {
-                Light *light = (Light *)mostRecentlyPlacedGameObject->GetComponent("Light");
-                if(light) light->intensities = vec3(intensities[0],intensities[1],intensities[2]);
-            };
-            if (ImGui::SliderFloat("Attenuation", &attenuation, 0, 1.0) && mostRecentlyPlacedGameObject) {
-                Light *light = (Light *)mostRecentlyPlacedGameObject->GetComponent("Light");
-                if(light) light->attenuation = attenuation;
-            };
-            if (ImGui::SliderFloat("Cone Angle", &coneAngle, 0, 360) && mostRecentlyPlacedGameObject) {
-                Light *light = (Light *)mostRecentlyPlacedGameObject->GetComponent("Light");
-                if(light) light->coneAngle = coneAngle;
-            };
-            if (ImGui::SliderFloat3("Cone Direction", coneDirection, -1, 1) && mostRecentlyPlacedGameObject) {
-                Light *light = (Light *)mostRecentlyPlacedGameObject->GetComponent("Light");
-                if(light) light->coneDirection = vec3(coneDirection[0],coneDirection[1],coneDirection[2]);
-            };
-            
-            ImGui::End();
-        }
-        if (ImGui::Button("Finalize Item") && mostRecentlyPlacedGameObject) {
-            if(!isStatic) {
-                // then add it to world without removing physics
-                if(mostRecentlyPlacedGameObject->name == "Sphere") {
-                    world.RemoveGameObject(mostRecentlyPlacedGameObject);
-                    mostRecentlyPlacedGameObject = EntityFactory::createSphere(&world, 2, vec3(position[0],position[1],position[2]), 2);
-                }
-                else if(mostRecentlyPlacedGameObject->name == "Boulder") {
-                    world.RemoveGameObject(mostRecentlyPlacedGameObject);
-                    mostRecentlyPlacedGameObject = EntityFactory::createBoulder(&world, type, 1, vec3(position[0],position[1],position[2]));
-                }
-                else if(mostRecentlyPlacedGameObject->name == "Tree") {
-                    world.RemoveGameObject(mostRecentlyPlacedGameObject);
-                    mostRecentlyPlacedGameObject = EntityFactory::createTree(&world, type, vec3(position[0],position[1],position[2]));
-                }
-                mostRecentlyPlacedGameObject->transform->SetPosition(vec3(position[0],position[1],position[2]));
-                mostRecentlyPlacedGameObject->transform->SetRotation(vec3(rotation[0],rotation[1],rotation[2]));
-                mostRecentlyPlacedGameObject->transform->SetScale(glm::vec3(scale));
-            }
-            mostRecentlyPlacedGameObject->SetIsStatic(isStatic);
-            mostRecentlyPlacedGameObject = nullptr;
-        }
-        if (ImGui::Button("Get Current Position")) {
-            GameObject *go = world.mainCamera;
-            position[0] = go->transform->GetPosition().x;
-            position[1] = go->transform->GetPosition().y;
-            position[2] = go->transform->GetPosition().z;
-        }
-        if (ImGui::DragFloat3("Position", position)) {
-            if(mostRecentlyPlacedGameObject != nullptr)
-                mostRecentlyPlacedGameObject->transform->SetPosition(vec3(position[0],position[1],position[2]));
-        }
-        if (ImGui::DragFloat3("Rotation", rotation)) {
-            if(mostRecentlyPlacedGameObject != nullptr)
-                mostRecentlyPlacedGameObject->transform->SetRotation(vec3(rotation[0],rotation[1],rotation[2]));
-        }
-        if (ImGui::DragFloat("Scale", &scale)) {
-            if(mostRecentlyPlacedGameObject != nullptr)
-                mostRecentlyPlacedGameObject->transform->SetScale(vec3(scale));
-        }
-        if (ImGui::Checkbox("Static", &isStatic)) {
-            
-        }
-        ImGui::End();
-    }
-}
-
 
 void GameController::Init(std::string resourceDir) {
 	
@@ -294,7 +157,7 @@ void GameController::Init(std::string resourceDir) {
 	// Static Initializers
 	ModelLibrary::LoadModels(resourceDir);
 	ShaderLibrary::LoadShaders(resourceDir);
-	Texture::LoadTextures(resourceDir);
+	TextureLibrary::LoadTextures(resourceDir);
 	MaterialLibrary::InitializeMaterials();
 }
 
@@ -346,7 +209,6 @@ void GameController::Run() {
 				cameraController->Update(world);
 			renderer.Render(world, window);
 			CAudioEngine::instance()->Update();
-            if(window.drawGUI) drawImGUIStuff(window, terrain);
 			window.Update();
             displayStats(elapsedTime, world, physics);
             
@@ -414,7 +276,7 @@ void GameController::LoadState() {
 		bunnySpawnSystem = new BunnySpawnSystem();
 		wolfSystem = new WolfSystem();
 		treeSystem = new TreeSystem();
-
+		printf("Loading level 1\n");
         audio->toggleSound(gameMusic, true);
 		gameMusic = audio->PlaySound("back.wav");
         audio->SetChannelvolume(gameMusic, 2);
@@ -423,6 +285,7 @@ void GameController::LoadState() {
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)terrainController, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)bunnySpawnSystem, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)characterController, 1);
+        Window::AddImguiUpdateDelegate(this);
 
 
 		world.mainCamera = EntityFactory::createMainCamera(&world);
@@ -432,8 +295,8 @@ void GameController::LoadState() {
         GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);
         
 		// Create terrain
-		terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0,80, 0));
-		terrain->transform->SetScale(glm::vec3(10, 10, 10));
+		terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0, 0, 0));
+		//terrain->transform->SetScale(glm::vec3(10, 10, 10));
 		
 		//create skybox
 		skybox = EntityFactory::createSkybox(&world, resourceDir);

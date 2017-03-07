@@ -7,6 +7,11 @@
 
 #include "glm/glm.hpp"
 
+#include "Noise/NoiseProperties.h"
+
+#define SIMPLEX_TERRAIN 0
+#define DIAMOND_SQUARE_TERRAIN 1
+
 class Program;
 class TextureLoader;
 
@@ -16,18 +21,34 @@ public:
     virtual ~Terrain();
     
     int size = 256;
-    // 0 = Simplex, 1 = Diamond-Square
-    int type = 0;
+    int max = 0;
+    int min = 0;
+    int type = SIMPLEX_TERRAIN;
+    time_t seed = 0;
     std::vector<std::vector<float>> heightMap;
-    std::vector<float> heightMapFlat;
     
     void Generate();
     void Regenerate();
+    void GenerateHeightmap(time_t seed);
+    void GenerateHeightmap(NoiseProperties &properties, time_t seed);
     void GenerateFromImage(std::string imagePath);
+    void UpdateBuffers();
+    void init();
+    void update();
+    void makeTexture();
     void draw(Program *prog) const;
     
     TextureLoader *getTexture() { return texture; };
     float getHeight(int row, int col) { return heightMap[row][col]; }
+    std::vector<float> flattenHeightMap() {
+        std::vector<float> heightMapFlat;
+        for (int i = 0; i < heightMap.size(); i++) {
+            for (int j = 0; j < heightMap[i].size(); j++) {
+                heightMapFlat.push_back(heightMap[j][i]);
+            }
+        }
+        return heightMapFlat;
+    }
 private:
     std::vector<unsigned int> eleBuf;
     std::vector<float> posBuf;
@@ -41,10 +62,10 @@ private:
     
     TextureLoader *texture;
     
-    void UpdateBuffers();
+//    void UpdateBuffers();
     void ComputeNormals();
-    void init();
-    void makeTexture();
+//    void init();
+//    void makeTexture();
 };
 
 #endif

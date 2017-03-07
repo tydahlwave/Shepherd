@@ -25,7 +25,7 @@ void CameraController::Update(World &world) {
 	//get main character's position
 	glm::vec3 pos = world.mainCamera->transform->GetPosition();
 	//get main characters rotation
-	glm::vec3 rot = world.mainCamera->transform->GetRotation();
+//	glm::vec3 rot = world.mainCamera->transform->GetRotation();
 	if (!camera->stat) {
 		if (camera->dist > 0) {
 			float offx = camera->dist * sin(glm::radians(camera->aap));

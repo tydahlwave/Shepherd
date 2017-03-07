@@ -29,7 +29,6 @@
 #include "WolfSystem.h"
 #include "AudioEngine.h"
 #include "TreeSystem.h"
-#include "TextureLoader.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"

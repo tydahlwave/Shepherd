@@ -20,6 +20,7 @@
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
+#include "TextureLibrary.h"
 #include "Terrain.h"
 #include  "Path.h"
 //#include <Bullet3Geometry>
@@ -267,8 +268,6 @@ GameObject *EntityFactory::createPhysicsGround(World *world) {
     return gameObject;
 }
 
-//GameObject *EntityFactory::createBoulder(World *world, int boulderType, float radius, vec3 position)
-
 GameObject *EntityFactory::createBoulder(World *world, int boulderType, float radius, vec3 position) {
     GameObject *gameObject = world->CreateGameObject("Boulder");
     gameObject->isSerializable = true;
@@ -309,15 +308,19 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
     renderer->terrain = new Terrain();
     renderer->terrain->size = size;
     renderer->terrain->type = type;
-    renderer->terrain->GenerateFromImage(resourceDir + "terrain9.png");
+    renderer->terrain->Generate();
+//    renderer->terrain->GenerateFromImage(resourceDir + "terrain9.png");
     renderer->shader = ShaderLibrary::ground;
     renderer->material = MaterialLibrary::grass;
+    renderer->textures.push_back(TextureLibrary::grass);
+    renderer->textures.push_back(TextureLibrary::mountain);
+    renderer->textures.push_back(TextureLibrary::snow);
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(pos.x, pos.y, pos.z));
     btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(size, size,
-                                                                              renderer->terrain->heightMapFlat.data(), 1.0f,
+                                                                              renderer->terrain->flattenHeightMap().data(), 1.0f,
                                                                               -255.0f, 255.0f, // min/max heights
                                                                               1, PHY_FLOAT,
                                                                               false);
@@ -328,6 +331,28 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
+}
+
+void EntityFactory::UpdateTerrain(World *world, GameObject *terrainObj, Terrain *terrain) {
+    RigidBody *rigidBody = (RigidBody*) terrainObj->GetComponent("RigidBody");
+    if (rigidBody) {
+        world->dynamicsWorld->removeRigidBody(rigidBody->bulletRigidBody);
+        
+        btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(terrain->size, terrain->size,
+                                                                                  terrain->flattenHeightMap().data(), 1.0f,
+                                                                                  -255.0f, 255.0f, // min/max heights
+                                                                                  1, PHY_FLOAT,
+                                                                                  false);
+        btTransform t;
+        t.setIdentity();
+        t.setOrigin(btVector3(terrainObj->transform->GetPosition().x, terrainObj->transform->GetPosition().y, terrainObj->transform->GetPosition().z));
+        btMotionState* motion = new btDefaultMotionState(t);
+        btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, collisionShape);
+        rigidBody->bulletRigidBody = new btRigidBody(info);
+        rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+        
+        world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    }
 }
 
 float getTerrainHeightForPosition(GameObject *terrainObject, Terrain *terrain, int x, int z) {

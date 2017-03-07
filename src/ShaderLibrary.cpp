@@ -152,6 +152,13 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
         uniformName = ConstructLightUniformName("coneDirection", i);
         program->addUniform(uniformName);
     }
+    program->addUniform("terrainMin");
+    program->addUniform("terrainMax");
+    program->addUniform("regions");
+    program->addUniform("regionColors");
+    program->addUniform("Grass");
+    program->addUniform("Mountain");
+    program->addUniform("Snow");
     program->addUniform("matDiffuseColor");
     program->addUniform("matSpecularColor");
     program->addUniform("matAmbientColor");

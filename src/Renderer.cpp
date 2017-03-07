@@ -35,7 +35,7 @@ Renderer::Renderer() {
 void applyProjectionMatrix(Program *program, Window &window, Camera *camera) {
     MatrixStack stack = MatrixStack();
     float aspectRatio = window.GetWidth()/(float)window.GetHeight();
-    stack.perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
+    stack.perspective(45.0f, aspectRatio, 0.01f, 5000.0f);
     glUniformMatrix4fv(program->getUniform("P"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
 
@@ -86,14 +86,14 @@ void Renderer::Initialize() {
 std::vector<LightStruct> setUpLights(World &world, Path *path) {
     std::vector<LightStruct> lights;
   
-//    LightStruct spotlight;
-//    spotlight.position = glm::vec4(-4,50,10,1);
-//    spotlight.intensities = glm::vec3(2, 2, 2); //strong white light
-//    spotlight.attenuation = 0.1f;
-//    spotlight.ambientCoefficient = 0.0f; //no ambient light
-//    spotlight.coneAngle = 45.0f;
-//    spotlight.coneDirection = glm::vec3(0,-1,0);
-//    lights.push_back(spotlight);
+    LightStruct spotlight;
+    spotlight.position = glm::vec4(-4,50,10,1);
+    spotlight.intensities = glm::vec3(2, 2, 2); //strong white light
+    spotlight.attenuation = 0.1f;
+    spotlight.ambientCoefficient = 0.0f; //no ambient light
+    spotlight.coneAngle = 45.0f;
+    spotlight.coneDirection = glm::vec3(0,-1,0);
+    lights.push_back(spotlight);
     
     // Spotlight on the player
     //    Light playerLight;
@@ -319,7 +319,11 @@ void Renderer::Render(World &world, Window &window) {
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, camera->pos);
+            if (world.mainCharacter) {
+                applyCameraMatrix(shader, camera, camera->pos);
+            } else {
+                applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            }
             applyTransformMatrix(shader, gameObject->transform);
             
             model->draw(shader);
@@ -352,8 +356,14 @@ void Renderer::Render(World &world, Window &window) {
 //            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
 //            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
 //            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
+            if (shader->hasUniform("terrainMin")) glUniform1i(shader->getUniform("terrainMin"), terrain->min + terrainRenderer->gameObject->transform->GetPosition().y);
+            if (shader->hasUniform("terrainMax")) glUniform1i(shader->getUniform("terrainMax"), terrain->max + terrainRenderer->gameObject->transform->GetPosition().y);
             
             if (shader->hasUniform("numLights")) glUniform1i(shader->getUniform("numLights"), lights.size());
+            
+            // Send terrain colors to GPU
+            if (shader->hasUniform("regions")) glUniform1fv(shader->getUniform("regions"), terrainRenderer->regions.size(), terrainRenderer->regions.data());
+            if (shader->hasUniform("regionColors")) glUniform3fv(shader->getUniform("regionColors"), terrainRenderer->regionColors.size()*3, &terrainRenderer->regionColors[0][0]);
             
             for(int i = 0; i < lights.size(); ++i){
                 std::string uniformName = ShaderLibrary::ConstructLightUniformName("position", i);
@@ -372,9 +382,19 @@ void Renderer::Render(World &world, Window &window) {
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, camera->pos);
+            if (world.mainCharacter) {
+                applyCameraMatrix(shader, camera, camera->pos);
+            } else {
+                applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            }
             applyTransformMatrix(shader, gameObject->transform);
             
+            // Bind all textures for the terrain
+            for (int i = 0; i < terrainRenderer->textures.size(); i++) {
+                glActiveTexture(GL_TEXTURE0 + i);
+                glBindTexture(GL_TEXTURE_2D, terrainRenderer->textures[i]->texID);
+                glUniform1i(shader->getUniform(terrainRenderer->textures[i]->name), i);
+            }
             terrain->draw(shader);
             
             shader->unbind();

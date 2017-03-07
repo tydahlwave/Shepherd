@@ -19,6 +19,8 @@
 #include "Components/Death.h"
 
 void Physics::Update(float deltaTime, World &world) {
+    if (!enabled) return;
+    
     for (GameObject *gameObject : world.GetGameObjects()) {
         RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
         if (rigidBody && rigidBody->useGravity && !rigidBody->isKinematic) {

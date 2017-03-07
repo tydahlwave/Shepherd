@@ -27,6 +27,7 @@ public:
     
     glm::vec3 gravity = glm::vec3(0, -100, 0);
     int bunniesCollected = 0;
+    bool enabled = true;
     
     void Update(float deltaTime, World &world);
 //    Bounds BoundsForGameObject(GameObject *gameObject);

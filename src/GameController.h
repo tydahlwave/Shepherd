@@ -5,7 +5,7 @@
 #include <cmath>
 
 #include "Mesh.h"
-#include "Texture.h"
+#include "TextureLibrary.h"
 #include "Material.h"
 #include "Shader.h"
 #include "EntityFactory.h"
@@ -23,11 +23,11 @@
 #include "WolfSystem.h"
 #include "AudioEngine.h"
 #include "TreeSystem.h"
-#include "TextureLoader.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
 #include "Time.h"
+#include "ImguiUpdateDelegate.h"
 
 enum State {
 	Close = -2,
@@ -38,9 +38,9 @@ enum State {
 	Level3 = 3,
 };
 
-class GameController : WindowCallbackDelegate {
+class GameController : WindowCallbackDelegate, ImguiUpdateDelegate {
 public:
-	GameController() : window(&world) { };
+	GameController() : window(&world, 1080, 920) { };
 	virtual ~GameController() {};
 	State state;
 	State nextState;
@@ -52,6 +52,7 @@ public:
 	void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY);
 	void MouseClicked(World *world, double mouseX, double mouseY, int key, int action);
 	void MouseScrolled(World *world, double dx, double dy);
+    void ImguiUpdate(World *world);
 	void randomlyPopulateWithBoulders();
 	int incrState();
 private:
@@ -71,7 +72,7 @@ private:
 	TreeSystem *treeSystem = nullptr;
 	GameObject *path = nullptr;
 	GameObject *terrain = nullptr;
-	GameObject *skybox = nullptr;
+//	GameObject *skybox = nullptr;
     GameObject *sign = nullptr;
 	float groundSize = 100.0f;
 	int gameMusic = 0;
@@ -79,7 +80,6 @@ private:
     void displayStats(float deltaTime, World &world, Physics &physics);
     void drawImGUIStuff(Window &window, GameObject *terrain);
     void drawTerrainWindow(Window &window, GameObject *terrain);
-    void drawLevelEditor(Window &window);
 };
 
 #endif /* CharacterController_h */

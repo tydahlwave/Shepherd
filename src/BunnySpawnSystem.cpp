@@ -147,9 +147,8 @@ glm::vec3 BunnySpawnSystem::Seek(World *world, GameObject *bunny, glm::vec3 targ
 
         angle = atan2((target - bunny->transform->GetPosition()).x, (target - bunny->transform->GetPosition()).z) * 180.0 / 3.14;
         bunny->transform->SetRotation(glm::vec3(0, angle, 0));
-
-		return steering;
     }
+    return steering;
 }
 
 void BunnySpawnSystem::Arrival(World *world, GameObject *bunny, glm::vec3 target) {
@@ -160,7 +159,11 @@ void BunnySpawnSystem::Arrival(World *world, GameObject *bunny, glm::vec3 target
 		
 	if (rigidBody) {
 		if (flockToCamera) {
-			position = world->mainCharacter->transform->GetPosition();
+            if (world->mainCharacter) {
+                position = world->mainCharacter->transform->GetPosition();
+            } else {
+                position = world->mainCamera->transform->GetPosition();
+            }
         }
         else {
 			position = target;
@@ -297,7 +300,7 @@ glm::vec3 BunnySpawnSystem::FollowPath(World *world, GameObject *bunny) {
 
 	if (path != NULL) {
 		std::vector<glm::vec3> nodes = (*path).GetNodes();
-		RigidBody *rigidBody = (RigidBody*)bunny->GetComponent("RigidBody");
+//		RigidBody *rigidBody = (RigidBody*)bunny->GetComponent("RigidBody");
 
 		target = nodes.at(bunnyNode[bunny]);
         target.y = 0;

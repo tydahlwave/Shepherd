@@ -23,6 +23,9 @@ out vec4 color;
 in vec3 vertexNormal;
 in vec3 viewNormal;
 
+in vec3 modelPos;
+in vec3 modelNor;
+
 //helper
 float stepmix(float edge0, float edge1, float E, float x)
 {
@@ -36,12 +39,12 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     float attenuation = 1.0;
     if(light.position.w == 0.0) {
         //directional light
-        lightN = normalize(lightPos);
+        lightN = normalize(light.position.xyz);
         attenuation = 1.0; //no attenuation for directional lights
     } else {
         //point light
-        lightN = normalize(lightPos - fragPos);
-        float distanceToLight = length(lightPos - fragPos);
+        lightN = normalize(light.position.xyz - modelPos);
+        float distanceToLight = length(light.position.xyz - modelPos);
         
         //attenuation = 1.0 / (1.0 + light.attenuation * pow(distanceToLight, 2.0));
         attenuation = clamp( 10.0 / (1.0 + light.attenuation * distanceToLight), 0.0, 1.0);
@@ -113,17 +116,20 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     vec3 specular = matSpecularColor  * sf;
     
     //linear color (color before gamma correction)
-    return ambient + attenuation*(diffuse + specular);
+    if (light.position.w == 0)
+        return ambient + (diffuse + specular);
+    else
+        return ambient + attenuation*(diffuse + specular);
 }
 
 
 void main()
 {
     // Normalize the vectors
-    vec3 vertexN = normalize(vertexNormal);
+    vec3 vertexN = normalize(modelNor);
     vec3 viewN = normalize(viewNormal);
     //combine color from all the lights
-    vec3 linearColor = vec3(0);
+    vec3 linearColor = matAmbientColor;//vec3(0);
     for(int i = 0; i < numLights; ++i){
         vec3 pos = vec3(V * vec4(vec3(allLights[i].position), 1));
         linearColor += ApplyLight(allLights[i], vertexN, viewN, pos);
