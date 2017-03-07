@@ -11,6 +11,7 @@
 
 #include "GameObject.h"
 #include "World.h"
+#include <cstring>
 
 class Terrain;
 class Model;
