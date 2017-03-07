@@ -28,6 +28,7 @@ Model *ModelLibrary::player = nullptr;
 Model *ModelLibrary::gadget = nullptr;
 Model *ModelLibrary::menuSign = nullptr;
 Model *ModelLibrary::lantern = nullptr;
+Model *ModelLibrary::monster = nullptr;
 
 void ModelLibrary::LoadModels(std::string resourceDir) {
     bunny           = new Model(resourceDir + "bunny.obj");
@@ -50,4 +51,6 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
     sheep           = new Model(resourceDir + "sheep.obj");
 	menuSign		= new Model(resourceDir + "title.obj");
     lantern         = new Model(resourceDir + "lantern.obj");
+    monster        = new Model(resourceDir + "monster.dae");
+    //monster        = new Model(resourceDir + "boy.dae");
 }

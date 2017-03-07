@@ -1,6 +1,9 @@
 #version 330 core
 in vec3 fragPos;
 in vec3 fragNor;
+in vec4 we;
+in vec4 id;
+
 uniform vec3 matDiffuseColor;
 uniform vec3 matSpecularColor;
 uniform vec3 matAmbientColor;
@@ -66,32 +69,32 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     
     //Stepmix!!!! for anti aliasing
     if (df > A - W && df < A + W)
-    df = stepmix(A, B, W, df);
+        df = stepmix(A, B, W, df);
     
     else if (df > B - W && df < B + W)
-    df = stepmix(B, C, W, df);
+        df = stepmix(B, C, W, df);
     
     else if (df > C - W && df < C + W)
-    df = stepmix(C, D, W, df);
+        df = stepmix(C, D, W, df);
     
     else if (df > D - W && df < D + W)
-    df = stepmix(D, E, W, df);
+        df = stepmix(D, E, W, df);
     
     else if (df > E - W && df < E + W)
-    df = stepmix(E, F, W, df);
+        df = stepmix(E, F, W, df);
     //Else regular bands
     else if (df < A)
-    df = 0.0;
+        df = 0.0;
     else if (df < B)
-    df = B;
+        df = B;
     else if (df < C)
-    df = C;
+        df = C;
     else if (df < D)
-    df = D;
+        df = D;
     else if (df < E)
-    df = E;
+        df = E;
     else
-    df = F;
+        df = F;
     //df = df * (20 / (.5 * distanceToLight));
     
     float sf = max(0.0, dot(vertexN, normalize(lightN + vec3(0,0,1))));
@@ -107,7 +110,7 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     
     //diffuse
     vec3 diffuse = matDiffuseColor * max(dot(vertexN, lightN), 0) * light.intensities * df;
-     //vec3 diffuse = matDiffuseColor * df;
+    //vec3 diffuse = matDiffuseColor * df;
     
     //specular
     float alpha = matShine;
@@ -129,14 +132,17 @@ void main()
     vec3 linearColor = vec3(0);
     for(int i = 0; i < numLights; ++i){
         vec3 pos = vec3(V * vec4(vec3(allLights[i].position), 1));
-        vec3 toAdd = ApplyLight(allLights[i], vertexN, viewN, pos);
-
-        linearColor += toAdd;
+        //vec3 toAdd = ApplyLight(allLights[i], vertexN, viewN, pos);
+        
+        //linearColor += toAdd;
     }
     
     float edgeDetection = (dot(viewN, vertexN) > 0.3) ? 1 : 0;
+    vec4 weightsColor = vec4(we.xyz,1.0);
     
-    color = vec4(edgeDetection*linearColor, 1.0);
+    color = weightsColor;
+    
+    //color = vec4(edgeDetection*linearColor, 1.0);
     //final color (after gamma correction)
     //vec3 gamma = vec3(1.0/2.2);
     //color = vec4(pow(totalPhong, gamma), 1.0);

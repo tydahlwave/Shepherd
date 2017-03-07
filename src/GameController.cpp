@@ -28,6 +28,8 @@
 #include "Time.h"
 #include "Components/MeshRenderer.h"
 #include "Components/PathRenderer.h"
+#include "Components/Animation.h"
+#include "Model.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
@@ -208,7 +210,7 @@ void GameController::Run() {
 				if (bunnySpawnSystem)
 					bunnySpawnSystem->Update(idealDeltaTime, &world, path);
 				if (wolfSystem)
-					wolfSystem->Update(idealDeltaTime, &world);
+                    wolfSystem->Update(idealDeltaTime, &world);
 				physics.Update(idealDeltaTime, world);
 				if (characterController)
 					characterController->Update(&world, idealDeltaTime);
@@ -216,6 +218,8 @@ void GameController::Run() {
 			}
 			if (cameraController)
 				cameraController->Update(world);
+            if (animSystem)
+                animSystem->Update(elapsedTime, &world);
 			renderer.Render(world, window);
 			CAudioEngine::instance()->Update();
 			if (window.drawGUI && terrain) drawTerrainWindow(window, terrain);
@@ -267,6 +271,7 @@ void GameController::LoadState() {
 		bunnySpawnSystem = new BunnySpawnSystem();
 		wolfSystem = new WolfSystem();
 		treeSystem = new TreeSystem();
+        animSystem = new AnimationSystem();
 
         audio->toggleSound(gameMusic, true);
 		gameMusic = audio->PlaySound("back.wav");
@@ -307,7 +312,22 @@ void GameController::LoadState() {
 
 		// Create trees
 		treeSystem->Spawn(&world);
-
+        
+        GameObject* test = EntityFactory::createTestAnim(&world);
+        Animation* testAnim = (Animation*) test->GetComponent("Animation");
+        testAnim->anim = true;
+        testAnim->skeleton = *ModelLibrary::monster->skeleton;
+        //static BoneAnimation Anim_Test_Walk("Walk", FramesToTime(glm::vec2(1,45)), 2);
+        //testAnim->skeleton.SetIdleAnimation(&Anim_Test_Walk);
+        //The true is for loop, and the false is for reset_to_start.
+        //testAnim->skeleton.PlayAnimation(Anim_Test_Walk,true,false);
+        
+        for(Bone b : testAnim->skeleton.bones)
+        {
+            std::cout<<"Bone "<<b.name<<std::endl;
+        }
+        
+        
 		EntityFactory::createHUD(&world);
 		EntityFactory::createChargeBar(&world);
 

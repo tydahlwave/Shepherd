@@ -32,6 +32,7 @@ public:
     static GameObject *createTree(World *world, int type, glm::vec3 pos);
 	static GameObject *createSkybox(World *world, std::string resourceDir);
 	static GameObject *upgradeCharacter(World *world, GameObject *camera);
+    static GameObject *createTestAnim(World *world);
 };
 
 #endif /* EntityFactory_h */

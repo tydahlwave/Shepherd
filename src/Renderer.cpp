@@ -17,6 +17,7 @@
 #include "Components/TerrainRenderer.h"
 #include "Components/SkyboxRenderer.h"
 #include "Components/PathRenderer.h"
+#include "Components/Animation.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
@@ -286,6 +287,31 @@ void Renderer::Render(World &world, Window &window) {
                 if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].coneAngle);
                 uniformName = ShaderLibrary::ConstructLightUniformName("coneDirection", i);
                 if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].coneDirection.x,lights[i].coneDirection.y,lights[i].coneDirection.z);
+                uniformName = ShaderLibrary::ConstructLightUniformName("coneDirection", i);
+                
+            }
+            //Pass bones into shader
+            if (shader->hasUniform("Bones")){
+                Animation* isAnim = (Animation*) gameObject->GetComponent("Animation");
+                if(isAnim)
+                {
+                    //std::cout<<"Mat size for skeleton "<<isAnim->skeleton.boneMats.size()<<std::endl;
+                    int i = 0;
+                    for(glm::mat4 m : isAnim->skeleton.boneMats)
+                    {
+                        std::cout<<"BONE #:    "<<i<<std::endl;
+                        printGLMMat4(m);
+                        i++;
+                    }
+                    
+                    
+                    glUniformMatrix4fv(shader->getUniform("Bones"), //We find the location of the gBones uniform.
+                                     //If the object is rigged...
+                            isAnim->skeleton.boneMats.size(),
+                               GL_FALSE,    //We don't need to transpose the matrices.
+                               glm::value_ptr(isAnim->skeleton.boneMats[0]));
+                }
+                
             }
 
             
@@ -296,6 +322,8 @@ void Renderer::Render(World &world, Window &window) {
             
             model->draw(shader);
             shader->unbind();
+            
+        
             
             shader->bind();
             // If want to show AABBs

@@ -91,6 +91,36 @@ GameObject *EntityFactory::createBunny(World *world) {
     return gameObject;
 }
 
+//test anim creature
+GameObject *EntityFactory::createTestAnim(World *world) {
+    GameObject *gameObject = world->CreateGameObject("Monster");
+    RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
+    rigidBody->useGravity = true;
+    //    rigidBody->isKinematic = true;
+    gameObject->AddComponent("BoxCollider");
+    gameObject->AddComponent("Animation");
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->model = ModelLibrary::monster;
+    meshRenderer->shader = ShaderLibrary::anim;
+    meshRenderer->material = MaterialLibrary::pearl;
+    btTransform t;
+    t.setIdentity();
+    t.setOrigin(btVector3(0, 20, 0));
+    btSphereShape* sphere = new btSphereShape(1000);
+    btVector3 inertia(0,0,0);
+    float mass = 100.0f;
+    if(mass != 0)
+        sphere->calculateLocalInertia(mass, inertia);
+    btMotionState* motion = new btDefaultMotionState(t);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
+    rigidBody->bulletRigidBody = new btRigidBody(info);
+    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+    
+    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    gameObject->transform->SetScale(vec3(.005,.005,.005));
+    return gameObject;
+}
+
 GameObject *EntityFactory::createWolf(World *world) {
     GameObject *gameObject = world->CreateGameObject("Wolf");
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
@@ -352,7 +382,7 @@ GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
 //    meshRenderer->model = (type == 0) ? ModelLibrary::tree1 : (type == 1) ? ModelLibrary::tree2 : ModelLibrary::tree3;
     meshRenderer->model = (type == 0) ? ModelLibrary::tree2 : ModelLibrary::tree3;
     meshRenderer->shader = ShaderLibrary::cell;
-    meshRenderer->material = MaterialLibrary::emerald;
+    meshRenderer->material = MaterialLibrary::brown;
     gameObject->AddComponent("BoxCollider");
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->isKinematic = true;

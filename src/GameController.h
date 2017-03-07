@@ -28,6 +28,7 @@
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
 #include "Time.h"
+#include "AnimationSystem.h"
 
 enum State {
 	Close = -2,
@@ -73,6 +74,7 @@ private:
     GameObject *sign = nullptr;
 	float groundSize = 100.0f;
 	int gameMusic = 0;
+    AnimationSystem *animSystem = nullptr;
     
     void displayStats(float deltaTime, World &world, Physics &physics);
 };

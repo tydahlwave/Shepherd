@@ -23,6 +23,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vecto
 //    this->setupMesh();
 }
 
+
 void Mesh::draw(Program *shader) {
     // Bind diffuse and specular textures
 //    GLuint diffuseNr = 1;
@@ -104,6 +105,20 @@ void Mesh::calculateBounds() {
 }
 
 void Mesh::setupMesh() {
+    /*
+    for(int i = 0; i < vertices.size(); i++)
+    {
+        vecWeights.push_back(vertices[i].weight[0]);
+        vecWeights.push_back(vertices[i].weight[1]);
+        vecWeights.push_back(vertices[i].weight[2]);
+        vecWeights.push_back(vertices[i].weight[3]);
+        
+        vecIDs.push_back(vertices[i].id[0]);
+        vecIDs.push_back(vertices[i].id[1]);
+        vecIDs.push_back(vertices[i].id[2]);
+        vecIDs.push_back(vertices[i].id[3]);
+    }*/
+    
     // Initialize the vertex array object
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -118,16 +133,44 @@ void Mesh::setupMesh() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
     
-    // Enable vertex attributes for pos, nor, tex
+//    for(Vertex v : vertices){
+//        std::cout<<"id 0: "<<v.id[0]<<"    weight 0 = :"<<v.weight[0]<<std::endl;
+//        std::cout<<"id 1: "<<v.id[1]<<"    weight 1 = :"<<v.weight[1]<<std::endl;
+//        std::cout<<"id 2: "<<v.id[2]<<"    weight 2 = :"<<v.weight[2]<<std::endl;
+//        std::cout<<"id 3: "<<v.id[3]<<"    weight 3 = :"<<v.weight[3]<<std::endl;
+//    }
+    
+    // Send the id data
+    /*glGenBuffers(1, &VBO_IDs);
+    glBindBuffer(GL_ARRAY_BUFFER,VBO_IDs);
+    //glBufferData(GL_ARRAY_BUFFER,vertices.size()*4*sizeof(GLint),&vecIDs[0],GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,vertices.size()*4*sizeof(GLuint),&vecIDs[0],GL_STATIC_DRAW);
+    
+    //send the weight data
+    glGenBuffers(1,&VBO_Weights);
+    glBindBuffer(GL_ARRAY_BUFFER,VBO_Weights);
+    glBufferData(GL_ARRAY_BUFFER,vertices.size()*4*sizeof(GLfloat),&vecWeights[0],GL_STATIC_DRAW);*/
+    
+    
+    
+    
+    // Enable vertex attributes for pos, nor, tex, ids, weights
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
+    glEnableVertexAttribArray(4);
     
     // Set the vertex attributes for pos, nor, tex
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, nor));
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, tex));
+    glVertexAttribIPointer(3,4,GL_INT, sizeof(Vertex), (GLvoid*)offsetof(Vertex, id));
+    glVertexAttribPointer(4,4,GL_FLOAT,GL_TRUE,sizeof(Vertex), (GLvoid*)offsetof(Vertex, weight));
+    
     
     // Unbind the vertex array
     glBindVertexArray(0);
+    
+    assert(glGetError() == GL_NO_ERROR);
 }

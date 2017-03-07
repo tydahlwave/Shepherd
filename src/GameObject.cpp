@@ -19,6 +19,7 @@
 #include "Components/SkyboxRenderer.h"
 #include "Components/Character.h"
 #include "Components/Death.h"
+#include "Components/Animation.h"
 
 GameObject::GameObject() :components() {
     name = "GameObject";
@@ -76,7 +77,10 @@ Component *GameObject::AddComponent(std::string name) {
 		}
 		else if (name.compare("Character") == 0) {
 			component = (Component *) new Character();
-		} else {
+		}
+        else if (name.compare("Animation") == 0) {
+            component = (Component *) new Animation();
+        } else {
             component = nullptr;
             std::cout << name << " component does not exist." << std::endl;
         }

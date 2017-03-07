@@ -16,6 +16,9 @@
 // Simple OpenGL Image Library
 #include "SOIL/Soil.h"
 
+std::map<std::string, Skeleton> Model::skeletonMap;
+Skeleton* Model::skeleton = nullptr;
+
 Model::Model(std::string path) {
     this->loadModel(path);
 }
@@ -29,22 +32,93 @@ void Model::draw(Program *shader) {
 void Model::loadModel(std::string path) {
     // Load model using Assimp
     Assimp::Importer import;
-    const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_FlipUVs);
+    scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_FlipUVs);
+
     
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
         return;
     }
 //    this->directory = path.substr(0, path.find_last_of('/')); // Set directory, used in locating textures
+    rootNode = scene->mRootNode;
+    recursiveNodeProcess(rootNode);
+    AnimNodeProcess();
+    globalInverseTransform = AiToGLMMat4(rootNode->mTransformation.Inverse());
+    
     
     // Process meshes
     for (auto i = 0; i < scene->mNumMeshes; i++) {
         aiMesh *mesh = scene->mMeshes[i];
         this->meshes.push_back(this->processMesh(mesh, scene));
+        
+        
+        for(int j = 0; j < scene->mMeshes[i]->mNumBones; j++)
+        {
+            std::string b_name = scene->mMeshes[i]->mBones[j]->mName.data;
+            glm::mat4 b_mat = glm::transpose(AiToGLMMat4(scene->mMeshes[i]->mBones[j]->mOffsetMatrix));
+            //glm::mat4 b_mat = AiToGLMMat4(scene->mMeshes[i]->mBones[j]->mOffsetMatrix);
+            
+            //debug
+            std::cout<<"Bone "<<j<<" "<<b_name<<std::endl;
+            std::cout<<"TRANSPOSED OFFSET"<<std::endl;
+            printGLMMat4(b_mat);
+            
+            //initial "bone"
+            Bone bone(&meshes.at(i),i,b_name,b_mat);
+            
+            //remaining bone data
+            bone.node = new aiNode(*FindAiNode(b_name));
+            
+            if(bone.node == nullptr)
+            {
+                std::cout<<"NULL NODE "+b_name<<std::endl;
+            }
+            else
+            {
+                std::cout<<"NODE Trans    "+b_name<<std::endl;
+                printGLMMat4(AiToGLMMat4((FindAiNode(b_name)->mTransformation)));
+            }
+            bone.animNode = FindAiNodeAnim(b_name);
+            
+            if(bone.animNode == nullptr)
+                std::cout<<"No Animations were found for "+b_name<<std::endl;
+            
+            //push the bone into the vector
+            bones.push_back(bone);
+        }
+        
+        //collect bone parents
+        for(int i = 0; i < bones.size(); i++)
+        {
+            std::string b_name = bones.at(i).name;
+            std::string parent_name = FindAiNode(b_name)->mParent->mName.data;
+            
+            Bone* p_bone = FindBone(parent_name);
+            
+            bones.at(i).parent_bone = p_bone;
+            
+            if(p_bone == nullptr)
+                std::cout<<"Parent Bone for "<<" does not exist (is nullptr)"<<std::endl;
+            else
+                std::cout<<b_name<<" parent is "<<parent_name<<std::endl;
+        }
+        
+        if(meshes.size() > 0){
+            skeleton = new Skeleton();
+            skeleton->Init(bones,globalInverseTransform);
+            //skeletonMap[path] = Skeleton();
+            //skeletonMap[path].Init(bones,globalInverseTransform);
+        }
+
     }
     
+    if(!scene->mMeshes[0]->HasBones())
+    {
     // Resize entire model
-    this->resize();
+        this->resize();
+    }
+    // Resize entire model
+    //this->resize();
     
     // Send mesh coords to GPU after resizing entire model
     for (auto i = 0; i < this->meshes.size(); i++) {
@@ -53,6 +127,49 @@ void Model::loadModel(std::string path) {
         mesh->setupMesh();
     }
     this->calculateBounds();
+}
+
+void Model::LoadBones(uint MeshIndex, const aiMesh* pMesh, std::vector<VertexBoneData>& boneVData)
+{
+//    for (uint i = 0 ; i < pMesh->mNumBones ; i++) {
+//        uint BoneIndex = 0;
+//        std::string BoneName(pMesh->mBones[i]->mName.data);
+//        
+//        if (boneMap.find(BoneName) == boneMap.end()) {
+//            // Allocate an index for a new bone
+//            BoneIndex = numBones;
+//            numBones++;
+//            BoneInfo bi;
+//            boneInfo.push_back(bi);
+//            boneInfo[BoneIndex].BoneOffset = AiToGLMMat4(pMesh->mBones[i]->mOffsetMatrix);
+//            boneMap[BoneName] = BoneIndex;
+//        }
+//        else {
+//            BoneIndex = boneMap[BoneName];
+//        }
+//        
+//        for (uint j = 0 ; j < pMesh->mBones[i]->mNumWeights ; j++) {
+//            uint VertexID = pMesh->mBones[i]->mWeights[j].mVertexId;
+//            float Weight  = pMesh->mBones[i]->mWeights[j].mWeight;
+//            boneVData[VertexID].AddBoneData(BoneIndex, Weight);
+//        }
+//    }    
+}
+
+void Model::ReadNodeHeirarchy(float AnimationTime, aiNode* pNode, const glm::mat4& ParentTransform)
+{
+//    std::string NodeName(pNode->mName.data);
+//    glm::mat4 NodeTransformation = AiToGLMMat4(pNode->mTransformation);
+//    mat4 GlobalTransformation = ParentTransform * NodeTransformation;
+//    
+//    if (boneMap.find(NodeName) != boneMap.end()) {
+//        uint BoneIndex = boneMap[NodeName];
+//        boneInfo[BoneIndex].FinalTransformation = globalInverseTransform * GlobalTransformation * boneInfo[BoneIndex].BoneOffset;
+//    }
+//    
+//    for (uint i = 0 ; i < pNode->mNumChildren ; i++) {
+//        ReadNodeHeirarchy(AnimationTime, pNode->mChildren[i], GlobalTransformation);
+//    }
 }
 
 void Model::resize() {
@@ -98,6 +215,10 @@ void Model::resize() {
     }
 }
 
+
+
+
+
 void Model::calculateBounds() {
     assert(this->meshes.size() > 0); // Assert model contains at least 1 mesh
     
@@ -115,6 +236,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
     std::vector<Texture2D> textures;
+    std::vector<VertexBoneData> Bones;
     
     // Process vertex positions, normals and texture coordinates
     for (auto i = 0; i < mesh->mNumVertices; i++) {
@@ -131,6 +253,69 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
             indices.push_back(face.mIndices[j]);
         }
     }
+    //populate our bone structures
+    LoadBones(0, mesh, Bones);
+    
+    
+    //Process Bones
+    if(mesh->HasBones())
+    {
+        int WEIGHTS_PER_VERTEX = 4;
+        //how many weights allowed per vertex
+        
+        int boneArraysSize = mesh->mNumVertices*WEIGHTS_PER_VERTEX;
+        //4 weights and indices
+        std::vector<int> boneIDs;
+        boneIDs.resize(boneArraysSize);
+        //4 indices per vertex
+        std::vector<float> boneWeights;
+        boneWeights.resize(boneArraysSize);
+        
+        
+        
+        //Cycle through each bone and fill arrays
+        for(int i=0;i<mesh->mNumBones;i++)
+        {
+            //i == current bone
+            
+            aiBone* aiBone = mesh->mBones[i];
+            
+            for(int j=0;j<aiBone->mNumWeights;j++)
+            {
+                aiVertexWeight weight = aiBone->mWeights[j];
+                
+                //read in the vertex weight
+                unsigned int vertexStart = weight.mVertexId * WEIGHTS_PER_VERTEX;
+                
+                //for each weight per vertex, fill ndx and weight
+                for(int k=0;k<WEIGHTS_PER_VERTEX;k++)
+                {
+                    //empty weight is unfilled
+                    if(boneWeights.at(vertexStart+k)==0)
+                    {
+                        boneWeights.at(vertexStart+k) = weight.mWeight;
+                        boneIDs.at(vertexStart+k) = i;
+                        //std::cout<<aiBone->mName.data<<" id is "<<i<<"weight is :  "<<weight.mWeight<<std::endl;
+                        
+                        vertices.at(weight.mVertexId).id[k] = i;
+                        //SETTING THE ID
+                        //AT k, OF
+                        //THE VERTEX AT THIS WEIGHT'S ID,
+                        //TO THE CURRENT BONE ID.
+                        
+                        vertices.at(weight.mVertexId).weight[k] = weight.mWeight;
+                        //SETTING THE WEIGHT
+                        //AT k, OF
+                        //THE VERTEX AT THIS WEIGHT'S ID,
+                        //TO THIS WEIGHT'S WEIGHT.
+                        break;
+                    }
+                }
+                
+            }
+        }
+    }
+    
     // Process material (diffuse and specular textures)
 //    if (scene->HasMaterials()) {
 //        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -195,3 +380,100 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 //    SOIL_free_image_data(image);
 //    return textureID;
 //}
+
+
+//NEW ANIM STUFF
+
+//recursively goes through each aiNode in the aiScene, and fills the ai_nodes vector with this aiNode.
+void Model::recursiveNodeProcess(aiNode* node)
+{
+    std::cout<<" NODE name "<<node->mName.C_Str()<<std::endl;
+    printGLMMat4(AiToGLMMat4(node->mTransformation)  );
+    
+    aiNode* placeNode = new aiNode(*node);
+    ai_nodes.push_back(placeNode);
+    
+    for(int i = 0; i < node->mNumChildren; i++)
+        recursiveNodeProcess(node->mChildren[i]);
+}
+
+//loads the entire scene’s animation data into the ai_nodes_anim vector.
+//Each mChannels in the for loop is simply an aiNodeAnim object,
+//with the keyframes of its animation, and the name of the aiNode it corresponds to.
+void Model::AnimNodeProcess()
+{
+    if(scene->mNumAnimations == 0)
+        return;
+    //collect the animations
+    for(int i = 0; i < scene->mAnimations[0]->mNumChannels; i++)
+        ai_nodes_anim.push_back(scene->mAnimations[0]->mChannels[i]);
+    
+}
+
+//scan bone vector for name
+Bone* Model::FindBone(std::string name)
+{
+    for(int i = 0; i < bones.size(); i++)
+    {
+        if(bones.at(i).name == name)
+            return &bones.at(i);
+    }
+    return nullptr;
+}
+
+//scande node vector by name
+aiNode* Model::FindAiNode(std::string name)
+{
+    for(int i = 0; i < ai_nodes.size(); i++)
+    {
+        if(ai_nodes.at(i)->mName.data == name)
+            return ai_nodes.at(i);
+    }
+    
+    return nullptr;
+}
+
+//find animation node
+aiNodeAnim* Model::FindAiNodeAnim(std::string name)
+{
+    for(int i = 0; i < ai_nodes_anim.size(); i++)
+    {
+        if(ai_nodes_anim.at(i)->mNodeName.data == name)
+            return ai_nodes_anim.at(i);
+    }
+
+    return nullptr;
+}
+
+//find bone id by name
+int Model::FindBoneIDByName(std::string name)
+{
+    for(int i = 0; i < bones.size(); i++)
+    {
+        if(bones.at(i).name == name)
+            return i;
+    }
+ 
+    return -1;
+}
+
+
+
+//unneeded yet
+void Model::recursiveProcess(aiNode* node,const aiScene* scene)
+{
+    //process
+    for(int i=0;i<node->mNumMeshes;i++)
+    {
+        aiMesh* mesh=scene->mMeshes[node->mMeshes[i]];
+        processMesh(mesh,scene);
+    }
+    
+    
+    
+    //recursion
+    for(int i=0;i<node->mNumChildren;i++)
+    {
+        recursiveProcess(node->mChildren[i],scene);
+    }
+}
