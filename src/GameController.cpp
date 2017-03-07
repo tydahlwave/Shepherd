@@ -340,7 +340,7 @@ void GameController::LoadState() {
         GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);
         
 		// Create terrain
-		terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0, 0, 0));
+		terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, 0, 0));
 		terrain->transform->SetScale(glm::vec3(5, 5, 5));
 		
 		//create skybox
