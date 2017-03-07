@@ -38,7 +38,7 @@ GameObject *EntityFactory::createMainCamera(World *world) {
     return gameObject;
 }
 
-GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
+GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera, glm::vec3 pos) {
 	camera->AddComponent("Character");
 	MeshRenderer *meshRenderer = (MeshRenderer*)camera->AddComponent("MeshRenderer");
 	//meshRenderer->model = ModelLibrary::player;
@@ -48,7 +48,7 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
 	
 	btTransform t;
 	t.setIdentity();
-	t.setOrigin(btVector3(0, 0, 0));
+	t.setOrigin(btVector3(pos.x, pos.y, pos.z));
     btBoxShape* collisionShape = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x*camera->transform->GetScale().x, meshRenderer->model->bounds.halfwidths.y*camera->transform->GetScale().y, meshRenderer->model->bounds.halfwidths.z*camera->transform->GetScale().z));
 
 	btVector3 inertia(0, 0, 0);
@@ -66,6 +66,9 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
     rigidBody->bulletRigidBody->setCollisionFlags(0);
 	((Camera*)camera->GetComponent("Camera"))->stat = false;
 	world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    
+    camera->transform->SetPosition(pos);
+    
 	return camera;
 }
 
@@ -392,17 +395,29 @@ GameObject *EntityFactory::createPath(World *world, GameObject *terrainObject, i
 	renderer->path = new Path();
 	renderer->path->size = 3;
 	renderer->path->radius = 5;
-//	renderer->path->AddNode(glm::vec3(-30, 0, -30));
-//	renderer->path->AddNode(glm::vec3(-30, 0, 30));
-//    renderer->path->AddNode(glm::vec3(30, 0, 30));
-//    renderer->path->AddNode(glm::vec3(0, 0, 0));
-//	renderer->path->AddNode(glm::vec3(30, 0, -30));
-    renderer->path->AddNode(glm::vec3(-30, getTerrainHeightForPosition(terrainObject, terrain, -30, -30), -30));
-    renderer->path->AddNode(glm::vec3(-30, getTerrainHeightForPosition(terrainObject, terrain, -30, -100), -100));
+    renderer->path->AddNode(glm::vec3(-220, getTerrainHeightForPosition(terrainObject, terrain, -220, 500), 500));
+    renderer->path->AddNode(glm::vec3(-124, getTerrainHeightForPosition(terrainObject, terrain, -124, 210), 210));
+    renderer->path->AddNode(glm::vec3(27, getTerrainHeightForPosition(terrainObject, terrain, 27, 150), 150));
+    renderer->path->AddNode(glm::vec3(140, getTerrainHeightForPosition(terrainObject, terrain, 140, -97), -97));
     renderer->path->AddNode(glm::vec3(30, getTerrainHeightForPosition(terrainObject, terrain, 30, -200), -200));
-//    renderer->path->AddNode(glm::vec3(100, getTerrainHeightForPosition(terrainObject, terrain, 100, -300), -300));
-//    renderer->path->AddNode(glm::vec3(200, getTerrainHeightForPosition(terrainObject, terrain, 200, -400), -400));
-//    renderer->path->AddNode(glm::vec3(300, getTerrainHeightForPosition(terrainObject, terrain, 300, -500), -500));
+    return gameObject;
+}
+
+GameObject *EntityFactory::createPath(World *world, GameObject *terrainObject, std::vector<glm::vec3> positions) {
+    GameObject *gameObject = world->CreateGameObject("Path");
+    PathRenderer *renderer = (PathRenderer*)gameObject->AddComponent("PathRenderer");
+    
+    TerrainRenderer *terrainRenderer = (TerrainRenderer*)terrainObject->GetComponent("TerrainRenderer");
+    Terrain *terrain = terrainRenderer->terrain;
+    
+    renderer->path = new Path();
+    renderer->path->size = positions.size();
+    renderer->path->radius = 5;
+    
+    for (glm::vec3 pos : positions) {
+        renderer->path->AddNode(glm::vec3(pos.x, getTerrainHeightForPosition(terrainObject, terrain, pos.x, pos.z), pos.z));
+    }
+    
     return gameObject;
 }
 

@@ -22,6 +22,8 @@ public:
     BunnySpawnSystem() {};
     virtual ~BunnySpawnSystem() {};
     
+    glm::vec3 startPosition = glm::vec3(0, 0, 0);
+    
 	void Update(float deltaTime, World *world, GameObject *path);
 	void KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) override;
 	void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) override;

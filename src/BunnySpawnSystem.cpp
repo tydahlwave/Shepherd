@@ -63,8 +63,8 @@ void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
         {
 			std::random_device rd;
 			std::mt19937 mt(rd());
-			std::uniform_real_distribution<float> distX(-5.0f, 5.0f);
-			std::uniform_real_distribution<float> distZ(-5.0f, 5.0f);
+			std::uniform_real_distribution<float> distX(-15.0f, 15.0f);
+			std::uniform_real_distribution<float> distZ(-15.0f, 15.0f);
 
             //randX = rand() % 50 - 25;
             //randZ = rand() % 50 - 25;
@@ -86,7 +86,7 @@ void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
             
             if (!(xFound && zFound)) {
                 positionClear = true;
-                randPosition = vec3(randX, 0, randZ);
+                randPosition = startPosition + vec3(randX, 0, randZ);
 				b->transform->SetPosition(randPosition);
             }
         }

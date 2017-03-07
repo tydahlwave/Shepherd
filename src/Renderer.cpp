@@ -106,26 +106,26 @@ std::vector<LightStruct> setUpLights(World &world, Path *path) {
     //    lights.push_back(playerLight);
     
     // Add lights at path nodes
-    if (path) {
-        glm::vec3 nodePos = path->GetNodes()[path->size-1];
-        nodePos.y += 20.0f;
-//        for (glm::vec3 nodePos : path->GetNodes()) {
-            LightStruct nodeLight;
-            nodeLight.position = glm::vec4(nodePos, 1);
-            nodeLight.intensities = glm::vec3(2, 2, 2); //strong white light
-            nodeLight.attenuation = 0.1f;
-            nodeLight.ambientCoefficient = 0.0f; //no ambient light
-            nodeLight.coneAngle = 15.0f;
-            nodeLight.coneDirection = glm::vec3(0,-1,0);
-            lights.push_back(nodeLight);
-//        }
-    }
+//    if (path) {
+//        glm::vec3 nodePos = path->GetNodes()[path->size-1];
+//        nodePos.y += 20.0f;
+////        for (glm::vec3 nodePos : path->GetNodes()) {
+//            LightStruct nodeLight;
+//            nodeLight.position = glm::vec4(nodePos, 1);
+//            nodeLight.intensities = glm::vec3(2, 2, 2); //strong white light
+//            nodeLight.attenuation = 0.1f;
+//            nodeLight.ambientCoefficient = 0.0f; //no ambient light
+//            nodeLight.coneAngle = 15.0f;
+//            nodeLight.coneDirection = glm::vec3(0,-1,0);
+//            lights.push_back(nodeLight);
+////        }
+//    }
     
-    LightStruct directionalLight;
-    directionalLight.position = glm::vec4(-0.6, 0.8, -1, 0); //w == 0 indications a directional light
-    directionalLight.intensities = glm::vec3(2, 2, 2); //weak yellowish light
-    directionalLight.ambientCoefficient = 0.15f;
-    lights.push_back(directionalLight);
+//    LightStruct directionalLight;
+//    directionalLight.position = glm::vec4(-0.6, 0.8, -1, 0); //w == 0 indications a directional light
+//    directionalLight.intensities = glm::vec3(2, 2, 2); //weak yellowish light
+//    directionalLight.ambientCoefficient = 0.15f;
+//    lights.push_back(directionalLight);
     
     return lights;
 }
@@ -163,7 +163,6 @@ bool intersectFrustumAABB(Camera *cam, vec3 min, vec3 max) {
 
 void Renderer::Render(World &world, Window &window) {
 //#define DEBUG
-
 #ifndef DEBUG
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -187,7 +186,7 @@ void Renderer::Render(World &world, Window &window) {
         }
     }
     
-    std::vector<LightStruct> lights = setUpLights(world, path);
+    std::vector<LightStruct> lights;// = setUpLights(world, path);
     for (GameObject *gameObject : world.GetGameObjects()) {
         Light *light = (Light*)gameObject->GetComponent("Light");
         if (light) {
