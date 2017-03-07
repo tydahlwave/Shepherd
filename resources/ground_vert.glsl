@@ -1,4 +1,3 @@
-//Phong Reflection Model Vertex Shader
 #version 330
 layout(location = 0) in vec4 vertPos;
 layout(location = 1) in vec3 vertNor;
@@ -14,6 +13,8 @@ out VS_OUT {
     vec3 fragPos;
     vec3 fragNor;
     vec3 viewNor;
+    vec3 modelPos;
+    vec3 modelNor;
 } vs_out;
 
 void main() {
@@ -23,4 +24,7 @@ void main() {
     vs_out.fragPos = (V * M * vertPos).xyz;
     vs_out.fragNor = (V * M * vec4(vertNor, 0.0)).xyz;
     vs_out.viewNor = -(V * M * vertPos).xyz;
+    
+    vs_out.modelPos = (M * vertPos).xyz;
+    vs_out.modelNor = (M * vec4(vertNor, 1)).xyz;
 }
