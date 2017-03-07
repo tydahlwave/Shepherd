@@ -44,7 +44,7 @@ void TerrainEditingController::KeyPressed(World *world, int windowWidth, int win
             }
         } else if (key == GLFW_KEY_SPACE) {
             if (!world->mainCharacter)
-                world->mainCharacter = EntityFactory::upgradeCharacter(world, world->mainCamera);
+                world->mainCharacter = EntityFactory::upgradeCharacter(world, world->mainCamera, glm::vec3(60, -20, 40));
         }
     }
 }

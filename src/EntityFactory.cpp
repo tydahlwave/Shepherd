@@ -38,7 +38,7 @@ GameObject *EntityFactory::createMainCamera(World *world) {
     return gameObject;
 }
 
-GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
+GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera, glm::vec3 pos) {
 	camera->AddComponent("Character");
 	MeshRenderer *meshRenderer = (MeshRenderer*)camera->AddComponent("MeshRenderer");
 	meshRenderer->model = ModelLibrary::player;
@@ -47,7 +47,7 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
 	
 	btTransform t;
 	t.setIdentity();
-	t.setOrigin(btVector3(0, 0, 0));
+	t.setOrigin(btVector3(pos.x, pos.y, pos.z));
     btBoxShape* collisionShape = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x*camera->transform->GetScale().x, meshRenderer->model->bounds.halfwidths.y*camera->transform->GetScale().y, meshRenderer->model->bounds.halfwidths.z*camera->transform->GetScale().z));
 
 	btVector3 inertia(0, 0, 0);
@@ -65,6 +65,9 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
     rigidBody->bulletRigidBody->setCollisionFlags(0);
 	((Camera*)camera->GetComponent("Camera"))->stat = false;
 	world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    
+    camera->transform->SetPosition(pos);
+    
 	return camera;
 }
 
