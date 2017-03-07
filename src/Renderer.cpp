@@ -162,7 +162,8 @@ bool intersectFrustumAABB(Camera *cam, vec3 min, vec3 max) {
 }
 
 void Renderer::Render(World &world, Window &window) {
-#define DEBUG
+//#define DEBUG
+
 #ifndef DEBUG
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
