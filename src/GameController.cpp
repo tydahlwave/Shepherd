@@ -257,10 +257,16 @@ void GameController::LoadState() {
         playSign->transform->SetScale(glm::vec3(0.4, 0.4, 0.4));
         playSign->transform->SetPosition(glm::vec3(-0.25f, -0.3f, 2.0f));
         playSign->transform->SetRotation(glm::vec3(0.0f, 180.f, 0.0f));
+		playSign->AddComponent("Clickable");
+		((Button *)(playSign->AddComponent("Button")))->callback = &GameController::incrState;
+		
         GameObject *exitSign = EntityFactory::createStaticObject(&world, "ExitSign", ModelLibrary::exitSign, ShaderLibrary::menu);
         exitSign->transform->SetScale(glm::vec3(0.3, 0.3, 0.3));
         exitSign->transform->SetPosition(glm::vec3(0.25f, -0.7f, 2.0f));
         exitSign->transform->SetRotation(glm::vec3(0.0f, 180.f, 0.0f));
+		exitSign->AddComponent("Clickable");
+		((Button *)(exitSign->AddComponent("Button")))->callback = &GameController::endState;
+		//playSign->AddComponent("Clickable");
 
 		/*
 		GameObject *startButton3 = EntityFactory::createHUD2(&world);
