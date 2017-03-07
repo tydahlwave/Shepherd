@@ -32,7 +32,7 @@ Renderer::Renderer() {
 void applyProjectionMatrix(Program *program, Window &window, Camera *camera) {
     MatrixStack stack = MatrixStack();
     float aspectRatio = window.GetWidth()/(float)window.GetHeight();
-    stack.perspective(45.0f, aspectRatio, 0.01f, 5000.0f);
+    stack.perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
     glUniformMatrix4fv(program->getUniform("P"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
 
@@ -74,7 +74,7 @@ std::vector<LightStruct> setUpLights(World &world, Path *path) {
     spotlight.ambientCoefficient = 0.0f; //no ambient light
     spotlight.coneAngle = 45.0f;
     spotlight.coneDirection = glm::vec3(0,-1,0);
-    lights.push_back(spotlight);
+//    lights.push_back(spotlight);
     
     // Spotlight on the player
     //    Light playerLight;
@@ -104,9 +104,9 @@ std::vector<LightStruct> setUpLights(World &world, Path *path) {
     
     LightStruct directionalLight;
     directionalLight.position = glm::vec4(1, 0.8, 0.6, 0); //w == 0 indications a directional light
-    directionalLight.intensities = glm::vec3(1,1,1); //weak yellowish light
+    directionalLight.intensities = glm::vec3(2, 2, 2); //weak yellowish light
     directionalLight.ambientCoefficient = 0.15f;
-    //lights.push_back(directionalLight);
+    lights.push_back(directionalLight);
     
     return lights;
 }

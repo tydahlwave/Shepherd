@@ -31,9 +31,9 @@ void Physics::Update(float deltaTime, World &world) {
             gameObject->transform->SetPosition(gameObject->transform->GetPosition()+vel);
         }
     }
+    UpdateBulletPhysics(deltaTime, world);
     ComputeCollisions(world);
     HandleTerrainCollisions(world);
-    UpdateBulletPhysics(deltaTime, world);
 }
 
 void Physics::UpdateBulletPhysics(float deltaTime, World &world) {

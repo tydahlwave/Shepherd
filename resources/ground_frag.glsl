@@ -182,7 +182,7 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     vec3 ambientColor = matAmbientColor;
     vec3 diffuseColor = matDiffuseColor;
     vec3 specularColor = matSpecularColor;
-    ambientColor = diffuseColor = specularColor = getColor().xyz / 3.0f;
+    ambientColor = diffuseColor = specularColor = getColor().xyz / 2.0f;
 
     //ambient
     vec3 ambient = light.ambientCoefficient * ambientColor * light.intensities;

@@ -278,12 +278,12 @@ void GameController::LoadState() {
         
 		// Create terrain
 		terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 1081, glm::vec3(0, 0, 0));
-		//terrain->transform->SetScale(glm::vec3(10, 10, 10));
+		terrain->transform->SetScale(glm::vec3(5, 5, 5));
 		
 		//create skybox
 		skybox = EntityFactory::createSkybox(&world, resourceDir);
 
-		// Place game objects
+		// Place game objectsaw
 		//Create Path
 		path = EntityFactory::createPath(&world, terrain, 4);
 

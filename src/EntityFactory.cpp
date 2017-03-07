@@ -60,6 +60,7 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
 	rigidBody->useGravity = true;
 	rigidBody->bulletRigidBody = new btRigidBody(info);
 	rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+    rigidBody->bulletRigidBody->setFriction(1);
     rigidBody->bulletRigidBody->setCollisionFlags(0);
 	((Camera*)camera->GetComponent("Camera"))->stat = false;
 	world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
@@ -295,7 +296,14 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
     renderer->terrain = new Terrain();
     renderer->terrain->size = size;
     renderer->terrain->type = type;
-    renderer->terrain->Generate();
+    NoiseProperties terrainProps;
+    terrainProps.frequency = 3.0f;
+    terrainProps.octaveHeight = 55.0f;
+    time_t seed = 0;
+    renderer->terrain->GenerateHeightmap(terrainProps, seed);
+    renderer->terrain->UpdateBuffers();
+    renderer->terrain->init();
+//    renderer->terrain->Generate();
 //    renderer->terrain->GenerateFromImage(resourceDir + "terrain9.png");
     renderer->shader = ShaderLibrary::ground;
     renderer->material = MaterialLibrary::grass;
@@ -359,7 +367,7 @@ GameObject *EntityFactory::createPath(World *world, GameObject *terrainObject, i
     Terrain *terrain = terrainRenderer->terrain;
 
 	renderer->path = new Path();
-	renderer->path->size = 6;
+	renderer->path->size = 3;
 	renderer->path->radius = 5;
 //	renderer->path->AddNode(glm::vec3(-30, 0, -30));
 //	renderer->path->AddNode(glm::vec3(-30, 0, 30));
@@ -369,9 +377,9 @@ GameObject *EntityFactory::createPath(World *world, GameObject *terrainObject, i
     renderer->path->AddNode(glm::vec3(-30, getTerrainHeightForPosition(terrainObject, terrain, -30, -30), -30));
     renderer->path->AddNode(glm::vec3(-30, getTerrainHeightForPosition(terrainObject, terrain, -30, -100), -100));
     renderer->path->AddNode(glm::vec3(30, getTerrainHeightForPosition(terrainObject, terrain, 30, -200), -200));
-    renderer->path->AddNode(glm::vec3(100, getTerrainHeightForPosition(terrainObject, terrain, 100, -300), -300));
-    renderer->path->AddNode(glm::vec3(200, getTerrainHeightForPosition(terrainObject, terrain, 200, -400), -400));
-    renderer->path->AddNode(glm::vec3(300, getTerrainHeightForPosition(terrainObject, terrain, 300, -500), -500));
+//    renderer->path->AddNode(glm::vec3(100, getTerrainHeightForPosition(terrainObject, terrain, 100, -300), -300));
+//    renderer->path->AddNode(glm::vec3(200, getTerrainHeightForPosition(terrainObject, terrain, 200, -400), -400));
+//    renderer->path->AddNode(glm::vec3(300, getTerrainHeightForPosition(terrainObject, terrain, 300, -500), -500));
     return gameObject;
 }
 
