@@ -14,11 +14,14 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
 
+#include "SOIL/SOIL.h"
+
 #include "Noise/NoiseProperties.h"
 
 #include "World.h"
 #include "Components/TerrainRenderer.h"
 #include "TextureLoader.h"
+#include "EntityFactory.h"
 
 struct ToolProperties {
     int tool = 0;
@@ -37,6 +40,9 @@ void TerrainEditingController::KeyPressed(World *world, int windowWidth, int win
             if (terrainRenderer) {
                 terrainRenderer->terrain->Regenerate();
             }
+        } else if (key == GLFW_KEY_SPACE) {
+            if (!world->mainCharacter)
+                world->mainCharacter = EntityFactory::upgradeCharacter(world, world->mainCamera);
         }
     }
 }
@@ -224,13 +230,11 @@ void TerrainEditingController::ImguiUpdate(World *world) {
             terrain->GenerateHeightmap(terrainProps, terrain->seed);
             terrain->makeTexture();
         }
-        
         if (ImGui::SliderInt("Octaves", &terrainProps.octaves, 0.0f, 10.0f)) {
             std::cout << "Octaves: " << terrainProps.octaves << std::endl;
             terrain->GenerateHeightmap(terrainProps, terrain->seed);
             terrain->makeTexture();
         }
-        
         if (ImGui::SliderFloat("Octave Height", &terrainProps.octaveHeight, 0.0f, 100.0f)) {
             std::cout << "Octaves: " << terrainProps.octaveHeight << std::endl;
             terrain->GenerateHeightmap(terrainProps, terrain->seed);
@@ -251,6 +255,19 @@ void TerrainEditingController::ImguiUpdate(World *world) {
             terrain->UpdateBuffers();
             terrain->update();
         }
+        ImGui::SameLine();
+        if (ImGui::Button("Save")) {
+            // Convert heightmap to unsigned chars
+            std::vector<unsigned char> heightmap;
+            std::vector<float> flattenedHeightmap = terrain->flattenHeightMap();
+            for (int i = 0; i < flattenedHeightmap.size(); i++) {
+                heightmap.push_back((unsigned char)flattenedHeightmap[i]);
+            }
+            
+            // Save heightmap
+            if (!SOIL_save_image("Level_Heightmap.bmp", SOIL_SAVE_TYPE_BMP, terrain->size, terrain->size, 3, heightmap.data()))
+                std::cout << "Failed to save heightmap" << std::endl;
+        }
         
         ImGui::End();
     }
@@ -265,6 +282,9 @@ void TerrainEditingController::ImguiUpdate(World *world) {
         }
         if (ImGui::RadioButton("Flatten", &tool, 1)) {
             toolProps.tool = 1;
+        }
+        if (ImGui::RadioButton("None", &tool, 2)) {
+            toolProps.tool = 2;
         }
         ImGui::Separator();
         

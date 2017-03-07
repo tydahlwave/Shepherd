@@ -26,8 +26,8 @@ void makeTriangle() {
         fragPos = gs_in[i].fragPos;
         vertPos = gs_in[i].vertPos;
         facePos = facePosition;
-//        modelNor = gs_in[i].modelNor;
-        modelNor = faceModelNormal;
+        modelNor = gs_in[i].modelNor;
+//        modelNor = faceModelNormal;
         vertNor = faceNormal;
         viewNor = gs_in[i].viewNor;
         EmitVertex();

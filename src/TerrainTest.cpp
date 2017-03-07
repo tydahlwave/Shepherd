@@ -17,6 +17,8 @@
 #include "EntityFactory.h"
 #include "Physics.h"
 #include "Renderer.h"
+#include "CharacterController.h"
+#include "CameraController.h"
 #include "FreeCameraController.h"
 #include "PhysicsController.h"
 #include "TerrainEditingController.h"
@@ -94,8 +96,12 @@ int main(int argc, char **argv) {
     Physics physics = Physics();
     Renderer renderer = Renderer();
     FreeCameraController cameraController = FreeCameraController();
+    CameraController playerController = CameraController();
+    CharacterController characterController = CharacterController();
     PhysicsController physicsController = PhysicsController();
     TerrainEditingController terrainController = TerrainEditingController();
+    
+    bool playerControllersLinked = false;
     
     // Static Initializers
     ModelLibrary::LoadModels(resourceDir);
@@ -105,6 +111,8 @@ int main(int argc, char **argv) {
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController);
+//    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&playerController);
+//    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController);
     Window::AddImguiUpdateDelegate((ImguiUpdateDelegate*)&terrainController);
     CAudioEngine::instance()->Init();
     CAudioEngine::instance()->LoadSounds(resourceDir);
@@ -140,10 +148,21 @@ int main(int argc, char **argv) {
         accumulator += elapsedTime;
         while(accumulator >= idealDeltaTime) {
             physics.Update(idealDeltaTime, world);
+            if (world.mainCharacter)
+                characterController.Update(&world, idealDeltaTime);
             accumulator -= idealDeltaTime;
         }
         
-        cameraController.Update(world);
+        if (world.mainCharacter) {
+            if (!playerControllersLinked) {
+                playerControllersLinked = true;
+                Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&playerController);
+                Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController);
+            }
+            playerController.Update(world);
+        } else {
+            cameraController.Update(world);
+        }
         CAudioEngine::instance()->Update();
         renderer.Render(world, window);
         

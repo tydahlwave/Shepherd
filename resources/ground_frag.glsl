@@ -226,8 +226,8 @@ void main() {
 //    color = vec4(finalColor, 1.0);
 //    ambientColor = diffuseColor = vec3(0.5, 0.5, 0.5);
     vec3 finalColor = heightValue * modelN.y * heightColor + randIntensity;
-    color = vec4(heightColor*modelN.y + randIntensity, 1.0);
-//    color = vec4(textureColor*modelN.y, 1.0);
+//    color = vec4(heightColor*modelN.y + randIntensity, 1.0);
+    color = vec4(textureColor*modelN.y, 1.0);
 
 //    // Normalize the vectors
 //    vec3 vertexN = normalize(vertNor);

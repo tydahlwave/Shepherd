@@ -17,7 +17,7 @@ void TextureLibrary::LoadTextures(std::string resourceDir) {
     crate = new Texture("Crate", resourceDir + "crate.bmp");
     crate->Load();
     
-    grass = new Texture("Grass", resourceDir + "grass_seamless.jpg");
+    grass = new Texture("Grass", resourceDir + "grass_seamless2.jpg");
     grass->Load();
     
     mountain = new Texture("Mountain", resourceDir + "rock_seamless.jpg");
