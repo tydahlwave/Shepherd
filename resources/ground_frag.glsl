@@ -220,4 +220,5 @@ void main() {
     
     float edgeDetection = (dot(viewN, vertexN) > 0.3) ? 1 : 0;
     color = vec4(linearColor, 1.0);
+    
 }

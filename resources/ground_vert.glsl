@@ -18,8 +18,10 @@ out VS_OUT {
     vec3 modelPos;
 } vs_out;
 
+
 void main() {
     gl_Position = P * V * M * vertPos;
+    
     
     // Pass vertex position and normal to fragment shader
     vs_out.fragPos = (V * M * vertPos).xyz;

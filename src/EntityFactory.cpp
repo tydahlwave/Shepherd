@@ -41,7 +41,8 @@ GameObject *EntityFactory::createMainCamera(World *world) {
 GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera, glm::vec3 pos) {
 	camera->AddComponent("Character");
 	MeshRenderer *meshRenderer = (MeshRenderer*)camera->AddComponent("MeshRenderer");
-	meshRenderer->model = ModelLibrary::player;
+	//meshRenderer->model = ModelLibrary::player;
+    meshRenderer->model = ModelLibrary::gadget;
 	meshRenderer->shader = ShaderLibrary::cell;
 	meshRenderer->material = MaterialLibrary::pearl;
 	
@@ -79,6 +80,7 @@ GameObject *EntityFactory::createBunny(World *world) {
     gameObject->AddComponent("BoxCollider");
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::sheep;
+    //meshRenderer->model = ModelLibrary::sphere;
     meshRenderer->shader = ShaderLibrary::cell;
     meshRenderer->material = MaterialLibrary::pearl;
     btTransform t;
