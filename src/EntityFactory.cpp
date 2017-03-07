@@ -404,6 +404,24 @@ GameObject *EntityFactory::createPath(World *world, GameObject *terrainObject, i
     return gameObject;
 }
 
+GameObject *EntityFactory::createPath(World *world, GameObject *terrainObject, std::vector<glm::vec3> positions) {
+    GameObject *gameObject = world->CreateGameObject("Path");
+    PathRenderer *renderer = (PathRenderer*)gameObject->AddComponent("PathRenderer");
+    
+    TerrainRenderer *terrainRenderer = (TerrainRenderer*)terrainObject->GetComponent("TerrainRenderer");
+    Terrain *terrain = terrainRenderer->terrain;
+    
+    renderer->path = new Path();
+    renderer->path->size = positions.size();
+    renderer->path->radius = 5;
+    
+    for (glm::vec3 pos : positions) {
+        renderer->path->AddNode(glm::vec3(pos.x, getTerrainHeightForPosition(terrainObject, terrain, pos.x, pos.z), pos.z));
+    }
+    
+    return gameObject;
+}
+
 GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
     GameObject *gameObject = world->CreateGameObject("Tree");
     gameObject->isSerializable = true;

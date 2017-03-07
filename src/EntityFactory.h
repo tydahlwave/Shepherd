@@ -34,6 +34,7 @@ public:
     static GameObject *createBoulder(World *world, int boulderType, float radius, vec3 position);
     static GameObject *createTerrain(World *world, std::string resourceDir, int type, int size, glm::vec3 pos);
 	static GameObject *createPath(World *world, GameObject *terrain, int nodes);
+    static GameObject *createPath(World *world, GameObject *terrainObject, std::vector<glm::vec3> positions);
     static GameObject *createTree(World *world, int type, glm::vec3 pos);
 	static GameObject *createSkybox(World *world, std::string resourceDir);
     static GameObject *createLight(World *world, glm::vec3 position, bool isDirectional, glm::vec3 intensities, float attenuation,float ambientCoefficient,float coneAngle, glm::vec3 coneDirection);

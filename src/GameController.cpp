@@ -288,10 +288,24 @@ void GameController::LoadState() {
         mesh->shader = ShaderLibrary::cell;*/
         
         // Create terrain
-        EntityFactory::createStartMenuTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, -20, 0));
+        GameObject *startMenuTerrain = EntityFactory::createStartMenuTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, -20, 0));
+        
+        // Add directional light
+        EntityFactory::createLight(&world, glm::vec3(-0.6, 0.8, -1), true, glm::vec3(2, 2, 2), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
         
         //Create skybox
         EntityFactory::createSkybox(&world, resourceDir);
+        
+        //Create Path
+        std::vector<glm::vec3> pathPositions = {
+            glm::vec3(50, -20, 50),
+            glm::vec3(-40, -20, 70),
+            glm::vec3(0, -20, 40)
+        };
+        path = EntityFactory::createPath(&world, startMenuTerrain, pathPositions);
+        
+        bunnySpawnSystem = new BunnySpawnSystem();
+        bunnySpawnSystem->startPosition = glm::vec3(60, -20, 40);
         
         gameMusic = audio->PlaySound("menu.wav");
 		break;
@@ -303,6 +317,7 @@ void GameController::LoadState() {
 		physicsController = new PhysicsController();
 		terrainController = new TerrainController();
 		bunnySpawnSystem = new BunnySpawnSystem();
+        bunnySpawnSystem->startPosition = glm::vec3(60, -20, 60);
 		wolfSystem = new WolfSystem();
 		treeSystem = new TreeSystem();
 		printf("Loading level 1\n");
