@@ -26,5 +26,5 @@ void main() {
     vs_out.viewNor = -(V * M * vertPos).xyz;
     
     vs_out.modelPos = (M * vertPos).xyz;
-    vs_out.modelNor = (M * vec4(vertNor, 1)).xyz;
+    vs_out.modelNor = (M * vec4(vertNor, 0)).xyz;
 }

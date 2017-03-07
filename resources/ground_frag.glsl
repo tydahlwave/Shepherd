@@ -109,10 +109,12 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     //vec3 diffuse = matDiffuseColor * df;
     
     //specular
-    float alpha = matShine;
-    vec3 halfValue = normalize(viewN + lightN);
-    vec3 specular = vec3(0);//sf * matSpecularColor * pow(max(dot(vertexN, halfValue), 0), alpha) * light.intensities;
-    //vec3 specular = matSpecularColor  * sf;
+    vec3 specular;
+//    float alpha = matShine;
+//    vec3 halfValue = normalize(viewN + lightN);
+//    vec3 specular = sf * matSpecularColor * pow(max(dot(vertexN, halfValue), 0), alpha) * light.intensities;
+    //specular = matSpecularColor  * sf;
+    specular = vec3(0);
     
     //linear color (color before gamma correction)
     return ambient + attenuation*(diffuse + specular);
