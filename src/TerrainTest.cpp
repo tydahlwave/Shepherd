@@ -102,6 +102,7 @@ int main(int argc, char **argv) {
     TerrainEditingController terrainController = TerrainEditingController();
     
     bool playerControllersLinked = false;
+    physics.enabled = false;
     
     // Static Initializers
     ModelLibrary::LoadModels(resourceDir);
@@ -156,6 +157,7 @@ int main(int argc, char **argv) {
         if (world.mainCharacter) {
             if (!playerControllersLinked) {
                 playerControllersLinked = true;
+                physics.enabled = true;
                 Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&playerController);
                 Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController);
             }
