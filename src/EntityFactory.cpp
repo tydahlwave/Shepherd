@@ -123,6 +123,14 @@ GameObject *EntityFactory::createWolf(World *world) {
     return gameObject;
 }
 
+GameObject *EntityFactory::createStaticObject(World *world, std::string name, Model *model, Shader *shader) {
+    GameObject *gameObject = world->CreateGameObject(name);
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->model = model;
+    meshRenderer->shader = shader;
+    return gameObject;
+}
+
 GameObject *EntityFactory::createTitle(World *world) {
 	GameObject *gameObject = world->CreateGameObject("Title");
 	MeshRenderer *mesh = (MeshRenderer*)gameObject->AddComponent("MeshRenderer");

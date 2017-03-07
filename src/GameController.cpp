@@ -237,21 +237,30 @@ void GameController::LoadState() {
 		//load sign
         sign = EntityFactory::createTitle(&world);
 		//load enterbutton
-		GameObject *startButton = EntityFactory::createHUD2(&world);
-		startButton->transform->SetPosition(glm::vec3(0.5f, 0.7f, 0));
-		startButton->transform->SetScale(glm::vec3(70.f, 30.f, 0.f));
-		Button * bt = (Button *)(startButton->AddComponent("Button"));
-		bt->callback = &GameController::incrState;
-		HUDRenderer *hr = (HUDRenderer *)(startButton->GetComponent("HudRenderer"));
-		hr->texture = TextureLibrary::startButton;
-		
-		GameObject *startButton2 = EntityFactory::createHUD2(&world);
-		startButton2->transform->SetPosition(glm::vec3(0.5f, 0.8f, 0));
-		startButton2->transform->SetScale(glm::vec3(70.f, 30.f, 0.f));
-		bt = (Button *)(startButton2->AddComponent("Button"));
-		bt->callback = &GameController::endState;
-		hr = (HUDRenderer *)(startButton2->GetComponent("HudRenderer"));
-		hr->texture = TextureLibrary::quitButton;
+//		GameObject *startButton = EntityFactory::createHUD2(&world);
+//		startButton->transform->SetPosition(glm::vec3(0.5f, 0.7f, 0));
+//		startButton->transform->SetScale(glm::vec3(70.f, 30.f, 0.f));
+//		Button * bt = (Button *)(startButton->AddComponent("Button"));
+//		bt->callback = &GameController::incrState;
+//		HUDRenderer *hr = (HUDRenderer *)(startButton->GetComponent("HudRenderer"));
+//		hr->texture = TextureLibrary::startButton;
+//		
+//		GameObject *startButton2 = EntityFactory::createHUD2(&world);
+//		startButton2->transform->SetPosition(glm::vec3(0.5f, 0.8f, 0));
+//		startButton2->transform->SetScale(glm::vec3(70.f, 30.f, 0.f));
+//		bt = (Button *)(startButton2->AddComponent("Button"));
+//		bt->callback = &GameController::endState;
+//		hr = (HUDRenderer *)(startButton2->GetComponent("HudRenderer"));
+//		hr->texture = TextureLibrary::quitButton;
+        
+        GameObject *playSign = EntityFactory::createStaticObject(&world, "PlaySign", ModelLibrary::playSign, ShaderLibrary::menu);
+        playSign->transform->SetScale(glm::vec3(0.4, 0.4, 0.4));
+        playSign->transform->SetPosition(glm::vec3(-0.25f, -0.3f, 2.0f));
+        playSign->transform->SetRotation(glm::vec3(0.0f, 180.f, 0.0f));
+        GameObject *exitSign = EntityFactory::createStaticObject(&world, "ExitSign", ModelLibrary::exitSign, ShaderLibrary::menu);
+        exitSign->transform->SetScale(glm::vec3(0.3, 0.3, 0.3));
+        exitSign->transform->SetPosition(glm::vec3(0.25f, -0.7f, 2.0f));
+        exitSign->transform->SetRotation(glm::vec3(0.0f, 180.f, 0.0f));
 
 		/*
 		GameObject *startButton3 = EntityFactory::createHUD2(&world);

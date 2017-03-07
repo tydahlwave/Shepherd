@@ -37,6 +37,8 @@ public:
     static Model *sheep;
 	static Model *menuSign;
     static Model *lantern;
+    static Model *playSign;
+    static Model *exitSign;
 };
 
 #endif /* ModelLibrary_h */

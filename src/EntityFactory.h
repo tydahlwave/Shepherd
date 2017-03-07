@@ -13,6 +13,8 @@
 #include "World.h"
 
 class Terrain;
+class Model;
+class Shader;
 
 class EntityFactory {
 public:
@@ -37,6 +39,7 @@ public:
     static GameObject *createLight(World *world, glm::vec3 position, bool isDirectional, glm::vec3 intensities, float attenuation,float ambientCoefficient,float coneAngle, glm::vec3 coneDirection);
 	static GameObject *upgradeCharacter(World *world, GameObject *camera);
     static void UpdateTerrain(World *world, GameObject *terrainObj, Terrain *terrain);
+    static GameObject *createStaticObject(World *world, std::string name, Model *model, Shader *shader);
 };
 
 #endif /* EntityFactory_h */
