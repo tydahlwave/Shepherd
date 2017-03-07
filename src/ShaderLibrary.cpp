@@ -157,6 +157,7 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     }
     program->addUniform("terrainMin");
     program->addUniform("terrainMax");
+    program->addUniform("terrainScale");
     program->addUniform("regions");
     program->addUniform("regionColors");
     program->addUniform("Grass");

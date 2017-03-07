@@ -6,6 +6,7 @@ uniform float matShine;
 uniform mat4 V;
 uniform int terrainMin;
 uniform int terrainMax;
+uniform vec3 terrainScale;
 
 uniform sampler2D Grass;
 uniform sampler2D Mountain;
@@ -71,7 +72,7 @@ float rand(vec2 co){
 
 vec4 getColor() {
     vec3 modelN = normalize(modelNor);
-    float heightValue = (facePos.y-terrainMin) / (terrainMax-terrainMin);
+    float heightValue = (facePos.y/terrainScale.y-terrainMin) / (terrainMax-terrainMin);
     vec3 heightColor = vec3(221/255.0f, 221/255.0f, 228/255.0f);
     vec3 textureColors[4] = vec3[](
     texture(Grass, vertPos.xz).xyz,
