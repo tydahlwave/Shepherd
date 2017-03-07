@@ -51,12 +51,12 @@ void CameraController::Update(World &world) {
     float yAdjustment = 0;
     if(shakesRemaining > 0)
     {
-        float shakeFreqX = 20;
-        float shakeFreqY = .5;
+//        float shakeFreqX = 20;
+//        float shakeFreqY = .5;
         float shakeFreqY2 = 25;
-        float shakeSizeX = .5;
-        float shakeSizeY = .5;
-        float shakeSizeY2 = 5;
+//        float shakeSizeX = .5;
+//        float shakeSizeY = .5;
+//        float shakeSizeY2 = 5;
         float t = Time::Now();
         xAdjustment = sin( t*shakeIntensity ) / 50;
         yAdjustment = sin( t*shakeIntensity ) / 75 + cos( t * shakeFreqY2 ) / 20;

@@ -53,8 +53,8 @@ void Window::KeyCallback(GLFWwindow *window, int key, int scancode, int action, 
     // Execute all registered callbacks
     for (WindowCallbackDelegate *delegate : windowCallbackDelegates) {
 
-		if ((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) && (delegate->type == 0) ||
-			(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) && (delegate->type == 1) ||
+		if (((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) && (delegate->type == 0)) ||
+			((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) && (delegate->type == 1)) ||
 			(delegate->type == 2))
         delegate->KeyPressed(world, width, height, key, action);
     }
@@ -93,8 +93,8 @@ void Window::MouseMoveCallback(GLFWwindow *window, double posX, double posY) {
     
     // Execute all registered callbacks
     for (WindowCallbackDelegate *delegate : windowCallbackDelegates) {
-		if ((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) && (delegate->type == 0) ||
-			(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) && (delegate->type == 1) ||
+		if (((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) && (delegate->type == 0)) ||
+			((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) && (delegate->type == 1)) ||
 			(delegate->type == 2))
 			delegate->MouseMoved(world, width, height, posX, posY);
     }
@@ -106,8 +106,8 @@ void Window::MouseButtonCallback(GLFWwindow *window, int button, int action, int
 
 	// Execute all registered callbacks
 	for (WindowCallbackDelegate *delegate : windowCallbackDelegates) {
-		if ((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) && (delegate->type == 0) ||
-			(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) && (delegate->type == 1) ||
+		if (((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) && (delegate->type == 0)) ||
+			((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) && (delegate->type == 1)) ||
 			(delegate->type == 2))
 			delegate->MouseClicked(world, xPos, yPos, button, action);
     }
@@ -116,8 +116,8 @@ void Window::MouseButtonCallback(GLFWwindow *window, int button, int action, int
 void Window::MouseScrollCallback(GLFWwindow *window, double dx, double dy) {
 	// Execute all registered callbacks
 	for (WindowCallbackDelegate *delegate : windowCallbackDelegates) {
-		if ((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) && (delegate->type == 0) ||
-			(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) && (delegate->type == 1) ||
+		if (((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) && (delegate->type == 0)) ||
+			((glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) && (delegate->type == 1)) ||
 			(delegate->type == 2))
 			delegate->MouseScrolled(world, dx, dy);
 	}

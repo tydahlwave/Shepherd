@@ -110,7 +110,7 @@ void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
     TerrainRenderer *terrainRenderer = (TerrainRenderer*)terrain->GetComponent("TerrainRenderer");
 	if (!terrainRenderer)
 		return;
-    TextureLoader *textureTest = terrainRenderer->terrain->getTexture();
+//    TextureLoader *textureTest = terrainRenderer->terrain->getTexture();
 	// 1. Show a simple window
 	// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
 	{
