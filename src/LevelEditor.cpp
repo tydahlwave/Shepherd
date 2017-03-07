@@ -16,7 +16,7 @@ void LevelEditor::drawLevelEditor(Window &window, World *world){
     ImGui::Begin("Object Creation Tool");
     static GameObject *mostRecentlyPlacedGameObject = nullptr;
     static int item = 0;
-    static float position[3] = { 0.f, 0.f, 0.f };
+    static float position[3] = { 1.f, 1.f, 1.f };
     static float rotation[3] = { 0.f, 0.f, 0.f };
     static float scale = 1.f;
     static int type = 0;
