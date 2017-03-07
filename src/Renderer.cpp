@@ -186,7 +186,7 @@ void Renderer::Render(World &world, Window &window) {
         }
     }
     
-    std::vector<LightStruct> lights = setUpLights(world, path);
+    std::vector<LightStruct> lights;// = setUpLights(world, path);
     for (GameObject *gameObject : world.GetGameObjects()) {
         Light *light = (Light*)gameObject->GetComponent("Light");
         if (light) {

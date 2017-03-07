@@ -317,7 +317,7 @@ void GameController::LoadState() {
 		physicsController = new PhysicsController();
 		terrainController = new TerrainController();
 		bunnySpawnSystem = new BunnySpawnSystem();
-        bunnySpawnSystem->startPosition = glm::vec3(60, -20, 60);
+        bunnySpawnSystem->startPosition = glm::vec3(-220, -20, 520);
 		wolfSystem = new WolfSystem();
 		treeSystem = new TreeSystem();
 		printf("Loading level 1\n");
