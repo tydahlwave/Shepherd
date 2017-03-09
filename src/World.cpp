@@ -7,6 +7,8 @@
 //
 
 #include "EntityFactory.h"
+#include "Components/RigidBody.h"
+
 
 World::World() :gameObjects() {
     mainCamera = EntityFactory::createMainCamera(this);
@@ -49,8 +51,17 @@ void World::ClearGameObjects() {
 }
 
 void World::RemoveGameObject(GameObject *go) {
-    auto it = std::find(gameObjects.begin(), gameObjects.end(), go);
-    if(it != gameObjects.end())
+    auto it = std::find(gameObjects.begin(), gameObjects.end(), go
+                        );
+    if(it != gameObjects.end()){
+        //remove all physics
+        RigidBody *rb = (RigidBody *)((*it)->GetComponent("RigidBody"));
+        if(rb) {
+            if (rb->bulletRigidBody)
+                dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
+            rb->bulletRigidBody = nullptr;
+        }
         gameObjects.erase(it);
+    }
 }
 

@@ -110,6 +110,10 @@ void LevelEditor::drawLevelEditor(Window &window, World *world){
         mostRecentlyPlacedGameObject->SetIsStatic(isStatic);
         mostRecentlyPlacedGameObject = nullptr;
     }
+    if(mostRecentlyPlacedGameObject && ImGui::Button("Undo Add")) {
+        world->RemoveGameObject(mostRecentlyPlacedGameObject);
+        mostRecentlyPlacedGameObject = nullptr;
+    }
     if (ImGui::Button("Get Current Position")) {
         GameObject *go = world->mainCamera;
         position[0] = go->transform->GetPosition().x;
