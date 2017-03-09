@@ -57,7 +57,7 @@ Transform *Serializer::DeserializeTransform(rapidjson::Value &v) {
 
 Light *Serializer::DeserializeLightComponent(rapidjson::Value &v) {
     assert(v.HasMember("IsDirectional"));
-    float isDirectional = v["IsDirectional"].GetDouble();
+    bool isDirectional = v["IsDirectional"].GetBool();
     assert(v.HasMember("Intensities"));
     rapidjson::Value& intense = v["Intensities"];
     vec3 intensities = vec3(intense[0].GetDouble(),intense[1].GetDouble(),intense[2].GetDouble());
