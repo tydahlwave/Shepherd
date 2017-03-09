@@ -20,6 +20,7 @@ public:
     static Texture *snow;
 	static Texture *startButton;
 	static Texture *quitButton;
+    static Texture *hair;
 
 };
 

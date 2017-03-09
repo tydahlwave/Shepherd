@@ -14,6 +14,7 @@ Texture *TextureLibrary::mountain = nullptr;
 Texture *TextureLibrary::snow = nullptr;
 Texture *TextureLibrary::startButton = nullptr;
 Texture *TextureLibrary::quitButton = nullptr;
+Texture *TextureLibrary::hair = nullptr;
 
 void TextureLibrary::LoadTextures(std::string resourceDir) {
     crate = new Texture("Crate", resourceDir + "crate.bmp");
@@ -34,4 +35,7 @@ void TextureLibrary::LoadTextures(std::string resourceDir) {
 
 	quitButton = new Texture("QuitButton", resourceDir + "buttons/button_quit.jpg");
 	quitButton->Load();
+    
+    hair = new Texture("Hair", resourceDir + "hair.bmp");
+    hair->Load();
 }

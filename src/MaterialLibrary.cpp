@@ -92,9 +92,9 @@ void MaterialLibrary::InitializeMaterials() {
     brown = new Material(new Color(ambient), new Color(diffuse), new Color(specular), shine);
     
     // chrome
-    ambient = glm::vec4(.5, .5, .5, 1);
-    diffuse = glm::vec4(0.5, 0.5, 0.5, 1);
-    specular = glm::vec4(.5, .5, .5, 1);
+    ambient = glm::vec4(.25, .25, .25, 1);
+    diffuse = glm::vec4(0.25, 0.25, 0.25, 1);
+    specular = glm::vec4(.25, .25, .25, 1);
     shine = 70.0;
     chrome = new Material(new Color(ambient), new Color(diffuse), new Color(specular), shine);
 }

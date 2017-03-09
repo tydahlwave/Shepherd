@@ -7,6 +7,9 @@ uniform vec3 matAmbientColor;
 uniform float matShine;
 uniform mat4 V;
 
+uniform int useTexture;
+uniform sampler2D myTexture;
+
 #define MAX_LIGHTS 10
 uniform int numLights;
 uniform struct Light {
@@ -27,6 +30,7 @@ in VS_OUT {
     vec3 vertNor;
     vec3 viewNor;
     vec3 modelPos;
+    vec2 vertTex;
 } vs_out;
 
 
@@ -105,19 +109,25 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     
     sf = step(0.5, sf);
     
+    vec3 ambientColor = matAmbientColor;
+    vec3 diffuseColor = matDiffuseColor;
+    vec3 specularColor = matSpecularColor;
+    if (useTexture == 0) {
+        ambientColor = diffuseColor = specularColor = texture(myTexture, vs_out.vertTex).xyz / 2;
+    }
     
     //ambient
-    vec3 ambient = light.ambientCoefficient * matAmbientColor * light.intensities;
+    vec3 ambient = light.ambientCoefficient * ambientColor * light.intensities;
     
     //diffuse
     //vec3 diffuse = matDiffuseColor * max(dot(vertexN, lightN), 0) * light.intensities;
-    vec3 diffuse = matDiffuseColor * df;
+    vec3 diffuse = diffuseColor * df;
     
     //specular
     float alpha = matShine;
     vec3 halfValue = normalize(viewN + lightN);
     //vec3 specular = matSpecularColor * pow(max(dot(vertexN, halfValue), 0), alpha) * light.intensities;
-    vec3 specular = matSpecularColor  * sf;
+    vec3 specular = specularColor  * sf;
     
     //linear color (color before gamma correction)
     if (light.position.w == 0)

@@ -333,7 +333,7 @@ void GameController::LoadState() {
 
 
 		world.mainCamera = EntityFactory::createMainCamera(&world);
-        world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera, glm::vec3(60, -20, 40));
+        world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera, glm::vec3(-228, 0, 524));
         world.cameraController = (GameObject*)cameraController;
 
         //Create skybox
@@ -357,7 +357,8 @@ void GameController::LoadState() {
 //		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 10, 2.0), 4.0);
         
 		// Create boulders
-		//randomlyPopulateWithBoulders();
+        PathRenderer *p = (PathRenderer*)path->GetComponent("PathRenderer");
+		randomlyPopulateWithBoulders(p->path);
 
 		// Create trees
 		//treeSystem->Spawn(&world);
@@ -365,6 +366,9 @@ void GameController::LoadState() {
         //Place a single light
         //EntityFactory::createLight(&world, glm::vec3(-4,100,10), false, glm::vec3(1, 1, 1), 0.1f, 0.0f, 360.0f, glm::vec3(0,-1,0));
 
+        // Add directional light
+        EntityFactory::createLight(&world, glm::vec3(1, 1, 1), true, glm::vec3(1, 1, 1), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
+        
 		EntityFactory::createHUD(&world);
 		EntityFactory::createChargeBar(&world);
 
@@ -415,17 +419,31 @@ void GameController::UnloadState() {
 }
 
 
-void GameController::randomlyPopulateWithBoulders() {
-	for (int i = 0; i < 15; i++) {
-		int type = rand() % 3;
-		float scale = rand() % 4 + 1;
-        float posX = (rand() % (int)groundSize) - groundSize / 2;
-        float posZ = (rand() % (int)groundSize) - groundSize / 2;
-        vec3 position = glm::vec3(posX, -4, posZ);
-		GameObject *boulder = EntityFactory::createBoulder(&world, type, 1, position);
-		boulder->transform->SetRotation(glm::vec3(0, rand() % 360, 0));
-		boulder->transform->SetScale(glm::vec3(scale, scale, scale));
-	}
+void GameController::randomlyPopulateWithBoulders(Path *path) {
+//	for (int i = 0; i < 15; i++) {
+//		int type = rand() % 3;
+//		float scale = rand() % 4 + 1;
+//        float posX = (rand() % (int)groundSize) - groundSize / 2;
+//        float posZ = (rand() % (int)groundSize) - groundSize / 2;
+//        vec3 position = glm::vec3(posX, -4, posZ);
+//		GameObject *boulder = EntityFactory::createBoulder(&world, type, 1, position);
+//		boulder->transform->SetRotation(glm::vec3(0, rand() % 360, 0));
+//		boulder->transform->SetScale(glm::vec3(scale, scale, scale));
+//	}
+    
+    std::vector<glm::vec3> nodes = path->GetNodes();
+    for (int i = 0; i < nodes.size(); i++) {
+        for (int i = 0; i < 5; i++) {
+            int type = rand() % 3;
+            float scale = rand() % 4 + 1;
+            float posX = (rand() % (int)groundSize) - groundSize / 2;
+            float posZ = (rand() % (int)groundSize) - groundSize / 2;
+            vec3 position = nodes[i] + glm::vec3(posX, -20, posZ);
+            GameObject *boulder = EntityFactory::createBoulder(&world, type, 1, position);
+            boulder->transform->SetRotation(glm::vec3(0, rand() % 360, 0));
+            boulder->transform->SetScale(glm::vec3(scale, scale, scale));
+        }
+    }
 }
 
 void GameController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {

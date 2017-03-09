@@ -41,8 +41,8 @@ GameObject *EntityFactory::createMainCamera(World *world) {
 GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera, glm::vec3 pos) {
 	camera->AddComponent("Character");
 	MeshRenderer *meshRenderer = (MeshRenderer*)camera->AddComponent("MeshRenderer");
-	//meshRenderer->model = ModelLibrary::player;
-    meshRenderer->model = ModelLibrary::gadget;
+	meshRenderer->model = ModelLibrary::player;
+//    meshRenderer->model = ModelLibrary::gadget;
 	meshRenderer->shader = ShaderLibrary::cell;
 	meshRenderer->material = MaterialLibrary::pearl;
 	
@@ -111,6 +111,7 @@ GameObject *EntityFactory::createWolf(World *world) {
     meshRenderer->model = ModelLibrary::wolf;
     meshRenderer->shader = ShaderLibrary::cell;
     meshRenderer->material = MaterialLibrary::brown;
+//    meshRenderer->texture = TextureLibrary::hair;
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 0, 0));
@@ -295,6 +296,7 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
 //    meshRenderer->model = ModelLibrary::sphere;
     meshRenderer->shader = ShaderLibrary::cell;
     meshRenderer->material = MaterialLibrary::chrome;
+    meshRenderer->texture = TextureLibrary::mountain;
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(position.x,position.y,position.z));
@@ -382,7 +384,7 @@ float getTerrainHeightForPosition(GameObject *terrainObject, Terrain *terrain, i
     glm::vec3 terrainMin = terrainObject->transform->GetPosition() - terrainSize/2.0f;
 //    glm::vec3 terrainMax = terrainObject->transform->GetPosition() + terrainSize/2.0f;
     
-    return terrainPos.y + terrain->getHeight((int)((x - terrainMin.x) / terrainObject->transform->GetScale().x), (int)((z - terrainMin.z) / terrainObject->transform->GetScale().z)) * terrainObject->transform->GetScale().y + 90;
+    return terrainPos.y + terrain->getHeight((int)((x - terrainMin.x) / terrainObject->transform->GetScale().x), (int)((z - terrainMin.z) / terrainObject->transform->GetScale().z)) * terrainObject->transform->GetScale().y + 20;
 }
 
 GameObject *EntityFactory::createPath(World *world, GameObject *terrainObject, int size) {
@@ -400,6 +402,11 @@ GameObject *EntityFactory::createPath(World *world, GameObject *terrainObject, i
     renderer->path->AddNode(glm::vec3(27, getTerrainHeightForPosition(terrainObject, terrain, 27, 150), 150));
     renderer->path->AddNode(glm::vec3(140, getTerrainHeightForPosition(terrainObject, terrain, 140, -97), -97));
     renderer->path->AddNode(glm::vec3(30, getTerrainHeightForPosition(terrainObject, terrain, 30, -200), -200));
+    
+    for (glm::vec3 pos : renderer->path->GetNodes()) {
+        EntityFactory::createLight(world, pos, false, glm::vec3(0.5, 0.5, 0.5), 0.1, 0.15, 50, glm::vec3(0, -1, 0));
+    }
+    
     return gameObject;
 }
 
@@ -446,9 +453,10 @@ GameObject *EntityFactory::createTree(World *world, int type, glm::vec3 pos) {
             break;
     }
 //    meshRenderer->model = (type == 0) ? ModelLibrary::tree1 : (type == 1) ? ModelLibrary::tree2 : ModelLibrary::tree3;
-    meshRenderer->model = (type == 0) ? ModelLibrary::tree2 : ModelLibrary::tree3;
+//    meshRenderer->model = (type == 0) ? ModelLibrary::tree2 : ModelLibrary::tree3;
     meshRenderer->shader = ShaderLibrary::cell;
     meshRenderer->material = MaterialLibrary::emerald;
+    meshRenderer->texture = TextureLibrary::grass;
     gameObject->AddComponent("BoxCollider");
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
     rigidBody->isKinematic = true;
