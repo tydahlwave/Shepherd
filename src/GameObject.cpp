@@ -158,9 +158,7 @@ void GameObject::RemoveComponent(std::string name) {
 }
 
 void GameObject::Destroy() {
-    auto it = std::find(world->GetGameObjects().begin(), world->GetGameObjects().end(), this);
-    if(it != world->GetGameObjects().end())
-        world->GetGameObjects().erase(it);
+    world->RemoveGameObject(this);
 }
 
 //template <typename Writer>
