@@ -106,9 +106,9 @@ GameObject *EntityFactory::createTestAnim(World *world) {
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 20, 0));
-    btSphereShape* sphere = new btSphereShape(1000);
+    btBoxShape* sphere = new btBoxShape(btVector3(10,10,10));
     btVector3 inertia(0,0,0);
-    float mass = 100.0f;
+    float mass = 0.0f;
     if(mass != 0)
         sphere->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
@@ -116,8 +116,9 @@ GameObject *EntityFactory::createTestAnim(World *world) {
     rigidBody->bulletRigidBody = new btRigidBody(info);
     rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     
+    
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
-    gameObject->transform->SetScale(vec3(.005,.005,.005));
+    gameObject->transform->SetScale(vec3(.01,.01,.01));
     return gameObject;
 }
 

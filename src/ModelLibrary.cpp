@@ -51,6 +51,6 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
     sheep           = new Model(resourceDir + "sheep.obj");
 	menuSign		= new Model(resourceDir + "title.obj");
     lantern         = new Model(resourceDir + "lantern.obj");
-    monster        = new Model(resourceDir + "monster.dae");
+    monster        = new Model(resourceDir + "monstersmall.dae");
     //monster        = new Model(resourceDir + "boy.dae");
 }

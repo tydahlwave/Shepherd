@@ -34,7 +34,8 @@ void main()
     BMatrix += Bones[vertID[2]] * vertWeight[2];
     BMatrix += Bones[vertID[3]] * vertWeight[3];
     
-    if(vertID[0] < 0 || vertWeight[0] > 1)
+    //if(vertID[0] > 25 || vertWeight[0] > 1)
+    if(true)
         gl_Position = P * V * M * vertPos;
     else{
          gl_Position = P * V * M * BMatrix * vertPos;

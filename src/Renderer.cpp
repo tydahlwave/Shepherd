@@ -297,19 +297,19 @@ void Renderer::Render(World &world, Window &window) {
                 {
                     //std::cout<<"Mat size for skeleton "<<isAnim->skeleton.boneMats.size()<<std::endl;
                     int i = 0;
-                    for(glm::mat4 m : isAnim->skeleton.boneMats)
-                    {
-                        std::cout<<"BONE #:    "<<i<<std::endl;
-                        printGLMMat4(m);
-                        i++;
-                    }
+//                    for(glm::mat4 m : isAnim->skeleton.boneMats)
+//                    {
+//                        std::cout<<"BONE #:    "<<i<<std::endl;
+//                        printGLMMat4(m);
+//                        i++;
+//                    }
                     
                     
                     glUniformMatrix4fv(shader->getUniform("Bones"), //We find the location of the gBones uniform.
                                      //If the object is rigged...
                             isAnim->skeleton.boneMats.size(),
                                GL_FALSE,    //We don't need to transpose the matrices.
-                               glm::value_ptr(isAnim->skeleton.boneMats[0]));
+                               &isAnim->skeleton.boneMats[0][0][0]);
                 }
                 
             }

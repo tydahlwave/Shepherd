@@ -33,7 +33,7 @@ Bone::Bone(Mesh* in_mesh, unsigned int in_id, std::string in_name, glm::mat4 in_
     parent_bone = nullptr;
     node = nullptr;
 }
-//Finally! An actual function!
+
 //This function simply concatenates the parents' transforms.
 //This is vital for calculating this bone's final transformation.
 glm::mat4 Bone::GetParentTransforms()
@@ -60,10 +60,15 @@ glm::mat4 Bone::GetParentTransforms()
     //IMPORTANT!!!! This next loop must be done in reverse,
     //as multiplication with matrices is not commutative.
     for(int i = mats.size()-1; i >= 0; i--)
-        concatenated_transforms *= mats.at(i);
-    
+        concatenated_transforms = mats.at(i) * concatenated_transforms;
+        //concatenated_transforms *= mats.at(i);
     return concatenated_transforms;    //Finally, we return the concatenated transforms.*/
-    
+//    if(b != nullptr)
+//    {
+//        return AiToGLMMat4(b->node->mTransformation);
+//    }
+//    else
+//        return glm::mat4(1);
 }
 
 
