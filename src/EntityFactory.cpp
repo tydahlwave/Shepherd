@@ -70,6 +70,12 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera, gl
     
     camera->transform->SetPosition(pos);
     
+    SheepDestination *dest = (SheepDestination*)camera->AddComponent("SheepDestination");
+    dest->path = new Path();
+    dest->path->size = 1;
+    dest->path->radius = 5;
+    dest->path->AddNode(pos);
+    
 	return camera;
 }
 
@@ -563,7 +569,7 @@ GameObject *EntityFactory::createNodeSphere(World *world) {
     velocityVector.normalize();
     velocityVector = 50.0*velocityVector;
     
-    GameObject *gameObject = world->CreateGameObject("Sphere");
+    GameObject *gameObject = world->CreateGameObject("FollowSphere");
     gameObject->isSerializable = true;
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::sphere;
@@ -590,7 +596,7 @@ GameObject *EntityFactory::createNodeSphere(World *world) {
     rigidBody->bulletRigidBody->setLinearVelocity(velocityVector);
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     
-    if(world->sheepDestinationObject) {
+    if(world->sheepDestinationObject && world->sheepDestinationObject->name == "FollowSphere") {
         world->RemoveGameObject(world->sheepDestinationObject);
         world->sheepDestinationObject = nullptr;
     }

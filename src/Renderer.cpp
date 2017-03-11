@@ -256,7 +256,7 @@ void Renderer::Render(World &world, Window &window) {
                     if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].coneDirection.x,lights[i].coneDirection.y,lights[i].coneDirection.z);
                 }
                 
-                ModelLibrary::sphere->draw(shader);
+                //ModelLibrary::sphere->draw(shader);
                 shader->unbind();
             }
         }

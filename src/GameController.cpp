@@ -19,6 +19,7 @@
 #include "Components/TerrainRenderer.h"
 #include "Components/HUDRenderer.h"
 #include "Components/Light.h"
+#include "Components/SheepDestination.h"
 #include "Terrain.h"
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
@@ -197,6 +198,10 @@ void GameController::Run() {
 
 			while (accumulator >= idealDeltaTime) {
 				//update
+                if(world.sheepDestinationObject && world.sheepDestinationObject->name != "Path") {
+                    SheepDestination* sd = (SheepDestination *)world.sheepDestinationObject->GetComponent("SheepDestination");
+                    sd->Update();
+                }
 				if (bunnySpawnSystem)
 					bunnySpawnSystem->Update(idealDeltaTime, &world, world.sheepDestinationObject);
 				if (wolfSystem)
@@ -302,8 +307,8 @@ void GameController::LoadState() {
             glm::vec3(-40, -20, 70),
             glm::vec3(0, -20, 40)
         };
-        path = EntityFactory::createPath(&world, startMenuTerrain, pathPositions);
-        world.sheepDestinationObject = path;
+        world.sheepDestinationObject = EntityFactory::createPath(&world, startMenuTerrain, pathPositions);
+        
         bunnySpawnSystem = new BunnySpawnSystem();
         bunnySpawnSystem->startPosition = glm::vec3(60, -20, 40);
         
@@ -348,8 +353,7 @@ void GameController::LoadState() {
 
 		// Place game objectsaw
 		//Create Path
-		path = EntityFactory::createNodeSphere(&world);
-        world.sheepDestinationObject = path;
+        world.sheepDestinationObject = world.mainCharacter;
         
         Serializer::DeserializeWorld(&world);
 //		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 20, 2.0), 4.0);

@@ -16,9 +16,13 @@ public:
     SheepDestination() {} ;
     virtual ~SheepDestination() {};
     
-     Path *path = nullptr;
+    Path *path = nullptr;
     void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) {
 
+    }
+    void Update() {
+        vec3 pos = gameObject->transform->GetPosition();
+        path->OverRideAndSetOneNodeToGameObjectPos(pos);
     }
 };
 
