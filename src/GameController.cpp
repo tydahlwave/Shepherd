@@ -198,7 +198,7 @@ void GameController::Run() {
 			while (accumulator >= idealDeltaTime) {
 				//update
 				if (bunnySpawnSystem)
-					bunnySpawnSystem->Update(idealDeltaTime, &world, path);
+					bunnySpawnSystem->Update(idealDeltaTime, &world, world.sheepDestinationObject);
 				if (wolfSystem)
 					wolfSystem->Update(idealDeltaTime, &world);
 				physics.Update(idealDeltaTime, world);
@@ -303,7 +303,7 @@ void GameController::LoadState() {
             glm::vec3(0, -20, 40)
         };
         path = EntityFactory::createPath(&world, startMenuTerrain, pathPositions);
-        
+        world.sheepDestinationObject = path;
         bunnySpawnSystem = new BunnySpawnSystem();
         bunnySpawnSystem->startPosition = glm::vec3(60, -20, 40);
         
@@ -348,8 +348,8 @@ void GameController::LoadState() {
 
 		// Place game objectsaw
 		//Create Path
-		path = EntityFactory::createPath(&world, terrain, 4);
-
+		path = EntityFactory::createNodeSphere(&world);
+        world.sheepDestinationObject = path;
         
         Serializer::DeserializeWorld(&world);
 //		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 20, 2.0), 4.0);
@@ -357,8 +357,8 @@ void GameController::LoadState() {
 //		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 10, 2.0), 4.0);
         
 		// Create boulders
-        PathRenderer *p = (PathRenderer*)path->GetComponent("PathRenderer");
-		randomlyPopulateWithBoulders(p->path);
+//        PathRenderer *p = (PathRenderer*)path->GetComponent("PathRenderer");
+//		randomlyPopulateWithBoulders(p->path);
 
 		// Create trees
 		//treeSystem->Spawn(&world);

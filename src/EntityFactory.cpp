@@ -17,6 +17,7 @@
 #include "Components/PathRenderer.h"
 #include "Components/SkyboxRenderer.h"
 #include "Components/Light.h"
+#include "Components/SheepDestination.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
@@ -407,6 +408,9 @@ GameObject *EntityFactory::createPath(World *world, GameObject *terrainObject, i
         EntityFactory::createLight(world, pos, false, glm::vec3(0.5, 0.5, 0.5), 0.1, 0.15, 50, glm::vec3(0, -1, 0));
     }
     
+    SheepDestination *dest = (SheepDestination*)gameObject->AddComponent("SheepDestination");
+    dest->path = renderer->path;
+    
     return gameObject;
 }
 
@@ -424,6 +428,9 @@ GameObject *EntityFactory::createPath(World *world, GameObject *terrainObject, s
     for (glm::vec3 pos : positions) {
         renderer->path->AddNode(glm::vec3(pos.x, getTerrainHeightForPosition(terrainObject, terrain, pos.x, pos.z), pos.z));
     }
+    
+    SheepDestination *dest = (SheepDestination*)gameObject->AddComponent("SheepDestination");
+    dest->path = renderer->path;
     
     return gameObject;
 }
@@ -540,5 +547,60 @@ GameObject *EntityFactory::createStartMenuTerrain(World *world, std::string reso
     rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    return gameObject;
+}
+
+GameObject *EntityFactory::createNodeSphere(World *world) {
+    // get some values to use
+    float radius = 1.0;
+    float mass = 1.0;
+    glm::vec3 rot = world->mainCharacter->transform->GetRotation();
+    float theta = glm::radians(rot.y);
+    vec3 camLookAt = vec3(sin(theta) * 1, 0, cos(theta) * 1);
+    vec3 position = world->mainCharacter->transform->GetPosition() + 5.0f*camLookAt;
+    btVector3 velocityVector = btVector3(camLookAt.x,camLookAt.y,camLookAt.z);
+    velocityVector.setY(0.7);
+    velocityVector.normalize();
+    velocityVector = 50.0*velocityVector;
+    
+    GameObject *gameObject = world->CreateGameObject("Sphere");
+    gameObject->isSerializable = true;
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->model = ModelLibrary::sphere;
+    meshRenderer->shader = ShaderLibrary::cell;
+    meshRenderer->material = MaterialLibrary::polishedGold;
+    RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
+    rigidBody->isKinematic = true;
+    rigidBody->useGravity = true;
+    btTransform t;
+    t.setIdentity();
+    t.setOrigin(btVector3(position.x,position.y,position.z));
+    btSphereShape* sphere = new btSphereShape(radius);
+    gameObject->transform->SetScale(glm::vec3(radius));
+    btVector3 inertia(0,0,0);
+    if(mass != 0)
+        sphere->calculateLocalInertia(mass, inertia);
+    btMotionState* motion = new btDefaultMotionState(t);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere, inertia);
+    rigidBody->bulletRigidBody = new btRigidBody(info);
+    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+    rigidBody->bulletRigidBody->setFriction(1.f);
+    rigidBody->bulletRigidBody->setRollingFriction(0.3f);
+    rigidBody->bulletRigidBody->setAnisotropicFriction(sphere->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+    rigidBody->bulletRigidBody->setLinearVelocity(velocityVector);
+    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    
+    if(world->sheepDestinationObject) {
+        world->RemoveGameObject(world->sheepDestinationObject);
+        world->sheepDestinationObject = nullptr;
+    }
+    world->sheepDestinationObject = gameObject;
+    
+    SheepDestination *dest = (SheepDestination*)gameObject->AddComponent("SheepDestination");
+    dest->path = new Path();
+    dest->path->size = 1;
+    dest->path->radius = 5;
+    dest->path->AddNode(position);
+    
     return gameObject;
 }

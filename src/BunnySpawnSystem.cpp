@@ -10,14 +10,18 @@
 #include "EntityFactory.h"
 #include "Components/RigidBody.h"
 #include "Components/PathRenderer.h"
+#include "Components/SheepDestination.h"
 #include <GLFW/glfw3.h>
 
 void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
 	//Flock(world, glm::vec3(0, 0, -25));
 
-	PathRenderer *pathRenderer = (PathRenderer*)p->GetComponent("PathRenderer");
-	path = pathRenderer->path;
-
+//	PathRenderer *pathRenderer = (PathRenderer*)p->GetComponent("PathRenderer");
+//	path = pathRenderer->path;
+    
+    SheepDestination *pathRenderer = (SheepDestination*)p->GetComponent("SheepDestination");
+    path = pathRenderer->path;
+    
 	std::map<GameObject*, int>::iterator it;
 	for (it = bunnyNode.begin(); it != bunnyNode.end(); ++it) {
 		glm::vec3 target = FollowPath(world, it->first);

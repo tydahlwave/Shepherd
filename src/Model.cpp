@@ -65,7 +65,7 @@ void Model::resize() {
     glm::vec3 scale, shift;
     glm::vec3 min = glm::vec3(1, 1, 1) * FLT_MAX;
     glm::vec3 max = glm::vec3(1, 1, 1) * FLT_MIN;
-//    float epsilon = 0.001f;
+    float epsilon = 0.001f;
     
     // Find min and max extents
     for (auto i = 0; i < this->meshes.size(); i++) {

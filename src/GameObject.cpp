@@ -23,6 +23,7 @@
 #include "Components/Character.h"
 #include "Components/Death.h"
 #include "Components/Light.h"
+#include "Components/SheepDestination.h"
 
 GameObject::GameObject() :components() {
     name = "GameObject";
@@ -129,6 +130,9 @@ Component *GameObject::AddComponent(std::string name) {
         }
         else if (name.compare("Light") == 0) {
             component = (Component *) new Light();
+        }
+        else if (name.compare("SheepDestination") == 0) {
+            component = (Component *) new SheepDestination();
         } else {
             component = nullptr;
             std::cout << name << " component does not exist." << std::endl;
