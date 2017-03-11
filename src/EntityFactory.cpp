@@ -335,11 +335,10 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
     terrainProps.frequency = 3.0f;
     terrainProps.octaveHeight = 55.0f;
     time_t seed = 0;
-    renderer->terrain->GenerateHeightmap(terrainProps, seed);
-    renderer->terrain->UpdateBuffers();
-    renderer->terrain->init();
-//    renderer->terrain->Generate();
-//    renderer->terrain->GenerateFromImage(resourceDir + "terrain9.png");
+//    renderer->terrain->GenerateHeightmap(terrainProps, seed);
+//    renderer->terrain->UpdateBuffers();
+//    renderer->terrain->init();
+    renderer->terrain->GenerateFromImage(resourceDir + "Heightmap.bmp");
     renderer->shader = ShaderLibrary::ground;
     renderer->material = MaterialLibrary::grass;
     renderer->textures.push_back(TextureLibrary::grass);

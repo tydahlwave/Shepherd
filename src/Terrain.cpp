@@ -97,7 +97,7 @@ void Terrain::GenerateFromImage(std::string imagePath) {
         }
     }
 //    heightMap = map;
-    heightMap = Noise::SmoothTerrain(map, size, 3, 5);
+    heightMap = Noise::SmoothTerrain(map, size, 3, 5);//3, 5);
     
 //    auto width = heightMap[0].size();
 //    auto height = heightMap.size();
