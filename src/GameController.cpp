@@ -354,7 +354,7 @@ void GameController::LoadState() {
 
 		// Place game objectsaw
 		//Create Path
-        world.sheepDestinationObject = world.mainCharacter;
+        world.sheepDestinationObject = nullptr;//world.mainCharacter;
         
         Serializer::DeserializeWorld(&world);
 //		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 20, 2.0), 4.0);

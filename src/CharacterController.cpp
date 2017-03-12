@@ -55,10 +55,6 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
 			//	character->currentTurnSpeed = -30;
 			character->vel[0] = -5.f;
 		}
-        else if (key == GLFW_KEY_1) {
-            EntityFactory::createNodeSphere(world);
-            cout << "NODE SPHERE CREATED" << endl;
-        }
 		else if (key == GLFW_KEY_SPACE) {
 //			glm::vec3 pos = mainCharacter->transform->GetPosition();
 			//pos.y += 100;

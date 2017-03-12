@@ -600,7 +600,7 @@ GameObject *EntityFactory::createNodeSphere(World *world) {
         world->RemoveGameObject(world->sheepDestinationObject);
         world->sheepDestinationObject = nullptr;
     }
-    world->sheepDestinationObject = gameObject;
+    //world->sheepDestinationObject = gameObject;
     
     SheepDestination *dest = (SheepDestination*)gameObject->AddComponent("SheepDestination");
     dest->path = new Path();

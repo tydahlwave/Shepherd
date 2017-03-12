@@ -51,6 +51,7 @@ private:
 //	bool stop = false;
 	std::map<GameObject *, int> bunnyNode;
 	Path *path;
+    void CreateBunny(World *world);
 };
 
 #endif /* BunnySpawnSystem_h */
