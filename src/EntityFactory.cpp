@@ -149,6 +149,7 @@ GameObject *EntityFactory::createTitle(World *world) {
 	MeshRenderer *mesh = (MeshRenderer*)gameObject->AddComponent("MeshRenderer");
 	mesh->model = ModelLibrary::title;
 	mesh->shader = ShaderLibrary::menu;
+    mesh->material = MaterialLibrary::emerald;
 	gameObject->transform->SetPosition(glm::vec3(0.f, .5f, 2.f));
 	gameObject->transform->SetRotation(glm::vec3(0.f, 180.f, 0.f));
 
@@ -335,10 +336,10 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
     terrainProps.frequency = 3.0f;
     terrainProps.octaveHeight = 55.0f;
     time_t seed = 0;
-//    renderer->terrain->GenerateHeightmap(terrainProps, seed);
-//    renderer->terrain->UpdateBuffers();
-//    renderer->terrain->init();
-    renderer->terrain->GenerateFromImage(resourceDir + "Heightmap.bmp");
+    renderer->terrain->GenerateHeightmap(terrainProps, seed);
+    renderer->terrain->UpdateBuffers();
+    renderer->terrain->init();
+//    renderer->terrain->GenerateFromImage(resourceDir + "Heightmap.bmp");
     renderer->shader = ShaderLibrary::ground;
     renderer->material = MaterialLibrary::grass;
     renderer->textures.push_back(TextureLibrary::grass);

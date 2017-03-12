@@ -296,7 +296,8 @@ void GameController::LoadState() {
         GameObject *startMenuTerrain = EntityFactory::createStartMenuTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, -20, 0));
         
         // Add directional light
-        EntityFactory::createLight(&world, glm::vec3(-0.6, 0.8, -1), true, glm::vec3(2, 2, 2), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
+        EntityFactory::createLight(&world, glm::vec3(-0.6, 0.8, 0.5), true, glm::vec3(2, 2, 2), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
+        
         
         //Create skybox
         EntityFactory::createSkybox(&world, resourceDir);
