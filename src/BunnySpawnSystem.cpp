@@ -15,24 +15,26 @@
 
 void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
     if (world->GetGameObjects().size() < maxEntities) CreateBunny(world); // does this mean a bunny spawns whenver a game object is destroyed??
-    if(!p) {
-        return;
+    if(p) {
+        SheepDestination *pathRenderer = (SheepDestination*)p->GetComponent("SheepDestination");
+        path = pathRenderer->path;
+        
+        std::map<GameObject*, int>::iterator it;
+        for (it = bunnyNode.begin(); it != bunnyNode.end(); ++it) {
+            glm::vec3 target = FollowPath(world, it->first);
+            Flock(world, it->first, target);
+        }
     }
-	//Flock(world, glm::vec3(0, 0, -25));
-
-//	PathRenderer *pathRenderer = (PathRenderer*)p->GetComponent("PathRenderer");
-//	path = pathRenderer->path;
-    
-    SheepDestination *pathRenderer = (SheepDestination*)p->GetComponent("SheepDestination");
-    path = pathRenderer->path;
-    
-	std::map<GameObject*, int>::iterator it;
-	for (it = bunnyNode.begin(); it != bunnyNode.end(); ++it) {
-		glm::vec3 target = FollowPath(world, it->first);
-		Flock(world, it->first, target);
-	}
-
-    
+    else {
+        
+        std::map<GameObject*, int>::iterator it;
+        for (it = bunnyNode.begin(); it != bunnyNode.end(); ++it) {
+//            glm::vec3 target = FollowPath(world, it->first);
+//            Flock(world, it->first, target);
+            // put a function call in here to make sheep wander
+            // possibly pass in "it->second" to help keep directoin traveled consistant
+        }
+    }
 }
 
 void BunnySpawnSystem::CreateBunny(World *world) {
