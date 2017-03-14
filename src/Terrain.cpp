@@ -265,7 +265,7 @@ void Terrain::draw() {
 }
 
 float Terrain::getHeight(int x, int y) {
-    Log(ERROR, "Unimplemented", __FILE__, __LINE__);
+//    Log(ERROR, "Unimplemented", __FILE__, __LINE__);
     return data[y * width + x];
 }
 
