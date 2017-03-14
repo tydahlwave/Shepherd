@@ -17,25 +17,24 @@ Texture *TextureLibrary::quitButton = nullptr;
 Texture *TextureLibrary::hair = nullptr;
 
 void TextureLibrary::LoadTextures(std::string resourceDir) {
-    crate = new Texture("Crate", resourceDir + "crate.bmp");
-    crate->Load();
+    crate = new Texture("Crate");
+    crate->Load(resourceDir + "crate.bmp");
     
-    grass = new Texture("Grass", resourceDir + "grass_seamless2.jpg");
-    grass->Load();
+    grass = new Texture("Grass");
+    grass->Load(resourceDir + "grass_seamless2.jpg");
     
-    mountain = new Texture("Mountain", resourceDir + "rock_seamless.jpg");
-    mountain->Load();
+    mountain = new Texture("Mountain");
+    mountain->Load(resourceDir + "rock_seamless.jpg");
     
-    snow = new Texture("Snow", resourceDir + "snow_seamless.jpg");
-    snow->Load();
+    snow = new Texture("Snow");
+    snow->Load(resourceDir + "snow_seamless.jpg");
 
-	startButton = new Texture("StartButton", resourceDir + "buttons/button_start.jpg");
-	startButton->Load();
+	startButton = new Texture("StartButton");
+	startButton->Load(resourceDir + "buttons/button_start.jpg");
 
-
-	quitButton = new Texture("QuitButton", resourceDir + "buttons/button_quit.jpg");
-	quitButton->Load();
+	quitButton = new Texture("QuitButton");
+	quitButton->Load(resourceDir + "buttons/button_quit.jpg");
     
-    hair = new Texture("Hair", resourceDir + "hair.bmp");
-    hair->Load();
+    hair = new Texture("Hair");
+    hair->Load(resourceDir + "hair.bmp");
 }

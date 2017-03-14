@@ -321,17 +321,14 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
 GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, int type, int size, glm::vec3 pos) {
     GameObject *gameObject = world->CreateGameObject("Terrain");
     TerrainRenderer *renderer = (TerrainRenderer*) gameObject->AddComponent("TerrainRenderer");
-    renderer->terrain = new Terrain();
-    renderer->terrain->size = size;
-    renderer->terrain->type = type;
     NoiseProperties terrainProps;
     terrainProps.frequency = 3.0f;
     terrainProps.octaveHeight = 55.0f;
-    time_t seed = 0;
-//    renderer->terrain->GenerateHeightmap(terrainProps, seed);
-//    renderer->terrain->UpdateBuffers();
-//    renderer->terrain->init();
-    renderer->terrain->GenerateFromImage(resourceDir + "Heightmap.bmp");
+    terrainProps.seed = 0;
+//    renderer->terrain = new Terrain(size, terrainProps);
+    renderer->terrain = new Terrain(resourceDir + "Heightmap.png");
+    renderer->terrain->createMesh();
+    renderer->terrain->init();
     renderer->shader = ShaderLibrary::ground;
     renderer->material = MaterialLibrary::grass;
     renderer->textures.push_back(TextureLibrary::grass);
@@ -341,8 +338,9 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(pos.x, pos.y, pos.z));
+
     btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(size, size,
-                                                                              renderer->terrain->flattenHeightMap().data(), 1.0f,
+                                                                              renderer->terrain->getHeightmap(), 1.0f,
                                                                               -255.0f, 255.0f, // min/max heights
                                                                               1, PHY_FLOAT,
                                                                               false);
@@ -359,9 +357,9 @@ void EntityFactory::UpdateTerrain(World *world, GameObject *terrainObj, Terrain 
     RigidBody *rigidBody = (RigidBody*) terrainObj->GetComponent("RigidBody");
     if (rigidBody) {
         world->dynamicsWorld->removeRigidBody(rigidBody->bulletRigidBody);
-        
+
         btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(terrain->size, terrain->size,
-                                                                                  terrain->flattenHeightMap().data(), 1.0f,
+                                                                                  terrain->getHeightmap(), 1.0f,
                                                                                   -255.0f, 255.0f, // min/max heights
                                                                                   1, PHY_FLOAT,
                                                                                   false);
@@ -507,18 +505,14 @@ GameObject *EntityFactory::createLight(World *world, glm::vec3 position, bool is
 GameObject *EntityFactory::createStartMenuTerrain(World *world, std::string resourceDir, int type, int size, glm::vec3 pos) {
     GameObject *gameObject = world->CreateGameObject("StartMenuTerrain");
     TerrainRenderer *renderer = (TerrainRenderer*) gameObject->AddComponent("TerrainRenderer");
-    renderer->terrain = new Terrain();
-    renderer->terrain->size = size;
-    renderer->terrain->type = type;
     NoiseProperties terrainProps;
+    terrainProps.seed = 0;
     terrainProps.frequency = 2.0f;
     terrainProps.octaveHeight = 30.0f;
-    time_t seed = 0;
-    renderer->terrain->GenerateHeightmap(terrainProps, seed);
-    renderer->terrain->UpdateBuffers();
-    renderer->terrain->init();
-    //    renderer->terrain->Generate();
-    //    renderer->terrain->GenerateFromImage(resourceDir + "terrain9.png");
+    renderer->terrain = new Terrain(size, terrainProps);
+//    renderer->terrain = new Terrain(resourceDir + "Heightmap.png");
+//    renderer->terrain->createMesh();
+//    renderer->terrain->init();
     renderer->shader = ShaderLibrary::ground;
     renderer->material = MaterialLibrary::grass;
     renderer->textures.push_back(TextureLibrary::grass);
@@ -529,7 +523,7 @@ GameObject *EntityFactory::createStartMenuTerrain(World *world, std::string reso
     t.setIdentity();
     t.setOrigin(btVector3(pos.x, pos.y, pos.z));
     btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(size, size,
-                                                                              renderer->terrain->flattenHeightMap().data(), 1.0f,
+                                                                              renderer->terrain->getHeightmap(), 1.0f,
                                                                               -255.0f, 255.0f, // min/max heights
                                                                               1, PHY_FLOAT,
                                                                               false);

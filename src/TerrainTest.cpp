@@ -9,6 +9,8 @@
 #include <iostream>
 #include <vector>
 
+#define STB_IMAGE_IMPLEMENTATION
+
 #include "Time.h"
 #include "Mesh.h"
 #include "TextureLibrary.h"
@@ -32,8 +34,6 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
 #include "Path.h"
-
-#include "SOIL/Soil.h"
 
 #ifdef WIN32
 #include <btBulletDynamicsCommon.h>
@@ -133,6 +133,9 @@ int main(int argc, char **argv) {
     // Add directional light
     EntityFactory::createLight(&world, glm::vec3(1, 1, 1), true, glm::vec3(2, 2, 2), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
     
+    // Create skybox
+    EntityFactory::createSkybox(&world, resourceDir);
+    
     // Seed random generator
     srand(time(0));
     
@@ -151,7 +154,7 @@ int main(int argc, char **argv) {
         
         accumulator += elapsedTime;
         while(accumulator >= idealDeltaTime) {
-            physics.Update(idealDeltaTime, world);
+//            physics.Update(idealDeltaTime, world);
             if (world.mainCharacter)
                 characterController.Update(&world, idealDeltaTime);
             accumulator -= idealDeltaTime;

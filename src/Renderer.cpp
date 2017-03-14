@@ -409,11 +409,10 @@ void Renderer::Render(World &world, Window &window) {
             
             // Bind all textures for the terrain
             for (int i = 0; i < terrainRenderer->textures.size(); i++) {
-                glActiveTexture(GL_TEXTURE0 + i);
-                glBindTexture(GL_TEXTURE_2D, terrainRenderer->textures[i]->texID);
+                terrainRenderer->textures[i]->bind(i);
                 glUniform1i(shader->getUniform(terrainRenderer->textures[i]->name), i);
             }
-            terrain->draw(shader);
+            terrain->draw();
             
             shader->unbind();
         }

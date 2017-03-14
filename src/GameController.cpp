@@ -142,7 +142,7 @@ void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
 		ImGui::Begin("Terrain Settings");
 		ImVec2 uv0 = ImVec2(0, 0);
 		ImVec2 uv1 = ImVec2(1, 1);
-		ImGui::Image((void*)(size_t)terrainRenderer->terrain->getTexture()->getTextureId(), ImVec2(128, 128), uv0, uv1, ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
+		ImGui::Image((void*)(size_t)terrainRenderer->terrain->heightmapTex.texID, ImVec2(128, 128), uv0, uv1, ImColor(255, 255, 255, 255), ImColor(255, 255, 255, 128));
 		ImGui::End();
 	}
 
@@ -361,7 +361,7 @@ void GameController::LoadState() {
 		randomlyPopulateWithBoulders(p->path);
 
 		// Create trees
-		//treeSystem->Spawn(&world);
+		treeSystem->Spawn(&world);
         
         //Place a single light
         //EntityFactory::createLight(&world, glm::vec3(-4,100,10), false, glm::vec3(1, 1, 1), 0.1f, 0.0f, 360.0f, glm::vec3(0,-1,0));

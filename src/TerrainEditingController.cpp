@@ -14,8 +14,6 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
 
-#include "SOIL/SOIL.h"
-
 #include "Noise/NoiseProperties.h"
 
 #include "World.h"
@@ -40,7 +38,7 @@ void TerrainEditingController::KeyPressed(World *world, int windowWidth, int win
     if (action == GLFW_PRESS) {
         if (key == GLFW_KEY_T) {
             if (terrainRenderer) {
-                terrainRenderer->terrain->Regenerate();
+                terrainRenderer->terrain->generate();
             }
         } else if (key == GLFW_KEY_SPACE) {
             if (!world->mainCharacter)
@@ -51,6 +49,8 @@ void TerrainEditingController::KeyPressed(World *world, int windowWidth, int win
 
 void TerrainEditingController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {
     if (!mousePressed) return;
+    
+    return;
     
     Terrain *terrain = terrainRenderer->terrain;
     Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
@@ -84,9 +84,8 @@ void TerrainEditingController::MouseMoved(World *world, int windowWidth, int win
         } else if (toolProps.tool == 2) {
             smooth(col, row, toolProps.kernel, toolProps.radius, toolProps.kernelType == 0);
         }
-        terrain->UpdateBuffers();
+        terrain->createMesh();
         terrain->update();
-        //        terrain->makeTexture();
     }
 }
 
@@ -118,7 +117,7 @@ void TerrainEditingController::MouseClicked(World *world, double mouseX, double 
         
         std::cout << "Change height: (" << col << "," << row << ")" << std::endl;
         
-        terrain->getHeight(row, col);
+        terrain->getHeight(col, row);
         if (toolProps.tool == 0) {
             elevate(col, row, toolProps.height, toolProps.radius);
         } else if (toolProps.tool == 1) {
@@ -126,10 +125,8 @@ void TerrainEditingController::MouseClicked(World *world, double mouseX, double 
         } else if (toolProps.tool == 2) {
             smooth(col, row, toolProps.kernel, toolProps.radius, toolProps.kernelType == 0);
         }
-        terrain->UpdateBuffers();
+        terrain->createMesh();
         terrain->update();
-//        terrain->makeTexture();
-//        heightmapNeedsUpdate = true;
     }
 }
 
@@ -149,7 +146,7 @@ void TerrainEditingController::elevate(int x, int y, float height, int radius) {
             
             // If this (row,col) is within radius
             if (pow(row-y, 2) + pow(col-x, 2) < radiusSquared) {
-                terrain->heightMap[row][col] += height;
+                terrain->setHeight(col, row, terrain->getHeight(col, row) + height);
             }
         }
     }
@@ -169,7 +166,7 @@ void TerrainEditingController::flatten(int x, int y, float height, int radius) {
             
             // If this (row,col) is within radius
             if (pow(row-y, 2) + pow(col-x, 2) < radiusSquared) {
-                terrain->heightMap[row][col] = height;
+                terrain->setHeight(col, row, height);
             }
         }
     }
@@ -199,12 +196,12 @@ void TerrainEditingController::smooth(int x, int y, int kernel, int radius, bool
                         for (int kx = -kernel; kx < kernel; kx++) {
                             if (row-ky >= 0 && row-ky < terrain->size && col-kx >= 0 && col-kx < terrain->size) {
                                 count++;
-                                smoothedHeight += terrain->heightMap[row-ky][col-kx];
+                                smoothedHeight += terrain->getHeight(col-kx, row-ky);
                             }
                         }
                     }
                     smoothedHeight /= count;
-                    terrain->heightMap[row][col] = smoothedHeight;
+                    terrain->setHeight(col, row, smoothedHeight);
                 } else {
                     int count = 0;
 //                    int sum = 0;
@@ -215,13 +212,13 @@ void TerrainEditingController::smooth(int x, int y, int kernel, int radius, bool
                                 // If within the kernel radius
                                 if (pow(row-y, 2) + pow(col-x, 2) < kernelSquared) {
                                     count++;
-                                    smoothedHeight += terrain->heightMap[row-ky][col-kx];
+                                    smoothedHeight += terrain->getHeight(col-kx, row-ky);
                                 }
                             }
                         }
                     }
                     smoothedHeight /= count;
-                    terrain->heightMap[row][col] = smoothedHeight;
+                    terrain->setHeight(col, row, smoothedHeight);
                 }
             }
         }
@@ -265,7 +262,7 @@ void TerrainEditingController::ImguiUpdate(World *world) {
         ImVec2 uv0 = ImVec2(0, 0);
         ImVec2 uv1 = ImVec2(1, 1);
 //        ImGui::Image((void*)terrain->getTexture()->getTextureId(), ImVec2(terrain->size, terrain->size), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
-        ImGui::Image((void*)(size_t)terrainRenderer->terrain->getTexture()->getTextureId(), ImVec2(terrain->size, terrain->size), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
+        ImGui::Image((void*)(size_t)terrainRenderer->terrain->heightmapTex.texID, ImVec2(terrain->size, terrain->size), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
         ImGui::End();
     }
     
@@ -277,8 +274,8 @@ void TerrainEditingController::ImguiUpdate(World *world) {
         
         if (ImGui::Button("New Seed")) {
             terrainProps.seed = time(0);
-            terrain->GenerateHeightmap(terrainProps, terrain->seed);
-            terrain->UpdateBuffers();
+            terrain->generate(terrain->size, terrainProps);
+            terrain->createMesh();
             terrain->update();
             EntityFactory::UpdateTerrain(world, terrainRenderer->gameObject, terrain);
         }
@@ -287,18 +284,15 @@ void TerrainEditingController::ImguiUpdate(World *world) {
         
         if (ImGui::SliderFloat("Frequency", &terrainProps.frequency, 0.0f, 10.0f)) {
             std::cout << "Frequency: " << terrainProps.frequency << std::endl;
-            terrain->GenerateHeightmap(terrainProps, terrain->seed);
-            terrain->makeTexture();
+            terrain->generate(terrain->size, terrainProps);
         }
         if (ImGui::SliderInt("Octaves", &terrainProps.octaves, 0.0f, 10.0f)) {
             std::cout << "Octaves: " << terrainProps.octaves << std::endl;
-            terrain->GenerateHeightmap(terrainProps, terrain->seed);
-            terrain->makeTexture();
+            terrain->generate(terrain->size, terrainProps);
         }
         if (ImGui::SliderFloat("Octave Height", &terrainProps.octaveHeight, 0.0f, 100.0f)) {
             std::cout << "Octaves: " << terrainProps.octaveHeight << std::endl;
-            terrain->GenerateHeightmap(terrainProps, terrain->seed);
-            terrain->makeTexture();
+            terrain->generate(terrain->size, terrainProps);
         }
         
         ImGui::Separator();
@@ -311,23 +305,23 @@ void TerrainEditingController::ImguiUpdate(World *world) {
         }
         
         if (ImGui::Button("Generate")) {
-            terrain->GenerateHeightmap(terrainProps, terrain->seed);
-            terrain->UpdateBuffers();
+            terrain->generate(terrain->size, terrainProps);
+            terrain->createMesh();
             terrain->update();
             EntityFactory::UpdateTerrain(world, terrainRenderer->gameObject, terrain);
         }
         ImGui::SameLine();
         if (ImGui::Button("Save")) {
             // Convert heightmap to unsigned chars
-            std::vector<unsigned char> heightmap;
-            std::vector<float> flattenedHeightmap = terrain->flattenHeightMap();
-            for (int i = 0; i < flattenedHeightmap.size(); i++) {
-                heightmap.push_back((unsigned char)flattenedHeightmap[i]);
-            }
-            
+//            std::vector<unsigned char> heightmap;
+//            std::vector<float> flattenedHeightmap = terrain->flattenHeightMap();
+//            for (int i = 0; i < flattenedHeightmap.size(); i++) {
+//                heightmap.push_back((unsigned char)flattenedHeightmap[i]);
+//            }
+//            
             // Save heightmap
-            if (!SOIL_save_image("Level_Heightmap.bmp", SOIL_SAVE_TYPE_BMP, terrain->size, terrain->size, 3, heightmap.data()))
-                std::cout << "Failed to save heightmap" << std::endl;
+//            if (!SOIL_save_image("Level_Heightmap.bmp", SOIL_SAVE_TYPE_BMP, terrain->size, terrain->size, 3, heightmap.data()))
+//                std::cout << "Failed to save heightmap" << std::endl;
         }
         
         ImGui::End();

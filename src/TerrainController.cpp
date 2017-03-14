@@ -21,7 +21,7 @@ void TerrainController::KeyPressed(World *world, int windowWidth, int windowHeig
             for (GameObject *go : world->GetGameObjects()) {
                 if (go->name.compare("Terrain") == 0) {
                     TerrainRenderer *terrainRenderer = (TerrainRenderer*) go->GetComponent("TerrainRenderer");
-                    terrainRenderer->terrain->Regenerate();
+                    terrainRenderer->terrain->generate();
                 }
             }
         }
