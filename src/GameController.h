@@ -81,6 +81,7 @@ private:
     void displayStats(float deltaTime, World &world, Physics &physics);
     void drawImGUIStuff(Window &window, GameObject *terrain);
     void drawTerrainWindow(Window &window, GameObject *terrain);
+    void ImGuiShowNames(World *world);
 };
 
 #endif /* CharacterController_h */

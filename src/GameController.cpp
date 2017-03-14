@@ -99,15 +99,8 @@ void GameController::displayStats(float deltaTime, World &world, Physics &physic
 }
 
 
-bool show_test_window = true;
-bool show_another_window = true;
-ImVec4 clear_color = ImColor(114, 144, 154);
-
-void GameController::ImguiUpdate(World *world) {
-    if(terrain) drawTerrainWindow(window, terrain);
-    LevelEditor::drawLevelEditor(window, world);
-    
-    
+void GameController::ImGuiShowNames(World *world) {
+    // draw names over sheep
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1,1,1,0));
     ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(1,1,1,0));
     ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(1,1,1,0));
@@ -116,21 +109,20 @@ void GameController::ImguiUpdate(World *world) {
     for (GameObject *gameObject : world->GetGameObjects()) {
         TextName *textName = (TextName*)gameObject->GetComponent("TextName");
         if(textName && Renderer::intersectFrustumAABB((Camera*)world->mainCamera->GetComponent("Camera"), gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
-        
+            
             GLint viewportArray[4];
             glGetIntegerv(GL_VIEWPORT, viewportArray);
             vec4 viewport = vec4(viewportArray[0], viewportArray[1], viewportArray[2], viewportArray[3]);
-            float aspectRatio = window.GetWidth() / (float)window.GetHeight();
+            float aspectRatio = (float)window.GetWidth() / (float)window.GetHeight();
             Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
             mat4 P = glm::perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
             mat4 V = glm::lookAt(camera->pos, camera->lookAt, camera->up);
-        
+            
             vec3 projected = glm::project(gameObject->transform->GetPosition(), V, P, viewport);
-        
+            
             // now write characters to screen in this projected screen pos
             ImVec4 textCol = ImVec4(textName->color.x, textName->color.y, textName->color.z, 1);
             ImGui::PushStyleColor(ImGuiCol_Text, textCol);
-            
             
             // define variables for width and height of each imgui name window
             float width = 100.0;
@@ -147,7 +139,12 @@ void GameController::ImguiUpdate(World *world) {
     ImGui::PopStyleColor();
     ImGui::PopStyleColor();
     ImGui::PopStyleColor();
-    
+}
+
+void GameController::ImguiUpdate(World *world) {
+    if(terrain) drawTerrainWindow(window, terrain);
+    LevelEditor::drawLevelEditor(window, world);
+    ImGuiShowNames(world);
 }
 
 void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
