@@ -112,6 +112,7 @@ void GameController::ImguiUpdate(World *world) {
     ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(1,1,1,0));
     ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(1,1,1,0));
     ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, ImVec4(1,1,1,0));
+    
     for (GameObject *gameObject : world->GetGameObjects()) {
         TextName *textName = (TextName*)gameObject->GetComponent("TextName");
         if(textName && Renderer::intersectFrustumAABB((Camera*)world->mainCamera->GetComponent("Camera"), gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
@@ -127,7 +128,10 @@ void GameController::ImguiUpdate(World *world) {
             vec3 projected = glm::project(gameObject->transform->GetPosition(), V, P, viewport);
         
             // now write characters to screen in this projected screen pos
-        
+            ImVec4 textCol = ImVec4(textName->color.x, textName->color.y, textName->color.z, 1);
+            ImGui::PushStyleColor(ImGuiCol_Text, textCol);
+            
+            
             // define variables for width and height of each imgui name window
             float width = 100.0;
             float height = 50.0;
@@ -136,6 +140,7 @@ void GameController::ImguiUpdate(World *world) {
             ImGui::Begin(textName->name.c_str());
             ImGui::SetWindowPos(ImVec2(projected.x-width/2.0, window.GetHeight() - (projected.y + 40.0)));
             ImGui::End();
+            ImGui::PopStyleColor();
         }
     }
     ImGui::PopStyleColor();

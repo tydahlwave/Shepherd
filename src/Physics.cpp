@@ -17,6 +17,7 @@
 #include "MaterialLibrary.h"
 #include "Interpolation.h"
 #include "Components/Death.h"
+#include "Components/TextName.h"
 
 void Physics::Update(float deltaTime, World &world) {
     if (!enabled) return;
@@ -150,6 +151,10 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
                 if (rb->bulletRigidBody) {
                     world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
                 }
+            }
+            TextName* tn = (TextName*)collision.gameObject1->GetComponent("TextName");
+            if(tn) {
+                tn->color = vec3(1,0,0);
             }
         }
         else if (collision.gameObject2->name.compare("Terrain") == 0 && collision.gameObject1->name.compare("Wolf") == 0) {

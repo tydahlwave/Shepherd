@@ -22,6 +22,7 @@ public:
     } ;
     virtual ~TextName() {};
     string name;
+    vec3 color = vec3(1);
     void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) {
         
     }
