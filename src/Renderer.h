@@ -20,6 +20,7 @@ public:
     void Initialize();
 	void Render(World &world, Window &window);
 	int checkClickable(World &world, Window &window, int mx, int my);
+    static bool intersectFrustumAABB(Camera *cam, vec3 min, vec3 max);
 };
 
 #endif /* Renderer_h */

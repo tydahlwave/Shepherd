@@ -26,4 +26,4 @@ public:
     }
 };
 
-#endif /* Light_h */
+#endif /* SheepDestination_h */

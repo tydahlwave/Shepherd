@@ -200,6 +200,7 @@ void Window::Terminate() {
 void Window::Update() {
     PollEvents();
     if (drawGUI) UpdateImgui();
+    
     SwapBuffers();
 }
 

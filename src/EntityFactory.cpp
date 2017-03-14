@@ -18,12 +18,14 @@
 #include "Components/SkyboxRenderer.h"
 #include "Components/Light.h"
 #include "Components/SheepDestination.h"
+#include "Components/TextName.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
 #include "TextureLibrary.h"
 #include "Terrain.h"
 #include  "Path.h"
+#include "RandomNames.h"
 //#include <Bullet3Geometry>
 #include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
 
@@ -104,6 +106,9 @@ GameObject *EntityFactory::createBunny(World *world) {
     rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    
+    TextName *name = (TextName*)gameObject->AddComponent("TextName");
+    name->name = RandomNames::getRandomName();
     return gameObject;
 }
 

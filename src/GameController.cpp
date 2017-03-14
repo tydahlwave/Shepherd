@@ -20,6 +20,7 @@
 #include "Components/HUDRenderer.h"
 #include "Components/Light.h"
 #include "Components/SheepDestination.h"
+#include "Components/TextName.h"
 #include "Terrain.h"
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
@@ -105,6 +106,43 @@ ImVec4 clear_color = ImColor(114, 144, 154);
 void GameController::ImguiUpdate(World *world) {
     if(terrain) drawTerrainWindow(window, terrain);
     LevelEditor::drawLevelEditor(window, world);
+    
+    
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1,1,1,0));
+    ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(1,1,1,0));
+    ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(1,1,1,0));
+    ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, ImVec4(1,1,1,0));
+    for (GameObject *gameObject : world->GetGameObjects()) {
+        TextName *textName = (TextName*)gameObject->GetComponent("TextName");
+        if(textName && Renderer::intersectFrustumAABB((Camera*)world->mainCamera->GetComponent("Camera"), gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
+        
+            GLint viewportArray[4];
+            glGetIntegerv(GL_VIEWPORT, viewportArray);
+            vec4 viewport = vec4(viewportArray[0], viewportArray[1], viewportArray[2], viewportArray[3]);
+            float aspectRatio = window.GetWidth() / (float)window.GetHeight();
+            Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
+            mat4 P = glm::perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
+            mat4 V = glm::lookAt(camera->pos, camera->lookAt, camera->up);
+        
+            vec3 projected = glm::project(gameObject->transform->GetPosition(), V, P, viewport);
+        
+            // now write characters to screen in this projected screen pos
+        
+            // define variables for width and height of each imgui name window
+            float width = 100.0;
+            float height = 50.0;
+            ImGui::SetNextWindowSize(ImVec2(width,height), ImGuiSetCond_FirstUseEver);
+            ImGui::SetNextWindowCollapsed(true, ImGuiSetCond_Once);
+            ImGui::Begin(textName->name.c_str());
+            ImGui::SetWindowPos(ImVec2(projected.x-width/2.0, window.GetHeight() - (projected.y + 40.0)));
+            ImGui::End();
+        }
+    }
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+    
 }
 
 void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
@@ -297,8 +335,8 @@ void GameController::LoadState() {
         
         // Add directional light
         EntityFactory::createLight(&world, glm::vec3(-0.6, 0.8, -1.0), true, glm::vec3(2, 2, 2), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
+        // Add point light in front of sign
         EntityFactory::createLight(&world, glm::vec3(1.f, .3f, 1.3f), false, glm::vec3(1), 15.0, 0.15, 360., glm::vec3(1));
-        
         
         //Create skybox
         EntityFactory::createSkybox(&world, resourceDir);
