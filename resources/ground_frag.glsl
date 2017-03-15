@@ -73,7 +73,7 @@ float rand(vec2 co){
 vec4 getColor() {
     vec3 modelN = normalize(modelNor);
     float heightValue = (facePos.y/terrainScale.y-terrainMin) / (terrainMax-terrainMin);
-    vec3 heightColor = vec3(221/255.0f, 221/255.0f, 228/255.0f);
+    vec3 heightColor = regionColors[3];
     vec3 textureColors[4] = vec3[](
     texture(Grass, vertPos.xz / 3).xyz,
     texture(Grass, vertPos.xz / 3).xyz,

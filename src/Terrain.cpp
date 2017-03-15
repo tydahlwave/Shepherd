@@ -99,9 +99,9 @@ void Terrain::createMesh() {
     
 //    smooth(3, 3);
     
-    // Record max/min
-    max = FLT_MIN;
-    min = FLT_MAX;
+    // Record max/min and resize data to put lowest point at 0
+    unsigned short max = SHRT_MIN;
+    unsigned short min = SHRT_MAX;
     for (int col = 0; col < width; col++) {
         for (int row = 0; row < height; row++) {
             int index = row * width + col;
@@ -109,6 +109,14 @@ void Terrain::createMesh() {
             if (data[index] < min) min = data[index];
         }
     }
+    for (int col = 0; col < width; col++) {
+        for (int row = 0; row < height; row++) {
+            int index = row * width + col;
+            data[index] -= min;
+        }
+    }
+    this->min = 0;
+    this->max = (float)max / SHRT_MAX * maxHeight - (float)min / SHRT_MAX * maxHeight;
     
     // Reset buffers
     if (!vertices.empty()) vertices.clear();
@@ -128,7 +136,7 @@ void Terrain::createMesh() {
         for (int col = 0; col < width; col++) {
             int index = row * width + col;
             float x = col - width/2.0f;
-            float y = ((float)data[index] - min)/SHRT_MAX*maxHeight;
+            float y = (float)data[index]/SHRT_MAX*maxHeight;
             float z = row - height/2.0f;
             vertices[index].pos = glm::vec3(x, y, z);
         }
@@ -267,7 +275,7 @@ void Terrain::draw() {
 
 float Terrain::getHeight(int x, int y) {
 //    Log(ERROR, "Unimplemented", __FILE__, __LINE__);
-    return ((float)data[y * width + x] - min) / SHRT_MAX * maxHeight;
+    return (float)data[y * width + x] / SHRT_MAX * maxHeight;
 }
 
 void Terrain::setHeight(int x, int y, float height) {
