@@ -303,6 +303,7 @@ void TerrainEditingController::ImguiUpdate(World *world) {
         }
         ImGui::SameLine();
         ImGui::LabelText("", "%zu", terrainProps.seed ? terrainProps.seed : terrain->seed);
+        ImGui::Separator();
         
         if (ImGui::SliderFloat("Frequency", &terrainProps.frequency, 0.0f, 10.0f)) {
             std::cout << "Frequency: " << terrainProps.frequency << std::endl;
@@ -316,15 +317,20 @@ void TerrainEditingController::ImguiUpdate(World *world) {
             std::cout << "Octaves: " << terrainProps.octaveHeight << std::endl;
             terrain->generate(terrain->size, terrainProps);
         }
-        
         ImGui::Separator();
         
-        for (int i = 0; i < terrainRenderer->regionColors.size(); i++) {
-            std::string heightStr = "Height" + to_string(i);
-            std::string colorStr = "Color" + to_string(i);
-            ImGui::SliderFloat(heightStr.c_str(), &terrainRenderer->regions[i], 0.0f, 1.0f);
-            ImGui::ColorEdit3(colorStr.c_str(), &terrainRenderer->regionColors[i][0]);
+        ImGui::Checkbox("Use Textures?", &terrain->useTextures);
+        ImGui::Separator();
+        
+        if (!terrain->useTextures) {
+            for (int i = 0; i < terrainRenderer->regionColors.size(); i++) {
+                std::string heightStr = "Height" + to_string(i);
+                std::string colorStr = "Color" + to_string(i);
+                ImGui::SliderFloat(heightStr.c_str(), &terrainRenderer->regions[i], 0.0f, 1.0f);
+                ImGui::ColorEdit3(colorStr.c_str(), &terrainRenderer->regionColors[i][0]);
+            }
         }
+        ImGui::Separator();
         
         if (ImGui::Button("Generate")) {
             terrain->generate(terrain->size, terrainProps);

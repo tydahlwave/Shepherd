@@ -376,7 +376,8 @@ void Renderer::Render(World &world, Window &window) {
             if (shader->hasUniform("terrainMin")) glUniform1i(shader->getUniform("terrainMin"), terrain->min + terrainRenderer->gameObject->transform->GetPosition().y);
             if (shader->hasUniform("terrainMax")) glUniform1i(shader->getUniform("terrainMax"), terrain->max + terrainRenderer->gameObject->transform->GetPosition().y);
             if (shader->hasUniform("terrainScale")) glUniform3f(shader->getUniform("terrainScale"), gameObject->transform->GetScale().x, gameObject->transform->GetScale().y, gameObject->transform->GetScale().z);
-//            if (shader->hasUniform("useTextureMap")) glUniform1i(shader->getUniform("useTextureMap"), terrain->useTextureMap);
+            if (shader->hasUniform("useTextureMap")) glUniform1i(shader->getUniform("useTextureMap"), terrain->useTextureMap);
+            if (shader->hasUniform("useTextures")) glUniform1i(shader->getUniform("useTextures"), terrain->useTextures);
             
             if (shader->hasUniform("numLights")) glUniform1i(shader->getUniform("numLights"), lights.size());
             

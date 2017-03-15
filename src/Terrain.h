@@ -39,6 +39,7 @@ public:
     int type = SIMPLEX_TERRAIN;
     Texture heightmapTex;
     bool useTextureMap = false;
+    bool useTextures = false;
     
     std::vector<TerrainVertex> vertices;
     std::vector<GLuint> indices;

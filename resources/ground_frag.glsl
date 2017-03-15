@@ -13,6 +13,7 @@ uniform sampler2D Mountain;
 uniform sampler2D Snow;
 
 uniform bool useTextureMap;
+uniform bool useTextures;
 
 const int NumRegions = 3;
 uniform float regions[NumRegions];
@@ -83,30 +84,28 @@ vec4 getColor() {
     vec3 textureColor = textureColors[NumRegions-1];
     vec3 heightColor = regionColors[NumRegions-1];
     
-//    if (useTextureMap) {
-        textureColor = (textureColors[int(vertTex)] + textureColors[min(int(vertTex)+1, NumRegions-1)]) / 2.0f;
-        heightColor = (regionColors[int(vertTex)] + regionColors[min(int(vertTex)+1, NumRegions-1)]) / 2.0f;
-//    } else {
-//        for (int i = 0; i < NumRegions; i++) {
-//            float height = regions[i];
-//            if (heightValue <= height) {
-//                textureColor = textureColors[i];
-////                if (i <= 0) textureColor = texture(Grass, vertPos.xz / 3).xyz;
-////                else if (i == 1) textureColor = texture(Mountain, vertPos.xz / 3).xyz;
-////                else textureColor = texture(Snow, vertPos.xz / 3).xyz;
-//                if (i > 0) {
-//                    float prevHeight = regions[i-1];
-//                    float heightDist = height - prevHeight;
-//                    float contribution = pow((heightValue - prevHeight) / heightDist, 1);
-//                    heightColor = (1-contribution) * regionColors[i-1] + contribution * regionColors[i];
-//                    textureColor = (1-contribution) * textureColors[i-1] + contribution * textureColors[i];
-//                } else {
-//                    heightColor = regionColors[i];
-//                }
-//                break;
-//            }
-//        }
-//    }
+    if (useTextureMap) {
+        float contribution = fract(vertTex);
+        textureColor = textureColors[int(vertTex)] * (1-contribution) + textureColors[min(int(vertTex)+1, NumRegions-1)] * contribution;
+        heightColor = regionColors[int(vertTex)] * (1-contribution) + regionColors[min(int(vertTex)+1, NumRegions-1)] * contribution;
+    } else {
+        for (int i = 0; i < NumRegions; i++) {
+            float height = regions[i];
+            if (heightValue <= height) {
+                textureColor = textureColors[i];
+                if (i > 0) {
+                    float prevHeight = regions[i-1];
+                    float heightDist = height - prevHeight;
+                    float contribution = pow((heightValue - prevHeight) / heightDist, 1);
+                    heightColor = (1-contribution) * regionColors[i-1] + contribution * regionColors[i];
+                    textureColor = (1-contribution) * textureColors[i-1] + contribution * textureColors[i];
+                } else {
+                    heightColor = regionColors[i];
+                }
+                break;
+            }
+        }
+    }
     // Make triangles vary in brightness slightly for a more low-poly look
     vec3 randIntensity = rand(facePos.xz) * vec3(0.02, 0.02, 0.02);
     //    vec3 finalColor = (diffuseColor + ambientColor);
@@ -115,8 +114,11 @@ vec4 getColor() {
     vec3 finalColor = heightValue * modelN.y * heightColor + randIntensity;
     //    color = vec4(heightColor*modelN.y + randIntensity, 1.0);
     //    color = vec4(textureColor*modelN.y, 1.0);
-//    return vec4(textureColor*modelN.y, 1.0);
-    return vec4(heightColor*modelN.y + randIntensity, 1.0);
+    if (useTextures) {
+        return vec4(textureColor*modelN.y, 1.0);
+    } else {
+        return vec4(heightColor*modelN.y + randIntensity, 1.0);
+    }
 }
 
 vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
