@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
     
     // Create terrain
     GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, 0, 0));
-    terrain->transform->SetScale(glm::vec3(5, 5, 5));
+    terrain->transform->SetScale(glm::vec3(3, 3, 3));
     terrainController.SetTerrain((TerrainRenderer*)terrain->GetComponent("TerrainRenderer"));
     
 //    EntityFactory::createSphere(&world, 2, glm::vec3(0, 100, 0), 10);

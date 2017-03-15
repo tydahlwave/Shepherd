@@ -18,10 +18,12 @@ public:
 	void MouseClicked(World *world, double mouseX, double mouseY, int key, int action);
 	void MouseScrolled(World *world, double dx, double dy);
 private:
+    const float MOVE_SPEED = 50;
+    const float RUN_SPEED = 100;
 //	float alpha = -M_PI / 2;
 //	float beta = -M_PI / 2 * 3;
 //	float turnSpeed = 0;
-	float moveSpeed = 50;
+	float moveSpeed = MOVE_SPEED;
 	glm::vec2 mousePrev = { 0, 0 };
 };
 
