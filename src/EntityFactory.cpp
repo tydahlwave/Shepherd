@@ -52,7 +52,7 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera, gl
     btBoxShape* collisionShape = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x*camera->transform->GetScale().x, meshRenderer->model->bounds.halfwidths.y*camera->transform->GetScale().y, meshRenderer->model->bounds.halfwidths.z*camera->transform->GetScale().z));
 
 	btVector3 inertia(0, 0, 0);
-	float mass = 1.0f;
+	float mass = 10.0f;
 	if (mass != 0)
 		collisionShape->calculateLocalInertia(mass, inertia);
 	btMotionState* motion = new btDefaultMotionState(t);
@@ -63,6 +63,8 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera, gl
 	rigidBody->bulletRigidBody = new btRigidBody(info);
 	rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     rigidBody->bulletRigidBody->setFriction(1);
+    rigidBody->bulletRigidBody->setRollingFriction(1);
+    rigidBody->bulletRigidBody->setSpinningFriction(1);
     rigidBody->bulletRigidBody->setCollisionFlags(0);
 	((Camera*)camera->GetComponent("Camera"))->stat = false;
 	world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
@@ -88,7 +90,7 @@ GameObject *EntityFactory::createBunny(World *world) {
     t.setOrigin(btVector3(0, 0, 0));
     btSphereShape* sphere = new btSphereShape(1);
     btVector3 inertia(0,0,0);
-    float mass = 100.0f;
+    float mass = 2.0f;
     if(mass != 0)
         sphere->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
@@ -335,21 +337,28 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
     renderer->textures.push_back(TextureLibrary::mountain);
     renderer->textures.push_back(TextureLibrary::snow);
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
-    btTransform t;
-    t.setIdentity();
-    t.setOrigin(btVector3(pos.x, pos.y, pos.z));
-
-    btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(size, size,
-                                                                              renderer->terrain->getHeightmap(), 1.0f,
-                                                                              0.0f, renderer->terrain->maxHeight, // min/max heights
-                                                                              1, PHY_FLOAT,
-                                                                              false);
-    btMotionState* motion = new btDefaultMotionState(t);
-    btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, collisionShape);
-    rigidBody->bulletRigidBody = new btRigidBody(info);
-    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
-    
-    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+//    btTransform t;
+//    t.setIdentity();
+//    t.setOrigin(btVector3(pos.x, pos.y, pos.z));
+//
+//    int dataSize = renderer->terrain->width*renderer->terrain->height;
+//    unsigned short *data = (unsigned short *)renderer->terrain->getHeightmap();
+//    vector<float> newData(dataSize);
+//    for (int i = 0; i < dataSize; i++) {
+//        newData.push_back((data[i]-renderer->terrain->min) / SHRT_MAX * renderer->terrain->maxHeight);
+//    }
+//    
+//    btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(renderer->terrain->width, renderer->terrain->height,
+//                                                                              newData.data(), 1.0f,
+//                                                                              0.0f, renderer->terrain->maxHeight, // min/max heights
+//                                                                              1, PHY_FLOAT,
+//                                                                              false);
+//    btMotionState* motion = new btDefaultMotionState(t);
+//    btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, collisionShape);
+//    rigidBody->bulletRigidBody = new btRigidBody(info);
+//    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+//    
+//    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
 }
 
