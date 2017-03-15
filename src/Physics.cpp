@@ -306,8 +306,8 @@ void Physics::HandleTerrainCollisions(World &world) {
                 int rowIndex = (int)fRowIndex;// / (terrainSize.z/2.0f);
                 int colIndex = (int)fColIndex;// / (terrainSize.x/2.0f);
                 float neighbors[2][2] = {
-                    {terrain->getHeight(rowIndex+1, colIndex+1), terrain->getHeight(rowIndex+1, colIndex)},
-                    {terrain->getHeight(rowIndex, colIndex+1), terrain->getHeight(rowIndex, colIndex)}
+                    {terrain->getHeight(rowIndex, colIndex), terrain->getHeight(rowIndex+1, colIndex)},
+                    {terrain->getHeight(rowIndex, colIndex+1), terrain->getHeight(rowIndex+1, colIndex+1)}
                 };
                 
                 std::cout << "Height[" << rowIndex << "][" << colIndex << "] = " << terrain->getHeight(rowIndex, colIndex) << std::endl;
