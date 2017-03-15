@@ -31,7 +31,7 @@ void Physics::Update(float deltaTime, World &world) {
             gameObject->transform->SetPosition(gameObject->transform->GetPosition()+vel);
         }
     }
-//    UpdateBulletPhysics(deltaTime, world);
+    UpdateBulletPhysics(deltaTime, world);
 //    ComputeCollisions(world);
     HandleTerrainCollisions(world);
 }
@@ -342,17 +342,19 @@ void Physics::HandleTerrainCollisions(World &world) {
                     }
                 }
                 
-                if (obj->name.compare("Bunny") == 0 || obj->name.compare("Boulder") == 0) {
-                    if (pos.y < terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f)
-                        obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1, pos.z));
-                } else if (obj->name.compare("Wolf") == 0) {
-                    if (pos.y < terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f)
-                    obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1, pos.z));
-                } else if (obj->name.compare("Tree") == 0 || obj->name.compare("Camera") == 0) {
-                    std::cout << "Object Pos: (" << pos.x << "," << pos.y << "," << pos.z << ")" << std::endl;
-                    
-                    float newPosY = terrainPos.y + (interpolatedHeight * terrainObject->transform->GetScale().y) + //(obj->transform->GetScale().y / 2.0f) + 1;
-                    ((MeshRenderer*)obj->GetComponent("MeshRenderer"))->model->bounds.halfwidths.y * obj->transform->GetScale().y;
+                // Move any objects that are under the terrain to above it
+                MeshRenderer *meshRenderer = (MeshRenderer*)obj->GetComponent("MeshRenderer");
+                if (!meshRenderer) continue;
+                float terrainHeight = interpolatedHeight * terrainObject->transform->GetScale().y;
+                float halfObjectHeight = meshRenderer->model->bounds.halfwidths.y * obj->transform->GetScale().y;
+                float newPosY = terrainPos.y + terrainHeight + halfObjectHeight;
+                
+                if (obj->name.compare("Bunny") == 0 || obj->name.compare("Wolf") == 0 || obj->name.compare("Boulder") == 0 || obj->name.compare("Camera") == 0) {
+                    if (pos.y < newPosY) {
+                        obj->transform->SetPosition(glm::vec3(pos.x, newPosY, pos.z));
+                    }
+                } else if (obj->name.compare("Tree") == 0) {
+                    // Always place this object directly on the terrain (cannot fly above terrain)
                     obj->transform->SetPosition(glm::vec3(pos.x, newPosY, pos.z));
                 }
             }
