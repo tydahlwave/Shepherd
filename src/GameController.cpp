@@ -105,7 +105,12 @@ void GameController::ImGuiShowNames(World *world) {
     ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(1,1,1,0));
     ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(1,1,1,0));
     ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, ImVec4(1,1,1,0));
-    
+//    ImGuiIO& io = ImGui::GetIO();
+//    ImFont* font0 = io.Fonts->AddFontDefault();
+//    ImFont* font = io.Fonts->AddFontFromFileTTF("../../resources/fonts/Baloo_Bhaina/BalooBhaina.ttf", 40);
+//    if(!font) cout << "error: counldn't load font\n";
+//    if(!font->IsLoaded()) cout << "font not loaded";
+//    ImGui::PushFont(font);
     for (GameObject *gameObject : world->GetGameObjects()) {
         TextName *textName = (TextName*)gameObject->GetComponent("TextName");
         if(textName && Renderer::intersectFrustumAABB((Camera*)world->mainCamera->GetComponent("Camera"), gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
@@ -121,29 +126,34 @@ void GameController::ImGuiShowNames(World *world) {
             vec3 projected = glm::project(gameObject->transform->GetPosition(), V, P, viewport);
             
             // now write characters to screen in this projected screen pos
-            ImVec4 textCol = ImVec4(textName->color.x, textName->color.y, textName->color.z, 1);
+            float distance = glm::distance(world->mainCharacter->transform->GetPosition(), gameObject->transform->GetPosition());
+            float alpha = 1.0 - distance*distance / 5000.0;
+            ImVec4 textCol = ImVec4(textName->color.x, textName->color.y, textName->color.z, alpha);
             ImGui::PushStyleColor(ImGuiCol_Text, textCol);
             
             // define variables for width and height of each imgui name window
-            float width = 100.0;
-            float height = 50.0;
+            float width = 200;
+            float height = 30;
             ImGui::SetNextWindowSize(ImVec2(width,height), ImGuiSetCond_FirstUseEver);
             ImGui::SetNextWindowCollapsed(true, ImGuiSetCond_Once);
-            ImGui::Begin(textName->name.c_str());
-            ImGui::SetWindowPos(ImVec2(projected.x-width/2.0, window.GetHeight() - (projected.y + 40.0)));
+            ImGui::Begin(textName->name.c_str(), nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs);
+            ImGui::Text("%s", textName->name.c_str());
+            ImGui::SetWindowPos(ImVec2(projected.x - 10.0, window.GetHeight() - (projected.y + 50.0)));
             ImGui::End();
             ImGui::PopStyleColor();
         }
     }
+//    ImGui::PopFont();
     ImGui::PopStyleColor();
     ImGui::PopStyleColor();
     ImGui::PopStyleColor();
     ImGui::PopStyleColor();
 }
 
-void GameController::ImguiUpdate(World *world) {
-    if(terrain) drawTerrainWindow(window, terrain);
-    LevelEditor::drawLevelEditor(window, world);
+void GameController::ImguiUpdate(World *world, bool drawGUI) {
+//    if(!drawGUI) return;
+    if(terrain && drawGUI) drawTerrainWindow(window, terrain);
+    if (drawGUI) LevelEditor::drawLevelEditor(window, world);
     ImGuiShowNames(world);
 }
 

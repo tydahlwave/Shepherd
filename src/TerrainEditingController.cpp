@@ -228,7 +228,8 @@ void TerrainEditingController::smooth(int x, int y, int kernel, int radius, bool
     }
 }
 
-void TerrainEditingController::ImguiUpdate(World *world) {
+void TerrainEditingController::ImguiUpdate(World *world, bool drawGUI) {
+    if(!drawGUI) return;
     Terrain *terrain = terrainRenderer->terrain;
     
     // 1. Show a simple window
