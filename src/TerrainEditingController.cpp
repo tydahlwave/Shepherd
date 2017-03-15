@@ -28,6 +28,7 @@ struct ToolProperties {
     int kernel = 3;
     int kernelType = 0;
     int textureType = 0;
+    int textureShapeType = 0;
 };
 
 bool mousePressed = false;
@@ -239,8 +240,13 @@ void TerrainEditingController::texture(int x, int y, int radius) {
         for (int col = x - radius; col < x + radius; col++) {
             if (col < 0 || col >= terrain->size) continue;
             
-            // If this (row,col) is within radius
-            if (pow(row-y, 2) + pow(col-x, 2) < radiusSquared) {
+            // If the shape type is a circle
+            if (toolProps.textureShapeType == 0) {
+                // If this (row,col) is within radius
+                if (pow(row-y, 2) + pow(col-x, 2) < radiusSquared) {
+                    terrain->setTexture(col, row, toolProps.textureType);
+                }
+            } else {
                 terrain->setTexture(col, row, toolProps.textureType);
             }
         }
@@ -399,8 +405,12 @@ void TerrainEditingController::ImguiUpdate(World *world) {
             const char *items[] = {item0.c_str(), item1.c_str(), item2.c_str()};
             
             ImGui::Combo("Textures", &toolProps.textureType, items, 3);
-            ImGui::SliderInt("Radius", &toolProps.radius, 1, 100);
             ImGui::Checkbox("Use Painted Textures?", &terrain->useTextureMap);
+            ImGui::SliderInt("Radius", &toolProps.radius, 1, 100);
+            ImGui::LabelText("Kernel Type", "Kernel Type");
+            ImGui::RadioButton("Circle", &toolProps.textureShapeType, 0);
+            ImGui::SameLine();
+            ImGui::RadioButton("Square", &toolProps.textureShapeType, 1);
         }
         
         ImGui::End();
