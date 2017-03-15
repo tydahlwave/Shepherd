@@ -114,8 +114,8 @@ int main(int argc, char **argv) {
     TextureLibrary::LoadTextures(resourceDir);
     MaterialLibrary::InitializeMaterials();
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController, 1);
-    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController, 1);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController, 1);
+//    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController, 1);
 //    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&playerController, 1);
 //    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController, 1);
 //    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem, 1);
@@ -168,6 +168,7 @@ int main(int argc, char **argv) {
         if (world.mainCharacter && !playerControllersLinked) {
             playerControllersLinked = true;
             physics.enabled = true;
+            Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController, 1);
             Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&playerController, 1);
             Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController, 1);
             Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem, 1);
@@ -176,8 +177,8 @@ int main(int argc, char **argv) {
         
         accumulator += elapsedTime;
         while(accumulator >= idealDeltaTime) {
-            physics.Update(idealDeltaTime, world);
             if (world.mainCharacter) {
+                physics.Update(idealDeltaTime, world);
                 bunnySpawnSystem.Update(idealDeltaTime, &world, path);
                 wolfSystem.Update(idealDeltaTime, &world);
                 characterController.Update(&world, idealDeltaTime);
