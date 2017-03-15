@@ -31,10 +31,10 @@ public:
     std::vector<float> regions = {
     //    0,      // Water
     //    0.02,   // Sand
-        0.02f,   // Grass
-        0.05f,    // Light grass
-        0.2f,    // Rock
-        0.5f     // Snow
+        0.0f,   // Grass
+//        0.05f,    // Light grass
+        0.4f,    // Rock
+        1.0f     // Snow
     };
     std::vector<glm::vec3> regionColors = {
     //    glm::vec3(68/255.0f, 68/255.0f, 122/255.0f),     // Water

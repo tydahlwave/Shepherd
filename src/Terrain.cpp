@@ -25,6 +25,12 @@ Terrain::Terrain(std::string imagePath) :heightmapTex("Heightmap") {
     size = width;
     std::cout << "Terrain size: " << width << "x" << height << std::endl;
     
+    // Set texture data to 0s
+    textureData.resize(width * height);
+    for (int i = 0; i < width*height; i++) {
+        textureData[i] = 0;
+    }
+    
     // Load the heightmap into a texture
     heightmapTex.Load(data, imageProps);
 }
@@ -57,6 +63,12 @@ void Terrain::generate(int size, NoiseProperties properties) {
         }
     }
     data = heightMapFlat.data();
+    
+    // Set texture data to 0s
+    textureData.resize(width * height);
+    for (int i = 0; i < width*height; i++) {
+        textureData[i] = 0;
+    }
     
     // Load the heightmap into a texture
     ImageProperties imageProps(width, height, 0, GL_R16F, GL_RED, GL_FLOAT);
@@ -95,12 +107,28 @@ void Terrain::smooth(int iterations, int kernelSize) {
     }
 }
 
+void Terrain::updateVertexHeights() {
+    for (int row = 0; row < height; row++) {
+        for (int col = 0; col < width; col++) {
+            int index = row * width + col;
+            vertices[index].pos.y = (float)data[index]/SHRT_MAX*maxHeight;;
+        }
+    }
+    ComputeNormals();
+}
+
+void Terrain::updateVertexTextures() {
+    for (int row = 0; row < height; row++) {
+        for (int col = 0; col < width; col++) {
+            int index = row * width + col;
+            vertices[index].tex = textureData[index];
+        }
+    }
+}
+
 void Terrain::createMesh() {
     
 //    smooth(3, 3);
-    
-    // Resize textureData to match size of data
-    textureData.resize(width*height);
     
     // Record max/min and resize data to put lowest point at 0
     unsigned short max = SHRT_MIN;
@@ -142,6 +170,7 @@ void Terrain::createMesh() {
             float y = (float)data[index]/SHRT_MAX*maxHeight;
             float z = row - height/2.0f;
             vertices[index].pos = glm::vec3(x, y, z);
+            vertices[index].tex = textureData[index];
         }
     }
     
@@ -257,7 +286,7 @@ void Terrain::init() {
     LogGLError(__FILE__, __LINE__);
 }
 
-void Terrain::update() {
+void Terrain::uploadVertices() {
     
     // Send the vertex buffer to the GPU
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -289,9 +318,9 @@ void Terrain::setHeight(int x, int y, float height) {
 }
 
 unsigned char Terrain::getTexture(int x, int y) {
-    return (float)data[y * width + x] / SHRT_MAX * maxHeight;
+    return textureData[y * width + x];
 }
 
 void Terrain::setTexture(int x, int y, unsigned char textureId) {
-    data[y * width + x] = textureId;
+    textureData[y * width + x] = textureId;
 }

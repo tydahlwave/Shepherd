@@ -51,12 +51,11 @@ void TerrainEditingController::KeyPressed(World *world, int windowWidth, int win
 void TerrainEditingController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {
     if (!mousePressed) return;
     
-    return;
-    
     Terrain *terrain = terrainRenderer->terrain;
     Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
     glm::vec3 position = world->mainCamera->transform->GetPosition();
     glm::vec3 direction = glm::normalize(camera->lookAt - position);
+    glm::vec3 scale = terrainRenderer->gameObject->transform->GetScale();
     float planeA = 0.0f;
     float planeB = 1.0f;
     float planeC = 0.0f;
@@ -72,8 +71,8 @@ void TerrainEditingController::MouseMoved(World *world, int windowWidth, int win
         glm::vec3 hit = position + direction * intersectionTime;
         
         // Get the heightmap coords of the intersection
-        int row = (int)hit.x + terrain->size/2;
-        int col = (int)hit.z + terrain->size/2;
+        int row = ((int)hit.z + terrain->height*scale.z/2) / scale.z;
+        int col = ((int)hit.x + terrain->width*scale.x/2) / scale.x;
         
         std::cout << "Terrain edit position: (" << col << "," << row << ")" << std::endl;
         
@@ -89,6 +88,7 @@ void TerrainEditingController::MouseClicked(World *world, double mouseX, double 
     Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
     glm::vec3 position = world->mainCamera->transform->GetPosition();
     glm::vec3 direction = glm::normalize(camera->lookAt - position);
+    glm::vec3 scale = terrainRenderer->gameObject->transform->GetScale();
     float planeA = 0.0f;
     float planeB = 1.0f;
     float planeC = 0.0f;
@@ -104,10 +104,10 @@ void TerrainEditingController::MouseClicked(World *world, double mouseX, double 
         glm::vec3 hit = position + direction * intersectionTime;
         
         // Get the heightmap coords of the intersection
-        int row = (int)hit.x + terrain->size/2;
-        int col = (int)hit.z + terrain->size/2;
+        int row = ((int)hit.z + terrain->height*scale.z/2) / scale.z;
+        int col = ((int)hit.x + terrain->width*scale.x/2) / scale.x;
         
-        std::cout << "Terrain edit position: (" << col << "," << row << ")" << std::endl;
+        std::cout << "Terrain edit position: (" << row << "," << col << ")" << std::endl;
         
         performAction(row, col);
     }
@@ -121,15 +121,18 @@ void TerrainEditingController::performAction(int row, int col) {
     terrain->getHeight(col, row);
     if (toolProps.tool == 1) {
         elevate(col, row, toolProps.height, toolProps.radius);
+        terrain->updateVertexHeights();
     } else if (toolProps.tool == 2) {
         flatten(col, row, toolProps.height, toolProps.radius);
+        terrain->updateVertexHeights();
     } else if (toolProps.tool == 3) {
         smooth(col, row, toolProps.kernel, toolProps.radius, toolProps.kernelType == 0);
+        terrain->updateVertexHeights();
     } else if (toolProps.tool == 4) {
-        smooth(col, row, toolProps.kernel, toolProps.radius, toolProps.kernelType == 0);
+        texture(col, row, toolProps.radius);
+        terrain->updateVertexTextures();
     }
-    terrain->createMesh();
-    terrain->update();
+    terrain->uploadVertices();
 }
 
 void TerrainEditingController::elevate(int x, int y, float height, int radius) {
@@ -204,7 +207,6 @@ void TerrainEditingController::smooth(int x, int y, int kernel, int radius, bool
                     terrain->setHeight(col, row, smoothedHeight);
                 } else {
                     int count = 0;
-//                    int sum = 0;
                     float smoothedHeight = 0;
                     for (int ky = -kernel; ky < kernel; ky++) {
                         for (int kx = -kernel; kx < kernel; kx++) {
@@ -296,7 +298,7 @@ void TerrainEditingController::ImguiUpdate(World *world) {
             terrainProps.seed = time(0);
             terrain->generate(terrain->size, terrainProps);
             terrain->createMesh();
-            terrain->update();
+            terrain->uploadVertices();
             EntityFactory::UpdateTerrain(world, terrainRenderer->gameObject, terrain);
         }
         ImGui::SameLine();
@@ -327,7 +329,7 @@ void TerrainEditingController::ImguiUpdate(World *world) {
         if (ImGui::Button("Generate")) {
             terrain->generate(terrain->size, terrainProps);
             terrain->createMesh();
-            terrain->update();
+            terrain->uploadVertices();
             EntityFactory::UpdateTerrain(world, terrainRenderer->gameObject, terrain);
         }
         ImGui::SameLine();
@@ -353,18 +355,18 @@ void TerrainEditingController::ImguiUpdate(World *world) {
         
         static int tool = 0;
         if (ImGui::RadioButton("None", &tool, 0)) {
-            toolProps.tool = 3;
-        }
-        ImGui::SameLine();
-        if (ImGui::RadioButton("Flatten", &tool, 2)) {
-            toolProps.tool = 1;
-        }
-        if (ImGui::RadioButton("Elevate", &tool, 1)) {
             toolProps.tool = 0;
         }
         ImGui::SameLine();
-        if (ImGui::RadioButton("Smooth", &tool, 3)) {
+        if (ImGui::RadioButton("Flatten", &tool, 2)) {
             toolProps.tool = 2;
+        }
+        if (ImGui::RadioButton("Elevate", &tool, 1)) {
+            toolProps.tool = 1;
+        }
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Smooth", &tool, 3)) {
+            toolProps.tool = 3;
         }
         if (ImGui::RadioButton("Texture", &tool, 4)) {
             toolProps.tool = 4;
@@ -390,10 +392,7 @@ void TerrainEditingController::ImguiUpdate(World *world) {
             std::string item2 = "Snow";
             const char *items[] = {item0.c_str(), item1.c_str(), item2.c_str()};
             
-//            ImGui::ImageButton(<#ImTextureID user_texture_id#>, <#const ImVec2 &size#>);
             ImGui::Combo("Textures", &toolProps.textureType, items, 3);
-//            ImGui::Combo(<#const char *label#>, <#int *current_item#>, <#bool (*items_getter)(void *, int, const char **)#>, <#void *data#>, <#int items_count#>)
-            
             ImGui::SliderInt("Radius", &toolProps.radius, 1, 100);
             ImGui::Checkbox("Use Painted Textures?", &terrain->useTextureMap);
         }

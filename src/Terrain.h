@@ -56,10 +56,12 @@ public:
     std::vector<unsigned char> getTextureMap() { return textureData; }
     
     void init();
-    void update();
+    void uploadVertices();
     void draw();
     
     void createMesh();
+    void updateVertexHeights();
+    void updateVertexTextures();
 private:
     unsigned short *data = nullptr;
     std::vector<unsigned char> textureData; // indices corresponding to texture ids
