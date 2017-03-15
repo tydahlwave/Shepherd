@@ -118,15 +118,15 @@ int main(int argc, char **argv) {
     CAudioEngine::instance()->Init();
     CAudioEngine::instance()->LoadSounds(resourceDir);
     
-    // Initialize main camera position and lookvector
-    world.mainCamera->transform->SetPosition(glm::vec3(0, 200, 200));
-    Camera *mainCamera = (Camera*)world.mainCamera->GetComponent("Camera");
-    mainCamera->lookAt = glm::vec3(0, -1, -0.1); // Initial lookvector to orient the camera to look along -z axis (can't be (0,-1,0))
-    
     // Create terrain
     GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, 0, 0));
     terrain->transform->SetScale(glm::vec3(3, 3, 3));
     terrainController.SetTerrain((TerrainRenderer*)terrain->GetComponent("TerrainRenderer"));
+    
+    // Initialize main camera position and lookvector
+    world.mainCamera->transform->SetPosition(glm::vec3(0, 200, 200)*terrain->transform->GetScale());
+    Camera *mainCamera = (Camera*)world.mainCamera->GetComponent("Camera");
+    mainCamera->lookAt = glm::vec3(0, -1, -0.1); // Initial lookvector to orient the camera to look along -z axis (can't be (0,-1,0))
     
 //    EntityFactory::createSphere(&world, 2, glm::vec3(0, 100, 0), 10);
     
