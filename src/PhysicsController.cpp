@@ -88,7 +88,8 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
             charge = false;
             //return; // might not need this.... just in case
             SoundLibrary::playShot();
-            ((CameraController*)(world->cameraController))->BeginShaking(15, 200);
+            if (world->cameraController)
+                ((CameraController*)(world->cameraController))->BeginShaking(15, 200);
         }
         
         
