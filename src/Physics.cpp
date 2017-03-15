@@ -31,8 +31,8 @@ void Physics::Update(float deltaTime, World &world) {
             gameObject->transform->SetPosition(gameObject->transform->GetPosition()+vel);
         }
     }
-    UpdateBulletPhysics(deltaTime, world);
-    ComputeCollisions(world);
+//    UpdateBulletPhysics(deltaTime, world);
+//    ComputeCollisions(world);
     HandleTerrainCollisions(world);
 }
 
@@ -279,10 +279,17 @@ void Physics::HandleTerrainCollisions(World &world) {
     // Get terrain component
     TerrainRenderer *terrainRenderer = (TerrainRenderer*) terrainObject->GetComponent("TerrainRenderer");
     Terrain *terrain = terrainRenderer->terrain;
-    glm::vec3 terrainSize = terrainObject->transform->GetScale() * glm::vec3(terrain->size, 1, terrain->size);
+    glm::vec3 terrainSize = terrainObject->transform->GetScale() * (float)terrain->size;//glm::vec3(terrain->size, 1, terrain->size);
     glm::vec3 terrainPos = terrainObject->transform->GetPosition();
     glm::vec3 terrainMin = terrainObject->transform->GetPosition() - terrainSize/2.0f;
+    terrainMin.y = terrainRenderer->terrain->min;
     glm::vec3 terrainMax = terrainObject->transform->GetPosition() + terrainSize/2.0f;
+    terrainMax.y = terrainRenderer->terrain->max;
+    
+    std::cout << "\nTerrain Size: " << terrainRenderer->terrain->size << std::endl;
+    std::cout << "Terrain Pos: (" << terrainPos.x << "," << terrainPos.y << "," << terrainPos.z << ")" << std::endl;
+    std::cout << "Terrain Scale: (" << terrainObject->transform->GetScale().x << "," << terrainObject->transform->GetScale().y << "," << terrainObject->transform->GetScale().z << ")" << std::endl;
+    std::cout << "Terrain min/max: (" << terrainMin.x << "," << terrainMin.y << "," << terrainMin.z << "), (" << terrainMax.x << "," << terrainMax.y << "," << terrainMax.z << ")" << std::endl;
     
     // Compare objects for collisions
     for (GameObject *obj : world.GetGameObjects()) {
@@ -303,9 +310,9 @@ void Physics::HandleTerrainCollisions(World &world) {
                     {terrain->getHeight(rowIndex, colIndex+1), terrain->getHeight(rowIndex, colIndex)}
                 };
                 
-//                std::cout << "Height[" << rowIndex << "][" << colIndex << "] = " << terrain->getHeight(rowIndex, colIndex) << std::endl;
+                std::cout << "Height[" << rowIndex << "][" << colIndex << "] = " << terrain->getHeight(rowIndex, colIndex) << std::endl;
                 float interpolatedHeight = BilinearInterpolate(neighbors, fColIndex-colIndex, fRowIndex-rowIndex);
-//                std::cout << "Interpolated Height: " << interpolatedHeight << std::endl;
+                std::cout << "Interpolated Height: " << interpolatedHeight << std::endl;
                 
 //                if(obj->name.compare("Wolf") != 0)
 //                obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f, pos.z));
@@ -342,7 +349,11 @@ void Physics::HandleTerrainCollisions(World &world) {
                     if (pos.y < terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f)
                     obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1, pos.z));
                 } else if (obj->name.compare("Tree") == 0 || obj->name.compare("Camera") == 0) {
-                    obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1, pos.z));
+                    std::cout << "Object Pos: (" << pos.x << "," << pos.y << "," << pos.z << ")" << std::endl;
+                    
+                    float newPosY = terrainPos.y + (interpolatedHeight * terrainObject->transform->GetScale().y) + //(obj->transform->GetScale().y / 2.0f) + 1;
+                    ((MeshRenderer*)obj->GetComponent("MeshRenderer"))->model->bounds.halfwidths.y * obj->transform->GetScale().y;
+                    obj->transform->SetPosition(glm::vec3(pos.x, newPosY, pos.z));
                 }
             }
         }

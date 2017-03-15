@@ -154,13 +154,15 @@ int main(int argc, char **argv) {
         
         accumulator += elapsedTime;
         while(accumulator >= idealDeltaTime) {
-//            physics.Update(idealDeltaTime, world);
+            physics.Update(idealDeltaTime, world);
             if (world.mainCharacter)
                 characterController.Update(&world, idealDeltaTime);
             accumulator -= idealDeltaTime;
         }
         
         if (world.mainCharacter) {
+            glm::vec3 charPos = world.mainCharacter->transform->GetPosition();
+            std::cout << "Character Position: (" << charPos.x << "," << charPos.y << "," << charPos.z << ")" << std::endl;
             if (!playerControllersLinked) {
                 playerControllersLinked = true;
                 physics.enabled = true;

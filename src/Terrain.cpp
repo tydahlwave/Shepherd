@@ -22,6 +22,7 @@ Terrain::Terrain(std::string imagePath) :heightmapTex("Heightmap") {
     // Load the image data for the terrain
     ImageProperties imageProps = LoadImage(imagePath, &data, &width, &height);
     
+    size = width;
     std::cout << "Terrain size: " << width << "x" << height << std::endl;
     
     // Load the heightmap into a texture
@@ -127,7 +128,7 @@ void Terrain::createMesh() {
         for (int col = 0; col < width; col++) {
             int index = row * width + col;
             float x = col - width/2.0f;
-            float y = (float)data[index]/SHRT_MAX*64.0f;
+            float y = (float)data[index]/SHRT_MAX*maxHeight;
             float z = row - height/2.0f;
             vertices[index].pos = glm::vec3(x, y, z);
         }
@@ -266,7 +267,7 @@ void Terrain::draw() {
 
 float Terrain::getHeight(int x, int y) {
 //    Log(ERROR, "Unimplemented", __FILE__, __LINE__);
-    return data[y * width + x];
+    return (float)data[y * width + x] / SHRT_MAX * maxHeight;
 }
 
 void Terrain::setHeight(int x, int y, float height) {

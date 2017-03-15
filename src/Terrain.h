@@ -31,6 +31,7 @@ public:
     virtual ~Terrain();
     
     int size = 256;
+    float maxHeight = 128;
     time_t seed = 0;
     int width = 0, height = 0;
     float min = 0, max = 0;
