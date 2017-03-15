@@ -321,6 +321,10 @@ void Physics::HandleTerrainCollisions(World &world) {
                 if (obj->name.compare("Bunny") == 0 || obj->name.compare("Wolf") == 0 || obj->name.compare("Boulder") == 0 || obj->name.compare("Camera") == 0) {
                     if (pos.y < newPosY) {
                         obj->transform->SetPosition(glm::vec3(pos.x, newPosY, pos.z));
+                        RigidBody *rigidBody = (RigidBody*)obj->GetComponent("RigidBody");
+                        if (rigidBody) {
+                            rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 0, 0));
+                        }
                     }
                 } else if (obj->name.compare("Tree") == 0) {
                     // Always place this object directly on the terrain (cannot fly above terrain)
