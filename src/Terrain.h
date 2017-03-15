@@ -19,9 +19,10 @@ class TextureLoader;
 
 struct TerrainVertex {
     TerrainVertex() {}
-    TerrainVertex(glm::vec3 p, glm::vec3 n) :pos(p), nor(n) {}
+    TerrainVertex(glm::vec3 p, glm::vec3 n, unsigned char t) :pos(p), nor(n), tex(t) {}
     glm::vec3 pos = glm::vec3(0, 0, 0);
     glm::vec3 nor = glm::vec3(0, 0, 0);
+    unsigned char tex = 0;
 };
 
 class Terrain {
@@ -37,6 +38,7 @@ public:
     float min = 0, max = 0;
     int type = SIMPLEX_TERRAIN;
     Texture heightmapTex;
+    bool useTextureMap = false;
     
     std::vector<TerrainVertex> vertices;
     std::vector<GLuint> indices;
@@ -49,6 +51,10 @@ public:
     void setHeight(int x, int y, float height);
     void *getHeightmap() { return data; }
     
+    unsigned char getTexture(int x, int y);
+    void setTexture(int x, int y, unsigned char textureId);
+    std::vector<unsigned char> getTextureMap() { return textureData; }
+    
     void init();
     void update();
     void draw();
@@ -56,6 +62,7 @@ public:
     void createMesh();
 private:
     unsigned short *data = nullptr;
+    std::vector<unsigned char> textureData; // indices corresponding to texture ids
     GLuint VAO, VBO, EBO;
     
     void ComputeNormals();

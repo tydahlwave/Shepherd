@@ -99,6 +99,9 @@ void Terrain::createMesh() {
     
 //    smooth(3, 3);
     
+    // Resize textureData to match size of data
+    textureData.resize(width*height);
+    
     // Record max/min and resize data to put lowest point at 0
     unsigned short max = SHRT_MIN;
     unsigned short min = SHRT_MAX;
@@ -240,10 +243,12 @@ void Terrain::init() {
     // Enable vertex attributes for pos, nor, tex
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
     
     // Set the vertex attributes for pos, nor, tex
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), (GLvoid*)0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), (GLvoid*)offsetof(TerrainVertex, nor));
+    glVertexAttribPointer(2, 1, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(TerrainVertex), (GLvoid*)offsetof(TerrainVertex, tex));
     
     // Unbind the vertex array
     glBindVertexArray(0);
@@ -279,5 +284,14 @@ float Terrain::getHeight(int x, int y) {
 }
 
 void Terrain::setHeight(int x, int y, float height) {
-    Log(ERROR, "Unimplemented", __FILE__, __LINE__);
+    data[y * width + x] = std::max((unsigned short)0, (unsigned short)(height / maxHeight * SHRT_MAX));
+//    Log(ERROR, "Unimplemented", __FILE__, __LINE__);
+}
+
+unsigned char Terrain::getTexture(int x, int y) {
+    return (float)data[y * width + x] / SHRT_MAX * maxHeight;
+}
+
+void Terrain::setTexture(int x, int y, unsigned char textureId) {
+    data[y * width + x] = textureId;
 }
