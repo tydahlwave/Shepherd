@@ -57,7 +57,7 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
 		else if (key == GLFW_KEY_SPACE) {
 //			glm::vec3 pos = mainCharacter->transform->GetPosition();
 			//pos.y += 100;
-            ((RigidBody*)mainCharacter->GetComponent("RigidBody"))->bulletRigidBody->setLinearVelocity(btVector3(0,30,0));
+            ((RigidBody*)mainCharacter->GetComponent("RigidBody"))->bulletRigidBody->setLinearVelocity(btVector3(0,60,0));
 			//mainCharacter->transform->SetPosition(pos);
 		}
 	}

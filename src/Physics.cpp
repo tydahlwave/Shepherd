@@ -32,7 +32,7 @@ void Physics::Update(float deltaTime, World &world) {
         }
     }
     UpdateBulletPhysics(deltaTime, world);
-//    ComputeCollisions(world);
+    ComputeCollisions(world);
     HandleTerrainCollisions(world);
 }
 
