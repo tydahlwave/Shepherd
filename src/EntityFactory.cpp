@@ -582,28 +582,28 @@ GameObject *EntityFactory::createStartMenuTerrain(World *world, std::string reso
     terrainProps.octaveHeight = 30.0f;
     renderer->terrain = new Terrain(size, terrainProps);
 //    renderer->terrain = new Terrain(resourceDir + "Heightmap.png");
-//    renderer->terrain->createMesh();
-//    renderer->terrain->init();
+    renderer->terrain->createMesh();
+    renderer->terrain->init();
     renderer->shader = ShaderLibrary::ground;
     renderer->material = MaterialLibrary::grass;
     renderer->textures.push_back(TextureLibrary::grass);
     renderer->textures.push_back(TextureLibrary::mountain);
     renderer->textures.push_back(TextureLibrary::snow);
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
-    btTransform t;
-    t.setIdentity();
-    t.setOrigin(btVector3(pos.x, pos.y, pos.z));
-    btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(size, size,
-                                                                              renderer->terrain->getHeightmap(), 1.0f,
-                                                                              -255.0f, 255.0f, // min/max heights
-                                                                              1, PHY_FLOAT,
-                                                                              false);
-    btMotionState* motion = new btDefaultMotionState(t);
-    btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, collisionShape);
-    rigidBody->bulletRigidBody = new btRigidBody(info);
-    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
-    
-    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+//    btTransform t;
+//    t.setIdentity();
+//    t.setOrigin(btVector3(pos.x, pos.y, pos.z));
+//    btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(size, size,
+//                                                                              renderer->terrain->getHeightmap(), 1.0f,
+//                                                                              -255.0f, 255.0f, // min/max heights
+//                                                                              1, PHY_FLOAT,
+//                                                                              false);
+//    btMotionState* motion = new btDefaultMotionState(t);
+//    btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, collisionShape);
+//    rigidBody->bulletRigidBody = new btRigidBody(info);
+//    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+//    
+//    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
 }
 

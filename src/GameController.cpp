@@ -430,7 +430,7 @@ void GameController::LoadState() {
         
         // Create terrain
         GameObject *startMenuTerrain = EntityFactory::createStartMenuTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, -20, 0));
-        
+        startMenuTerrain->transform->SetPosition(glm::vec3(0, -20, 0));
       
         
         // Add directional light

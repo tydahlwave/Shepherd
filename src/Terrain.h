@@ -68,6 +68,7 @@ public:
     void updateVertexTextures();
 private:
     unsigned short *data = nullptr;
+    std::vector<float> dataFloat;
     std::vector<unsigned char> textureData; // indices corresponding to texture ids
     GLuint VAO, VBO, EBO;
     
