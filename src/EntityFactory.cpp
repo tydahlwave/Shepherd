@@ -133,7 +133,7 @@ GameObject *EntityFactory::createTestAnim(World *world) {
     meshRenderer->shader = ShaderLibrary::cell;
     meshRenderer->material = MaterialLibrary::pearl;
     //gameObject->transform->SetScale(glm::vec3(0.01f, .01f, .01f));
-    gameObject->transform->SetPosition(glm::vec3(-2000, 4, -344));
+    gameObject->transform->SetPosition(glm::vec3(-20000, 4, -344));
     
     btTransform t;
     t.setIdentity();

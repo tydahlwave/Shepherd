@@ -38,6 +38,8 @@ public:
     World();
     virtual ~World() {};
     
+    string resourceDir;
+    
     GameObject *mainCharacter = nullptr;
 	GameObject *mainCamera = nullptr;
     GameObject *cameraController = nullptr;

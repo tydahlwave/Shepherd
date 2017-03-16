@@ -255,6 +255,7 @@ void GameController::checkIfEndOfLevel() {
 //        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
 //        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)characterController);
 //        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
+        wolfSystem = nullptr;
         GameObject *winLevelTitle = EntityFactory::createTitle(&world);
         MeshRenderer *mesh = (MeshRenderer*)winLevelTitle->GetComponent("MeshRenderer");
         mesh->shader = ShaderLibrary::inFrontOfCamera;
@@ -285,6 +286,8 @@ void GameController::Run() {
     audio->LoadSounds(resourceDir);
     nextState = MainMenu;
     state = MainMenu;
+    
+    world.resourceDir = this->resourceDir;
     
     while (state != Close) {
         LoadState();
