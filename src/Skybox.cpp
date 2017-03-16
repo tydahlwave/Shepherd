@@ -1,6 +1,6 @@
 #include "Skybox.h"
 
-
+#include "ImageLoader.h"
 
 Skybox::Skybox(std::string resourceDir)
 {
@@ -29,9 +29,9 @@ void Skybox::loadCubeMap() {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
 	
 	for (GLuint i = 0; i < faces.size(); i++) {
-		image = SOIL_load_image((rd + faces[i]).c_str(), &width, &height, 0, SOIL_LOAD_RGB);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-		SOIL_free_image_data(image);
+        LoadImage((rd + faces[i]), &image, &width, &height, 0, 0);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+        FreeImage(image);
 	}
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

@@ -13,6 +13,8 @@
 
 #include <GL/glew.h>
 
+#include "ImageLoader.h"
+
 struct TextureProperties {
     GLint wrapS = GL_REPEAT;
     GLint wrapT = GL_REPEAT;
@@ -23,16 +25,17 @@ struct TextureProperties {
 
 class Texture {
 public:
-    Texture(std::string name, std::string filePath);
+    Texture(std::string name);
     
     GLuint texID;
-    int width;
-    int height;
+    int width, height;
     std::string name;
-    std::string filePath;
     TextureProperties properties;
     
-    void Load();
+    void Load(std::string filePath);
+    void Load(void *buffer, ImageProperties imageProps);
+    void bind(GLuint unit = 0);
+    void unbind(GLuint unit = 0);
 };
 
 #endif /* Texture_h */

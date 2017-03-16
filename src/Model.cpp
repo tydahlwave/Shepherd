@@ -13,8 +13,6 @@
 #include "GLSL.h"
 // GLM vertex library
 #include "glm/glm.hpp"
-// Simple OpenGL Image Library
-#include "SOIL/Soil.h"
 
 std::map<std::string, Skeleton> Model::skeletonMap;
 
@@ -180,8 +178,8 @@ void Model::resize() {
             Vertex *v = &mesh->vertices[i];
             for (int dim = 0; dim < 3; dim++) {
                 v->pos[dim] = (v->pos[dim] - shift[dim]) * scale[dim];
-                assert(v->pos[dim] >= -1.0 - epsilon);
-                assert(v->pos[dim] <= 1.0 + epsilon);
+//                assert(v->pos[dim] >= -1.0 - epsilon);
+//                assert(v->pos[dim] <= 1.0 + epsilon);
             }
         }
     }
