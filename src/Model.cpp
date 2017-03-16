@@ -77,20 +77,20 @@ void Model::loadModel(std::string path) {
             //remaining bone data
             bone.node = new aiNode(*FindAiNode(b_name));
             
-            if(bone.node == nullptr)
-            {
-                std::cout<<"NULL NODE "+b_name<<std::endl;
-            }
-            else
-            {
-                std::cout<<"NODE Trans    "+b_name<<std::endl;
-                printGLMMat4(AiToGLMMat4((FindAiNode(b_name)->mTransformation)));
-            }
+//            if(bone.node == nullptr)
+//            {
+//                std::cout<<"NULL NODE "+b_name<<std::endl;
+//            }
+//            else
+//            {
+//                std::cout<<"NODE Trans    "+b_name<<std::endl;
+//                printGLMMat4(AiToGLMMat4((FindAiNode(b_name)->mTransformation)));
+//            }
             bone.animNode = FindAiNodeAnim(b_name);
             bone.actualAnimNode = FindNodeAnim(b_name);
             
-            if(bone.actualAnimNode == nullptr)
-                std::cout<<"No Animations were found for "+b_name<<std::endl;
+//            if(bone.actualAnimNode == nullptr)
+//                std::cout<<"No Animations were found for "+b_name<<std::endl;
             
             //push the bone into the vector
             bones.push_back(bone);
@@ -106,16 +106,16 @@ void Model::loadModel(std::string path) {
             
             bones.at(k).parent_bone = p_bone;
             
-            if(p_bone == nullptr)
-                std::cout<<"Parent Bone for "<<" does not exist (is nullptr)"<<std::endl;
-            else
-                std::cout<<b_name<<" parent is "<<parent_name<<std::endl;
+//            if(p_bone == nullptr)
+//                std::cout<<"Parent Bone for "<<" does not exist (is nullptr)"<<std::endl;
+//            else
+//                std::cout<<b_name<<" parent is "<<parent_name<<std::endl;
         }
         
 
         if(meshes.size() > 0)
         {
-            std::cout<<"Skeleton set For :"<<scene->mRootNode->mName.data<< "    bone size is :    "<<bones.size()<< "      meshes size is"<< meshes.size() << std::endl;
+//            std::cout<<"Skeleton set For :"<<scene->mRootNode->mName.data<< "    bone size is :    "<<bones.size()<< "      meshes size is"<< meshes.size() << std::endl;
             skeleton.Init(bones,globalInverseTransform);
         }
             //skeletonMap[path] = Skeleton();
@@ -356,8 +356,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 //recursively goes through each aiNode in the aiScene, and fills the ai_nodes vector with this aiNode.
 void Model::recursiveNodeProcess(aiNode* node)
 {
-    std::cout<<" NODE name "<<node->mName.C_Str()<<std::endl;
-    printGLMMat4(AiToGLMMat4(node->mTransformation)  );
+//    std::cout<<" NODE name "<<node->mName.C_Str()<<std::endl;
+//    printGLMMat4(AiToGLMMat4(node->mTransformation)  );
     
     aiNode* placeNode = new aiNode(*node);
     ai_nodes.push_back(placeNode);
@@ -459,8 +459,8 @@ AnimationNode* Model::FindNodeAnim(std::string name)
 {
     for(int i = 0; i < animNodes.size(); i++)
     {
-        if(animNodes.at(i)->nodeName == name)
-        {   std::cout<<"Found anim node for/:   "<< ai_nodes_anim.at(i)->mNodeName.data << std::endl;
+        if(animNodes.at(i)->nodeName == name) {
+//            std::cout<<"Found anim node for/:   "<< ai_nodes_anim.at(i)->mNodeName.data << std::endl;
             return animNodes.at(i);
         }
     }

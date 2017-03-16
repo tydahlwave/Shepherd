@@ -135,7 +135,7 @@ void Terrain::loadTextureFromFile(std::string filePath) {
 //    textureData.resize(width * height);
     for (int i = 0; i < width*height; i++) {
         textureData[i] = texture[i];
-        if (texture[i] > 0) std::cout << (int)texture[i] << std::endl;
+//        if (texture[i] > 0) std::cout << (int)texture[i] << std::endl;
     }
     FreeImage(texture);
 }
