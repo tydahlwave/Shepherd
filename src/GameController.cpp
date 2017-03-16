@@ -340,6 +340,7 @@ void GameController::Run() {
 					world.RemoveGameObject(world.mainCamera);
 					world.mainCamera = world.mainCharacter;
 					nextcamlevel = 0.f;
+                    EntityFactory::createHUD(&world);
 					break;
 				}
 				camstage++;
@@ -534,7 +535,7 @@ void GameController::LoadState() {
 
         // Add directional light
         EntityFactory::createLight(&world, glm::vec3(1, 1, 1), true, glm::vec3(1, 1, 1), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
-		EntityFactory::createHUD(&world);
+//		EntityFactory::createHUD(&world);
 		EntityFactory::createChargeBar(&world);
 		world.mainCamera = EntityFactory::createMainCamera(&world);
 		nextcamlevel = .000001f;

@@ -46,6 +46,7 @@ public:
     static GameObject *createStartMenuTerrain(World *world, std::string resourceDir, int type, int size, glm::vec3 pos);
     static GameObject *createNodeSphere(World *world);
     static GameObject *createRing(World *world);
+    static float getTerrainHeightForPosition(GameObject *terrainObject, Terrain *terrain, int x, int z);
 };
 
 #endif /* EntityFactory_h */

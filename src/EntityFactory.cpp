@@ -440,7 +440,7 @@ void EntityFactory::UpdateTerrain(World *world, GameObject *terrainObj, Terrain 
     }
 }
 
-float getTerrainHeightForPosition(GameObject *terrainObject, Terrain *terrain, int x, int z) {
+float EntityFactory::getTerrainHeightForPosition(GameObject *terrainObject, Terrain *terrain, int x, int z) {
     glm::vec3 terrainSize = terrainObject->transform->GetScale() * glm::vec3(terrain->size, 1, terrain->size);
     glm::vec3 terrainPos = terrainObject->transform->GetPosition();
     glm::vec3 terrainMin = terrainObject->transform->GetPosition() - terrainSize/2.0f;
