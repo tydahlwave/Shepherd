@@ -220,11 +220,17 @@ void GameController::checkIfEndOfLevel() {
         //either you won or you lost
         cout << "bunnies are all at end!" << endl;
         std::cout << "Game Over" << std::endl;
-        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
-        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)characterController);
-        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
+//        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
+//        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)characterController);
+//        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
         GameObject *winLevelTitle = EntityFactory::createTitle(&world);
-        winLevelTitle->transform->SetPosition(world.mainCharacter->transform->GetPosition());
+        MeshRenderer *mesh = (MeshRenderer*)winLevelTitle->GetComponent("MeshRenderer");
+        mesh->shader = ShaderLibrary::inFrontOfCamera;
+        winLevelTitle->transform->SetPosition(glm::vec3(0.f,0.5f,0.f));
+        winLevelTitle->transform->SetScale(glm::vec3(1,-1,1)*0.5f);
+        winLevelTitle->transform->SetRotation(glm::vec3(180.f, 0.f, 0.f));
+        MeshRenderer *meshRenderer = (MeshRenderer*)winLevelTitle->GetComponent("MeshRenderer");
+        meshRenderer->model->bounds.halfwidths = vec3(INFINITY);
         levelComplete = true;
     }
 }
@@ -330,6 +336,10 @@ void GameController::LoadState() {
 
 		//load sign
         sign = EntityFactory::createTitle(&world);
+        //sign->transform->SetScale(vec3(0));
+        
+       
+        
 		//load enterbutton
 //		GameObject *startButton = EntityFactory::createHUD2(&world);
 //		startButton->transform->SetPosition(glm::vec3(0.5f, 0.7f, 0));
@@ -383,6 +393,8 @@ void GameController::LoadState() {
         
         // Create terrain
         GameObject *startMenuTerrain = EntityFactory::createStartMenuTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, -20, 0));
+        
+      
         
         // Add directional light
         EntityFactory::createLight(&world, glm::vec3(-0.6, 0.8, -1.0), true, glm::vec3(2, 2, 2), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));

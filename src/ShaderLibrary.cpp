@@ -20,6 +20,7 @@ Shader *ShaderLibrary::ground = nullptr;
 Shader *ShaderLibrary::menu = nullptr;
 Shader *ShaderLibrary::skybox = nullptr;
 Shader *ShaderLibrary::anim = nullptr;
+Shader *ShaderLibrary::inFrontOfCamera = nullptr;
 
 void ShaderLibrary::LoadShaders(std::string resourceDir) {
     Program *program = new Program();
@@ -263,4 +264,34 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
 	program->addAttribute("vertPos");
 	program->addAttribute("vertNor");
 	skybox = new Shader(program);
+    
+    program = new Program();
+    program->setVerbose(true);
+    program->setShaderNames(resourceDir + "in_front_of_cam_vert.glsl", resourceDir + "in_front_of_cam_frag.glsl");
+    program->init();
+    program->addUniform("P");
+    program->addUniform("M");
+    program->addUniform("V");
+    program->addAttribute("vertPos");
+    program->addAttribute("vertNor");
+    program->addUniform("numLights");
+    for(int i = 0; i < MAX_NUM_LIGHTS; i++) {
+        std::string uniformName = ConstructLightUniformName("position", i);
+        program->addUniform(uniformName);
+        uniformName = ConstructLightUniformName("intensities", i);
+        program->addUniform(uniformName);
+        uniformName = ConstructLightUniformName("attenuation", i);
+        program->addUniform(uniformName);
+        uniformName = ConstructLightUniformName("ambientCoefficient", i);
+        program->addUniform(uniformName);
+        uniformName = ConstructLightUniformName("coneAngle", i);
+        program->addUniform(uniformName);
+        uniformName = ConstructLightUniformName("coneDirection", i);
+        program->addUniform(uniformName);
+    }
+    program->addUniform("matDiffuseColor");
+    program->addUniform("matSpecularColor");
+    program->addUniform("matAmbientColor");
+    program->addUniform("matShine");
+    inFrontOfCamera = new Shader(program);
 }
