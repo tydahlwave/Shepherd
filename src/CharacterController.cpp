@@ -50,7 +50,7 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
 	if (action == GLFW_PRESS) {
         
 		if (key == GLFW_KEY_LEFT_SHIFT) {
-			moveSpeed = 40;
+			moveSpeed = RUN_SPEED;
 		}
 		if (key == GLFW_KEY_W) {
 			character->vel[2] = 5.f;
@@ -81,14 +81,14 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
 		else if (key == GLFW_KEY_SPACE) {
 //			glm::vec3 pos = mainCharacter->transform->GetPosition();
 			//pos.y += 100;
-            ((RigidBody*)mainCharacter->GetComponent("RigidBody"))->bulletRigidBody->setLinearVelocity(btVector3(0,30,0));
+            ((RigidBody*)mainCharacter->GetComponent("RigidBody"))->bulletRigidBody->setLinearVelocity(btVector3(0,60,0));
 			//mainCharacter->transform->SetPosition(pos);
 		}
 	}
 	else if (action == GLFW_RELEASE) {
         //idleAnim->skeleton.StopAnimating();
 		if (key == GLFW_KEY_LEFT_SHIFT) {
-			moveSpeed = 40;
+			moveSpeed = MOVE_SPEED;
 		}
 		if (key == GLFW_KEY_W) {
 			character->vel[2] = 0.f;

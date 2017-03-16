@@ -56,10 +56,10 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera, gl
 	btTransform t;
 	t.setIdentity();
 	t.setOrigin(btVector3(pos.x, pos.y, pos.z));
-    btBoxShape* collisionShape = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x*camera->transform->GetScale().x, meshRenderer->model->bounds.halfwidths.y*camera->transform->GetScale().y, meshRenderer->model->bounds.halfwidths.z*camera->transform->GetScale().z));
+    btCollisionShape* collisionShape = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x*camera->transform->GetScale().x, meshRenderer->model->bounds.halfwidths.y*camera->transform->GetScale().y, meshRenderer->model->bounds.halfwidths.z*camera->transform->GetScale().z));
 
 	btVector3 inertia(0, 0, 0);
-	float mass = 100.0f;
+	float mass = 10.0f;
 	if (mass != 0)
 		collisionShape->calculateLocalInertia(mass, inertia);
 	btMotionState* motion = new btDefaultMotionState(t);
@@ -70,6 +70,7 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera, gl
 	rigidBody->bulletRigidBody = new btRigidBody(info);
 	rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     rigidBody->bulletRigidBody->setFriction(1);
+    rigidBody->bulletRigidBody->setRollingFriction(1);
     rigidBody->bulletRigidBody->setCollisionFlags(0);
 	((Camera*)camera->GetComponent("Camera"))->stat = false;
 	world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
@@ -101,7 +102,7 @@ GameObject *EntityFactory::createBunny(World *world) {
     t.setOrigin(btVector3(0, 0, 0));
     btCollisionShape* sphere = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x, meshRenderer->model->bounds.halfwidths.y, meshRenderer->model->bounds.halfwidths.z));
     btVector3 inertia(0,0,0);
-    float mass = 100.0f;
+    float mass = 2.0f;
     if(mass != 0)
         sphere->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
@@ -377,37 +378,45 @@ GameObject *EntityFactory::createBoulder(World *world, int boulderType, float ra
 GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, int type, int size, glm::vec3 pos) {
     GameObject *gameObject = world->CreateGameObject("Terrain");
     TerrainRenderer *renderer = (TerrainRenderer*) gameObject->AddComponent("TerrainRenderer");
-    renderer->terrain = new Terrain();
-    renderer->terrain->size = size;
-    renderer->terrain->type = type;
     NoiseProperties terrainProps;
     terrainProps.frequency = 3.0f;
     terrainProps.octaveHeight = 55.0f;
-    time_t seed = 0;
-    renderer->terrain->GenerateHeightmap(terrainProps, seed);
-    renderer->terrain->UpdateBuffers();
+    terrainProps.seed = 0;
+//    renderer->terrain = new Terrain(size, terrainProps);
+//    renderer->terrain = new Terrain(resourceDir + "Heightmap.png");
+    renderer->terrain = new Terrain(resourceDir + "Level_Heightmap", true);
+    renderer->terrain->loadTextureFromFile(resourceDir + "Level_Texturemap.png");
+    renderer->terrain->createMesh();
     renderer->terrain->init();
-//    renderer->terrain->GenerateFromImage(resourceDir + "Heightmap.bmp");
     renderer->shader = ShaderLibrary::ground;
     renderer->material = MaterialLibrary::grass;
     renderer->textures.push_back(TextureLibrary::grass);
     renderer->textures.push_back(TextureLibrary::mountain);
     renderer->textures.push_back(TextureLibrary::snow);
     RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
-    btTransform t;
-    t.setIdentity();
-    t.setOrigin(btVector3(pos.x, pos.y, pos.z));
-    btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(size, size,
-                                                                              renderer->terrain->flattenHeightMap().data(), 1.0f,
-                                                                              -255.0f, 255.0f, // min/max heights
-                                                                              1, PHY_FLOAT,
-                                                                              false);
-    btMotionState* motion = new btDefaultMotionState(t);
-    btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, collisionShape);
-    rigidBody->bulletRigidBody = new btRigidBody(info);
-    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
-    
-    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+//    btTransform t;
+//    t.setIdentity();
+//    t.setOrigin(btVector3(pos.x, pos.y, pos.z));
+//
+//    int dataSize = renderer->terrain->width*renderer->terrain->height;
+//    unsigned short *data = (unsigned short *)renderer->terrain->getHeightmap();
+//    vector<float> newData(dataSize);
+//    for (int i = 0; i < dataSize; i++) {
+//        newData.push_back((data[i]-renderer->terrain->min) / SHRT_MAX * renderer->terrain->maxHeight);
+//    }
+//    
+//    btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(renderer->terrain->width, renderer->terrain->height,
+//                                                                              newData.data(), 1.0f,
+//                                                                              0.0f, renderer->terrain->maxHeight, // min/max heights
+//                                                                              1, PHY_FLOAT,
+//                                                                              false);
+//    btMotionState* motion = new btDefaultMotionState(t);
+//    btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, collisionShape);
+
+//    rigidBody->bulletRigidBody = new btRigidBody(info);
+//    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+//    
+//    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
 }
 
@@ -415,9 +424,9 @@ void EntityFactory::UpdateTerrain(World *world, GameObject *terrainObj, Terrain 
     RigidBody *rigidBody = (RigidBody*) terrainObj->GetComponent("RigidBody");
     if (rigidBody) {
         world->dynamicsWorld->removeRigidBody(rigidBody->bulletRigidBody);
-        
+
         btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(terrain->size, terrain->size,
-                                                                                  terrain->flattenHeightMap().data(), 1.0f,
+                                                                                  terrain->getHeightmap(), 1.0f,
                                                                                   -255.0f, 255.0f, // min/max heights
                                                                                   1, PHY_FLOAT,
                                                                                   false);
@@ -569,18 +578,14 @@ GameObject *EntityFactory::createLight(World *world, glm::vec3 position, bool is
 GameObject *EntityFactory::createStartMenuTerrain(World *world, std::string resourceDir, int type, int size, glm::vec3 pos) {
     GameObject *gameObject = world->CreateGameObject("StartMenuTerrain");
     TerrainRenderer *renderer = (TerrainRenderer*) gameObject->AddComponent("TerrainRenderer");
-    renderer->terrain = new Terrain();
-    renderer->terrain->size = size;
-    renderer->terrain->type = type;
     NoiseProperties terrainProps;
+    terrainProps.seed = 0;
     terrainProps.frequency = 2.0f;
     terrainProps.octaveHeight = 30.0f;
-    time_t seed = 0;
-    renderer->terrain->GenerateHeightmap(terrainProps, seed);
-    renderer->terrain->UpdateBuffers();
-    renderer->terrain->init();
-    //    renderer->terrain->Generate();
-    //    renderer->terrain->GenerateFromImage(resourceDir + "terrain9.png");
+    renderer->terrain = new Terrain(size, terrainProps);
+//    renderer->terrain = new Terrain(resourceDir + "Heightmap.png");
+//    renderer->terrain->createMesh();
+//    renderer->terrain->init();
     renderer->shader = ShaderLibrary::ground;
     renderer->material = MaterialLibrary::grass;
     renderer->textures.push_back(TextureLibrary::grass);
@@ -591,7 +596,7 @@ GameObject *EntityFactory::createStartMenuTerrain(World *world, std::string reso
     t.setIdentity();
     t.setOrigin(btVector3(pos.x, pos.y, pos.z));
     btHeightfieldTerrainShape* collisionShape = new btHeightfieldTerrainShape(size, size,
-                                                                              renderer->terrain->flattenHeightMap().data(), 1.0f,
+                                                                              renderer->terrain->getHeightmap(), 1.0f,
                                                                               -255.0f, 255.0f, // min/max heights
                                                                               1, PHY_FLOAT,
                                                                               false);

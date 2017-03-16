@@ -9,6 +9,9 @@
 #include <iostream>
 #include <vector>
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+
 #include "Time.h"
 #include "Mesh.h"
 #include "Texture.h"
@@ -36,8 +39,6 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
 #include "Path.h"
-
-#include "SOIL/Soil.h"
 
 #ifdef WIN32
 #include <btBulletDynamicsCommon.h>

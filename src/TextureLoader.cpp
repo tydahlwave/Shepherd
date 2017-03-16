@@ -2,11 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-#ifdef WIN32
-#include "SOIL\SOIL.h"
-#else
-#include "SOIL/SOIL.h"
-#endif
 
 /* BMP file loader loads a 24-bit bmp file only */
 

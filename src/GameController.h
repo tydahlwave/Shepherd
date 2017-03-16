@@ -18,7 +18,6 @@
 #include "TerrainController.h"
 #include "Components/RigidBody.h"
 #include "Components/TerrainRenderer.h"
-#include "Terrain.h"
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
 #include "AudioEngine.h"
@@ -29,6 +28,7 @@
 #include "Time.h"
 #include "AnimationSystem.h"
 #include "ImguiUpdateDelegate.h"
+
 
 enum State {
 	Close = -2,
@@ -80,6 +80,8 @@ private:
 	int gameMusic = 0;
     AnimationSystem *animSystem = nullptr;
     
+    void checkIfEndOfLevel();
+    bool levelComplete = false;
     void displayStats(float deltaTime, World &world, Physics &physics);
     void drawImGUIStuff(Window &window, GameObject *terrain);
     void drawTerrainWindow(Window &window, GameObject *terrain);

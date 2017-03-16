@@ -208,6 +208,8 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("Grass");
     program->addUniform("Mountain");
     program->addUniform("Snow");
+    program->addUniform("useTextureMap");
+    program->addUniform("useTextures");
     program->addUniform("matDiffuseColor");
     program->addUniform("matSpecularColor");
     program->addUniform("matAmbientColor");

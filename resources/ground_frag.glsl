@@ -12,9 +12,12 @@ uniform sampler2D Grass;
 uniform sampler2D Mountain;
 uniform sampler2D Snow;
 
-const int NumRegions = 4;
-uniform float regions[4];
-uniform vec3 regionColors[4];
+uniform bool useTextureMap;
+uniform bool useTextures;
+
+const int NumRegions = 3;
+uniform float regions[NumRegions];
+uniform vec3 regionColors[NumRegions];
 
 #define MAX_LIGHTS 10
 uniform int numLights;
@@ -30,11 +33,11 @@ uniform struct Light {
 in vec3 fragPos;
 in vec3 vertPos;
 in vec3 facePos;
+in vec3 modelPos;
 in vec3 modelNor;
 in vec3 vertNor;
 in vec3 viewNor;
-
-in vec3 modelPos;
+in float vertTex;
 
 out vec4 color;
 
@@ -73,31 +76,34 @@ float rand(vec2 co){
 vec4 getColor() {
     vec3 modelN = normalize(modelNor);
     float heightValue = (facePos.y/terrainScale.y-terrainMin) / (terrainMax-terrainMin);
-    vec3 heightColor = vec3(221/255.0f, 221/255.0f, 228/255.0f);
-    vec3 textureColors[4] = vec3[](
-    texture(Grass, vertPos.xz / 3).xyz,
-    texture(Grass, vertPos.xz / 3).xyz,
-    texture(Mountain, vertPos.xz / 3).xyz,
-    texture(Snow, vertPos.xz / 3).xyz
+    vec3 textureColors[NumRegions] = vec3[](
+        texture(Grass, vertPos.xz / 3).xyz,
+        texture(Mountain, vertPos.xz / 3).xyz,
+        texture(Snow, vertPos.xz / 3).xyz
     );
-    vec3 textureColor = textureColors[3];
+    vec3 textureColor = textureColors[NumRegions-1];
+    vec3 heightColor = regionColors[NumRegions-1];
     
-    for (int i = 0; i < NumRegions; i++) {
-        float height = regions[i];
-        if (heightValue <= height) {
-            if (i <= 1) textureColor = texture(Grass, vertPos.xz / 3).xyz;
-            else if (i == 2) textureColor = texture(Mountain, vertPos.xz / 3).xyz;
-            else textureColor = texture(Snow, vertPos.xz / 3).xyz;
-            if (i > 0) {
-                float prevHeight = regions[i-1];
-                float heightDist = height - prevHeight;
-                float contribution = pow((heightValue - prevHeight) / heightDist, 1);
-                heightColor = (1-contribution) * regionColors[i-1] + contribution * regionColors[i];
-                textureColor = (1-contribution) * textureColors[i-1] + contribution * textureColors[i];
-            } else {
-                heightColor = regionColors[i];
+    if (useTextureMap) {
+        float contribution = fract(vertTex);
+        textureColor = textureColors[int(vertTex)] * (1-contribution) + textureColors[min(int(vertTex)+1, NumRegions-1)] * contribution;
+        heightColor = regionColors[int(vertTex)] * (1-contribution) + regionColors[min(int(vertTex)+1, NumRegions-1)] * contribution;
+    } else {
+        for (int i = 0; i < NumRegions; i++) {
+            float height = regions[i];
+            if (heightValue <= height) {
+                textureColor = textureColors[i];
+                if (i > 0) {
+                    float prevHeight = regions[i-1];
+                    float heightDist = height - prevHeight;
+                    float contribution = pow((heightValue - prevHeight) / heightDist, 1);
+                    heightColor = (1-contribution) * regionColors[i-1] + contribution * regionColors[i];
+                    textureColor = (1-contribution) * textureColors[i-1] + contribution * textureColors[i];
+                } else {
+                    heightColor = regionColors[i];
+                }
+                break;
             }
-            break;
         }
     }
     // Make triangles vary in brightness slightly for a more low-poly look
@@ -108,8 +114,11 @@ vec4 getColor() {
     vec3 finalColor = heightValue * modelN.y * heightColor + randIntensity;
     //    color = vec4(heightColor*modelN.y + randIntensity, 1.0);
     //    color = vec4(textureColor*modelN.y, 1.0);
-    return vec4(textureColor*modelN.y, 1.0);
-//    return vec4(heightColor*modelN.y + randIntensity, 1.0);
+    if (useTextures) {
+        return vec4(textureColor*modelN.y, 1.0);
+    } else {
+        return vec4(heightColor*modelN.y + randIntensity, 1.0);
+    }
 }
 
 vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {

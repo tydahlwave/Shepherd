@@ -10,12 +10,6 @@
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
 #include "GLSL.h"
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
-
 
 #include "Renderer.h"
 #include "Components/MeshRenderer.h"
@@ -44,7 +38,7 @@ Renderer::Renderer() {
 void applyProjectionMatrix(Program *program, Window &window, Camera *camera) {
     MatrixStack stack = MatrixStack();
     float aspectRatio = window.GetWidth()/(float)window.GetHeight();
-    stack.perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
+    stack.perspective(45.0f, aspectRatio, 0.01f, 5000.0f);
     glUniformMatrix4fv(program->getUniform("P"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
 
@@ -204,31 +198,31 @@ void Renderer::Render(World &world, Window &window) {
     }
     
     for (GameObject *gameObject : world.GetGameObjects()) {
-        SkyboxRenderer *skyboxRenderer = (SkyboxRenderer*)gameObject->GetComponent("SkyboxRenderer");
-        if (skyboxRenderer) {
-            auto skybox = skyboxRenderer->skybox;
-            auto shader = skyboxRenderer->shader->program;
-            auto model = skyboxRenderer->model;
-            
-            shader->bind();
-            glDepthMask(GL_FALSE);
-            glDepthRange(1, 1);
-            glDepthFunc(GL_LEQUAL);
-            glUniform1i(shader->getUniform("skybox"), 2);
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubeMapTexture);
-            
-            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
-            applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, camera->pos);
-            applyTransformMatrix(shader, gameObject->transform);
-            
-            model->draw(shader);
-            glDepthMask(GL_TRUE);
-            glDepthRange(0, 1);
-            glDepthFunc(GL_LESS);
-            shader->unbind();
-        }
+		SkyboxRenderer *skyboxRenderer = (SkyboxRenderer*)gameObject->GetComponent("SkyboxRenderer");
+		if (skyboxRenderer) {
+			auto skybox = skyboxRenderer->skybox;
+			auto shader = skyboxRenderer->shader->program;
+			auto model = skyboxRenderer->model;
+
+			shader->bind();
+			glDepthMask(GL_FALSE);
+			glDepthRange(1, 1);
+			glDepthFunc(GL_LEQUAL);
+			glUniform1i(shader->getUniform("skybox"), 2);
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubeMapTexture);
+
+			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+			applyProjectionMatrix(shader, window, camera);
+            applyCameraMatrix(shader, camera, (world.mainCharacter) ? camera->pos : world.mainCamera->transform->GetPosition());
+			applyTransformMatrix(shader, gameObject->transform);
+
+			model->draw(shader);
+		    glDepthMask(GL_TRUE);
+			glDepthRange(0, 1);
+			glDepthFunc(GL_LESS);
+			shader->unbind();
+		}
         
         PathRenderer *pathRenderer = (PathRenderer*)gameObject->GetComponent("PathRenderer");
         if (pathRenderer && pathRenderer->path) {
@@ -436,6 +430,8 @@ void Renderer::Render(World &world, Window &window) {
             if (shader->hasUniform("terrainMin")) glUniform1i(shader->getUniform("terrainMin"), terrain->min + terrainRenderer->gameObject->transform->GetPosition().y);
             if (shader->hasUniform("terrainMax")) glUniform1i(shader->getUniform("terrainMax"), terrain->max + terrainRenderer->gameObject->transform->GetPosition().y);
             if (shader->hasUniform("terrainScale")) glUniform3f(shader->getUniform("terrainScale"), gameObject->transform->GetScale().x, gameObject->transform->GetScale().y, gameObject->transform->GetScale().z);
+            if (shader->hasUniform("useTextureMap")) glUniform1i(shader->getUniform("useTextureMap"), terrain->useTextureMap);
+            if (shader->hasUniform("useTextures")) glUniform1i(shader->getUniform("useTextures"), terrain->useTextures);
             
             if (shader->hasUniform("numLights")) glUniform1i(shader->getUniform("numLights"), lights.size());
             
@@ -469,11 +465,10 @@ void Renderer::Render(World &world, Window &window) {
             
             // Bind all textures for the terrain
             for (int i = 0; i < terrainRenderer->textures.size(); i++) {
-                glActiveTexture(GL_TEXTURE0 + i);
-                glBindTexture(GL_TEXTURE_2D, terrainRenderer->textures[i]->texID);
+                terrainRenderer->textures[i]->bind(i);
                 glUniform1i(shader->getUniform(terrainRenderer->textures[i]->name), i);
             }
-            terrain->draw(shader);
+            terrain->draw();
             
             shader->unbind();
         }

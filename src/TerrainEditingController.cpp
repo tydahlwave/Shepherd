@@ -14,13 +14,11 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
 
-#include "SOIL/SOIL.h"
-
 #include "Noise/NoiseProperties.h"
 
 #include "World.h"
 #include "Components/TerrainRenderer.h"
-#include "TextureLoader.h"
+#include "ImageLoader.h"
 #include "EntityFactory.h"
 
 struct ToolProperties {
@@ -29,6 +27,8 @@ struct ToolProperties {
     float height = 20.0f;
     int kernel = 3;
     int kernelType = 0;
+    int textureType = 0;
+    int textureShapeType = 0;
 };
 
 bool mousePressed = false;
@@ -40,11 +40,11 @@ void TerrainEditingController::KeyPressed(World *world, int windowWidth, int win
     if (action == GLFW_PRESS) {
         if (key == GLFW_KEY_T) {
             if (terrainRenderer) {
-                terrainRenderer->terrain->Regenerate();
+                terrainRenderer->terrain->generate();
             }
         } else if (key == GLFW_KEY_SPACE) {
             if (!world->mainCharacter)
-                world->mainCharacter = EntityFactory::upgradeCharacter(world, world->mainCamera, glm::vec3(60, -20, 40));
+                world->mainCharacter = EntityFactory::upgradeCharacter(world, world->mainCamera, glm::vec3(60, 100, 40));
         }
     }
 }
@@ -56,6 +56,7 @@ void TerrainEditingController::MouseMoved(World *world, int windowWidth, int win
     Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
     glm::vec3 position = world->mainCamera->transform->GetPosition();
     glm::vec3 direction = glm::normalize(camera->lookAt - position);
+    glm::vec3 scale = terrainRenderer->gameObject->transform->GetScale();
     float planeA = 0.0f;
     float planeB = 1.0f;
     float planeC = 0.0f;
@@ -71,22 +72,12 @@ void TerrainEditingController::MouseMoved(World *world, int windowWidth, int win
         glm::vec3 hit = position + direction * intersectionTime;
         
         // Get the heightmap coords of the intersection
-        int row = (int)hit.x + terrain->size/2;
-        int col = (int)hit.z + terrain->size/2;
+        int row = ((int)hit.z + terrain->height*scale.z/2) / scale.z;
+        int col = ((int)hit.x + terrain->width*scale.x/2) / scale.x;
         
-        std::cout << "Change height: (" << col << "," << row << ")" << std::endl;
+        std::cout << "Terrain edit position: (" << col << "," << row << ")" << std::endl;
         
-        terrain->getHeight(row, col);
-        if (toolProps.tool == 0) {
-            elevate(col, row, toolProps.height, toolProps.radius);
-        } else if (toolProps.tool == 1) {
-            flatten(col, row, toolProps.height, toolProps.radius);
-        } else if (toolProps.tool == 2) {
-            smooth(col, row, toolProps.kernel, toolProps.radius, toolProps.kernelType == 0);
-        }
-        terrain->UpdateBuffers();
-        terrain->update();
-        //        terrain->makeTexture();
+        performAction(row, col);
     }
 }
 
@@ -98,6 +89,7 @@ void TerrainEditingController::MouseClicked(World *world, double mouseX, double 
     Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
     glm::vec3 position = world->mainCamera->transform->GetPosition();
     glm::vec3 direction = glm::normalize(camera->lookAt - position);
+    glm::vec3 scale = terrainRenderer->gameObject->transform->GetScale();
     float planeA = 0.0f;
     float planeB = 1.0f;
     float planeC = 0.0f;
@@ -113,27 +105,36 @@ void TerrainEditingController::MouseClicked(World *world, double mouseX, double 
         glm::vec3 hit = position + direction * intersectionTime;
         
         // Get the heightmap coords of the intersection
-        int row = (int)hit.x + terrain->size/2;
-        int col = (int)hit.z + terrain->size/2;
+        int row = ((int)hit.z + terrain->height*scale.z/2) / scale.z;
+        int col = ((int)hit.x + terrain->width*scale.x/2) / scale.x;
         
-        std::cout << "Change height: (" << col << "," << row << ")" << std::endl;
+        std::cout << "Terrain edit position: (" << row << "," << col << ")" << std::endl;
         
-        terrain->getHeight(row, col);
-        if (toolProps.tool == 0) {
-            elevate(col, row, toolProps.height, toolProps.radius);
-        } else if (toolProps.tool == 1) {
-            flatten(col, row, toolProps.height, toolProps.radius);
-        } else if (toolProps.tool == 2) {
-            smooth(col, row, toolProps.kernel, toolProps.radius, toolProps.kernelType == 0);
-        }
-        terrain->UpdateBuffers();
-        terrain->update();
-//        terrain->makeTexture();
-//        heightmapNeedsUpdate = true;
+        performAction(row, col);
     }
 }
 
 void TerrainEditingController::MouseScrolled(World *world, double dx, double dy) {}
+
+void TerrainEditingController::performAction(int row, int col) {
+    Terrain *terrain = terrainRenderer->terrain;
+    
+    terrain->getHeight(col, row);
+    if (toolProps.tool == 1) {
+        elevate(col, row, toolProps.height, toolProps.radius);
+        terrain->updateVertexHeights();
+    } else if (toolProps.tool == 2) {
+        flatten(col, row, toolProps.height, toolProps.radius);
+        terrain->updateVertexHeights();
+    } else if (toolProps.tool == 3) {
+        smooth(col, row, toolProps.kernel, toolProps.radius, toolProps.kernelType == 0);
+        terrain->updateVertexHeights();
+    } else if (toolProps.tool == 4) {
+        texture(col, row, toolProps.radius);
+        terrain->updateVertexTextures();
+    }
+    terrain->uploadVertices();
+}
 
 void TerrainEditingController::elevate(int x, int y, float height, int radius) {
     Terrain *terrain = terrainRenderer->terrain;
@@ -149,7 +150,7 @@ void TerrainEditingController::elevate(int x, int y, float height, int radius) {
             
             // If this (row,col) is within radius
             if (pow(row-y, 2) + pow(col-x, 2) < radiusSquared) {
-                terrain->heightMap[row][col] += height;
+                terrain->setHeight(col, row, terrain->getHeight(col, row) + height);
             }
         }
     }
@@ -169,7 +170,7 @@ void TerrainEditingController::flatten(int x, int y, float height, int radius) {
             
             // If this (row,col) is within radius
             if (pow(row-y, 2) + pow(col-x, 2) < radiusSquared) {
-                terrain->heightMap[row][col] = height;
+                terrain->setHeight(col, row, height);
             }
         }
     }
@@ -199,15 +200,14 @@ void TerrainEditingController::smooth(int x, int y, int kernel, int radius, bool
                         for (int kx = -kernel; kx < kernel; kx++) {
                             if (row-ky >= 0 && row-ky < terrain->size && col-kx >= 0 && col-kx < terrain->size) {
                                 count++;
-                                smoothedHeight += terrain->heightMap[row-ky][col-kx];
+                                smoothedHeight += terrain->getHeight(col-kx, row-ky);
                             }
                         }
                     }
                     smoothedHeight /= count;
-                    terrain->heightMap[row][col] = smoothedHeight;
+                    terrain->setHeight(col, row, smoothedHeight);
                 } else {
                     int count = 0;
-//                    int sum = 0;
                     float smoothedHeight = 0;
                     for (int ky = -kernel; ky < kernel; ky++) {
                         for (int kx = -kernel; kx < kernel; kx++) {
@@ -215,21 +215,46 @@ void TerrainEditingController::smooth(int x, int y, int kernel, int radius, bool
                                 // If within the kernel radius
                                 if (pow(row-y, 2) + pow(col-x, 2) < kernelSquared) {
                                     count++;
-                                    smoothedHeight += terrain->heightMap[row-ky][col-kx];
+                                    smoothedHeight += terrain->getHeight(col-kx, row-ky);
                                 }
                             }
                         }
                     }
                     smoothedHeight /= count;
-                    terrain->heightMap[row][col] = smoothedHeight;
+                    terrain->setHeight(col, row, smoothedHeight);
                 }
             }
         }
     }
 }
 
+void TerrainEditingController::texture(int x, int y, int radius) {
+    Terrain *terrain = terrainRenderer->terrain;
+    int radiusSquared = radius * radius;
+    
+    // For every row within bounds
+    for (int row = y - radius; row < y + radius; row++) {
+        if (row < 0 || row >= terrain->size) continue;
+        
+        // For every column within bounds
+        for (int col = x - radius; col < x + radius; col++) {
+            if (col < 0 || col >= terrain->size) continue;
+            
+            // If the shape type is a circle
+            if (toolProps.textureShapeType == 0) {
+                // If this (row,col) is within radius
+                if (pow(row-y, 2) + pow(col-x, 2) < radiusSquared) {
+                    terrain->setTexture(col, row, toolProps.textureType);
+                }
+            } else {
+                terrain->setTexture(col, row, toolProps.textureType);
+            }
+        }
+    }
+}
+
 void TerrainEditingController::ImguiUpdate(World *world, bool drawGUI) {
-    if(!drawGUI) return;
+    if (!drawGUI) return;
     Terrain *terrain = terrainRenderer->terrain;
     
     // 1. Show a simple window
@@ -252,11 +277,11 @@ void TerrainEditingController::ImguiUpdate(World *world, bool drawGUI) {
     //    }
     
     // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
-    //    if (show_test_window)
-    //    {
-    //        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-    //        ImGui::ShowTestWindow(&show_test_window);
-    //    }
+//    {
+//        bool showTestWindow = true;
+//        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+//        ImGui::ShowTestWindow(&showTestWindow);
+//    }
     
     // Display terrain heightmap
     {
@@ -266,7 +291,7 @@ void TerrainEditingController::ImguiUpdate(World *world, bool drawGUI) {
         ImVec2 uv0 = ImVec2(0, 0);
         ImVec2 uv1 = ImVec2(1, 1);
 //        ImGui::Image((void*)terrain->getTexture()->getTextureId(), ImVec2(terrain->size, terrain->size), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
-        ImGui::Image((void*)(size_t)terrainRenderer->terrain->getTexture()->getTextureId(), ImVec2(terrain->size, terrain->size), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
+        ImGui::Image((void*)(size_t)terrainRenderer->terrain->heightmapTex.texID, ImVec2(terrain->size, terrain->size), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
         ImGui::End();
     }
     
@@ -278,57 +303,52 @@ void TerrainEditingController::ImguiUpdate(World *world, bool drawGUI) {
         
         if (ImGui::Button("New Seed")) {
             terrainProps.seed = time(0);
-            terrain->GenerateHeightmap(terrainProps, terrain->seed);
-            terrain->UpdateBuffers();
-            terrain->update();
+            terrain->generate(terrain->size, terrainProps);
+            terrain->createMesh();
+            terrain->uploadVertices();
             EntityFactory::UpdateTerrain(world, terrainRenderer->gameObject, terrain);
         }
         ImGui::SameLine();
         ImGui::LabelText("", "%zu", terrainProps.seed ? terrainProps.seed : terrain->seed);
+        ImGui::Separator();
         
         if (ImGui::SliderFloat("Frequency", &terrainProps.frequency, 0.0f, 10.0f)) {
             std::cout << "Frequency: " << terrainProps.frequency << std::endl;
-            terrain->GenerateHeightmap(terrainProps, terrain->seed);
-            terrain->makeTexture();
+            terrain->generate(terrain->size, terrainProps);
         }
         if (ImGui::SliderInt("Octaves", &terrainProps.octaves, 0.0f, 10.0f)) {
             std::cout << "Octaves: " << terrainProps.octaves << std::endl;
-            terrain->GenerateHeightmap(terrainProps, terrain->seed);
-            terrain->makeTexture();
+            terrain->generate(terrain->size, terrainProps);
         }
         if (ImGui::SliderFloat("Octave Height", &terrainProps.octaveHeight, 0.0f, 100.0f)) {
             std::cout << "Octaves: " << terrainProps.octaveHeight << std::endl;
-            terrain->GenerateHeightmap(terrainProps, terrain->seed);
-            terrain->makeTexture();
+            terrain->generate(terrain->size, terrainProps);
         }
-        
         ImGui::Separator();
         
-        for (int i = 0; i < terrainRenderer->regionColors.size(); i++) {
-            std::string heightStr = "Height" + to_string(i);
-            std::string colorStr = "Color" + to_string(i);
-            ImGui::SliderFloat(heightStr.c_str(), &terrainRenderer->regions[i], 0.0f, 1.0f);
-            ImGui::ColorEdit3(colorStr.c_str(), &terrainRenderer->regionColors[i][0]);
+        ImGui::Checkbox("Use Textures?", &terrain->useTextures);
+        ImGui::Separator();
+        
+        if (!terrain->useTextures) {
+            for (int i = 0; i < terrainRenderer->regionColors.size(); i++) {
+                std::string heightStr = "Height" + to_string(i);
+                std::string colorStr = "Color" + to_string(i);
+                ImGui::SliderFloat(heightStr.c_str(), &terrainRenderer->regions[i], 0.0f, 1.0f);
+                ImGui::ColorEdit3(colorStr.c_str(), &terrainRenderer->regionColors[i][0]);
+            }
         }
+        ImGui::Separator();
         
         if (ImGui::Button("Generate")) {
-            terrain->GenerateHeightmap(terrainProps, terrain->seed);
-            terrain->UpdateBuffers();
-            terrain->update();
+            terrain->generate(terrain->size, terrainProps);
+            terrain->createMesh();
+            terrain->uploadVertices();
             EntityFactory::UpdateTerrain(world, terrainRenderer->gameObject, terrain);
         }
         ImGui::SameLine();
         if (ImGui::Button("Save")) {
-            // Convert heightmap to unsigned chars
-            std::vector<unsigned char> heightmap;
-            std::vector<float> flattenedHeightmap = terrain->flattenHeightMap();
-            for (int i = 0; i < flattenedHeightmap.size(); i++) {
-                heightmap.push_back((unsigned char)flattenedHeightmap[i]);
-            }
-            
-            // Save heightmap
-            if (!SOIL_save_image("Level_Heightmap.bmp", SOIL_SAVE_TYPE_BMP, terrain->size, terrain->size, 3, heightmap.data()))
-                std::cout << "Failed to save heightmap" << std::endl;
+            SaveImage(resourceDir + "Level_Texturemap.png", terrain->width, terrain->height, 1, terrain->getTextureMap().data(), GL_UNSIGNED_BYTE);
+            SaveImageCustom(resourceDir + "Level_Heightmap", terrain->width, terrain->height, 3, (unsigned short *)terrain->getHeightmap());
         }
         
         ImGui::End();
@@ -339,35 +359,51 @@ void TerrainEditingController::ImguiUpdate(World *world, bool drawGUI) {
         ImGui::Begin("Tool Settings");
         
         static int tool = 0;
-        if (ImGui::RadioButton("Elevate", &tool, 0)) {
+        if (ImGui::RadioButton("None", &tool, 0)) {
             toolProps.tool = 0;
         }
         ImGui::SameLine();
-        if (ImGui::RadioButton("Smooth", &tool, 2)) {
+        if (ImGui::RadioButton("Flatten", &tool, 2)) {
             toolProps.tool = 2;
         }
-        if (ImGui::RadioButton("Flatten", &tool, 1)) {
+        if (ImGui::RadioButton("Elevate", &tool, 1)) {
             toolProps.tool = 1;
         }
         ImGui::SameLine();
-        if (ImGui::RadioButton("None", &tool, 3)) {
+        if (ImGui::RadioButton("Smooth", &tool, 3)) {
             toolProps.tool = 3;
+        }
+        if (ImGui::RadioButton("Texture", &tool, 4)) {
+            toolProps.tool = 4;
         }
         ImGui::Separator();
         
-        if (tool == 0) {
-            ImGui::SliderInt("Radius", &toolProps.radius, 1, 25);
-            ImGui::SliderFloat("Height", &toolProps.height, -100.0f, 100.0f);
-        } else if (tool == 1) {
-            ImGui::SliderInt("Radius", &toolProps.radius, 1, 25);
+        if (tool == 1) {
+            ImGui::SliderInt("Radius", &toolProps.radius, 1, 100);
             ImGui::SliderFloat("Height", &toolProps.height, -100.0f, 100.0f);
         } else if (tool == 2) {
-            ImGui::SliderInt("Radius", &toolProps.radius, 1, 25);
+            ImGui::SliderInt("Radius", &toolProps.radius, 1, 100);
+            ImGui::SliderFloat("Height", &toolProps.height, -100.0f, 100.0f);
+        } else if (tool == 3) {
+            ImGui::SliderInt("Radius", &toolProps.radius, 1, 100);
             ImGui::SliderInt("Kernel", &toolProps.kernel, 1, 25);
             ImGui::LabelText("Kernel Type", "Kernel Type");
             ImGui::RadioButton("Square", &toolProps.kernelType, 0);
             ImGui::SameLine();
             ImGui::RadioButton("Circle", &toolProps.kernelType, 1);
+        } else if (tool == 4) {
+            std::string item0 = "Grass";
+            std::string item1 = "Rock";
+            std::string item2 = "Snow";
+            const char *items[] = {item0.c_str(), item1.c_str(), item2.c_str()};
+            
+            ImGui::Combo("Textures", &toolProps.textureType, items, 3);
+            ImGui::Checkbox("Use Painted Textures?", &terrain->useTextureMap);
+            ImGui::SliderInt("Radius", &toolProps.radius, 1, 100);
+            ImGui::LabelText("Kernel Type", "Kernel Type");
+            ImGui::RadioButton("Circle", &toolProps.textureShapeType, 0);
+            ImGui::SameLine();
+            ImGui::RadioButton("Square", &toolProps.textureShapeType, 1);
         }
         
         ImGui::End();

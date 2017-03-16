@@ -44,6 +44,8 @@ public:
     bool GetIsStatic();
     void SetIsStatic(bool isStatic);
     
+    bool isBunnyAndIsAtEnd = false;
+    
     bool isSerializable = false;
     //template <typename Writer> // i changed the type from Writer to PrettyWriter to get it to compile
     void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer);

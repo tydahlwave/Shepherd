@@ -154,6 +154,11 @@ int CAudioEngine::PlaySound(const string& strSoundName, const glm::vec3& vPositi
 void CAudioEngine::toggleSound(int channelId, bool state)
 {
     auto channel = sgpImplementation->mChannels.find(channelId);
+    //MICHAEL PUT IN THIS CHECK
+    if(!channel->second) {
+        cout << "NORMALLY PROGRAM WOULD CRASH HERE" << endl;
+        return;
+    }
     channel->second->setPaused(state);
 }
 
