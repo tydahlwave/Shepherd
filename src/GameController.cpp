@@ -399,14 +399,7 @@ void GameController::LoadState() {
 		world.mainCamera = EntityFactory::createMainCamera(&world);
 		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera,glm::vec3(-228, 0, 524));
         
-        Animation* idleAnim = (Animation*) world.mainCharacter->GetComponent("Animation");
-        idleAnim->anim = true;
         
-        BoneAnimation Anim_Test_Idle = *new BoneAnimation("idle", FramesToTime(glm::vec2(0,40)), 2);
-        //idleAnim->skeleton.StopAnimating();
-        idleAnim->skeleton.SetIdleAnimation(&Anim_Test_Idle);
-        //The true is for loop, and the false is for reset_to_start.
-        idleAnim->skeleton.PlayAnimation(Anim_Test_Idle,true,false);
         world.cameraController = (GameObject*)cameraController;
 
         //Create skybox

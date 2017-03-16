@@ -4,6 +4,7 @@ layout(location = 0) in vec4 vertPos;
 layout(location = 1) in vec3 vertNor;
 layout(location = 3) in ivec4 vertID;
 layout(location = 4) in vec4 vertWeight;
+layout(location = 5) in vec2 vertTex;
 uniform mat4 P;
 uniform mat4 M;
 uniform mat4 V;
@@ -23,37 +24,35 @@ out vec3 fragNor;
 out vec3 vertexNormal;
 out vec3 viewNormal;
 
-out vec4 we;
-out vec4 id;
+//send them to fragment shader
+out VS_OUT {
+    vec3 fragPos;
+    vec3 vertPos;
+    vec3 modelNor;
+    vec3 vertNor;
+    vec3 viewNor;
+    vec3 modelPos;
+    vec2 vertTex;
+} vs_out;
+
 
 void main()
 {
-    
     mat4 BMatrix = Bones[vertID[0]] * vertWeight[0];
     BMatrix += Bones[vertID[1]] * vertWeight[1];
     BMatrix += Bones[vertID[2]] * vertWeight[2];
     BMatrix += Bones[vertID[3]] * vertWeight[3];
-    
-//    if(vertID[0] > 25 || vertWeight[0] > 1)
-//    //if(true)
-       //gl_Position = P * V * M * vertPos;
-//    else{
-        gl_Position = P * V * M * BMatrix * vertPos;
-//    }
-    
-    //coords0 = s_vCoords0.xy;
-   
+    gl_Position = P * V * M * BMatrix * vertPos;
     //gl_Position = P * V * M * vertPos;
     
-    // Normalize the vectors
-    vertexNormal = (V * M * vec4(vertNor, 0.0)).xyz;
-    viewNormal = -(V * M * vertPos).xyz;
-    
     // Pass vertex position and normal to fragment shader
-    fragPos = (V * M * vertPos).xyz;
-    fragNor = (V * M * vec4(vertNor, 0.0)).xyz;
+    vs_out.fragPos = (V * M * vertPos).xyz;
+    vs_out.vertPos = (M * vertPos).xyz;
+    vs_out.modelNor = (M * vec4(vertNor, 0.0)).xyz;
+    vs_out.vertNor = (V * M * vec4(vertNor, 0.0)).xyz;
+    vs_out.viewNor = -(V * M * vertPos).xyz;
     
-    we = vertWeight;
-    id = vertID;
+    vs_out.modelPos = (M * vertPos).xyz;
+    vs_out.vertTex = vertTex;
     
 }
