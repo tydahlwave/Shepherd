@@ -15,12 +15,15 @@
 
 void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
     if (world->GetGameObjects().size() < maxEntities) CreateBunny(world); // does this mean a bunny spawns whenver a game object is destroyed??
-    else if(p) {
-        SheepDestination *pathRenderer = (SheepDestination*)p->GetComponent("SheepDestination");
-        path = pathRenderer->path;
+    else if(p || flockToCamera) {
+        if(p) {
+            SheepDestination *pathRenderer = (SheepDestination*)p->GetComponent("SheepDestination");
+            path = pathRenderer->path;
+        }
         
         std::map<GameObject*, int>::iterator it;
         for (it = bunnyNode.begin(); it != bunnyNode.end(); ++it) {
+            if (it->first->isBunnyAndIsAtEnd) continue;
             glm::vec3 target = FollowPath(world, it->first);
             Flock(world, it->first, target);
         }
@@ -29,7 +32,7 @@ void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
         
         for (GameObject *gameObject : world->GetGameObjects())  {
             RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
-            if(gameObject->name != "Bunny" || !rigidBody) continue;
+            if(gameObject->name != "Bunny" || !rigidBody || gameObject->isBunnyAndIsAtEnd) continue;
         
             if(glm::length(rigidBody->velocity) < 0.5 && Time::Now() - rigidBody->pointInTime > rigidBody->waitTime) {
                 int randomAngle = rand() % 360;
@@ -54,6 +57,32 @@ void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
             gameObject->transform->SetRotation(rotation);
         }
         //ObstacleAvoidance(world);
+    }
+    jumpAtEndOfLevel(world);
+}
+
+void BunnySpawnSystem::jumpAtEndOfLevel(World*world) {
+    for(GameObject * gameObject : bunniesAtEnd) {
+        RigidBody *rb = (RigidBody*)gameObject->GetComponent("RigidBody");
+        if(rb) {
+            if(glm::length(vec2(rb->velocity)) > 0.1) {
+                rb->velocity.x = rb->velocity.x/1000.f;
+                rb->velocity.z = rb->velocity.z/1000.f;
+                rb->pointInTime = Time::Now();
+                rb->waitTime = 2000;
+            }
+            else if(Time::Now() - rb->pointInTime > rb->waitTime) {
+                cout << "SHOOT UP " << endl;
+                if(rb->bulletRigidBody) {
+                    rb->bulletRigidBody->setLinearVelocity(btVector3(0,10.0,0));
+                    rb->pointInTime = Time::Now();
+                }
+            }
+            float angle = atan2(rb->velocity.x, rb->velocity.z);
+            glm::vec3 rotation = glm::vec3(0, (angle * 180 / M_PI), 0);
+            gameObject->transform->SetRotation(rotation);
+            
+        }
     }
 }
 

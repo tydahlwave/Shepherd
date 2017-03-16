@@ -10,12 +10,6 @@
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
 #include "GLSL.h"
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
-
 
 #include "Renderer.h"
 #include "Components/MeshRenderer.h"

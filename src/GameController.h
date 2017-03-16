@@ -29,6 +29,7 @@
 #include "Time.h"
 #include "ImguiUpdateDelegate.h"
 
+
 enum State {
 	Close = -2,
 	EndScreen = -1,
@@ -78,6 +79,7 @@ private:
 	float groundSize = 100.0f;
 	int gameMusic = 0;
     
+    void checkIfEndOfLevel();
     void displayStats(float deltaTime, World &world, Physics &physics);
     void drawImGUIStuff(Window &window, GameObject *terrain);
     void drawTerrainWindow(Window &window, GameObject *terrain);
