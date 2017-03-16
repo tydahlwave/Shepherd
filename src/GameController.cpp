@@ -488,7 +488,7 @@ void GameController::LoadState() {
 		physicsController = new PhysicsController();
 		terrainController = new TerrainController();
 		bunnySpawnSystem = new BunnySpawnSystem();
-        bunnySpawnSystem->startPosition = glm::vec3(-573, 4, -344);
+        bunnySpawnSystem->startPosition = glm::vec3(-500, 4, -350);
         bunnySpawnSystem->endPosition = glm::vec3(185,241,362);
         //bunnySpawnSystem->endPosition = glm::vec3(-490,5,-316);
 		wolfSystem = new WolfSystem();
@@ -507,7 +507,7 @@ void GameController::LoadState() {
 
 
 		world.mainCamera = EntityFactory::createMainCamera(&world);
-		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera,glm::vec3(-573, 4, -344));
+		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera,glm::vec3(-500, 4, -350));
         
         
         world.cameraController = (GameObject*)cameraController;
