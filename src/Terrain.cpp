@@ -149,8 +149,8 @@ void Terrain::createMesh() {
 //    smooth(3, 3);
     
     // Record max/min and resize data to put lowest point at 0
-    unsigned short max = SHRT_MIN;
-    unsigned short min = SHRT_MAX;
+    unsigned short max = 0;
+    unsigned short min = USHRT_MAX;
     for (int col = 0; col < width; col++) {
         for (int row = 0; row < height; row++) {
             int index = row * width + col;
@@ -166,7 +166,7 @@ void Terrain::createMesh() {
     }
     this->min = 0;
     this->max = (float)max / SHRT_MAX * maxHeight - (float)min / SHRT_MAX * maxHeight;
-    
+        
     // Reset buffers
     if (!vertices.empty()) vertices.clear();
     vertices.resize(width * height);
