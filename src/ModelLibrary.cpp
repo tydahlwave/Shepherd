@@ -11,6 +11,7 @@
 Model *ModelLibrary::bunny = nullptr;
 Model *ModelLibrary::cube = nullptr;
 Model *ModelLibrary::plane = nullptr;
+Model *ModelLibrary::button = nullptr;
 Model *ModelLibrary::sphere = nullptr;
 Model *ModelLibrary::sphere_textured = nullptr;
 Model *ModelLibrary::boulder1 = nullptr;
@@ -24,16 +25,20 @@ Model *ModelLibrary::tree2 = nullptr;
 Model *ModelLibrary::tree3 = nullptr;
 Model *ModelLibrary::tree4 = nullptr;
 Model *ModelLibrary::tree5 = nullptr;
+Model *ModelLibrary::tree6 = nullptr;
 Model *ModelLibrary::player = nullptr;
 Model *ModelLibrary::gadget = nullptr;
 Model *ModelLibrary::menuSign = nullptr;
 Model *ModelLibrary::lantern = nullptr;
 Model *ModelLibrary::monster = nullptr;
+Model *ModelLibrary::playSign = nullptr;
+Model *ModelLibrary::exitSign = nullptr;
 
 void ModelLibrary::LoadModels(std::string resourceDir) {
     bunny           = new Model(resourceDir + "bunny.obj");
     cube            = new Model(resourceDir + "cube.obj");
     plane           = new Model(resourceDir + "plane.obj");
+	button			= new Model(resourceDir + "button.obj");
     sphere          = new Model(resourceDir + "sphere.obj");
     sphere_textured = new Model(resourceDir + "sphere_textured.obj");
     boulder1        = new Model(resourceDir + "Boulder1.obj");
@@ -43,10 +48,10 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
     title           = new Model(resourceDir + "title.obj");
     tree1           = new Model(resourceDir + "tree1.obj");
     tree2           = new Model(resourceDir + "tree2.obj");
-    tree3           = new Model(resourceDir + "tree4.obj");
-//    tree4           = new Model(resourceDir + "tree4.obj");
-//    tree5           = new Model(resourceDir + "tree5.obj");
-    //player          = new Model(resourceDir + "player.obj");
+    tree3           = new Model(resourceDir + "tree3.obj");
+    tree4           = new Model(resourceDir + "tree4.obj");
+    tree5           = new Model(resourceDir + "tree5.obj");
+    tree6           = new Model(resourceDir + "tree6.obj");
     player          = new Model(resourceDir + "main_idle2.dae");
     gadget          = new Model(resourceDir + "gadget.obj");
     sheep           = new Model(resourceDir + "sheep.obj");
@@ -54,4 +59,6 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
     lantern         = new Model(resourceDir + "lantern.obj");
     monster        = new Model(resourceDir + "monstersmall.dae");
     //monster        = new Model(resourceDir + "main_idle2.dae");
+    playSign        = new Model(resourceDir + "Play.obj");
+    exitSign        = new Model(resourceDir + "Exit.obj");
 }

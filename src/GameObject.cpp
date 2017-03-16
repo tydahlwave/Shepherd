@@ -17,9 +17,15 @@
 #include "Components/TerrainRenderer.h"
 #include "Components/PathRenderer.h"
 #include "Components/SkyboxRenderer.h"
+#include "Components/Clickable.h"
+#include "Components/Button.h"
+#include "Components/HUDRenderer.h"
 #include "Components/Character.h"
 #include "Components/Death.h"
 #include "Components/Animation.h"
+#include "Components/Light.h"
+#include "Components/SheepDestination.h"
+#include "Components/TextName.h"
 
 GameObject::GameObject() :components() {
     name = "GameObject";
@@ -34,6 +40,43 @@ GameObject::GameObject(std::string name) :components() {
 GameObject::GameObject(std::string name, std::vector<std::string> componentNames) :GameObject(name) {
     for (std::string componentName : componentNames) {
         AddComponent(componentName);
+    }
+}
+
+bool GameObject::GetIsStatic() {
+    return IsStatic;
+}
+
+void GameObject::SetIsStatic(bool isStatic) {
+    if(isStatic) {
+        IsStatic = true;
+        RigidBody *rb = (RigidBody*)GetComponent("RigidBody");
+        if(rb && rb->bulletRigidBody) {
+            world->dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
+            rb->bulletRigidBody = nullptr;
+        }
+    }
+    else {
+        IsStatic = false;
+//        RigidBody *rb = (RigidBody*)GetComponent("RigidBody");
+//        btTransform t;
+//        t.setIdentity();
+//        t.setOrigin(btVector3(transform->GetPosition().x,transform->GetPosition().y,transform->GetPosition().z));
+//        btSphereShape* sphere = new btSphereShape(glm::distance(getBounds().getMin(), getBounds().getMax())/2.0);
+//        btVector3 inertia(0,0,0);
+//        float mass = 5.0;
+//        if (mass != 0)
+//            sphere->calculateLocalInertia(mass, inertia);
+//        btMotionState* motion = new btDefaultMotionState(t);
+//        btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
+//        rb->bulletRigidBody = new btRigidBody(info);
+//        rb->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+//        rb->bulletRigidBody->setFriction(1.f);
+//        rb->bulletRigidBody->setRollingFriction(0.3f);
+//        rb->bulletRigidBody->setAnisotropicFriction(sphere->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+//        //    rigidBody->bulletRigidBody->setCollisionFlags(0); // Make it a static object
+//        
+//        world->dynamicsWorld->addRigidBody(rb->bulletRigidBody);
     }
 }
 
@@ -75,12 +118,29 @@ Component *GameObject::AddComponent(std::string name) {
 		else if (name.compare("SkyboxRenderer") == 0) {
 			component = (Component*) new SkyboxRenderer();
 		}
+		else if (name.compare("HudRenderer") == 0) {
+			component = (Component*) new HUDRenderer();
+		}
+		else if (name.compare("Clickable") == 0) {
+			component = (Component*) new Clickable();
+		}
+		else if (name.compare("Button") == 0) {
+			component = (Component*) new Button();
+		}
 		else if (name.compare("Character") == 0) {
 			component = (Component *) new Character();
 		}
         else if (name.compare("Animation") == 0) {
             component = (Component *) new Animation();
-        } else {
+        }
+        else if (name.compare("Light") == 0) {
+            component = (Component *) new Light();
+        }
+        else if (name.compare("SheepDestination") == 0) {
+            component = (Component *) new SheepDestination();
+        } else if (name.compare("TextName") == 0) {
+            component = (Component *) new TextName();
+        }else {
             component = nullptr;
             std::cout << name << " component does not exist." << std::endl;
         }
@@ -93,24 +153,37 @@ Component *GameObject::AddComponent(std::string name) {
     return nullptr;
 }
 
+GameObject::~GameObject() {
+	for (auto it = components.begin(); it != components.end(); ++it) {
+		delete it->second;
+	}
+}
+
 Component *GameObject::GetComponent(std::string name) {
     return components[name];
 }
 
 void GameObject::RemoveComponent(std::string name) {
+	delete components[name];
     components[name] = nullptr;
 }
 
 void GameObject::Destroy() {
-//    for(std::map<std::string, Component*>::iterator it = components.begin(); it != components.end(); it++) {
-        // iterator->first = key
-        // iterator->second = value
-        // Repeat if you also want to iterate through the second map.
-//        if (components[it->first]) {
-//            components[it->first]->gameObject = nullptr;
-//            components[it->first] = nullptr;
-//        }
-//        world->GetGameObjects()
-//        delete this;
-//    }
+    world->RemoveGameObject(this);
+}
+
+//template <typename Writer>
+void GameObject::Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) {
+    writer.StartObject();
+    writer.Key("ObjectType");
+    writer.String(name.c_str());
+    writer.Key("Static");
+    writer.Bool(IsStatic);
+    writer.Key("Components");
+    writer.StartObject();
+    Light *light = (Light *)GetComponent("Light");
+    if (light) light->Serialize(writer);
+    transform->Serialize(writer);
+    writer.EndObject();
+    writer.EndObject();
 }

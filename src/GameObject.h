@@ -20,13 +20,14 @@ class Component;
 #include "World.h"
 #include "Components/Transform.h"
 #include "Bounds.h"
+#include "rapidjson/prettywriter.h"
 
 class GameObject : public Object {
 public:
     GameObject();
     GameObject(std::string name);
     GameObject(std::string name, std::vector<std::string> componentNames);
-    virtual ~GameObject() {};
+    virtual ~GameObject();
     
     World *world = nullptr;
     Transform *transform = nullptr;
@@ -39,7 +40,15 @@ public:
     
     // Safely remove game object from game
     void Destroy();
+    
+    bool GetIsStatic();
+    void SetIsStatic(bool isStatic);
+    
+    bool isSerializable = false;
+    //template <typename Writer> // i changed the type from Writer to PrettyWriter to get it to compile
+    void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer);
 private:
+    bool IsStatic = false;
     std::map<std::string, Component*> components;
 };
 

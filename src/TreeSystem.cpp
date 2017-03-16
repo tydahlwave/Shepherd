@@ -48,7 +48,7 @@ void TreeSystem::Initialize(World *world) {
 void TreeSystem::Spawn(World *world) {
     srand(time(0));
     for (int i = 0; i < maxTreeCount; i++) {
-        int type = (rand() % 2) + 1;
+        int type = rand() % 6;
         glm::vec3 randPos(rand() % 150 - 50, 0, rand() % 300 - 200);
         GameObject *tree = EntityFactory::createTree(world, type, randPos);
         
@@ -61,8 +61,8 @@ void TreeSystem::Spawn(World *world) {
 }
 
 void TreeSystem::Update(World *world, glm::vec3 playerPos) {
-    int playerColIndex = abs((int)playerPos.x % SPAWN_REGION_SIZE);
-    int playerRowIndex = abs((int)playerPos.z % SPAWN_REGION_SIZE);
+//    int playerColIndex = abs((int)playerPos.x % SPAWN_REGION_SIZE);
+//    int playerRowIndex = abs((int)playerPos.z % SPAWN_REGION_SIZE);
     
     // Iterate through all cells, updating tree positions if needed
     for (int row = 0; row < SPAWN_REGION_SIZE; row++) {
@@ -72,12 +72,12 @@ void TreeSystem::Update(World *world, glm::vec3 playerPos) {
                 // If tree is outside of region, update it's position
                 if (fabsf(spawns[row][col].position.x - playerPos.x) > SPAWN_REGION_SIZE ||
                     fabsf(spawns[row][col].position.z - playerPos.z) > SPAWN_REGION_SIZE) {
-                    int distRowRight = (SPAWN_REGION_SIZE - playerRowIndex) + row;
-                    int distRowLeft = playerRowIndex - row;
-                    int directionRow = (distRowRight > distRowLeft) ? 1 : -1;
-                    int distColRight = (SPAWN_REGION_SIZE - playerColIndex) + col;
-                    int distColLeft = playerColIndex - col;
-                    int directionCol = (distColRight > distColLeft) ? 1 : -1;
+//                    int distRowRight = (SPAWN_REGION_SIZE - playerRowIndex) + row;
+//                    int distRowLeft = playerRowIndex - row;
+//                    int directionRow = (distRowRight > distRowLeft) ? 1 : -1;
+//                    int distColRight = (SPAWN_REGION_SIZE - playerColIndex) + col;
+//                    int distColLeft = playerColIndex - col;
+//                    int directionCol = (distColRight > distColLeft) ? 1 : -1;
                     spawns[row][col].position = glm::vec3(
                             playerPos.x + (playerPos.x - spawns[row][col].position.x), 0,
                             playerPos.z + (playerPos.z - spawns[row][col].position.z));

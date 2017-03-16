@@ -36,6 +36,8 @@ public:
     uint numBones = 0;
     
     void draw(Program *shader);//Shader shader);
+
+	void drawHud(Program *shader);//Shader shader);
 private:
     //Anim vars
     aiNode* rootNode;

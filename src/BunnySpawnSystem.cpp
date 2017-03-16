@@ -10,105 +10,151 @@
 #include "EntityFactory.h"
 #include "Components/RigidBody.h"
 #include "Components/PathRenderer.h"
+#include "Components/SheepDestination.h"
 #include <GLFW/glfw3.h>
 
 void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
-	//Flock(world, glm::vec3(0, 0, -25));
+    if (world->GetGameObjects().size() < maxEntities) CreateBunny(world); // does this mean a bunny spawns whenver a game object is destroyed??
+    else if(p) {
+        SheepDestination *pathRenderer = (SheepDestination*)p->GetComponent("SheepDestination");
+        path = pathRenderer->path;
+        
+        std::map<GameObject*, int>::iterator it;
+        for (it = bunnyNode.begin(); it != bunnyNode.end(); ++it) {
+            glm::vec3 target = FollowPath(world, it->first);
+            Flock(world, it->first, target);
+        }
+    }
+    else {
+        
+        for (GameObject *gameObject : world->GetGameObjects())  {
+            RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
+            if(gameObject->name != "Bunny" || !rigidBody) continue;
+        
+            if(glm::length(rigidBody->velocity) < 0.5 && Time::Now() - rigidBody->pointInTime > rigidBody->waitTime) {
+                int randomAngle = rand() % 360;
+                float velX = cos(randomAngle/180.0*M_PI);
+                float velZ = sin(randomAngle/180.0*M_PI);
+                glm::vec3 vel = normalize(glm::vec3(velX, 0, velZ)) * 2.0f;
+                rigidBody->velocity.x = vel.x;
+                rigidBody->velocity.z = vel.z;
+                gameObject->transform->SetRotation(vec3(0, randomAngle, 0));
+                rigidBody->pointInTime = Time::Now();
+                rigidBody->waitTime = rand() % 3000 + 1000;
+            }
+            else if(Time::Now() - rigidBody->pointInTime > rigidBody->waitTime) {
+                rigidBody->velocity.x = rigidBody->velocity.x/1000.f;
+                rigidBody->velocity.z = rigidBody->velocity.z/1000.f;
+                rigidBody->pointInTime = Time::Now();
+                rigidBody->waitTime = rand() % 3000 + 1000;
+            }
+            
+            float angle = atan2(rigidBody->velocity.x, rigidBody->velocity.z);
+            glm::vec3 rotation = glm::vec3(0, (angle * 180 / M_PI), 0);
+            gameObject->transform->SetRotation(rotation);
+        }
+        //ObstacleAvoidance(world);
+    }
+}
 
-	PathRenderer *pathRenderer = (PathRenderer*)p->GetComponent("PathRenderer");
-	path = pathRenderer->path;
-
-	std::map<GameObject*, int>::iterator it;
-	for (it = bunnyNode.begin(); it != bunnyNode.end(); ++it) {
-		glm::vec3 target = FollowPath(world, it->first);
-		Flock(world, it->first, target);
-	}
-
-
-//    if (bunnies.size() < maxEntities) {
-    if (world->GetGameObjects().size() >= maxEntities) return;
-    
+void BunnySpawnSystem::CreateBunny(World *world) {
     //elapsedTime += deltaTime;
     //if (elapsedTime > spawnRate) {
-        elapsedTime = 0;
-        GameObject *b = EntityFactory::createBunny(world);
-        RigidBody *rigidBody = (RigidBody*)b->GetComponent("RigidBody");
+    elapsedTime = 0;
+    GameObject *b = EntityFactory::createBunny(world);
+    RigidBody *rigidBody = (RigidBody*)b->GetComponent("RigidBody");
+    
+    int randomAngle = rand() % 360;
+    float velX = cos(randomAngle/180.0*M_PI);
+    float velZ = sin(randomAngle/180.0*M_PI);
+    glm::vec3 vel = normalize(glm::vec3(velX, 0, velZ)) * 5.0f;
+    
+    float floatX[maxEntities];
+    float floatZ[maxEntities];
+    vec3 randPosition;
+    GameObject obj;
+    bool positionClear = false;
+    int randX;
+    int randZ;
+    
+    
+    //collect positions
+    int i = 0;
+    for(auto &obj : world->GetGameObjects()){
+        randPosition = obj->transform->GetPosition();
+        floatX[i] = randPosition.x;
+        floatZ[i] = randPosition.z;
+        i++;
+    }
+    
+    
+    //check if positions found
+    while (!positionClear)
+    {
+        std::random_device rd;
+        std::mt19937 mt(rd());
+        std::uniform_real_distribution<float> distX(-15.0f, 15.0f);
+        std::uniform_real_distribution<float> distZ(-15.0f, 15.0f);
         
-        int randomAngle = rand() % 360;
-        float velX = cos(randomAngle/180.0*M_PI);
-        float velY = sin(randomAngle/180.0*M_PI);
-        glm::vec3 vel = normalize(glm::vec3(velX, 0, velY)) * 5.0f;
+        //randX = rand() % 50 - 25;
+        //randZ = rand() % 50 - 25;
         
-        float floatX[maxEntities];
-        float floatZ[maxEntities];
-        vec3 randPosition;
-        GameObject obj;
-        bool positionClear = false;
-        int randX;
-        int randZ;
+        randX = distX(mt);
+        randZ = distZ(mt);
+        bool xFound = false;
+        bool zFound = false;
         
-        
-        //collect positions
-        int i = 0;
-        for(auto &obj : world->GetGameObjects()){
-            randPosition = obj->transform->GetPosition();
-            floatX[i] = randPosition.x;
-            floatZ[i] = randPosition.z;
-            i++;
-        }
-        
-        
-        //check if positions found
-        while (!positionClear)
-        {
-			std::random_device rd;
-			std::mt19937 mt(rd());
-			std::uniform_real_distribution<float> distX(-5.0f, 5.0f);
-			std::uniform_real_distribution<float> distZ(-5.0f, 5.0f);
-
-            //randX = rand() % 50 - 25;
-            //randZ = rand() % 50 - 25;
-            
-			randX = distX(mt);
-			randZ = distZ(mt);
-            bool xFound = false;
-            bool zFound = false;
-            
-            //check through arrays
-            for (int j = 0; j < maxEntities; j++) {
-                if (floatX[j] == randX) {
-                    xFound = true;
-                }
-                if (floatZ[j] == randZ) {
-                    zFound = true;
-                }
+        //check through arrays
+        for (int j = 0; j < maxEntities; j++) {
+            if (floatX[j] == randX) {
+                xFound = true;
             }
-            
-            if (!(xFound && zFound)) {
-                positionClear = true;
-                randPosition = vec3(randX, 0, randZ);
-				b->transform->SetPosition(randPosition);
+            if (floatZ[j] == randZ) {
+                zFound = true;
             }
         }
-
-		if (count == 0) {
-			rigidBody->velocity -= vel;
-		}
-		count += 1;
         
-        b->transform->SetPosition(randPosition);
-        rigidBody->useGravity = true;
-        b->transform->SetRotation(vec3(0, -randomAngle, 0));
-		bunnyNode.insert(std::make_pair(b, 0));
-    //}
-//    }
+        if (!(xFound && zFound)) {
+            positionClear = true;
+            randPosition = startPosition + vec3(randX, 0, randZ);
+            b->transform->SetPosition(randPosition);
+        }
+    }
+    
+    if (count == 0) {
+        rigidBody->velocity -= vel;
+    }
+    count += 1;
+    
+    b->transform->SetPosition(randPosition);
+    rigidBody->useGravity = true;
+    b->transform->SetRotation(vec3(0, -randomAngle, 0));
+    bunnyNode.insert(std::make_pair(b, 0));
 }
 
 void BunnySpawnSystem::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
 	if (action == GLFW_PRESS) {
 		if (key == GLFW_KEY_F) {
 			flockToCamera = !flockToCamera;
-		}
+        }
+        else if (key == GLFW_KEY_1) {
+            world->sheepDestinationObject = EntityFactory::createNodeSphere(world);
+        }
+        else if (key == GLFW_KEY_2) {
+            if(world->sheepDestinationObject && world->sheepDestinationObject->name == "FollowSphere") {
+                world->RemoveGameObject(world->sheepDestinationObject);
+            }
+            world->sheepDestinationObject = nullptr;
+            for(int i = 0; i < world->GetGameObjects().size(); i++) {
+                if(world->GetGameObjects()[i]->name == "Bunny") {
+                    RigidBody *rigidBody = (RigidBody*)world->GetGameObjects()[i]->GetComponent("RigidBody");
+                    if (rigidBody) {
+                        rigidBody->velocity = vec3(0);
+                        
+                    }
+                }
+            }
+        }
 	}
 }
 
@@ -147,9 +193,8 @@ glm::vec3 BunnySpawnSystem::Seek(World *world, GameObject *bunny, glm::vec3 targ
 
         angle = atan2((target - bunny->transform->GetPosition()).x, (target - bunny->transform->GetPosition()).z) * 180.0 / 3.14;
         bunny->transform->SetRotation(glm::vec3(0, angle, 0));
-
-		return steering;
     }
+    return steering;
 }
 
 void BunnySpawnSystem::Arrival(World *world, GameObject *bunny, glm::vec3 target) {
@@ -160,7 +205,11 @@ void BunnySpawnSystem::Arrival(World *world, GameObject *bunny, glm::vec3 target
 		
 	if (rigidBody) {
 		if (flockToCamera) {
-			position = world->mainCharacter->transform->GetPosition();
+            if (world->mainCharacter) {
+                position = world->mainCharacter->transform->GetPosition();
+            } else {
+                position = world->mainCamera->transform->GetPosition();
+            }
         }
         else {
 			position = target;
@@ -297,7 +346,7 @@ glm::vec3 BunnySpawnSystem::FollowPath(World *world, GameObject *bunny) {
 
 	if (path != NULL) {
 		std::vector<glm::vec3> nodes = (*path).GetNodes();
-		RigidBody *rigidBody = (RigidBody*)bunny->GetComponent("RigidBody");
+//		RigidBody *rigidBody = (RigidBody*)bunny->GetComponent("RigidBody");
 
 		target = nodes.at(bunnyNode[bunny]);
         target.y = 0;
@@ -305,14 +354,15 @@ glm::vec3 BunnySpawnSystem::FollowPath(World *world, GameObject *bunny) {
         bunnyPos.y = 0;
 		if (glm::distance(bunnyPos, target) <= (*path).radius) {
             // If at end node, don't continue
-            if (glm::distance(nodes[path->size-1], target) > 0.1) {
+//            if (bunnyNode[bunny] < nodes.size()-1) {
+//            if (glm::distance(nodes[path->size-1], target) > 0.1) {
                 bunnyNode[bunny] = bunnyNode[bunny] + 1;
 
                 if (bunnyNode[bunny] >= (*path).size) {
                     bunnyNode[bunny] = 0; //to loop around path
-                    //bunnyNode[bunny] = (*path).size - 1;
+//                    bunnyNode[bunny] = (*path).size - 1;
                 }
-            }
+//            }
 		}
 	}
 

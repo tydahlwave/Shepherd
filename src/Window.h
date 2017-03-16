@@ -17,6 +17,7 @@
 #include "glm/glm.hpp"
 #include "World.h"
 #include "WindowCallbackDelegate.h"
+#include "ImguiUpdateDelegate.h"
 
 typedef void (*MouseCallback)(int, int, double, double); // windowWidth, windowHeight, mouseX, mouseY
 
@@ -26,14 +27,14 @@ struct WindowSize {
 
 class Window {
 public:
-    Window(World *w);
+    Window(World *w, int width, int height);
 	Window() {};
     virtual ~Window();
     
     static bool drawGUI;
     static bool drawMouse;
     static bool drawWireframes;
-    static bool drawAABBs;
+	static bool drawAABBs;
     
     int Initialize();
     void Terminate();
@@ -45,16 +46,23 @@ public:
     bool ShouldClose();
     void SwapBuffers();
     void PollEvents();
+	void checkMouse();
+
+    void UpdateImgui();
     static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
     static void MouseMoveCallback(GLFWwindow *window, double posX, double posY);
     static void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 	static void MouseScrollCallback(GLFWwindow *window, double dx, double dy);
-    static void AddWindowCallbackDelegate(WindowCallbackDelegate *delegate);
+    static void AddWindowCallbackDelegate(WindowCallbackDelegate *delegate, int type);
+    static void AddImguiUpdateDelegate(ImguiUpdateDelegate *delegate);
 	static void DeleteCallbackDelegates();
 private:
     GLFWwindow *window; // Main application window
+    int _width;
+    int _height;
     static World *world;
     static std::vector<WindowCallbackDelegate*> windowCallbackDelegates;
+    static std::vector<ImguiUpdateDelegate*> imguiUpdateDelegates;
 };
 
 #endif /* Window_h */

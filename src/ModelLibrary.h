@@ -19,6 +19,7 @@ public:
     static Model *bunny;
     static Model *cube;
     static Model *plane;
+	static Model *button;
     static Model *sphere;
     static Model *sphere_textured;
     static Model *boulder1;
@@ -31,12 +32,15 @@ public:
     static Model *tree3;
     static Model *tree4;
     static Model *tree5;
+    static Model *tree6;
     static Model *player;
     static Model *gadget;
     static Model *sheep;
 	static Model *menuSign;
     static Model *lantern;
     static Model *monster;
+    static Model *playSign;
+    static Model *exitSign;
 };
 
 #endif /* ModelLibrary_h */

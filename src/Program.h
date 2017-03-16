@@ -20,6 +20,8 @@ public:
     bool isVerbose() const { return verbose; }
     
     void setShaderNames(const std::string &v, const std::string &f);
+    void setShaderNames(const std::string &v, const std::string &g, const std::string &f);
+    void linkGeometryShader(GLint rc, GLuint pid);
     virtual bool init();
     virtual void bind();
     virtual void unbind();
@@ -39,8 +41,9 @@ public:
     GLuint getPID() { return pid; }
     
 protected:
-    std::string vShaderName;
-    std::string fShaderName;
+    std::string vShaderName; // Vertex shader
+    std::string gShaderName; // Geometry shader
+    std::string fShaderName; // Fragment shader
     
 private:
     GLuint pid;

@@ -7,6 +7,9 @@ uniform vec3 matAmbientColor;
 uniform float matShine;
 uniform mat4 V;
 
+uniform int useTexture;
+uniform sampler2D myTexture;
+
 #define MAX_LIGHTS 10
 uniform int numLights;
 uniform struct Light {
@@ -20,8 +23,16 @@ uniform struct Light {
 
 out vec4 color;
 
-in vec3 vertexNormal;
-in vec3 viewNormal;
+in VS_OUT {
+    vec3 fragPos;
+    vec3 vertPos;
+    vec3 modelNor;
+    vec3 vertNor;
+    vec3 viewNor;
+    vec3 modelPos;
+    vec2 vertTex;
+} vs_out;
+
 
 //interpolation helper
 float stepmix(float edge0, float edge1, float E, float x)
@@ -36,16 +47,15 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     float attenuation = 1.0;
     if(light.position.w == 0.0) {
         //directional light
-        lightN = normalize(lightPos);
+        lightN = normalize(light.position.xyz);
         attenuation = 1.0; //no attenuation for directional lights
     } else {
         //point light
-        lightN = normalize(lightPos - fragPos);
-        float a = 0;
-        float b = 0.5;
-        float c = 0;
-        float distanceToLight = length(lightPos - fragPos);
-        float attenuation = 1 / (a + b * distanceToLight + c * pow(distanceToLight, 2));
+        lightN = normalize(light.position.xyz - vs_out.modelPos);
+        float distanceToLight = length(light.position.xyz - vs_out.modelPos);
+        
+        //attenuation = 1.0 / (1.0 + light.attenuation * pow(distanceToLight, 2.0));
+        attenuation = clamp( 10.0 / (1.0 + light.attenuation * distanceToLight), 0.0, 1.0);
         
         //cone restrictions (affects attenuation)
         float lightToSurfaceAngle = degrees(acos(dot(-lightN, normalize(light.coneDirection))));
@@ -100,33 +110,44 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     
     sf = step(0.2, sf);
     
-    //sf = sf *  (1 / (.5 * distanceToLight));
+    vec3 ambientColor = matAmbientColor;
+    vec3 diffuseColor = matDiffuseColor;
+    vec3 specularColor = matSpecularColor;
+    if (useTexture == 0) {
+        ambientColor = diffuseColor = specularColor = texture(myTexture, vs_out.vertTex).xyz / 2;
+    }
+
     
     //ambient
-    vec3 ambient = light.ambientCoefficient * matAmbientColor * light.intensities;
+    vec3 ambient = light.ambientCoefficient * ambientColor * light.intensities;
     
     //diffuse
-    vec3 diffuse = matDiffuseColor * max(dot(vertexN, lightN), 0) * light.intensities * df;
-     //vec3 diffuse = matDiffuseColor * df;
+    //vec3 diffuse = matDiffuseColor * max(dot(vertexN, lightN), 0) * light.intensities;
+    vec3 diffuse = diffuseColor * df;
+
     
     //specular
     float alpha = matShine;
     vec3 halfValue = normalize(viewN + lightN);
-    vec3 specular = matSpecularColor * pow(max(dot(vertexN, halfValue), 0), alpha) * light.intensities * sf;
-    //vec3 specular = matSpecularColor  * sf;
+    //vec3 specular = matSpecularColor * pow(max(dot(vertexN, halfValue), 0), alpha) * light.intensities;
+    vec3 specular = specularColor  * sf;
     
     //linear color (color before gamma correction)
-    return ambient + (diffuse + specular);
+    if (light.position.w == 0)
+        return ambient + (diffuse + specular);
+    else
+        return ambient + attenuation*(diffuse + specular);
+
 }
 
 
 void main()
 {
     // Normalize the vectors
-    vec3 vertexN = normalize(vertexNormal);
-    vec3 viewN = normalize(viewNormal);
+    vec3 vertexN = normalize(vs_out.modelNor);
+    vec3 viewN = normalize(vs_out.viewNor);
     //combine color from all the lights
-    vec3 linearColor = vec3(0);
+    vec3 linearColor = matAmbientColor;//vec3(0);
     for(int i = 0; i < numLights; ++i){
         vec3 pos = vec3(V * vec4(vec3(allLights[i].position), 1));
         vec3 toAdd = ApplyLight(allLights[i], vertexN, viewN, pos);
@@ -134,9 +155,9 @@ void main()
         linearColor += toAdd;
     }
     
-    float edgeDetection = (dot(viewN, vertexN) > 0.3) ? 1 : 0;
+    float edgeDetection = (dot(viewN, vs_out.modelNor) > 0.3) ? 1 : 0;
     
-    color = vec4(edgeDetection*linearColor, 1.0);
+    color = vec4(linearColor, 1.0);
     //final color (after gamma correction)
     //vec3 gamma = vec3(1.0/2.2);
     //color = vec4(pow(totalPhong, gamma), 1.0);

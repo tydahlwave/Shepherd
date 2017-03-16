@@ -11,6 +11,7 @@ using namespace std;
 
 Program::Program() :
 vShaderName(""),
+gShaderName(""),
 fShaderName(""),
 pid(0),
 verbose(true)
@@ -27,6 +28,30 @@ void Program::setShaderNames(const string &v, const string &f)
 {
     vShaderName = v;
     fShaderName = f;
+}
+
+void Program::setShaderNames(const string &v, const string &g, const string &f)
+{
+    vShaderName = v;
+    gShaderName = g;
+    fShaderName = f;
+}
+
+void Program::linkGeometryShader(GLint rc, GLuint pid) {
+    GLuint GS = glCreateShader(GL_GEOMETRY_SHADER);
+    const char *gshader = GLSL::textFileRead(gShaderName.c_str());
+    glShaderSource(GS, 1, &gshader, NULL);
+    // Compile geometry shader
+    glCompileShader(GS);
+    glGetShaderiv(GS, GL_COMPILE_STATUS, &rc);
+    if(!rc) {
+        if(isVerbose()) {
+            GLSL::printShaderInfoLog(GS);
+            cout << "Error compiling geometry shader " << gShaderName << endl;
+        }
+        return;
+    }
+    glAttachShader(pid, GS);
 }
 
 bool Program::init()
@@ -68,13 +93,16 @@ bool Program::init()
     // Create the program and link
     pid = glCreateProgram();
     glAttachShader(pid, VS);
+    if (gShaderName.length() > 0) {
+        linkGeometryShader(rc, pid);
+    }
     glAttachShader(pid, FS);
     glLinkProgram(pid);
     glGetProgramiv(pid, GL_LINK_STATUS, &rc);
     if(!rc) {
         if(isVerbose()) {
             GLSL::printProgramInfoLog(pid);
-            cout << "Error linking shaders " << vShaderName << " and " << fShaderName << endl;
+            cout << "Error linking shaders " << vShaderName << " and " << gShaderName << " and " << fShaderName << endl;
         }
         return false;
     }

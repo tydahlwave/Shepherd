@@ -5,7 +5,7 @@
 #include <cmath>
 
 #include "Mesh.h"
-#include "Texture.h"
+#include "TextureLibrary.h"
 #include "Material.h"
 #include "Shader.h"
 #include "EntityFactory.h"
@@ -23,12 +23,12 @@
 #include "WolfSystem.h"
 #include "AudioEngine.h"
 #include "TreeSystem.h"
-#include "TextureLoader.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
 #include "Time.h"
 #include "AnimationSystem.h"
+#include "ImguiUpdateDelegate.h"
 
 enum State {
 	Close = -2,
@@ -39,20 +39,24 @@ enum State {
 	Level3 = 3,
 };
 
-class GameController : WindowCallbackDelegate {
+class GameController : WindowCallbackDelegate, ImguiUpdateDelegate {
 public:
-	GameController() : window(&world) { };
+	GameController() : window(&world, 1080, 920) { };
 	virtual ~GameController() {};
 	State state;
 	State nextState;
 	void Init(std::string);
 	void Run();
 	void LoadState();
+	void UnloadState();
 	void KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action);
 	void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY);
 	void MouseClicked(World *world, double mouseX, double mouseY, int key, int action);
 	void MouseScrolled(World *world, double dx, double dy);
-	void randomlyPopulateWithBoulders();
+    void ImguiUpdate(World *world, bool drawGUI);
+	void randomlyPopulateWithBoulders(Path *path);
+	int incrState();
+	int endState();
 private:
 	glm::vec2 mousePrev = { 0, 0 };
 	std::string resourceDir;
@@ -70,13 +74,16 @@ private:
 	TreeSystem *treeSystem = nullptr;
 	GameObject *path = nullptr;
 	GameObject *terrain = nullptr;
-	GameObject *skybox = nullptr;
+//	GameObject *skybox = nullptr;
     GameObject *sign = nullptr;
 	float groundSize = 100.0f;
 	int gameMusic = 0;
     AnimationSystem *animSystem = nullptr;
     
     void displayStats(float deltaTime, World &world, Physics &physics);
+    void drawImGUIStuff(Window &window, GameObject *terrain);
+    void drawTerrainWindow(Window &window, GameObject *terrain);
+    void ImGuiShowNames(World *world);
 };
 
 #endif /* CharacterController_h */

@@ -15,6 +15,7 @@
 #include "Time.h"
 #include "SoundLibrary.h"
 #include "Components/Death.h"
+#include "CameraController.h"
 
 
 bool PhysicsController::charge = false;
@@ -87,15 +88,16 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
             charge = false;
             //return; // might not need this.... just in case
             SoundLibrary::playShot();
+            ((CameraController*)(world->cameraController))->BeginShaking(15, 200);
         }
         
         
         
-        
-        Camera* cam = (Camera*)world->mainCharacter->GetComponent("Camera");
+        GameObject *mainCharacter = (world->mainCharacter) ? world->mainCharacter : world->mainCamera;
+//        Camera* cam = (Camera*)mainCharacter->GetComponent("Camera");
 
-		glm::vec3 rot = world->mainCharacter->transform->GetRotation();
-		glm::vec3 pos = world->mainCharacter->transform->GetPosition();
+		glm::vec3 rot = mainCharacter->transform->GetRotation();
+		glm::vec3 pos = mainCharacter->transform->GetPosition();
 		float theta = glm::radians(rot.y);
         btVector3 camPos = btVector3(pos.x, pos.y, pos.z);
         

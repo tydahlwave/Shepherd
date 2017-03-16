@@ -17,8 +17,11 @@
 #include "MaterialLibrary.h"
 #include "Interpolation.h"
 #include "Components/Death.h"
+#include "Components/TextName.h"
 
 void Physics::Update(float deltaTime, World &world) {
+    if (!enabled) return;
+    
     for (GameObject *gameObject : world.GetGameObjects()) {
         RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
         if (rigidBody && rigidBody->useGravity && !rigidBody->isKinematic) {
@@ -29,9 +32,9 @@ void Physics::Update(float deltaTime, World &world) {
             gameObject->transform->SetPosition(gameObject->transform->GetPosition()+vel);
         }
     }
+    UpdateBulletPhysics(deltaTime, world);
     ComputeCollisions(world);
     HandleTerrainCollisions(world);
-    UpdateBulletPhysics(deltaTime, world);
 }
 
 void Physics::UpdateBulletPhysics(float deltaTime, World &world) {
@@ -49,9 +52,10 @@ void Physics::UpdateBulletPhysics(float deltaTime, World &world) {
 //            btMatrix3x3 mat = form->getBasis();
 //            mat.getEulerYPR(yaw, pitch, roll);
 
-            btVector3 rot = form->getRotation().getAngle() * (form->getRotation().getAxis());
-            
-            go->transform->SetRotation(glm::vec3(glm::degrees(rot.x()),glm::degrees(rot.y()),glm::degrees(rot.z())));
+            if(go->name != "Camera") {
+                btVector3 rot = form->getRotation().getAngle() * (form->getRotation().getAxis());
+                go->transform->SetRotation(glm::vec3(glm::degrees(rot.x()),glm::degrees(rot.y()),glm::degrees(rot.z())));
+            }
         }
         
     }
@@ -147,6 +151,10 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
                 if (rb->bulletRigidBody) {
                     world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
                 }
+            }
+            TextName* tn = (TextName*)collision.gameObject1->GetComponent("TextName");
+            if(tn) {
+                tn->color = vec3(1,0,0);
             }
         }
         else if (collision.gameObject2->name.compare("Terrain") == 0 && collision.gameObject1->name.compare("Wolf") == 0) {

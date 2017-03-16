@@ -2,6 +2,7 @@
 #version 330
 layout(location = 0) in vec4 vertPos;
 layout(location = 1) in vec3 vertNor;
+layout(location = 2) in vec2 vertTex;
 uniform mat4 P;
 uniform mat4 M;
 uniform mat4 V;
@@ -11,24 +12,29 @@ uniform vec3 matAmbientColor;
 uniform float matShine;
 
 //send them to fragment shader
+out VS_OUT {
+    vec3 fragPos;
+    vec3 vertPos;
+    vec3 modelNor;
+    vec3 vertNor;
+    vec3 viewNor;
+    vec3 modelPos;
+    vec2 vertTex;
+} vs_out;
 
-out vec3 fragPos;
-out vec3 fragNor;
-
-out vec3 vertexNormal;
-out vec3 viewNormal;
 
 void main()
 {
-    
     gl_Position = P * V * M * vertPos;
     
-    // Normalize the vectors
-    vertexNormal = (V * M * vec4(vertNor, 0.0)).xyz;
-    viewNormal = -(V * M * vertPos).xyz;
-    
     // Pass vertex position and normal to fragment shader
-    fragPos = (V * M * vertPos).xyz;
-    fragNor = (V * M * vec4(vertNor, 0.0)).xyz;
+    vs_out.fragPos = (V * M * vertPos).xyz;
+    vs_out.vertPos = (M * vertPos).xyz;
+    vs_out.modelNor = (M * vec4(vertNor, 0.0)).xyz;
+    vs_out.vertNor = (V * M * vec4(vertNor, 0.0)).xyz;
+    vs_out.viewNor = -(V * M * vertPos).xyz;
+    
+    vs_out.modelPos = (M * vertPos).xyz;
+    vs_out.vertTex = vertTex;
     
 }

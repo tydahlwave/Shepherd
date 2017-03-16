@@ -9,7 +9,23 @@
 #include <stdio.h>
 #include <algorithm>    // std::sort
 #include "KDTree.h"
+#include "Components/Camera.h"
+#include "Renderer.h"
 
+std::vector<GameObject*> KDTree::getStaticObjectsInViewFrustrumRec(Camera *camera, Node *root) {
+    std::vector<GameObject*> objects;
+    if(Renderer::intersectFrustumAABB(camera, root->minVals, root->maxVals)) {
+        std::vector<GameObject*> leftObjects = getStaticObjectsInViewFrustrumRec(camera, root->left);
+        std::vector<GameObject*> rightObjects = getStaticObjectsInViewFrustrumRec(camera, root->right);
+        objects.insert(objects.end(), leftObjects.begin(), leftObjects.end());
+        objects.insert(objects.end(), rightObjects.begin(), rightObjects.end());
+    }
+    return objects;
+}
+
+std::vector<GameObject*> KDTree::getStaticObjectsInViewFrustrum(Camera *camera) {
+    return getStaticObjectsInViewFrustrumRec(camera, root);
+}
 
 bool KDTree::gameObjectDimensionCmp(GameObject *obj1, GameObject *obj2, int dimension) {
     return obj1->transform->GetPosition()[dimension] < obj2->transform->GetPosition()[dimension];

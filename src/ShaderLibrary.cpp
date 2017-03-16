@@ -12,8 +12,10 @@
 Shader *ShaderLibrary::phong = nullptr;
 Shader *ShaderLibrary::textured = nullptr;
 Shader *ShaderLibrary::hud = nullptr;
+Shader *ShaderLibrary::hud2 = nullptr;
 Shader *ShaderLibrary::cell = nullptr;
 Shader *ShaderLibrary::chargeBar = nullptr;
+Shader *ShaderLibrary::clickable = nullptr;
 Shader *ShaderLibrary::ground = nullptr;
 Shader *ShaderLibrary::menu = nullptr;
 Shader *ShaderLibrary::skybox = nullptr;
@@ -70,10 +72,36 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("P");
     program->addUniform("M");
     program->addUniform("V");
+	program->addUniform("width");
+	program->addUniform("height");
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
     hud = new Shader(program);
-    
+
+	program = new Program();
+	program->setVerbose(true);
+	program->setShaderNames(resourceDir + "hud2_vert.glsl", resourceDir + "hud2_frag.glsl");
+	program->init();
+	program->addUniform("P");
+	program->addUniform("M");
+	program->addUniform("V");
+	program->addUniform("ButtonTexture");
+	program->addAttribute("vertPos");
+	program->addAttribute("vertNor");
+	hud2 = new Shader(program);
+
+	program = new Program();
+	program->setVerbose(true);
+	program->setShaderNames(resourceDir + "click_vert.glsl", resourceDir + "click_frag.glsl");
+	program->init();
+	program->addUniform("P");
+	program->addUniform("M");
+	program->addUniform("V");
+	program->addUniform("PickingColor");
+	program->addAttribute("vertPos");
+	program->addAttribute("vertNor");
+	clickable = new Shader(program);
+
     program = new Program();
     program->setVerbose(true);
     program->setShaderNames(resourceDir + "toon_cell_vert.glsl", resourceDir + "toon_cell_frag.glsl");
@@ -83,6 +111,7 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("V");
     program->addAttribute("vertPos");
     program->addAttribute("vertNor");
+    program->addAttribute("vertTex");
     program->addUniform("numLights");
     for(int i = 0; i < MAX_NUM_LIGHTS; i++) {
         std::string uniformName = ConstructLightUniformName("position", i);
@@ -102,6 +131,8 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("matSpecularColor");
     program->addUniform("matAmbientColor");
     program->addUniform("matShine");
+    program->addUniform("myTexture");
+    program->addUniform("useTexture");
     cell = new Shader(program);
     
     ///anim testing
@@ -141,7 +172,45 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     
     program = new Program();
     program->setVerbose(true);
-    program->setShaderNames(resourceDir + "ground_vert.glsl", resourceDir + "ground_frag.glsl");
+    program->setShaderNames(resourceDir + "ground_vert.glsl", resourceDir + "terrainGeometryFlat.vs", resourceDir + "ground_frag.glsl");
+    program->init();
+    program->addUniform("P");
+    program->addUniform("M");
+    program->addUniform("V");
+    program->addAttribute("vertPos");
+    program->addAttribute("vertNor");
+    program->addUniform("numLights");
+    for(int i = 0; i < MAX_NUM_LIGHTS; i++) {
+        std::string uniformName = ConstructLightUniformName("position", i);
+        program->addUniform(uniformName);
+        uniformName = ConstructLightUniformName("intensities", i);
+        program->addUniform(uniformName);
+        uniformName = ConstructLightUniformName("attenuation", i);
+        program->addUniform(uniformName);
+        uniformName = ConstructLightUniformName("ambientCoefficient", i);
+        program->addUniform(uniformName);
+        uniformName = ConstructLightUniformName("coneAngle", i);
+        program->addUniform(uniformName);
+        uniformName = ConstructLightUniformName("coneDirection", i);
+        program->addUniform(uniformName);
+    }
+    program->addUniform("terrainMin");
+    program->addUniform("terrainMax");
+    program->addUniform("terrainScale");
+    program->addUniform("regions");
+    program->addUniform("regionColors");
+    program->addUniform("Grass");
+    program->addUniform("Mountain");
+    program->addUniform("Snow");
+    program->addUniform("matDiffuseColor");
+    program->addUniform("matSpecularColor");
+    program->addUniform("matAmbientColor");
+    program->addUniform("matShine");
+    ground = new Shader(program);
+    
+    program = new Program();
+    program->setVerbose(true);
+    program->setShaderNames(resourceDir + "menu_vert.glsl", resourceDir + "menu_frag.glsl");
     program->init();
     program->addUniform("P");
     program->addUniform("M");
@@ -167,17 +236,6 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("matSpecularColor");
     program->addUniform("matAmbientColor");
     program->addUniform("matShine");
-    ground = new Shader(program);
-    
-    program = new Program();
-    program->setVerbose(true);
-    program->setShaderNames(resourceDir + "menu_vert.glsl", resourceDir + "menu_frag.glsl");
-    program->init();
-    program->addUniform("P");
-    program->addUniform("M");
-    program->addUniform("V");
-    program->addAttribute("vertPos");
-    program->addAttribute("vertNor");
     menu = new Shader(program);
     
     program = new Program();

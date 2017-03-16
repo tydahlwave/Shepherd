@@ -20,7 +20,9 @@ public:
     static Shader *phong;
     static Shader *textured;
     static Shader *hud;
+	static Shader *hud2;
     static Shader *cell;
+	static Shader *clickable;
     static Shader *chargeBar;
     static Shader *ground;
     static Shader *menu;

@@ -84,6 +84,16 @@ void MatrixStack::ortho(float left, float right, float bottom, float top, float 
    ctm *= glm::ortho(left, right, bottom, top, zNear, zFar);
 }
 
+
+void MatrixStack::ortho2D(float left, float right, float bottom, float top)
+{
+	assert(left != right);
+	assert(bottom != top);
+	mat4 &ctm = mstack->top();
+	ctm *= glm::ortho(left, right, bottom, top);
+}
+
+
 void MatrixStack::frustum(float left, float right, float bottom, float top, float zNear, float zFar)
 {
    mat4 &ctm = mstack->top();

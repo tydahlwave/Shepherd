@@ -23,86 +23,51 @@ Terrain::Terrain() :
 Terrain::~Terrain() {}
 
 void Terrain::Generate() {
-    srand(time(0));
-    switch (type) {
-    case 0:
-        heightMap = Noise::GenerateSimplex(size);
-        break;
-    default:
-        heightMap = Noise::GenerateDiamondSquare(size);
-        break;
-    }
-    
-    // Flatten heightmap
-    for (int i = 0; i < heightMap.size(); i++) {
-        for (int j = 0; j < heightMap[i].size(); j++) {
-            heightMapFlat.push_back(heightMap[j][i]);
-        }
-    }
-    
+    seed = time(0);
+    GenerateHeightmap(seed);
+        
     auto width = heightMap[0].size();
     auto height = heightMap.size();
     std::cout << "Terrain size: " << width << "x" << height << std::endl;
-    
-    // Initialize position, normal, and texture buffers to 0s
-    for (size_t v = 0; v < width*height*3; v++) {
-        posBuf.push_back(0);
-        norBuf.push_back(0);
-        // texBuf.push_back(0);
-    }
-    
-    // Initialize the element buffer to 0s
-    int totalElements = 2*(width-1)*width + 2*(width-2); // total vertices + degenerate vertices
-    for (size_t v = 0; v < totalElements; v++) {
-        eleBuf.push_back(0);
-    }
     
     UpdateBuffers();
     init();
 }
 
 void Terrain::Regenerate() {
-    srand(time(0));
-    switch (type) {
-    case 0:
-        heightMap = Noise::GenerateSimplex(size);
-        break;
-    default:
-        heightMap = Noise::GenerateDiamondSquare(size);
-        break;
-    }
-    
-    // Flatten heightmap
-    for (int i = 0; i < heightMap.size(); i++) {
-        for (int j = 0; j < heightMap[i].size(); j++) {
-            heightMapFlat.push_back(heightMap[j][i]);
-        }
-    }
+    seed = time(0);
+    GenerateHeightmap(seed);
     
     auto width = heightMap[0].size();
     auto height = heightMap.size();
     std::cout << "Terrain size: " << width << "x" << height << std::endl;
     
-    // Reset buffers
-    posBuf.clear();
-    norBuf.clear();
-    eleBuf.clear();
-
-    // Initialize position, normal, and texture buffers to 0s
-    for (size_t v = 0; v < width*height*3; v++) {
-        posBuf.push_back(0);
-        norBuf.push_back(0);
-        // texBuf.push_back(0);
-    }
-    
-    // Initialize the element buffer to 0s
-    int totalElements = 2*(width-1)*width + 2*(width-2); // total vertices + degenerate vertices
-    for (size_t v = 0; v < totalElements; v++) {
-        eleBuf.push_back(0);
-    }
-    
     UpdateBuffers();
-    init();
+    update();
+}
+
+void Terrain::GenerateHeightmap(time_t seed) {
+    srand(seed);
+    switch (type) {
+        case 0:
+            heightMap = Noise::GenerateSimplex(size);
+            break;
+        default:
+            heightMap = Noise::GenerateDiamondSquare(size);
+            break;
+    }
+}
+
+void Terrain::GenerateHeightmap(NoiseProperties &properties, time_t seed) {
+    srand(seed);
+    switch (type) {
+        case 0:
+            heightMap = Noise::GenerateSimplex(properties, size);
+            break;
+        default:
+            heightMap = Noise::GenerateDiamondSquare(size);
+            break;
+    }
 }
 
 void Terrain::GenerateFromImage(std::string imagePath) {
@@ -132,37 +97,12 @@ void Terrain::GenerateFromImage(std::string imagePath) {
         }
     }
 //    heightMap = map;
-    heightMap = Noise::SmoothTerrain(map, size, 3, 5);
-    
-    // Flatten heightmap
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            heightMapFlat.push_back(heightMap[j][i]);
-        }
-    }
+    heightMap = Noise::SmoothTerrain(map, size, 3, 5);//3, 5);
     
 //    auto width = heightMap[0].size();
 //    auto height = heightMap.size();
     std::cout << "Terrain size: " << size << "x" << size << std::endl;
     std::cout << "Image Channels: " << channels << std::endl;
-    
-    // Reset buffers
-    posBuf.clear();
-    norBuf.clear();
-    eleBuf.clear();
-    
-    // Initialize position, normal, and texture buffers to 0s
-    for (size_t v = 0; v < size*size*3; v++) {
-        posBuf.push_back(0);
-        norBuf.push_back(0);
-        // texBuf.push_back(0);
-    }
-    
-    // Initialize the element buffer to 0s
-    int totalElements = 2*(size-1)*size + 2*(size-2); // total vertices + degenerate vertices
-    for (size_t v = 0; v < totalElements; v++) {
-        eleBuf.push_back(0);
-    }
     
     UpdateBuffers();
     init();
@@ -172,6 +112,35 @@ void Terrain::UpdateBuffers() {
     auto width = size;//heightMap[0].size();
     auto height = size;//heightMap.size();
     
+    // Record max/min
+    max = INT_MIN;
+    min = INT_MAX;
+    for (int i = 0; i < heightMap.size(); i++) {
+        for (int j = 0; j < heightMap[i].size(); j++) {
+            if (heightMap[j][i] > max) max = heightMap[j][i];
+            if (heightMap[j][i] < min) min = heightMap[j][i];
+        }
+    }
+    
+    // Reset buffers
+    posBuf.clear();
+    norBuf.clear();
+    eleBuf.clear();
+    
+    // Initialize position, normal, and texture buffers to 0s
+    for (size_t v = 0; v < width*height*3; v++) {
+        posBuf.push_back(0);
+        norBuf.push_back(0);
+        // texBuf.push_back(0);
+    }
+    
+    // Initialize the element buffer to 0s
+    int totalElements = 2*(width-1)*width + 2*(width-2); // total vertices + degenerate vertices
+    for (size_t v = 0; v < totalElements; v++) {
+        eleBuf.push_back(0);
+    }
+    
+    // Calculate triangle vertex positions
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             int index = (y * width + x) * 3;
@@ -246,6 +215,25 @@ void Terrain::init() {
     assert(glGetError() == GL_NO_ERROR);
 }
 
+void Terrain::update() {
+    
+    // Initialize texture
+    makeTexture();
+    
+    // Send the position array to the GPU
+    glBindBuffer(GL_ARRAY_BUFFER, posBufID);
+    glBufferData(GL_ARRAY_BUFFER, posBuf.size()*sizeof(float), &posBuf[0], GL_STATIC_DRAW);
+    
+    // Send the normal array to the GPU
+    glBindBuffer(GL_ARRAY_BUFFER, norBufID);
+    glBufferData(GL_ARRAY_BUFFER, norBuf.size()*sizeof(float), &norBuf[0], GL_STATIC_DRAW);
+    
+    // Unbind the arrays
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
+    assert(glGetError() == GL_NO_ERROR);
+}
+
 void Terrain::makeTexture() {
 //    if (texture) delete texture;
     texture = new TextureLoader();
@@ -308,7 +296,10 @@ void Terrain::draw(Program *prog) const {
     // Draw
     glDrawElements(GL_TRIANGLE_STRIP, (int)eleBuf.size(), GL_UNSIGNED_INT, (const void *)0);
     GLenum err_code = glGetError();
-    if (err_code != 0) std::cout << "Terrain Draw Error: " << err_code << std::endl;
+	if (err_code != 0) {
+		std::cout << "Terrain Draw Error: " << err_code << std::endl;
+		//printf("%s\n", gluErrorString(err_code));
+	}
    
     // Disable and unbind
     if(h_tex != -1) {

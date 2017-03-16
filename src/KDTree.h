@@ -13,6 +13,7 @@
 #include "glm/glm.hpp"
 
 #include "GameObject.h"
+#include "Components/Camera.h"
 
 typedef struct Node {
     float halfWayPoint;
@@ -27,8 +28,7 @@ class KDTree {
 public:
     KDTree(std::vector<GameObject*> gameObjects) { root = createTree(gameObjects, 0, glm::vec3(-INFINITY), glm::vec3(INFINITY));}
     virtual ~KDTree() {};
-    void insert(glm::vec3 point);
-    bool search(glm::vec3 point);
+    std::vector<GameObject*> getStaticObjectsInViewFrustrum(Camera *camera);
 
 private:
     Node *root = nullptr;
@@ -38,6 +38,7 @@ private:
     static bool gameObjectXCmp (GameObject *obj1, GameObject *obj2);
     static bool gameObjectYCmp (GameObject *obj1, GameObject *obj2);
     static bool gameObjectZCmp (GameObject *obj1, GameObject *obj2);
+    std::vector<GameObject*> getStaticObjectsInViewFrustrumRec(Camera *camera, Node *root);
 };
 
 #endif /* KDTree_h */

@@ -60,6 +60,8 @@ public:
     std::vector<GLuint> vecIDs;
     
     void draw(Program *shader);
+
+	void drawHud(Program *shader);
     void calculateBounds();
     void setupMesh();
 private:

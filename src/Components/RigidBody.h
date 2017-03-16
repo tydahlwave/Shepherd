@@ -10,6 +10,7 @@
 #define RigidBody_h
 
 #include "Component.h"
+#include "../Time.h"
 #ifdef WIN32
 #include <btBulletCollisionCommon.h>
 #else
@@ -28,6 +29,13 @@ public:
     bool isKinematic = false; // Kinematic objects are not affected by forces/physics
 	bool isPushPullable = true;
     btRigidBody *bulletRigidBody = nullptr;
+    
+    long pointInTime = Time::Now();
+    int waitTime = 0;
+    
+    void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) {
+        
+    }
 };
 
 #endif /* RigidBody_h */

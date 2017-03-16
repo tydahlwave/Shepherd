@@ -50,6 +50,12 @@ void Mesh::draw(Program *shader) {
     glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
+void Mesh::drawHud(Program *shader) {
+	glBindVertexArray(this->VAO);
+	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
 
 void Mesh::resize() {
     glm::vec3 scale, shift;
