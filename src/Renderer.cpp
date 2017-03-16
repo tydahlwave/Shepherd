@@ -339,16 +339,18 @@ void Renderer::Render(World &world, Window &window) {
             }
             applyTransformMatrix(shader, gameObject->transform);
             
-            if (meshRenderer->texture) {
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, meshRenderer->texture->texID);
-                glUniform1i(shader->getUniform("myTexture"), 0);
-                glUniform1i(shader->getUniform("useTexture"), 0);
-            } else {
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, TextureLibrary::snow->texID);
-                glUniform1i(shader->getUniform("myTexture"), 0);
-                glUniform1i(shader->getUniform("useTexture"), 1);
+            if (meshRenderer->shader == ShaderLibrary::cell) {
+                if (meshRenderer->texture) {
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_2D, meshRenderer->texture->texID);
+                    glUniform1i(shader->getUniform("myTexture"), 0);
+                    glUniform1i(shader->getUniform("useTexture"), 0);
+                } else {
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_2D, TextureLibrary::snow->texID);
+                    glUniform1i(shader->getUniform("myTexture"), 0);
+                    glUniform1i(shader->getUniform("useTexture"), 1);
+                }
             }
             
             model->draw(shader);

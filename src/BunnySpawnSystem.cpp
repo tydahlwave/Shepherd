@@ -15,7 +15,7 @@
 
 void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
     if (world->GetGameObjects().size() < maxEntities) CreateBunny(world); // does this mean a bunny spawns whenver a game object is destroyed??
-    if(p) {
+    else if(p) {
         SheepDestination *pathRenderer = (SheepDestination*)p->GetComponent("SheepDestination");
         path = pathRenderer->path;
         
@@ -27,13 +27,33 @@ void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
     }
     else {
         
-        std::map<GameObject*, int>::iterator it;
-        for (it = bunnyNode.begin(); it != bunnyNode.end(); ++it) {
-//            glm::vec3 target = FollowPath(world, it->first);
-//            Flock(world, it->first, target);
-            // put a function call in here to make sheep wander
-            // possibly pass in "it->second" to help keep directoin traveled consistant
+        for (GameObject *gameObject : world->GetGameObjects())  {
+            RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
+            if(gameObject->name != "Bunny" || !rigidBody) continue;
+        
+            if(glm::length(rigidBody->velocity) < 0.5 && Time::Now() - rigidBody->pointInTime > rigidBody->waitTime) {
+                int randomAngle = rand() % 360;
+                float velX = cos(randomAngle/180.0*M_PI);
+                float velZ = sin(randomAngle/180.0*M_PI);
+                glm::vec3 vel = normalize(glm::vec3(velX, 0, velZ)) * 2.0f;
+                rigidBody->velocity.x = vel.x;
+                rigidBody->velocity.z = vel.z;
+                gameObject->transform->SetRotation(vec3(0, randomAngle, 0));
+                rigidBody->pointInTime = Time::Now();
+                rigidBody->waitTime = rand() % 3000 + 1000;
+            }
+            else if(Time::Now() - rigidBody->pointInTime > rigidBody->waitTime) {
+                rigidBody->velocity.x = rigidBody->velocity.x/1000.f;
+                rigidBody->velocity.z = rigidBody->velocity.z/1000.f;
+                rigidBody->pointInTime = Time::Now();
+                rigidBody->waitTime = rand() % 3000 + 1000;
+            }
+            
+            float angle = atan2(rigidBody->velocity.x, rigidBody->velocity.z);
+            glm::vec3 rotation = glm::vec3(0, (angle * 180 / M_PI), 0);
+            gameObject->transform->SetRotation(rotation);
         }
+        //ObstacleAvoidance(world);
     }
 }
 
@@ -46,8 +66,8 @@ void BunnySpawnSystem::CreateBunny(World *world) {
     
     int randomAngle = rand() % 360;
     float velX = cos(randomAngle/180.0*M_PI);
-    float velY = sin(randomAngle/180.0*M_PI);
-    glm::vec3 vel = normalize(glm::vec3(velX, 0, velY)) * 5.0f;
+    float velZ = sin(randomAngle/180.0*M_PI);
+    glm::vec3 vel = normalize(glm::vec3(velX, 0, velZ)) * 5.0f;
     
     float floatX[maxEntities];
     float floatZ[maxEntities];

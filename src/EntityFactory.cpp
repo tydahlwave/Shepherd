@@ -95,7 +95,7 @@ GameObject *EntityFactory::createBunny(World *world) {
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 0, 0));
-    btSphereShape* sphere = new btSphereShape(1);
+    btCollisionShape* sphere = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x, meshRenderer->model->bounds.halfwidths.y, meshRenderer->model->bounds.halfwidths.z));
     btVector3 inertia(0,0,0);
     float mass = 100.0f;
     if(mass != 0)
