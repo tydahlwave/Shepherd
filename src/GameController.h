@@ -18,7 +18,6 @@
 #include "TerrainController.h"
 #include "Components/RigidBody.h"
 #include "Components/TerrainRenderer.h"
-#include "Terrain.h"
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
 #include "AudioEngine.h"
@@ -27,7 +26,9 @@
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
 #include "Time.h"
+#include "AnimationSystem.h"
 #include "ImguiUpdateDelegate.h"
+
 
 enum State {
 	Close = -2,
@@ -79,11 +80,18 @@ private:
 	GameObject *water = nullptr;
 	float groundSize = 100.0f;
 	int gameMusic = 0;
+    AnimationSystem *animSystem = nullptr;
+	float camlevel = -1.f;
+	float nextcamlevel = 0.f;
+	int camstage = 0;
     
+    void checkIfEndOfLevel();
+    bool levelComplete = false;
     void displayStats(float deltaTime, World &world, Physics &physics);
     void drawImGUIStuff(Window &window, GameObject *terrain);
     void drawTerrainWindow(Window &window, GameObject *terrain);
     void ImGuiShowNames(World *world);
+    void ImGuiShowHelp(World *world);
 };
 
 #endif /* CharacterController_h */

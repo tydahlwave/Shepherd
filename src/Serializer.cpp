@@ -28,7 +28,7 @@ void Serializer::SerializeWorld(World *world) {
     writer.StartArray();
     for (int i = 0; i < world->GetGameObjects().size(); i++) {
         if(world->GetGameObjects()[i]->isSerializable) {
-            if(world->GetGameObjects()[i]->name == "Light")
+            if(world->GetGameObjects()[i]->name != "Light")
                 world->GetGameObjects()[i]->Serialize(writer);
         }
     }

@@ -132,6 +132,15 @@ void Window::DeleteCallbackDelegates() {
 	windowCallbackDelegates.clear();
     imguiUpdateDelegates.clear();
 }
+
+void Window::DeleteWindowCallbackDelegate(WindowCallbackDelegate *delegate) {
+    auto it = std::find(windowCallbackDelegates.begin(), windowCallbackDelegates.end(), delegate
+                        );
+    if(it != windowCallbackDelegates.end()){
+        windowCallbackDelegates.erase(it);
+    }
+}
+
 int Window::Initialize() {
     // Set error callback.
     glfwSetErrorCallback(error_callback);

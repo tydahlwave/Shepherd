@@ -29,6 +29,8 @@ public:
 	static Shader *skybox;
 	static Shader *particle;
 	static Shader *water;
+    static Shader *anim;
+    static Shader *inFrontOfCamera;
 
     static std::string ConstructLightUniformName(const char* propertyName, size_t lightIndex) {
         std::ostringstream ss;

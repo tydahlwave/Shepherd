@@ -1,12 +1,15 @@
 
-#include <iostream>
-#include <GLFW/glfw3.h>
-
+#include "Components/TerrainRenderer.h"
 #include "CharacterController.h"
 #include "Components/Camera.h"
 #include "Components/RigidBody.h"
 #include "Components/Character.h"
+#include "Components/Animation.h"
 #include "EntityFactory.h"
+#include "SoundLibrary.h"
+
+#include <iostream>
+#include <GLFW/glfw3.h>
 
 void CharacterController::Update(World *world, float deltaTime) {
     GameObject *mainCharacter = (world->mainCharacter) ? world->mainCharacter : world->mainCamera;
@@ -36,50 +39,109 @@ void CharacterController::Update(World *world, float deltaTime) {
 void CharacterController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
     GameObject *mainCharacter = (world->mainCharacter) ? world->mainCharacter : world->mainCamera;
 	Character *character = (Character*)mainCharacter->GetComponent("Character");
+    Animation* idleAnim = (Animation*) mainCharacter->GetComponent("Animation");
+    idleAnim->anim = true;
+    
+    
+    //idleAnim->skeleton.StopAnimating();
+    //widleAnim->skeleton.SetIdleAnimation(&Anim_Test_Idle);
+    //The true is for loop, and the false is for reset_to_start.
+    
 
 	if (action == GLFW_PRESS) {
+        
 		if (key == GLFW_KEY_LEFT_SHIFT) {
-			moveSpeed = 40;
+			moveSpeed = RUN_SPEED;
 		}
 		if (key == GLFW_KEY_W) {
 			character->vel[2] = 5.f;
+            wasd[0] = true;
+            idleAnim->skeleton.PlayAnimation(Anim_Test_Idle,true,false);
+            SoundLibrary::playWalk();
 		}
 		else if (key == GLFW_KEY_S) {
 			character->vel[2] = -5.f;
+            wasd[2] = true;
+            idleAnim->skeleton.PlayAnimation(Anim_Test_Idle,true,false);
+            SoundLibrary::playWalk();
 		}
 		else if (key == GLFW_KEY_A) {
 			//	character->currentTurnSpeed = 30;
 			character->vel[0] = 5.f;
+            wasd[1] = true;
+            idleAnim->skeleton.PlayAnimation(Anim_Test_Idle,true,false);
+            SoundLibrary::playWalk();
 		}
 		else if (key == GLFW_KEY_D) {
 			//	character->currentTurnSpeed = -30;
 			character->vel[0] = -5.f;
+            wasd[3] = true;
+            idleAnim->skeleton.PlayAnimation(Anim_Test_Idle,true,false);
+            SoundLibrary::playWalk();
 		}
 		else if (key == GLFW_KEY_SPACE) {
-//			glm::vec3 pos = mainCharacter->transform->GetPosition();
-			//pos.y += 100;
-            ((RigidBody*)mainCharacter->GetComponent("RigidBody"))->bulletRigidBody->setLinearVelocity(btVector3(0,30,0));
-			//mainCharacter->transform->SetPosition(pos);
+            
+            GameObject*terrainObject;
+            // Find the terrain
+            for (GameObject *obj : world->GetGameObjects()) {
+                if (obj->name.compare("Terrain") == 0) {
+                    terrainObject = obj;
+                    break;
+                }
+            }
+            TerrainRenderer *terrainRenderer = (TerrainRenderer*)terrainObject->GetComponent("TerrainRenderer");
+            Terrain *terrain = terrainRenderer->terrain;
+            if (mainCharacter->transform->GetPosition().y + 15.0 < EntityFactory::getTerrainHeightForPosition(terrainObject, terrain, mainCharacter->transform->GetPosition().x, mainCharacter->transform->GetPosition().z)) {
+                
+                ((RigidBody*)mainCharacter->GetComponent("RigidBody"))->bulletRigidBody->setLinearVelocity(btVector3(0,60,0));
+            }
 		}
 	}
 	else if (action == GLFW_RELEASE) {
+        //idleAnim->skeleton.StopAnimating();
 		if (key == GLFW_KEY_LEFT_SHIFT) {
-			moveSpeed = 40;
+			moveSpeed = MOVE_SPEED;
 		}
 		if (key == GLFW_KEY_W) {
 			character->vel[2] = 0.f;
+            wasd[0] = false;
+            if(isWASD())
+            {
+                idleAnim->skeleton.StopAnimating();
+                SoundLibrary::stopWalk();
+            }
 		}
 		else if (key == GLFW_KEY_S) {
 			character->vel[2] = 0.f;
+            wasd[2] = false;
+            if(isWASD())
+            {
+                idleAnim->skeleton.StopAnimating();
+                SoundLibrary::stopWalk();
+            }
 		}
 		else if (key == GLFW_KEY_A) {
 			character->vel[0] = 0.f;
-		}
+            wasd[1] = false;
+            if(isWASD())
+            {
+                idleAnim->skeleton.StopAnimating();
+                SoundLibrary::stopWalk();
+            }		}
 		else if (key == GLFW_KEY_D) {
 			character->vel[0] = 0.f;
+            wasd[3] = false;
+            if(isWASD())
+            {
+                idleAnim->skeleton.StopAnimating();
+                SoundLibrary::stopWalk();
+            }
 		}
 	}
 
+}
+bool CharacterController::isWASD() {
+    return !wasd[0] && !wasd[1] && !wasd[2] && !wasd[3];
 }
 
 void CharacterController::MouseScrolled(World *world, double dx, double dy) {

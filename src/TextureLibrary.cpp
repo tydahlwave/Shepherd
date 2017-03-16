@@ -22,40 +22,39 @@ Texture *TextureLibrary::normalMap = nullptr;
 Texture *TextureLibrary::dudvMap = nullptr;
 
 void TextureLibrary::LoadTextures(std::string resourceDir) {
-    crate = new Texture("Crate", resourceDir + "crate.bmp");
-    crate->Load();
+    crate = new Texture("Crate");
+    crate->Load(resourceDir + "crate.bmp");
     
-    grass = new Texture("Grass", resourceDir + "grass_seamless2.jpg");
-    grass->Load();
+    grass = new Texture("Grass");
+    grass->Load(resourceDir + "grass_seamless.jpg");
     
-    mountain = new Texture("Mountain", resourceDir + "rock_seamless.jpg");
-    mountain->Load();
+    mountain = new Texture("Mountain");
+    mountain->Load(resourceDir + "rock_seamless.jpg");
     
-    snow = new Texture("Snow", resourceDir + "snow_seamless.jpg");
-    snow->Load();
+    snow = new Texture("Snow");
+    snow->Load(resourceDir + "snow_seamless.jpg");
 
-	startButton = new Texture("StartButton", resourceDir + "buttons/button_start.jpg");
-	startButton->Load();
+	startButton = new Texture("StartButton");
+	startButton->Load(resourceDir + "buttons/button_start.jpg");
 
-
-	quitButton = new Texture("QuitButton", resourceDir + "buttons/button_quit.jpg");
-	quitButton->Load();
+	quitButton = new Texture("QuitButton");
+	quitButton->Load(resourceDir + "buttons/button_quit.jpg");
     
-    hair = new Texture("Hair", resourceDir + "hair.bmp");
-    hair->Load();
+	circle = new Texture("Circle");
+	circle->Load(resourceDir + "circle.jpg");
 
-	circle = new Texture("Circle", resourceDir + "circle.jpg");
-	circle->Load();
+	snowflake = new Texture("Snowflake");
+	snowflake->Load(resourceDir + "snowflake.png");
 
-	snowflake = new Texture("Snowflake", resourceDir + "snowflake.png");
-	snowflake->Load();
+	blood = new Texture("Blood");
+	blood->Load(resourceDir + "blood.png");
 
-	blood = new Texture("Blood", resourceDir + "blood.png");
-	blood->Load();
+	normalMap = new Texture("NormalMap");
+	normalMap->Load(resourceDir + "normalMap.bmp");
 
-	normalMap = new Texture("NormalMap", resourceDir + "normalMap.bmp");
-	normalMap->Load();
+	dudvMap = new Texture("DudvMap");
+	dudvMap->Load(resourceDir + "waterdudv.bmp");
 
-	dudvMap = new Texture("DudvMap", resourceDir + "waterdudv.bmp");
-	dudvMap->Load();
+    hair = new Texture("Hair");
+    hair->Load(resourceDir + "hair.bmp");
 }

@@ -4,43 +4,70 @@
 //
 //  Created by Hermes Build Machine on 2/15/17.
 //
-//
+//Sound Lib class to abstract functionality of the AudioEngine
 
 #include "SoundLibrary.h"
 
 int SoundLibrary::chargeChannel = 0;
+int SoundLibrary::walkChannel = 0;
 
+void SoundLibrary::playWalk(){
+    if(walkChannel <= 0)
+    {
+        walkChannel = CAudioEngine::instance()->PlaySound("grassRun.wav");
+        CAudioEngine::instance()->SetChannelvolume(walkChannel, 10);
+    }
+}
 
+void SoundLibrary::stopWalk()
+{
+    CAudioEngine::instance()->toggleSound(walkChannel, true);
+    walkChannel = -1;
+}
 
 //Charge shot
 void SoundLibrary::playCharge(){
-    chargeChannel = CAudioEngine::instance()->PlaySound("charge.wav");
+    chargeChannel = CAudioEngine::instance()->PlaySound("growl.wav");
 }
+
 //end charge, shoot
 void SoundLibrary::playShot(){
     CAudioEngine::instance()->toggleSound(chargeChannel, true);
-    CAudioEngine::instance()->PlaySound("shot.wav");
+    int v2 = rand() % 3 + 1;
+    switch(v2){
+        case 1:{
+            CAudioEngine::instance()->PlaySound("roar.wav");
+        }
+        case 2:{
+            CAudioEngine::instance()->PlaySound("roar2.wav");
+        }
+        case 3:{
+            CAudioEngine::instance()->PlaySound("roar3.wav");
+        }
+    }
 }
 
 void SoundLibrary::playRandSheep(){
-    int v2 = rand() % 5 + 1;
+    int v2 = rand() % 4 + 1;
+    int sheep;
     switch(v2){
         case 2:{
-            CAudioEngine::instance()->PlaySound("sheep2.wav");
+            sheep = CAudioEngine::instance()->PlaySound("sheep2.wav");
         }
         case 3:{
-            CAudioEngine::instance()->PlaySound("sheep3.wav");
+            sheep = CAudioEngine::instance()->PlaySound("sheep3.wav");
         }
         case 4:{
-            CAudioEngine::instance()->PlaySound("sheep4.wav");
+            sheep = CAudioEngine::instance()->PlaySound("sheep4.wav");
         }
         case 5:{
-            CAudioEngine::instance()->PlaySound("sheep5.wav");
+            sheep = CAudioEngine::instance()->PlaySound("sheep5.wav");
         }
         default:{
-            CAudioEngine::instance()->PlaySound("sheep.wav");
+            sheep = CAudioEngine::instance()->PlaySound("sheep.wav");
         }
     }
+    CAudioEngine::instance()->SetChannelvolume(sheep, .2);
 }
 
 void SoundLibrary::playWolfHurt(){
@@ -55,4 +82,12 @@ void SoundLibrary::playWolfSpawn(){
 }
  void SoundLibrary::playRockHit(){
     CAudioEngine::instance()->PlaySound("rock.wav");
+}
+
+void SoundLibrary::playPing(){
+    CAudioEngine::instance()->PlaySound("ping.wav");
+}
+
+void SoundLibrary::playPong(){
+    CAudioEngine::instance()->PlaySound("pong.wav");
 }

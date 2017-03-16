@@ -5,18 +5,20 @@ layout (triangle_strip, max_vertices = 3) out;
 out vec3 fragPos;
 out vec3 vertPos;
 out vec3 facePos;
+out vec3 modelPos;
 out vec3 modelNor;
 out vec3 vertNor;
 out vec3 viewNor;
-out vec3 modelPos;
+out float vertTex;
 
 in VS_OUT {
     vec3 fragPos;
     vec3 vertPos;
+    vec3 modelPos;
     vec3 modelNor;
     vec3 vertNor;
     vec3 viewNor;
-    vec3 modelPos;
+    float vertTex;
 } gs_in[];
 
 
@@ -29,11 +31,12 @@ void makeTriangle() {
         fragPos = gs_in[i].fragPos;
         vertPos = gs_in[i].vertPos;
         facePos = facePosition;
+        modelPos = gs_in[i].modelPos;
         modelNor = gs_in[i].modelNor;
 //        modelNor = faceModelNormal;
         vertNor = faceNormal;
         viewNor = gs_in[i].viewNor;
-        modelPos = gs_in[i].modelPos;
+        vertTex = gs_in[i].vertTex;
         EmitVertex();
     }
     EndPrimitive();

@@ -30,8 +30,12 @@ Model *ModelLibrary::player = nullptr;
 Model *ModelLibrary::gadget = nullptr;
 Model *ModelLibrary::menuSign = nullptr;
 Model *ModelLibrary::lantern = nullptr;
+Model *ModelLibrary::monster = nullptr;
 Model *ModelLibrary::playSign = nullptr;
 Model *ModelLibrary::exitSign = nullptr;
+Model *ModelLibrary::ring = nullptr;
+Model *ModelLibrary::fence = nullptr;
+Model *ModelLibrary::fenceWithDoor = nullptr;
 
 void ModelLibrary::LoadModels(std::string resourceDir) {
     bunny           = new Model(resourceDir + "bunny.obj");
@@ -43,7 +47,7 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
     boulder1        = new Model(resourceDir + "Boulder1.obj");
     boulder2        = new Model(resourceDir + "Boulder2.obj");
     boulder3        = new Model(resourceDir + "Boulder3.obj");
-    wolf            = new Model(resourceDir + "wolf.obj");
+    wolf            = new Model(resourceDir + "wolfNew.obj");
     title           = new Model(resourceDir + "title.obj");
     tree1           = new Model(resourceDir + "tree1.obj");
     tree2           = new Model(resourceDir + "tree2.obj");
@@ -51,11 +55,16 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
     tree4           = new Model(resourceDir + "tree4.obj");
     tree5           = new Model(resourceDir + "tree5.obj");
     tree6           = new Model(resourceDir + "tree6.obj");
-    player          = new Model(resourceDir + "player.obj");
+    player          = new Model(resourceDir + "monstersmall.dae");
     gadget          = new Model(resourceDir + "gadget.obj");
     sheep           = new Model(resourceDir + "sheep.obj");
 	menuSign		= new Model(resourceDir + "title.obj");
     lantern         = new Model(resourceDir + "lantern.obj");
+    //monster        = new Model(resourceDir + "monstersmall.dae");
+    monster         = new Model(resourceDir + "cube.obj");
     playSign        = new Model(resourceDir + "Play.obj");
     exitSign        = new Model(resourceDir + "Exit.obj");
+    ring            = new Model(resourceDir + "ring.obj");
+    fence           = new Model(resourceDir + "fence.obj");
+    fenceWithDoor   = new Model(resourceDir + "fence_door.obj");
 }

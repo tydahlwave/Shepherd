@@ -1,335 +1,306 @@
+
 #include "Terrain.h"
 #include <iostream>
 
 #include "GLSL.h"
 #include "Program.h"
 #include "Noise/Noise.h"
-#include "TextureLoader.h"
-#include "SOIL/Soil.h"
+#include "ImageLoader.h"
+#include "Texture.h"
+#include "Logger.h"
 
 #define UP 0
 #define RIGHT 1
 #define DOWN 2
 #define LEFT 3
 
-Terrain::Terrain() :
-    eleBufID(0),
-    posBufID(0),
-    norBufID(0),
-    texBufID(0),
-    vaoID(0)
-{}
+Terrain::Terrain(int size, NoiseProperties properties) :heightmapTex("Heightmap") {
+    generate(size, properties);
+}
+
+Terrain::Terrain(std::string imagePath) :heightmapTex("Heightmap") {
+    // Load the image data for the terrain
+    ImageProperties imageProps = LoadImage(imagePath, &data, &width, &height);
+    
+    size = width;
+    std::cout << "Terrain size: " << width << "x" << height << std::endl;
+    
+    // Set texture data to 0s
+    textureData.resize(width * height);
+    for (int i = 0; i < width*height; i++) {
+        textureData[i] = 0;
+    }
+    
+    // Load the heightmap into a texture
+    heightmapTex.Load(data, imageProps);
+}
+
+// Use this method when saving/loading images composed of unsigned shorts
+Terrain::Terrain(std::string imagePath, bool useCustomFileFormat) :heightmapTex("Heightmap") {
+    // Load the image data for the terrain
+    ImageProperties imageProps = LoadImageCustom(imagePath, &data, &width, &height);
+    
+    size = width;
+    std::cout << "Terrain size: " << width << "x" << height << std::endl;
+    
+    // Set texture data to 0s
+    textureData.resize(width * height);
+    for (int i = 0; i < width*height; i++) {
+        textureData[i] = 0;
+    }
+    
+    // Load the heightmap into a texture
+    heightmapTex.Load(data, imageProps);
+}
 
 Terrain::~Terrain() {}
 
-void Terrain::Generate() {
-    seed = time(0);
-    GenerateHeightmap(seed);
-        
-    auto width = heightMap[0].size();
-    auto height = heightMap.size();
-    std::cout << "Terrain size: " << width << "x" << height << std::endl;
+void Terrain::generate(int size, NoiseProperties properties) {
+    width = height = size;
+    seed = properties.seed;
     
-    UpdateBuffers();
-    init();
-}
-
-void Terrain::Regenerate() {
-    seed = time(0);
-    GenerateHeightmap(seed);
-    
-    auto width = heightMap[0].size();
-    auto height = heightMap.size();
-    std::cout << "Terrain size: " << width << "x" << height << std::endl;
-    
-    UpdateBuffers();
-    update();
-}
-
-void Terrain::GenerateHeightmap(time_t seed) {
-    srand(seed);
-    switch (type) {
-        case 0:
-            heightMap = Noise::GenerateSimplex(size);
-            break;
-        default:
-            heightMap = Noise::GenerateDiamondSquare(size);
-            break;
+    // Generate the heighmap using a noise algorithm
+    std::vector<std::vector<float>> heightMap;
+    if (type == SIMPLEX_TERRAIN) {
+        heightMap = Noise::GenerateSimplex(properties, size);
+    } else if (type == DIAMOND_SQUARE_TERRAIN) {
+        srand(properties.seed);
+        heightMap = Noise::GenerateDiamondSquare(size);
+    } else {
+        Log(ERROR, "User attempted to generate terrain of unknown type.", __FILE__, __LINE__);
+        return;
     }
-}
-
-void Terrain::GenerateHeightmap(NoiseProperties &properties, time_t seed) {
-    srand(seed);
-    switch (type) {
-        case 0:
-            heightMap = Noise::GenerateSimplex(properties, size);
-            break;
-        default:
-            heightMap = Noise::GenerateDiamondSquare(size);
-            break;
-    }
-}
-
-void Terrain::GenerateFromImage(std::string imagePath) {
-    int width = 0, height = 0, channels = 0;
-    unsigned char* img = SOIL_load_image(imagePath.c_str(),
-                                         &width, &height, &channels,
-                                         SOIL_LOAD_AUTO);
-    std::cout << SOIL_last_result() << std::endl;
     
-    this->size = width;
+    std::cout << "Terrain size: " << heightMap.size() << "x" << heightMap[0].size() << std::endl;
     
-    std::vector<std::vector<float>> map;
-    // Initialize map to all 0s
-    for (int row = 0; row < size; row++) {
-        std::vector<float> rowVector;
-        for (int col = 0; col < size; col++) {
-            rowVector.push_back(0);
-        }
-        map.push_back(rowVector);
-    }
-    // Set map values
-    for (int y = 0; y < size; y++) {
-        for (int x = 0; x < size; x++) {
-//            std::cout << img[y*size + x] << " = " << (float)img[y*size + x] << std::endl;
-            
-            map[x][y] = (float)img[y*size*3 + x*3] - 127.0f;
-        }
-    }
-//    heightMap = map;
-    heightMap = Noise::SmoothTerrain(map, size, 3, 5);//3, 5);
-    
-//    auto width = heightMap[0].size();
-//    auto height = heightMap.size();
-    std::cout << "Terrain size: " << size << "x" << size << std::endl;
-    std::cout << "Image Channels: " << channels << std::endl;
-    
-    UpdateBuffers();
-    init();
-}
-
-void Terrain::UpdateBuffers() {
-    auto width = size;//heightMap[0].size();
-    auto height = size;//heightMap.size();
-    
-    // Record max/min
-    max = INT_MIN;
-    min = INT_MAX;
+    // TODO: refactor the noise methods to return a 1D array
+    dataFloat.resize(width*height);
+//    std::vector<float> heightMapFlat;
     for (int i = 0; i < heightMap.size(); i++) {
         for (int j = 0; j < heightMap[i].size(); j++) {
-            if (heightMap[j][i] > max) max = heightMap[j][i];
-            if (heightMap[j][i] < min) min = heightMap[j][i];
+            dataFloat[i * width + j] = heightMap[j][i];
         }
+    }
+//    dataFloat = &heightMap[0][0];
+    
+    // Set texture data to 0s
+    textureData.resize(width * height);
+    for (int i = 0; i < width*height; i++) {
+        textureData[i] = 0;
+    }
+    
+    // Load the heightmap into a texture
+    ImageProperties imageProps(width, height, 0, GL_R16F, GL_RED, GL_FLOAT);
+    heightmapTex.Load(dataFloat.data(), imageProps);
+}
+
+void Terrain::smooth(int iterations, int kernelSize) {
+    std::vector<unsigned short> newData(width*height);
+    
+    // Set map values
+    for (int steps = 0; steps < iterations; steps++) {
+//        std::vector<float> newData(width*height);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int index = (y * width + x);
+                newData[index + 0] = 0;
+                newData[index + 1] = 0;
+                newData[index + 2] = 0;
+                int count = 0;
+                for (int ky = -kernelSize/2; ky < kernelSize/2; ky++) {
+                    for (int kx = -kernelSize/2; kx < kernelSize/2; kx++) {
+                        if (y-ky >= 0 && y-ky < height && x-kx >= 0 && x-kx < width) {
+                            count++;
+                            newData[index + 0] += data[((y-ky)*width + (x-kx)) + 0];
+                            newData[index + 1] += data[((y-ky)*width + (x-kx)) + 1];
+                            newData[index + 2] += data[((y-ky)*width + (x-kx)) + 2];
+                        }
+                    }
+                }
+                newData[index + 0] /= count;
+                newData[index + 1] /= count;
+                newData[index + 2] /= count;
+            }
+        }
+        data = newData.data();
+    }
+}
+
+void Terrain::loadTextureFromFile(std::string filePath) {
+    // Load the image data for the terrain
+    unsigned char *texture;
+    int texWidth, texHeight;
+    LoadImage(filePath, &texture, &texWidth, &texHeight, 0, 0);
+    
+    // Set texture data to image data
+//    textureData.resize(width * height);
+    for (int i = 0; i < width*height; i++) {
+        textureData[i] = texture[i];
+        if (texture[i] > 0) std::cout << (int)texture[i] << std::endl;
+    }
+    FreeImage(texture);
+}
+
+void Terrain::setTextureFromHeightData() {
+    float regions[] = {
+        0, 0.5, 1
+    };
+    
+    for (int row = 0; row < height; row++) {
+        for (int col = 0; col < width; col++) {
+            int index = row * width + col;
+//            unsigned short height = data[index];
+            float height = getHeight(col, row) / max;
+            for (int region = 0; region < 3; region++) {
+                if (height <= regions[region]) {
+                    if (region > 0) {
+                        float prevTex = region-1;
+                        float distBetweenRegions = regions[region] - regions[region-1];
+                        float distFromLastRegion = height - regions[region-1];
+                        float distToNextTex = distFromLastRegion / distBetweenRegions;
+                        textureData[index] = (unsigned char)(prevTex + distToNextTex);
+                    } else {
+                        textureData[index] = region;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Terrain::updateVertexHeights() {
+    for (int row = 0; row < height; row++) {
+        for (int col = 0; col < width; col++) {
+            int index = row * width + col;
+            if (!data)
+                vertices[index].pos.y = dataFloat[index];
+            else
+                vertices[index].pos.y = (float)data[index]/SHRT_MAX*maxHeight;
+        }
+    }
+    ComputeNormals();
+}
+
+void Terrain::updateVertexTextures() {
+    for (int row = 0; row < height; row++) {
+        for (int col = 0; col < width; col++) {
+            int index = row * width + col;
+            vertices[index].tex = textureData[index];
+        }
+    }
+}
+
+void Terrain::createMesh() {
+    
+//    smooth(3, 3);
+    
+    // Record max/min and resize data to put lowest point at 0
+    if (!data) {
+        max = FLT_MIN;
+        min = FLT_MAX;
+        for (int col = 0; col < width; col++) {
+            for (int row = 0; row < height; row++) {
+                int index = row * width + col;
+                if (dataFloat[index] > max) max = dataFloat[index];
+                if (dataFloat[index] < min) min = dataFloat[index];
+            }
+        }
+//        for (int col = 0; col < width; col++) {
+//            for (int row = 0; row < height; row++) {
+//                int index = row * width + col;
+//                dataFloat[index] -= min;
+//            }
+//        }
+//        this->min = 0;
+//        this->max = max - min;
+    } else {
+        unsigned short max = 0;
+        unsigned short min = USHRT_MAX;
+        for (int col = 0; col < width; col++) {
+            for (int row = 0; row < height; row++) {
+                int index = row * width + col;
+                if (data[index] > max) max = data[index];
+                if (data[index] < min) min = data[index];
+            }
+        }
+        for (int col = 0; col < width; col++) {
+            for (int row = 0; row < height; row++) {
+                int index = row * width + col;
+                data[index] -= min;
+            }
+        }
+        this->min = 0;
+        this->max = (float)max / SHRT_MAX * maxHeight - (float)min / SHRT_MAX * maxHeight;
     }
     
     // Reset buffers
-    posBuf.clear();
-    norBuf.clear();
-    eleBuf.clear();
-    
-    // Initialize position, normal, and texture buffers to 0s
-    for (size_t v = 0; v < width*height*3; v++) {
-        posBuf.push_back(0);
-        norBuf.push_back(0);
-        // texBuf.push_back(0);
+    if (!vertices.empty()) vertices.clear();
+    vertices.resize(width * height);
+    for (int i = 0; i < width*height; i++) {
+        vertices.push_back(TerrainVertex());
     }
-    
-    // Initialize the element buffer to 0s
-    int totalElements = 2*(width-1)*width + 2*(width-2); // total vertices + degenerate vertices
-    for (size_t v = 0; v < totalElements; v++) {
-        eleBuf.push_back(0);
+    if (!indices.empty()) indices.clear();
+    int totalIndices = 2*(width-1)*width + 2*(width-2); // total vertices + degenerate vertices
+    indices.resize(totalIndices);
+    for (int i = 0; i < totalIndices; i++) {
+        indices.push_back(0);
     }
     
     // Calculate triangle vertex positions
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            int index = (y * width + x) * 3;
-            posBuf[index + 0] = x - size/2.0f;
-            posBuf[index + 1] = heightMap[x][y];// * 20;
-            posBuf[index + 2] = y - size/2.0f;
-            // printf("Point %d: %d %.3f %d\n", x+width*y, x, posBuf[chunkIndex][index + 1], y);
+    for (int row = 0; row < height; row++) {
+        for (int col = 0; col < width; col++) {
+            int index = row * width + col;
+            float x = col - width/2.0f;
+            float y;
+            if (!data)
+                y = dataFloat[index];
+            else
+                y = (float)data[index]/SHRT_MAX*maxHeight;
+            float z = row - height/2.0f;
+            vertices[index].pos = glm::vec3(x, y, z);
+            vertices[index].tex = textureData[index];
         }
     }
     
-    // Populate the element buffer with the triangle vertices
+    // Calculate triangle indices
     int ndx = 0;
-    for (int y = 1; y < height; y++) {
-        for (int x = 0; x < width; x++) {
+    for (int row = 1; row < height; row++) {
+        for (int col = 0; col < width; col++) {
             // Add the first vertex
-            eleBuf[ndx++] = y * width + x;
+            indices[ndx++] = row * width + col;
             // Add the second vertex
-            eleBuf[ndx++] = (y-1) * width + x;
+            indices[ndx++] = (row-1) * width + col;
         }
+        
         // Add degenerate vertices when wrapping around that will not get rendered
-        if (y < width - 1) {
+        if (row < height - 1) {
             int currentIndex = ndx;
-            eleBuf[ndx++] = eleBuf[currentIndex-1];
-            eleBuf[ndx++] = eleBuf[currentIndex-2] + 1;
+            indices[ndx++] = indices[currentIndex-1];
+            indices[ndx++] = indices[currentIndex-2] + 1;
+        } else {
+            int currentIndex = ndx;
+            indices[ndx++] = indices[currentIndex-1];
+            indices[ndx++] = indices[currentIndex-1];
         }
     }
     
     ComputeNormals();
 }
 
-void Terrain::init() {
-    
-    // Initialize texture
-    makeTexture();
-    
-    // Initialize the vertex array object
-    glGenVertexArrays(1, &vaoID);
-    glBindVertexArray(vaoID);
-    
-    // Send the position array to the GPU
-    glGenBuffers(1, &posBufID);
-    glBindBuffer(GL_ARRAY_BUFFER, posBufID);
-    glBufferData(GL_ARRAY_BUFFER, posBuf.size()*sizeof(float), &posBuf[0], GL_STATIC_DRAW);
-
-    // Send the normal array to the GPU
-    if(norBuf.empty()) {
-        norBufID = 0;
-    } else {
-        glGenBuffers(1, &norBufID);
-        glBindBuffer(GL_ARRAY_BUFFER, norBufID);
-        glBufferData(GL_ARRAY_BUFFER, norBuf.size()*sizeof(float), &norBuf[0], GL_STATIC_DRAW);
-    }
-
-    // Send the texture array to the GPU
-    if(texBuf.empty()) {
-        texBufID = 0;
-    } else {
-        glGenBuffers(1, &texBufID);
-        glBindBuffer(GL_ARRAY_BUFFER, texBufID);
-        glBufferData(GL_ARRAY_BUFFER, texBuf.size()*sizeof(float), &texBuf[0], GL_STATIC_DRAW);
-    }
-
-    // Send the element array to the GPU
-    glGenBuffers(1, &eleBufID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleBufID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, eleBuf.size()*sizeof(unsigned int), &eleBuf[0], GL_STATIC_DRAW);
-
-    // Unbind the arrays
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    assert(glGetError() == GL_NO_ERROR);
-}
-
-void Terrain::update() {
-    
-    // Initialize texture
-    makeTexture();
-    
-    // Send the position array to the GPU
-    glBindBuffer(GL_ARRAY_BUFFER, posBufID);
-    glBufferData(GL_ARRAY_BUFFER, posBuf.size()*sizeof(float), &posBuf[0], GL_STATIC_DRAW);
-    
-    // Send the normal array to the GPU
-    glBindBuffer(GL_ARRAY_BUFFER, norBufID);
-    glBufferData(GL_ARRAY_BUFFER, norBuf.size()*sizeof(float), &norBuf[0], GL_STATIC_DRAW);
-    
-    // Unbind the arrays
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    
-    assert(glGetError() == GL_NO_ERROR);
-}
-
-void Terrain::makeTexture() {
-//    if (texture) delete texture;
-    texture = new TextureLoader();
-    texture->setUnit(123);
-    char *array = (char*) malloc(sizeof(char) * size * size * 3);
-    float min = FLT_MAX;
-    float max = FLT_MIN;
-    for (int row = 0; row < size; row++) {
-        for (int col = 0; col < size; col++) {
-            if (heightMap[row][col] < min) min = heightMap[row][col];
-            if (heightMap[row][col] > max) max = heightMap[row][col];
-        }
-    }
-    for (int row = 0; row < size; row++) {
-        for (int col = 0; col < size; col++) {
-            char value = (char)((heightMap[col][row] - min) / (max-min) * 255);
-            array[(row * size + col)*3 + 0] = value;
-            array[(row * size + col)*3 + 1] = value;
-            array[(row * size + col)*3 + 2] = value;
-        }
-    }
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    TextureLoader::Image image = { size, size, array };
-    texture->init(image);
-}
- 
-void Terrain::draw(Program *prog) const {
-    int h_pos, h_nor, h_tex;
-    h_pos = h_nor = h_tex = -1;
-
-    glBindVertexArray(vaoID);
-
-    // Bind position buffer
-    h_pos = prog->getAttribute("vertPos");
-    GLSL::enableVertexAttribArray(h_pos);
-    glBindBuffer(GL_ARRAY_BUFFER, posBufID);
-    glVertexAttribPointer(h_pos, 3, GL_FLOAT, GL_FALSE, 0, (const void *)0);
-
-    // Bind normal buffer
-    h_nor = prog->getAttribute("vertNor");
-    if(h_nor != -1 && norBufID != 0) {
-        GLSL::enableVertexAttribArray(h_nor);
-        glBindBuffer(GL_ARRAY_BUFFER, norBufID);
-        glVertexAttribPointer(h_nor, 3, GL_FLOAT, GL_FALSE, 0, (const void *)0);
-    }
-
-    if (texBufID != 0) {
-        // Bind texcoords buffer
-        h_tex = prog->getAttribute("vertTex");
-        if(h_tex != -1 && texBufID != 0) {
-            GLSL::enableVertexAttribArray(h_tex);
-            glBindBuffer(GL_ARRAY_BUFFER, texBufID);
-            glVertexAttribPointer(h_tex, 2, GL_FLOAT, GL_FALSE, 0, (const void *)0);
-        }
-    }
-
-    // Bind element buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eleBufID);
-
-    // Draw
-    glDrawElements(GL_TRIANGLE_STRIP, (int)eleBuf.size(), GL_UNSIGNED_INT, (const void *)0);
-    GLenum err_code = glGetError();
-	if (err_code != 0) {
-		std::cout << "Terrain Draw Error: " << err_code << std::endl;
-		//printf("%s\n", gluErrorString(err_code));
-	}
-   
-    // Disable and unbind
-    if(h_tex != -1) {
-        GLSL::disableVertexAttribArray(h_tex);
-    }
-    if(h_nor != -1) {
-        GLSL::disableVertexAttribArray(h_nor);
-    }
-    GLSL::disableVertexAttribArray(h_pos);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
 void Terrain::ComputeNormals() {
     // printf("eleBuf size: %lu\n", eleBuf[chunkIndex].size());
-    for (size_t v = 0; v < eleBuf.size() - 2; v++) {
-        int idx1 = eleBuf[v+0];
-        int idx2 = eleBuf[v+1];
-        int idx3 = eleBuf[v+2];
+    for (size_t v = 0; v < indices.size() - 2; v++) {
+        int idx1 = indices[v+0];
+        int idx2 = indices[v+1];
+        int idx3 = indices[v+2];
         
         // If any of the 3 indices are the same, skip this triangle because it is degenerate
         if (idx1 == idx2 || idx1 == idx3 || idx2 == idx3) continue;
         // printf("indices: %d %d %d\n", idx1, idx2, idx3);
         
-        glm::vec3 p1(posBuf[3*idx1+0], posBuf[3*idx1+1], posBuf[3*idx1+2]);
-        glm::vec3 p2(posBuf[3*idx2+0], posBuf[3*idx2+1], posBuf[3*idx2+2]);
-        glm::vec3 p3(posBuf[3*idx3+0], posBuf[3*idx3+1], posBuf[3*idx3+2]);
-        // printf("P1: %.3f %.3f %.3f\n", p1[0], p1[1], p1[2]);
-        // printf("P2: %.3f %.3f %.3f\n", p2[0], p2[1], p2[2]);
-        // printf("P3: %.3f %.3f %.3f\n", p3[0], p3[1], p3[2]);
+        glm::vec3 p1 = vertices[idx1].pos;
+        glm::vec3 p2 = vertices[idx2].pos;
+        glm::vec3 p3 = vertices[idx3].pos;
         
         glm::vec3 vec1 = p2 - p1;
         glm::vec3 vec2 = p3 - p1;
@@ -346,61 +317,104 @@ void Terrain::ComputeNormals() {
         // printf("Normal: %.3f %.3f %.3f\n", normal[0], normal[1], normal[2]);
         
         // Add this normal to all of the vertices
-        norBuf[3*idx1+0] += normal[0];
-        norBuf[3*idx1+1] += normal[1];
-        norBuf[3*idx1+2] += normal[2];
-        norBuf[3*idx2+0] += normal[0];
-        norBuf[3*idx2+1] += normal[1];
-        norBuf[3*idx2+2] += normal[2];
-        norBuf[3*idx3+0] += normal[0];
-        norBuf[3*idx3+1] += normal[1];
-        norBuf[3*idx3+2] += normal[2];
+        vertices[idx1].nor = normal;
+        vertices[idx2].nor = normal;
+        vertices[idx3].nor = normal;
     }
     // Normalize the normal vectors
-    for (size_t v = 0; v < eleBuf.size() - 2; v++) {
-        int idx1 = eleBuf[v+0];
-        int idx2 = eleBuf[v+1];
-        int idx3 = eleBuf[v+2];
+    for (size_t v = 0; v < indices.size() - 2; v++) {
+        int idx1 = indices[v+0];
+        int idx2 = indices[v+1];
+        int idx3 = indices[v+2];
         
-        glm::vec3 n1(norBuf[3*idx1+0], norBuf[3*idx1+1], norBuf[3*idx1+2]);
-        glm::vec3 n2(norBuf[3*idx2+0], norBuf[3*idx2+1], norBuf[3*idx2+2]);
-        glm::vec3 n3(norBuf[3*idx3+0], norBuf[3*idx3+1], norBuf[3*idx3+2]);
+        glm::vec3 n1 = vertices[idx1].nor;
+        glm::vec3 n2 = vertices[idx2].nor;
+        glm::vec3 n3 = vertices[idx3].nor;
         
         glm::vec3 normalized1 = glm::normalize(n1);
         glm::vec3 normalized2 = glm::normalize(n2);
         glm::vec3 normalized3 = glm::normalize(n3);
         
-        norBuf[3*idx1+0] = normalized1[0];
-        norBuf[3*idx1+1] = normalized1[1];
-        norBuf[3*idx1+2] = normalized1[2];
-        norBuf[3*idx2+0] = normalized2[0];
-        norBuf[3*idx2+1] = normalized2[1];
-        norBuf[3*idx2+2] = normalized2[2];
-        norBuf[3*idx3+0] = normalized3[0];
-        norBuf[3*idx3+1] = normalized3[1];
-        norBuf[3*idx3+2] = normalized3[2];
+        vertices[idx1].nor = normalized1;
+        vertices[idx2].nor = normalized2;
+        vertices[idx3].nor = normalized3;
     }
 }
 
-//float Terrain::getHeight(int posX, int posZ) {
-//    // If less than 0, add chunksize to make the point at least 1 chunk negative
-//    // Otherwise we end up with chunk 0 and chunk -0, which are both treated as just 0
-//    if (posX < 0) posX -= (chunkSize-1);
-//    if (posZ < 0) posZ -= (chunkSize-1);
-//    // Get the terrain chunk for the given position
-//    int chunkX = (int)(posX / (chunkSize-1));
-//    int chunkZ = (int)(posZ / (chunkSize-1));
-//
-//    chunkX = chunkX - referenceChunkX;
-//    chunkZ = chunkZ - referenceChunkZ;
-//
-//    if (abs(chunkX) > 2 || abs(chunkZ) > 2) return 0;
-//
-//    posX = posX % (chunkSize-1);
-//    posZ = posZ % (chunkSize-1);
-//    float posY = posBuf[chunkX + 2 + (chunkZ + 2) * chunkRows][(posX + posZ * (chunkSize-1)) * 3 + 1];
-//    // printf("Chunk [%d %d] ", chunkX + 2, chunkZ + 2);
-//    // printf("pos [%d %d] ", posX, posZ);
-//    // printf("posY: %.3f\n", posY);
-//    return posY;
-//}
+void Terrain::init() {
+    
+    // Initialize the vertex array object
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+    
+    // Send the vertex buffer to the GPU
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(TerrainVertex), &vertices[0], GL_STATIC_DRAW);
+    
+    // Send the element buffer to the GPU
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+    
+    // Enable vertex attributes for pos, nor, tex
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    
+    // Set the vertex attributes for pos, nor, tex
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), (GLvoid*)0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), (GLvoid*)offsetof(TerrainVertex, nor));
+    glVertexAttribPointer(2, 1, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(TerrainVertex), (GLvoid*)offsetof(TerrainVertex, tex));
+    
+    // Unbind the vertex array
+    glBindVertexArray(0);
+    
+    // Log GL Error if it occurs
+    LogGLError(__FILE__, __LINE__);
+}
+
+void Terrain::uploadVertices() {
+    
+    // Send the vertex buffer to the GPU
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(TerrainVertex), &vertices[0], GL_STATIC_DRAW);
+    
+    // Log GL Error if it occurs
+    LogGLError(__FILE__, __LINE__);
+}
+
+void Terrain::draw() {
+    
+    // Draw mesh
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLE_STRIP, indices.size(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+    
+    // Log GL Error if it occurs
+    LogGLError(__FILE__, __LINE__);
+}
+
+float Terrain::getHeight(int x, int y) {
+//    Log(ERROR, "Unimplemented", __FILE__, __LINE__);
+    if (!data)
+        return dataFloat[y * width + x];
+    else
+        return (float)data[y * width + x] / SHRT_MAX * maxHeight;
+}
+
+void Terrain::setHeight(int x, int y, float height) {
+    if (!data)
+        dataFloat[y * width + x] = height;
+    else
+        data[y * width + x] = std::max((unsigned short)0, (unsigned short)(height / maxHeight * SHRT_MAX));
+//    Log(ERROR, "Unimplemented", __FILE__, __LINE__);
+}
+
+unsigned char Terrain::getTexture(int x, int y) {
+    return textureData[y * width + x];
+}
+
+void Terrain::setTexture(int x, int y, unsigned char textureId) {
+    textureData[y * width + x] = textureId;
+}

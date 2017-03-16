@@ -8,6 +8,8 @@
 
 #include "AudioEngine.h"
 
+
+//Implementation classto create actual fmod audio system
 Implementation::Implementation() {
     mpStudioSystem = NULL;
     CAudioEngine::ErrorCheck(FMOD::Studio::System::create(&mpStudioSystem));
@@ -42,6 +44,8 @@ void Implementation::Update() {
 
 Implementation* sgpImplementation = nullptr;
 
+
+//CAudio Engine is an abstraction over the implementation
 CAudioEngine* CAudioEngine::a_instance;
 string CAudioEngine::resourceDir;
 
@@ -74,11 +78,12 @@ void CAudioEngine::LoadSounds(std::string resDir)
     
     instance()->Loadsound((resDir + "baa.wav"), true, false, false);
     instance()->Loadsound((resDir + "back.wav"), false, true, false);
+    instance()->Loadsound((resDir + "grassRun.wav"), false, true, false);
     instance()->Loadsound((resDir + "herdAmbient.wav"), false, true, false);
     
 }
 
-
+//Load singular Sound
 void CAudioEngine::Loadsound(const std::string& strSoundName, bool b3d, bool bLooping, bool bStream)
 {
     auto tFoundIt = sgpImplementation->mSounds.find(strSoundName);
@@ -97,7 +102,7 @@ void CAudioEngine::Loadsound(const std::string& strSoundName, bool b3d, bool bLo
     }
 }
 
-
+//Unload sound, useful for level sets of sound
 void CAudioEngine::UnLoadSound(const std::string& strSoundName)
 {
     auto tFoundIt = sgpImplementation->mSounds.find(strSoundName);
@@ -108,6 +113,7 @@ void CAudioEngine::UnLoadSound(const std::string& strSoundName)
     sgpImplementation->mSounds.erase(tFoundIt);
 }
 
+//play singular sound
 int CAudioEngine::PlaySound(const string& strSoundName, const glm::vec3& vPosition, float fVolumedB)
 {
     int nChannelId = sgpImplementation->mnNextChannelId++;
@@ -144,13 +150,19 @@ int CAudioEngine::PlaySound(const string& strSoundName, const glm::vec3& vPositi
     return nChannelId;
 }
 
+//Activate/deactivate an audio channel
 void CAudioEngine::toggleSound(int channelId, bool state)
 {
     auto channel = sgpImplementation->mChannels.find(channelId);
+    //MICHAEL PUT IN THIS CHECK
+    if(!channel->second) {
+        cout << "NORMALLY PROGRAM WOULD CRASH HERE" << endl;
+        return;
+    }
     channel->second->setPaused(state);
 }
 
-
+//Set position of 3D sound
 void CAudioEngine::SetChannel3dPosition(int nChannelId, const Vector3& vPosition)
 {
     auto tFoundIt = sgpImplementation->mChannels.find(nChannelId);
@@ -161,6 +173,7 @@ void CAudioEngine::SetChannel3dPosition(int nChannelId, const Vector3& vPosition
     CAudioEngine::ErrorCheck(tFoundIt->second->set3DAttributes(&position, NULL));
 }
 
+//Set channel volume
 void CAudioEngine::SetChannelvolume(int nChannelId, float fVolumedB)
 {
     auto tFoundIt = sgpImplementation->mChannels.find(nChannelId);
@@ -169,6 +182,21 @@ void CAudioEngine::SetChannelvolume(int nChannelId, float fVolumedB)
     
     CAudioEngine::ErrorCheck(tFoundIt->second->setVolume(dbToVolume(fVolumedB)));
 }
+
+
+
+
+
+
+
+
+
+
+
+//Currently Unused
+//Events etc.
+
+
 
 void CAudioEngine::LoadBank(const std::string& strBankName, FMOD_STUDIO_LOAD_BANK_FLAGS flags) {
     auto tFoundIt = sgpImplementation->mBanks.find(strBankName);

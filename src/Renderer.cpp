@@ -17,6 +17,7 @@
 #include "Components/TerrainRenderer.h"
 #include "Components/SkyboxRenderer.h"
 #include "Components/PathRenderer.h"
+#include "Components/Animation.h"
 #include "Components/Clickable.h"
 #include "Components/HUDRenderer.h"
 #include "Components/Button.h"
@@ -39,7 +40,7 @@ Renderer::Renderer() {
 void applyProjectionMatrix(Program *program, Window &window, Camera *camera) {
     MatrixStack stack = MatrixStack();
     float aspectRatio = window.GetWidth()/(float)window.GetHeight();
-    stack.perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
+    stack.perspective(45.0f, aspectRatio, 0.01f, 5000.0f);
     glUniformMatrix4fv(program->getUniform("P"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
 
@@ -204,31 +205,31 @@ void Renderer::Render(World &world, Window &window) {
     }
 
     for (GameObject *gameObject : world.GetGameObjects()) {
-        SkyboxRenderer *skyboxRenderer = (SkyboxRenderer*)gameObject->GetComponent("SkyboxRenderer");
-        if (skyboxRenderer) {
-            auto skybox = skyboxRenderer->skybox;
-            auto shader = skyboxRenderer->shader->program;
-            auto model = skyboxRenderer->model;
-            
-            shader->bind();
-            glDepthMask(GL_FALSE);
-            glDepthRange(1, 1);
-            glDepthFunc(GL_LEQUAL);
-            glUniform1i(shader->getUniform("skybox"), 2);
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubeMapTexture);
-            
-            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
-            applyProjectionMatrix(shader, window, camera);
-            applyCameraMatrix(shader, camera, camera->pos);
-            applyTransformMatrix(shader, gameObject->transform);
-            
-            model->draw(shader);
-            glDepthMask(GL_TRUE);
-            glDepthRange(0, 1);
-            glDepthFunc(GL_LESS);
-            shader->unbind();
-        }
+		SkyboxRenderer *skyboxRenderer = (SkyboxRenderer*)gameObject->GetComponent("SkyboxRenderer");
+		if (skyboxRenderer) {
+			auto skybox = skyboxRenderer->skybox;
+			auto shader = skyboxRenderer->shader->program;
+			auto model = skyboxRenderer->model;
+
+			shader->bind();
+			glDepthMask(GL_FALSE);
+			glDepthRange(1, 1);
+			glDepthFunc(GL_LEQUAL);
+			glUniform1i(shader->getUniform("skybox"), 2);
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubeMapTexture);
+
+			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+			applyProjectionMatrix(shader, window, camera);
+            applyCameraMatrix(shader, camera, (world.mainCharacter) ? camera->pos : world.mainCamera->transform->GetPosition());
+			applyTransformMatrix(shader, gameObject->transform);
+
+			model->draw(shader);
+		    glDepthMask(GL_TRUE);
+			glDepthRange(0, 1);
+			glDepthFunc(GL_LESS);
+			shader->unbind();
+		}
         
         PathRenderer *pathRenderer = (PathRenderer*)gameObject->GetComponent("PathRenderer");
         if (pathRenderer && pathRenderer->path) {
@@ -328,6 +329,31 @@ void Renderer::Render(World &world, Window &window) {
                 if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].coneAngle);
                 uniformName = ShaderLibrary::ConstructLightUniformName("coneDirection", i);
                 if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].coneDirection.x,lights[i].coneDirection.y,lights[i].coneDirection.z);
+                uniformName = ShaderLibrary::ConstructLightUniformName("coneDirection", i);
+                
+            }
+            //Pass bones into shader
+            if (shader->hasUniform("Bones")){
+                Animation* isAnim = (Animation*) gameObject->GetComponent("Animation");
+                if(isAnim)
+                {
+                   // std::cout<<"Mat size for skeleton "<<isAnim->skeleton.boneMats.size()<<std::endl;
+                    int i = 0;
+//                    for(glm::mat4 m : isAnim->skeleton.boneMats)
+//                    {
+//                        std::cout<<"BONE #:    "<<i<<std::endl;
+//                        printGLMMat4(m);
+//                        i++;
+//                    }
+                    
+                    
+                    glUniformMatrix4fv(shader->getUniform("Bones"), //We find the location of the gBones uniform.
+                                     //If the object is rigged...
+                            isAnim->skeleton.boneMats.size(),
+                               GL_FALSE,    //We don't need to transpose the matrices.
+                               &isAnim->skeleton.boneMats[0][0][0]);
+                }
+                
             }
             
             
@@ -338,9 +364,19 @@ void Renderer::Render(World &world, Window &window) {
             } else {
                 applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
             }
-            applyTransformMatrix(shader, gameObject->transform);
             
-            if (meshRenderer->shader == ShaderLibrary::cell) {
+            if(gameObject->name.compare("Camera") == 0 )
+            {
+                glm::vec3 rot = gameObject->transform->GetRotation();
+                Transform t = *new Transform(gameObject->transform->GetPosition(), glm::vec3(rot.x, rot.y - 90, rot.z), gameObject->transform->GetScale());
+                applyTransformMatrix(shader, &t);
+            }
+            else
+            {
+                applyTransformMatrix(shader, gameObject->transform);
+            }
+            
+            if (meshRenderer->shader == ShaderLibrary::cell || meshRenderer->shader == ShaderLibrary::anim) {
                 if (meshRenderer->texture) {
                     glActiveTexture(GL_TEXTURE0);
                     glBindTexture(GL_TEXTURE_2D, meshRenderer->texture->texID);
@@ -401,6 +437,8 @@ void Renderer::Render(World &world, Window &window) {
             if (shader->hasUniform("terrainMin")) glUniform1i(shader->getUniform("terrainMin"), terrain->min + terrainRenderer->gameObject->transform->GetPosition().y);
             if (shader->hasUniform("terrainMax")) glUniform1i(shader->getUniform("terrainMax"), terrain->max + terrainRenderer->gameObject->transform->GetPosition().y);
             if (shader->hasUniform("terrainScale")) glUniform3f(shader->getUniform("terrainScale"), gameObject->transform->GetScale().x, gameObject->transform->GetScale().y, gameObject->transform->GetScale().z);
+            if (shader->hasUniform("useTextureMap")) glUniform1i(shader->getUniform("useTextureMap"), terrain->useTextureMap);
+            if (shader->hasUniform("useTextures")) glUniform1i(shader->getUniform("useTextures"), terrain->useTextures);
             
             if (shader->hasUniform("numLights")) glUniform1i(shader->getUniform("numLights"), lights.size());
             
@@ -434,11 +472,10 @@ void Renderer::Render(World &world, Window &window) {
             
             // Bind all textures for the terrain
             for (int i = 0; i < terrainRenderer->textures.size(); i++) {
-                glActiveTexture(GL_TEXTURE0 + i);
-                glBindTexture(GL_TEXTURE_2D, terrainRenderer->textures[i]->texID);
+                terrainRenderer->textures[i]->bind(i);
                 glUniform1i(shader->getUniform(terrainRenderer->textures[i]->name), i);
             }
-            terrain->draw(shader);
+            terrain->draw();
             
             shader->unbind();
         }

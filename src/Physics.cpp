@@ -19,6 +19,7 @@
 #include "Components/Death.h"
 #include "Components/TextName.h"
 #include "Components/ParticleRenderer.h"
+#include "SoundLibrary.h"
 #include "EntityFactory.h"
 
 void Physics::Update(float deltaTime, World &world) {
@@ -34,9 +35,10 @@ void Physics::Update(float deltaTime, World &world) {
             gameObject->transform->SetPosition(gameObject->transform->GetPosition()+vel);
         }
     }
-    //UpdateBulletPhysics(deltaTime, world);
-    ComputeCollisions(world);
+
+    UpdateBulletPhysics(deltaTime, world);
     HandleTerrainCollisions(world);
+    ComputeCollisions(world);
 }
 
 void Physics::UpdateBulletPhysics(float deltaTime, World &world) {
@@ -105,24 +107,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
         // If there is no longer an intersection, continue
         if (!Bounds::Intersects(bounds1, bounds2)) continue;
         
-        if (collision.gameObject1->name.compare("Camera") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
-            /*MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject2->GetComponent("MeshRenderer");
-            if (meshRenderer->material != MaterialLibrary::polishedGold) {
-                meshRenderer->material = MaterialLibrary::polishedGold;
-                rigidBody2->isKinematic = true;
-                bunniesCollected += 1;
-//                std::cout << "Bunnies Collected: " << bunniesCollected << std::endl;
-            }*/
-        } else if (collision.gameObject2->name.compare("Camera") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
-            /*
-            MeshRenderer *meshRenderer = (MeshRenderer*)collision.gameObject1->GetComponent("MeshRenderer");
-            if (meshRenderer->material != MaterialLibrary::polishedGold) {
-                meshRenderer->material = MaterialLibrary::polishedGold;
-                rigidBody2->isKinematic = true;
-                bunniesCollected += 1;
-//                std::cout << "Bunnies Collected: " << bunniesCollected << std::endl;
-            }*/
-        } else if (collision.gameObject1->name.compare("Barrier") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
+        if (collision.gameObject1->name.compare("Barrier") == 0 && collision.gameObject2->name.compare("Bunny") == 0) {
             rigidBody2->velocity.x *= -1;
             rigidBody2->velocity.z *= -1;
             collision.gameObject2->transform->SetPosition(collision.gameObject2->transform->GetPosition() + rigidBody2->velocity / 5.0f);
@@ -154,6 +139,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
                     world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
                 }
             }
+            
             TextName* tn = (TextName*)collision.gameObject1->GetComponent("TextName");
             if(tn) {
                 tn->color = vec3(1,0,0);
@@ -168,115 +154,8 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
 				pr->particleSystem->setPosition(position);
 			}
         }
-        else if (collision.gameObject2->name.compare("Terrain") == 0 && collision.gameObject1->name.compare("Wolf") == 0) {
-            //            collision.gameObject1->Destroy();
-            
-            Death* gD = (Death*) collision.gameObject1->GetComponent("Death");
-//            std::cout<<"got in d loop";
-            if(gD){
-//                std::cout<<"found collision";
-                if(gD->shouldDie){
-//                    std::cout<<"should die true";
-                    collision.gameObject1->RemoveComponent("MeshRenderer");
-                    collision.gameObject1->RemoveComponent("BoxCollider");
-                    RigidBody *rb = (RigidBody*) collision.gameObject1->GetComponent("RigidBody");
-                    if (rb) {
-                        collision.gameObject1->RemoveComponent("RigidBody");
-                        if (rb->bulletRigidBody) {
-                            world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
-                        }
-                    }
-                }
-            }
-            
-            
-        }else if (collision.gameObject2->name.compare("Wolf") == 0 && collision.gameObject1->name.compare("Terrain") == 0) {
-            //            collision.gameObject1->Destroy();
-            
-            Death* gD = (Death*) collision.gameObject2->GetComponent("Death");
-//            std::cout<<"got in d loop";
-            if(gD){
-//                std::cout<<"found collision";
-                if(gD->shouldDie){
-//                    std::cout<<"should die true";
-                    collision.gameObject2->RemoveComponent("MeshRenderer");
-                    collision.gameObject2->RemoveComponent("BoxCollider");
-                    RigidBody *rb = (RigidBody*) collision.gameObject2->GetComponent("RigidBody");
-                    if (rb) {
-                        collision.gameObject2->RemoveComponent("RigidBody");
-                        if (rb->bulletRigidBody) {
-                            world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
-                        }
-                    }
-                }
-            }
-            
-            
-        }else {
-        
-        if (rigidBody1 && rigidBody2 && !rigidBody1->isKinematic && !rigidBody2->isKinematic) {
-            // TODO: don't just move up
-            float dy;
-            if (bounds2.getMax().y > bounds1.getMax().y) {
-                dy = bounds1.getMax().y - bounds2.getMin().y;
-                collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetRotation() + glm::vec3(0, dy, 0));
-                rigidBody1->velocity.y = rigidBody1->velocity.y/2;
-                rigidBody1->acceleration = glm::vec3(0, 0, 0);
-                rigidBody2->velocity.y = 0;
-                rigidBody2->acceleration = glm::vec3(0, 0, 0);
-            } else {
-                dy = bounds2.getMax().y - bounds1.getMin().y;
-                collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetRotation() + glm::vec3(0, dy, 0));
-                rigidBody2->velocity.y = -rigidBody2->velocity.y/2;
-                rigidBody2->acceleration = glm::vec3(0, 0, 0);
-                rigidBody1->velocity.y = 0;
-                rigidBody1->acceleration = glm::vec3(0, 0, 0);
-            }
-//            collision.gameObject1->transform->position += glm::vec3(0, dy/2, 0);
-//            rigidBody1->velocity.y = 0;
-//            rigidBody1->acceleration = glm::vec3(0, 0, 0);
-//            rigidBody1->acceleration = rigidBody1->acceleration / glm::vec3(2, 2, 2);
-//            rigidBody1->acceleration.y = -rigidBody1->acceleration.y;
-//            collision.gameObject2->transform->position += glm::vec3(0, -dy/2, 0);
-//            rigidBody2->velocity.y = 0;
-//            rigidBody2->acceleration = glm::vec3(0, 0, 0);
-//            rigidBody2->acceleration = rigidBody2->acceleration / glm::vec3(2, 2, 2);
-//            rigidBody2->acceleration.y = -rigidBody2->acceleration.y;
-        } else if (rigidBody1 && !rigidBody1->isKinematic) {
-            // TODO: don't just move up
-            float dy = bounds2.getMax().y - bounds1.getMin().y;
-            collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetRotation() + glm::vec3(0, dy, 0));
-            rigidBody1->velocity.y = 0;
-            rigidBody1->acceleration = glm::vec3(0, 0, 0);
-//            rigidBody1->acceleration = rigidBody1->acceleration / glm::vec3(2, 2, 2);
-//            rigidBody1->acceleration.y = -rigidBody1->acceleration.y;
-        } else if (rigidBody2 && !rigidBody2->isKinematic) {
-            // TODO: don't just move up
-            float dy = bounds1.getMax().y - bounds2.getMin().y;
-            collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetRotation() + glm::vec3(0, dy, 0));
-            rigidBody2->velocity.y = 0;
-            rigidBody2->acceleration = glm::vec3(0, 0, 0);
-//            rigidBody2->acceleration = rigidBody2->acceleration / glm::vec3(2, 2, 2);
-//            rigidBody2->acceleration.y = -rigidBody2->acceleration.y;
-        }
-        }
     }
 }
-
-// Get the bounds for a game object if it is collidable, otherwise return null
-//Bounds *Physics::BoundsForGameObject(GameObject *gameObject) {
-//    MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
-//    BoxCollider *boxCollider = (BoxCollider*)gameObject->GetComponent("BoxCollider");
-//    SphereCollider *sphereCollider = (SphereCollider*)gameObject->GetComponent("SphereCollider");
-//    if (boxCollider || sphereCollider) {
-//        if (meshRenderer) {
-//            return meshRenderer->model->bounds.TransformedBounds(gameObject->transform);
-//        }
-//        Bounds *bounds = new Bounds();
-//        return bounds->TransformedBounds(gameObject->transform);
-//    }
-//    return new Bounds();
-//}
 
 void Physics::HandleTerrainCollisions(World &world) {
     std::vector<Collision> collisions;
@@ -295,10 +174,17 @@ void Physics::HandleTerrainCollisions(World &world) {
     // Get terrain component
     TerrainRenderer *terrainRenderer = (TerrainRenderer*) terrainObject->GetComponent("TerrainRenderer");
     Terrain *terrain = terrainRenderer->terrain;
-    glm::vec3 terrainSize = terrainObject->transform->GetScale() * glm::vec3(terrain->size, 1, terrain->size);
+    glm::vec3 terrainSize = terrainObject->transform->GetScale() * (float)terrain->size;//glm::vec3(terrain->size, 1, terrain->size);
     glm::vec3 terrainPos = terrainObject->transform->GetPosition();
     glm::vec3 terrainMin = terrainObject->transform->GetPosition() - terrainSize/2.0f;
+    terrainMin.y = terrainRenderer->terrain->min;
     glm::vec3 terrainMax = terrainObject->transform->GetPosition() + terrainSize/2.0f;
+    terrainMax.y = terrainRenderer->terrain->max;
+    
+//    std::cout << "\nTerrain Size: " << terrainRenderer->terrain->size << std::endl;
+//    std::cout << "Terrain Pos: (" << terrainPos.x << "," << terrainPos.y << "," << terrainPos.z << ")" << std::endl;
+//    std::cout << "Terrain Scale: (" << terrainObject->transform->GetScale().x << "," << terrainObject->transform->GetScale().y << "," << terrainObject->transform->GetScale().z << ")" << std::endl;
+//    std::cout << "Terrain min/max: (" << terrainMin.x << "," << terrainMin.y << "," << terrainMin.z << "), (" << terrainMax.x << "," << terrainMax.y << "," << terrainMax.z << ")" << std::endl;
     
     // Compare objects for collisions
     for (GameObject *obj : world.GetGameObjects()) {
@@ -315,8 +201,8 @@ void Physics::HandleTerrainCollisions(World &world) {
                 int rowIndex = (int)fRowIndex;// / (terrainSize.z/2.0f);
                 int colIndex = (int)fColIndex;// / (terrainSize.x/2.0f);
                 float neighbors[2][2] = {
-                    {terrain->getHeight(rowIndex+1, colIndex+1), terrain->getHeight(rowIndex+1, colIndex)},
-                    {terrain->getHeight(rowIndex, colIndex+1), terrain->getHeight(rowIndex, colIndex)}
+                    {terrain->getHeight(rowIndex, colIndex), terrain->getHeight(rowIndex+1, colIndex)},
+                    {terrain->getHeight(rowIndex, colIndex+1), terrain->getHeight(rowIndex+1, colIndex+1)}
                 };
                 
 //                std::cout << "Height[" << rowIndex << "][" << colIndex << "] = " << terrain->getHeight(rowIndex, colIndex) << std::endl;
@@ -351,14 +237,30 @@ void Physics::HandleTerrainCollisions(World &world) {
                     }
                 }
                 
-                if (obj->name.compare("Camera") == 0 || obj->name.compare("Bunny") == 0 || obj->name.compare("Boulder") == 0) {
-                    if (pos.y < terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f)
-                        obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1, pos.z));
-                } else if (obj->name.compare("Wolf") == 0) {
-                    if (pos.y < terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f)
-                    obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1, pos.z));
+                // Move any objects that are under the terrain to above it
+                MeshRenderer *meshRenderer = (MeshRenderer*)obj->GetComponent("MeshRenderer");
+                if (!meshRenderer) continue;
+                float terrainHeight = interpolatedHeight * terrainObject->transform->GetScale().y;
+                float halfObjectHeight = meshRenderer->model->bounds.halfwidths.y * obj->transform->GetScale().y;
+                float newPosY = terrainPos.y + terrainHeight + halfObjectHeight;
+                
+                if (obj->name.compare("Bunny") == 0 || obj->name.compare("Wolf") == 0 || obj->name.compare("Boulder") == 0 || obj->name.compare("Camera") == 0 || obj->name.compare("FollowSphere") == 0) {
+                    if (pos.y < newPosY) {
+                        obj->transform->SetPosition(glm::vec3(pos.x, newPosY, pos.z));
+                        RigidBody *rigidBody = (RigidBody*)obj->GetComponent("RigidBody");
+                        if(obj->name.compare("FollowSphere") == 0 ) {
+                            GameObject *b = EntityFactory::createRing(&world);
+                            b->transform->SetPosition(obj->transform->GetPosition());
+                            SoundLibrary::playPing();
+                            rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 30.0, 0));
+                        }
+                        else if (rigidBody && rigidBody->bulletRigidBody) {
+                            rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 0, 0));
+                        }
+                    }
                 } else if (obj->name.compare("Tree") == 0) {
-                    obj->transform->SetPosition(glm::vec3(pos.x, terrainPos.y + interpolatedHeight * terrainObject->transform->GetScale().y + obj->transform->GetScale().y / 2.0f + 1, pos.z));
+                    // Always place this object directly on the terrain (cannot fly above terrain)
+                    obj->transform->SetPosition(glm::vec3(pos.x, newPosY, pos.z));
                 }
             }
         }

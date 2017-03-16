@@ -5,9 +5,11 @@
 #include <string>
 #include <vector>
 
+#include <GL/glew.h>
 #include "glm/glm.hpp"
 
 #include "Noise/NoiseProperties.h"
+#include "Texture.h"
 
 #define SIMPLEX_TERRAIN 0
 #define DIAMOND_SQUARE_TERRAIN 1
@@ -15,57 +17,62 @@
 class Program;
 class TextureLoader;
 
+struct TerrainVertex {
+    TerrainVertex() {}
+    TerrainVertex(glm::vec3 p, glm::vec3 n, unsigned char t) :pos(p), nor(n), tex(t) {}
+    glm::vec3 pos = glm::vec3(0, 0, 0);
+    glm::vec3 nor = glm::vec3(0, 0, 0);
+    unsigned char tex = 0;
+};
+
 class Terrain {
 public:
-    Terrain();
+    Terrain(int size = 256, NoiseProperties props = {});
+    Terrain(std::string filePath);
+    Terrain(std::string filePath, bool useCustomFileFormat);
     virtual ~Terrain();
     
     int size = 256;
-    int max = 0;
-    int min = 0;
-    int type = SIMPLEX_TERRAIN;
+    float maxHeight = 255;
     time_t seed = 0;
-    std::vector<std::vector<float>> heightMap;
+    int width = 0, height = 0;
+    float min = 0, max = 0;
+    int type = SIMPLEX_TERRAIN;
+    Texture heightmapTex;
+    bool useTextureMap = false;
+    bool useTextures = false;
     
-    void Generate();
-    void Regenerate();
-    void GenerateHeightmap(time_t seed);
-    void GenerateHeightmap(NoiseProperties &properties, time_t seed);
-    void GenerateFromImage(std::string imagePath);
-    void UpdateBuffers();
+    std::vector<TerrainVertex> vertices;
+    std::vector<GLuint> indices;
+    std::vector<Texture *> textures;
+    
+    void generate(int size = 256, NoiseProperties props = {});
+    void smooth(int iterations, int kernelSize);
+    
+    float getHeight(int x, int y);
+    void setHeight(int x, int y, float height);
+    void *getHeightmap() { return data; }
+    
+    unsigned char getTexture(int x, int y);
+    void setTexture(int x, int y, unsigned char textureId);
+    std::vector<unsigned char> getTextureMap() { return textureData; }
+    void loadTextureFromFile(std::string filePath);
+    void setTextureFromHeightData();
+    
     void init();
-    void update();
-    void makeTexture();
-    void draw(Program *prog) const;
+    void uploadVertices();
+    void draw();
     
-    TextureLoader *getTexture() { return texture; };
-    float getHeight(int row, int col) { return heightMap[row][col]; }
-    std::vector<float> flattenHeightMap() {
-        std::vector<float> heightMapFlat;
-        for (int i = 0; i < heightMap.size(); i++) {
-            for (int j = 0; j < heightMap[i].size(); j++) {
-                heightMapFlat.push_back(heightMap[j][i]);
-            }
-        }
-        return heightMapFlat;
-    }
+    void createMesh();
+    void updateVertexHeights();
+    void updateVertexTextures();
 private:
-    std::vector<unsigned int> eleBuf;
-    std::vector<float> posBuf;
-    std::vector<float> norBuf;
-    std::vector<float> texBuf;
-    unsigned eleBufID;
-    unsigned posBufID;
-    unsigned norBufID;
-    unsigned texBufID;
-    unsigned vaoID;
+    unsigned short *data = nullptr;
+    std::vector<float> dataFloat;
+    std::vector<unsigned char> textureData; // indices corresponding to texture ids
+    GLuint VAO, VBO, EBO;
     
-    TextureLoader *texture;
-    
-//    void UpdateBuffers();
     void ComputeNormals();
-//    void init();
-//    void makeTexture();
 };
 
 #endif

@@ -67,7 +67,8 @@ bool PhysicsController::isLyingInCone(btVector3 &x, btVector3 &t, btVector3 &b, 
 
 
 void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY, int key, int action) {
-    
+	if (((Camera *)world->mainCamera->GetComponent("Camera"))->stat)
+		return; // might not need this.... just in case
     if (key == GLFW_MOUSE_BUTTON_LEFT || key == GLFW_MOUSE_BUTTON_RIGHT) {
         float coef = -1.0;
         if(key == GLFW_MOUSE_BUTTON_LEFT) {
@@ -86,9 +87,13 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
         }
         if(action == GLFW_RELEASE){
             charge = false;
-            //return; // might not need this.... just in case
+			if (((Camera *)world->mainCamera->GetComponent("Camera"))->stat)
+				return; // might not need this.... just in case
             SoundLibrary::playShot();
-            ((CameraController*)(world->cameraController))->BeginShaking(15, 200);
+            std::cout<<"delta time is:   "<< Time::Now() - LeftClickPressTime<<std::endl;
+            float dT = (float)(Time::Now() - LeftClickPressTime);
+            if (world->cameraController)
+                 ((CameraController*)(world->cameraController))->BeginShaking((int)((dT/ 100) + .5), 200);
         }
         
         
@@ -99,10 +104,10 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
 		glm::vec3 rot = mainCharacter->transform->GetRotation();
 		glm::vec3 pos = mainCharacter->transform->GetPosition();
 		float theta = glm::radians(rot.y);
-        btVector3 camPos = btVector3(pos.x, pos.y, pos.z);
+        btVector3 camPos = btVector3(pos.x, pos.y-2, pos.z);
         
         btVector3 camLookAt = btVector3(sin(theta) * 1, 0, cos(theta) * 1);
-        btVector3 endPoint = camPos + (camLookAt)*30.0; // multiplied by a large number to make sure i got far enough
+        btVector3 endPoint = camPos + (camLookAt)*50.0; // multiplied by a large number to make sure i got far enough
         
         
         btVector3 forceVector = camLookAt;
@@ -132,7 +137,7 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                 //world->dynamicsWorld->rayTest(camPos, endPoint, RayCallback);
                 
                 //if(RayCallback.m_collisionObject == rb->bulletRigidBody) {
-                if(isLyingInCone(objPos, camPos, endPoint, M_PI/3.0)) {
+                if(isLyingInCone(objPos, camPos, endPoint, M_PI/1.5)) {
                     //rb->bulletRigidBody->applyForce(forceVector, camPos - objPos);
                     //rb->bulletRigidBody->applyImpulse(forceVector, camPos - objPos);
                     //is sheep, baa

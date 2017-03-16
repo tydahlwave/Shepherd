@@ -28,7 +28,7 @@ World::World() :gameObjects() {
     
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
     
-    dynamicsWorld->setGravity(btVector3(0,-50,0));
+    dynamicsWorld->setGravity(btVector3(0,-100,0));
 }
 
 
@@ -45,7 +45,7 @@ GameObject *World::CreateGameObject(std::string name) {
 
 void World::ClearGameObjects() {
 	for (GameObject *go : gameObjects) {
-		delete go;
+        RemoveGameObject(go);
 	}
 	gameObjects.clear();
 }

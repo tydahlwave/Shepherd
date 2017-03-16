@@ -153,7 +153,7 @@ void ParticleSystem::EmitParticle(int unusedParticle) {
 }
 
 void ParticleSystem::SortParticles() {
-	std::sort(&particles[0], &particles[numParticles]);
+	//std::sort(&particles[0], &particles[numParticles]);
 }
 
 void ParticleSystem::UpdateVBOs() {

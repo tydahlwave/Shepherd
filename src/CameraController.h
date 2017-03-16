@@ -26,6 +26,8 @@ public:
 	void MouseScrolled(World *world, double dx, double dy);
     void BeginShaking(int framesToShake, float intensity);
 	void InvertPitch(World *world);
+	//void nextStage();
+
 private:
 //    float alpha = -M_PI/2;
 //    float beta = -M_PI/2*3;

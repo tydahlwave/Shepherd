@@ -22,6 +22,7 @@
 #include "Components/HUDRenderer.h"
 #include "Components/Character.h"
 #include "Components/Death.h"
+#include "Components/Animation.h"
 #include "Components/Light.h"
 #include "Components/SheepDestination.h"
 #include "Components/TextName.h"
@@ -130,6 +131,9 @@ Component *GameObject::AddComponent(std::string name) {
 		}
 		else if (name.compare("Character") == 0) {
 			component = (Component *) new Character();
+		}
+        else if (name.compare("Animation") == 0) {
+            component = (Component *) new Animation();
         }
         else if (name.compare("Light") == 0) {
             component = (Component *) new Light();
