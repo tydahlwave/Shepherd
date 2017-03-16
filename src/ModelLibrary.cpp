@@ -33,6 +33,7 @@ Model *ModelLibrary::lantern = nullptr;
 Model *ModelLibrary::monster = nullptr;
 Model *ModelLibrary::playSign = nullptr;
 Model *ModelLibrary::exitSign = nullptr;
+Model *ModelLibrary::ring = nullptr;
 
 void ModelLibrary::LoadModels(std::string resourceDir) {
     bunny           = new Model(resourceDir + "bunny.obj");
@@ -44,7 +45,7 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
     boulder1        = new Model(resourceDir + "Boulder1.obj");
     boulder2        = new Model(resourceDir + "Boulder2.obj");
     boulder3        = new Model(resourceDir + "Boulder3.obj");
-    wolf            = new Model(resourceDir + "wolf.obj");
+    wolf            = new Model(resourceDir + "wolfNew.obj");
     title           = new Model(resourceDir + "title.obj");
     tree1           = new Model(resourceDir + "tree1.obj");
     tree2           = new Model(resourceDir + "tree2.obj");
@@ -58,7 +59,8 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
 	menuSign		= new Model(resourceDir + "title.obj");
     lantern         = new Model(resourceDir + "lantern.obj");
     //monster        = new Model(resourceDir + "monstersmall.dae");
-    monster        = new Model(resourceDir + "main_idle3.dae");
+    monster        = new Model(resourceDir + "cube.obj");
     playSign        = new Model(resourceDir + "Play.obj");
     exitSign        = new Model(resourceDir + "Exit.obj");
+    ring        = new Model(resourceDir + "ring.obj");
 }

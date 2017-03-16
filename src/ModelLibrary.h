@@ -41,6 +41,7 @@ public:
     static Model *monster;
     static Model *playSign;
     static Model *exitSign;
+    static Model *ring;
 };
 
 #endif /* ModelLibrary_h */

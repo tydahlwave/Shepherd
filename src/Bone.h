@@ -299,7 +299,7 @@ public:
         
         if(bones.size() == 0)
         {
-            std::cout<<"WHY IS BONE SIZE 0 "<<std::endl;
+            //std::cout<<"WHY IS BONE SIZE 0 "<<std::endl;
             return;
         }
         

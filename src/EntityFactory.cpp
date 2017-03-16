@@ -125,17 +125,14 @@ GameObject *EntityFactory::createTestAnim(World *world) {
     //    rigidBody->isKinematic = true;
     gameObject->AddComponent("BoxCollider");
     Animation* comp = (Animation*) gameObject->AddComponent("Animation");
+    //gameObject->AddComponent("TextName");
     comp->skeleton = ModelLibrary::monster->skeleton;
-    for(Bone b : comp->skeleton.bones)
-    {
-        std::cout<<"Bone "<<b.name<<std::endl;
-    }
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::monster;
-    meshRenderer->shader = ShaderLibrary::anim;
+    meshRenderer->shader = ShaderLibrary::cell;
     meshRenderer->material = MaterialLibrary::pearl;
-    gameObject->transform->SetScale(glm::vec3(0.01f, .01f, .01f));
-    gameObject->transform->SetPosition(glm::vec3(-228, 0, 524));
+    //gameObject->transform->SetScale(glm::vec3(0.01f, .01f, .01f));
+    gameObject->transform->SetPosition(glm::vec3(-2000, 4, -344));
     
     btTransform t;
     t.setIdentity();
@@ -663,4 +660,17 @@ GameObject *EntityFactory::createNodeSphere(World *world) {
     dest->path->AddNode(position);
     
     return gameObject;
+}
+
+
+GameObject *EntityFactory::createRing(World *world) {
+    GameObject *gameObject = world->CreateGameObject("Ring");
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->model = ModelLibrary::ring;
+    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->material = MaterialLibrary::chrome;
+    
+    gameObject->transform->SetPosition(world->mainCharacter->transform->GetPosition());
+    return gameObject;
+
 }
