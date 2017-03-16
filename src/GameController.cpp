@@ -508,9 +508,28 @@ void GameController::LoadState() {
 
 		world.mainCamera = EntityFactory::createMainCamera(&world);
 		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera,glm::vec3(-500, 4, -350));
-        
-        
         world.cameraController = (GameObject*)cameraController;
+        
+        // Create fences
+        GameObject *fence1 = EntityFactory::createStaticObject(&world, "Fence", ModelLibrary::fence, ShaderLibrary::cell, MaterialLibrary::brown);
+        fence1->transform->SetPosition(glm::vec3(185,241,322));
+        fence1->transform->SetRotation(glm::vec3(0, 0, 0));
+        fence1->transform->SetScale(glm::vec3(40, 40, 40));
+        
+        GameObject *fence2 = EntityFactory::createStaticObject(&world, "Fence", ModelLibrary::fence, ShaderLibrary::cell, MaterialLibrary::brown);
+        fence2->transform->SetPosition(glm::vec3(185,241,402));
+        fence2->transform->SetRotation(glm::vec3(0, 0, 0));
+        fence2->transform->SetScale(glm::vec3(40, 40, 40));
+        
+        GameObject *fence3 = EntityFactory::createStaticObject(&world, "Fence", ModelLibrary::fence, ShaderLibrary::cell, MaterialLibrary::brown);
+        fence3->transform->SetPosition(glm::vec3(227,241,361));
+        fence3->transform->SetRotation(glm::vec3(0, 90, 0));
+        fence3->transform->SetScale(glm::vec3(40, 40, 40));
+        
+//        GameObject *fence4 = EntityFactory::createStaticObject(&world, "Fence", ModelLibrary::fenceWithDoor, ShaderLibrary::cell, MaterialLibrary::brown);
+//        fence4->transform->SetPosition(glm::vec3(135,241,362));
+//        fence4->transform->SetRotation(glm::vec3(0, 90, 0));
+//        fence4->transform->SetScale(glm::vec3(40, 40, 40));
 
         //Create skybox
         GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);

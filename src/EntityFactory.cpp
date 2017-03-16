@@ -73,6 +73,7 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera, gl
     rigidBody->bulletRigidBody->setRollingFriction(1);
     rigidBody->bulletRigidBody->setCollisionFlags(0);
 	((Camera*)camera->GetComponent("Camera"))->stat = false;
+    ((Camera*)camera->GetComponent("Camera"))->aap = 90;
 	world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     
     camera->transform->SetPosition(pos);
@@ -187,6 +188,15 @@ GameObject *EntityFactory::createStaticObject(World *world, std::string name, Mo
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
     meshRenderer->model = model;
     meshRenderer->shader = shader;
+    return gameObject;
+}
+
+GameObject *EntityFactory::createStaticObject(World *world, std::string name, Model *model, Shader *shader, Material *material) {
+    GameObject *gameObject = world->CreateGameObject(name);
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->model = model;
+    meshRenderer->shader = shader;
+    meshRenderer->material = material;
     return gameObject;
 }
 

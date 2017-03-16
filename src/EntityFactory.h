@@ -16,6 +16,7 @@
 class Terrain;
 class Model;
 class Shader;
+class Material;
 
 class EntityFactory {
 public:
@@ -43,6 +44,7 @@ public:
     static GameObject *upgradeCharacter(World *world, GameObject *camera, glm::vec3 pos);
     static void UpdateTerrain(World *world, GameObject *terrainObj, Terrain *terrain);
     static GameObject *createStaticObject(World *world, std::string name, Model *model, Shader *shader);
+    static GameObject *createStaticObject(World *world, std::string name, Model *model, Shader *shader, Material *material);
     static GameObject *createStartMenuTerrain(World *world, std::string resourceDir, int type, int size, glm::vec3 pos);
     static GameObject *createNodeSphere(World *world);
     static GameObject *createRing(World *world);
