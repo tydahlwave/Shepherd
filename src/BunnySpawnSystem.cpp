@@ -57,7 +57,6 @@ void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
             glm::vec3 rotation = glm::vec3(0, (angle * 180 / M_PI), 0);
             gameObject->transform->SetRotation(rotation);
         }
-        //ObstacleAvoidance(world);
     }
     jumpAtEndOfLevel(world);
 }
@@ -66,23 +65,19 @@ void BunnySpawnSystem::jumpAtEndOfLevel(World*world) {
     for(GameObject * gameObject : bunniesAtEnd) {
         RigidBody *rb = (RigidBody*)gameObject->GetComponent("RigidBody");
         if(rb) {
-            if(glm::length(vec2(rb->velocity)) > 0.1) {
-                rb->velocity.x = rb->velocity.x/1000.f;
-                rb->velocity.z = rb->velocity.z/1000.f;
-                rb->pointInTime = Time::Now();
-                rb->waitTime = 2000;
-            }
-            else if(Time::Now() - rb->pointInTime > rb->waitTime) {
-                //cout << "SHOOT UP " << endl;
+            rb->velocity.x = rb->velocity.x/1000.f;
+            rb->velocity.z = rb->velocity.z/1000.f;
+            if(Time::Now() - rb->pointInTime > rb->waitTime) {
+                cout << "SHOOT UP " << endl;
                 if(rb->bulletRigidBody) {
                     rb->bulletRigidBody->setLinearVelocity(btVector3(0,30.0,0));
                     rb->pointInTime = Time::Now();
+                    rb->waitTime = rand() % 2000 + 750;
                 }
             }
             float angle = atan2(rb->velocity.x, rb->velocity.z);
             glm::vec3 rotation = glm::vec3(0, (angle * 180 / M_PI), 0);
             gameObject->transform->SetRotation(rotation);
-            
         }
     }
 }

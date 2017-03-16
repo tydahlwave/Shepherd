@@ -211,7 +211,7 @@ void GameController::checkIfEndOfLevel() {
         RigidBody *rb = (RigidBody*)gameObject->GetComponent("RigidBody");
         if(rb) {
             numOfAliveBunnies++;
-            if( glm::distance(bunnySpawnSystem->endPosition, gameObject->transform->GetPosition()) < 40.0f) {
+            if( glm::distance(bunnySpawnSystem->endPosition, gameObject->transform->GetPosition()) < 50.0f) {
                 if(!gameObject->isBunnyAndIsAtEnd) {
                     gameObject->isBunnyAndIsAtEnd = true;
                     bunnySpawnSystem->bunniesAtEnd.push_back(gameObject);
@@ -464,6 +464,7 @@ void GameController::LoadState() {
 		bunnySpawnSystem = new BunnySpawnSystem();
         bunnySpawnSystem->startPosition = glm::vec3(-573, 4, -344);
         bunnySpawnSystem->endPosition = glm::vec3(185,241,362);
+        //bunnySpawnSystem->endPosition = glm::vec3(-490,5,-316);
 		wolfSystem = new WolfSystem();
 		treeSystem = new TreeSystem();
         animSystem = new AnimationSystem();
@@ -538,6 +539,7 @@ void GameController::LoadState() {
 		world.mainCamera = EntityFactory::createMainCamera(&world);
 		nextcamlevel = .000001f;
 		camlevel = 1.f;
+        camstage = 0;
 		break;
 	}
 	case Level2:
@@ -635,6 +637,10 @@ void GameController::KeyPressed(World *world, int windowWidth, int windowHeight,
         Serializer::SerializeWorld(world);
     if (key == GLFW_KEY_F1 && action == GLFW_PRESS)
         nextState = MainMenu;
+    if (key == GLFW_KEY_ENTER && action == GLFW_PRESS){
+        cout << "I PRESSED ENTER" << endl;
+        camstage = 3;
+    }
 }
 void GameController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {
     //printf("mousemoving!");

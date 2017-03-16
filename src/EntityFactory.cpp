@@ -618,7 +618,7 @@ GameObject *EntityFactory::createNodeSphere(World *world) {
     btVector3 velocityVector = btVector3(camLookAt.x,camLookAt.y,camLookAt.z);
     velocityVector.setY(0.7);
     velocityVector.normalize();
-    velocityVector = 50.0*velocityVector;
+    velocityVector = 100.0*velocityVector;
     
     GameObject *gameObject = world->CreateGameObject("FollowSphere");
     gameObject->isSerializable = true;
