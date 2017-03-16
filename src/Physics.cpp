@@ -235,7 +235,7 @@ void Physics::HandleTerrainCollisions(World &world) {
                     if (pos.y < newPosY) {
                         obj->transform->SetPosition(glm::vec3(pos.x, newPosY, pos.z));
                         RigidBody *rigidBody = (RigidBody*)obj->GetComponent("RigidBody");
-                        if (rigidBody) {
+                        if (rigidBody && rigidBody->bulletRigidBody) {
                             rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 0, 0));
                         }
                     }

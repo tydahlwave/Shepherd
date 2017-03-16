@@ -510,7 +510,7 @@ void GameController::LoadState() {
 //		randomlyPopulateWithBoulders(p->path);
 
 		// Create trees
-		treeSystem->Spawn(&world);
+		//treeSystem->Spawn(&world);
         
         GameObject* test = EntityFactory::createTestAnim(&world);
         Animation* testAnim = (Animation*) test->GetComponent("Animation");
