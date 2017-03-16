@@ -24,6 +24,7 @@ public:
     virtual ~BunnySpawnSystem() {};
     
     glm::vec3 startPosition = glm::vec3(0, 0, 0);
+    glm::vec3 endPosition = glm::vec3(0);
     
 	void Update(float deltaTime, World *world, GameObject *path);
 	void KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) override;
@@ -40,6 +41,7 @@ public:
 	bool LineIntersectsObj(glm::vec3 ahead, glm::vec3 ahead2, GameObject *obstacle);
 	GameObject *FindClosestObstacle(World *world, GameObject *bunny, glm::vec3 ahead, glm::vec3 ahead2);
 	void ObstacleAvoidance(World *world);
+    vector<GameObject*> bunniesAtEnd;
 
 private:
     static const int maxEntities = 30;
@@ -53,6 +55,7 @@ private:
 	std::map<GameObject *, int> bunnyNode;
 	Path *path;
     void CreateBunny(World *world);
+    void jumpAtEndOfLevel(World *world);
     
 };
 

@@ -55,7 +55,7 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera, gl
 	btTransform t;
 	t.setIdentity();
 	t.setOrigin(btVector3(pos.x, pos.y, pos.z));
-    btBoxShape* collisionShape = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x*camera->transform->GetScale().x, meshRenderer->model->bounds.halfwidths.y*camera->transform->GetScale().y, meshRenderer->model->bounds.halfwidths.z*camera->transform->GetScale().z));
+    btCollisionShape* collisionShape = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x*camera->transform->GetScale().x, meshRenderer->model->bounds.halfwidths.y*camera->transform->GetScale().y, meshRenderer->model->bounds.halfwidths.z*camera->transform->GetScale().z));
 
 	btVector3 inertia(0, 0, 0);
 	float mass = 10.0f;
@@ -70,7 +70,6 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera, gl
 	rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     rigidBody->bulletRigidBody->setFriction(1);
     rigidBody->bulletRigidBody->setRollingFriction(1);
-    rigidBody->bulletRigidBody->setSpinningFriction(1);
     rigidBody->bulletRigidBody->setCollisionFlags(0);
 	((Camera*)camera->GetComponent("Camera"))->stat = false;
 	world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
@@ -412,6 +411,7 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
 //                                                                              false);
 //    btMotionState* motion = new btDefaultMotionState(t);
 //    btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, collisionShape);
+
 //    rigidBody->bulletRigidBody = new btRigidBody(info);
 //    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
 //    

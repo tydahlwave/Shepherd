@@ -55,6 +55,7 @@ public:
 	static void MouseScrollCallback(GLFWwindow *window, double dx, double dy);
     static void AddWindowCallbackDelegate(WindowCallbackDelegate *delegate, int type);
     static void AddImguiUpdateDelegate(ImguiUpdateDelegate *delegate);
+    static void DeleteWindowCallbackDelegate(WindowCallbackDelegate *delegate);
 	static void DeleteCallbackDelegates();
 private:
     GLFWwindow *window; // Main application window

@@ -29,6 +29,7 @@
 #include "AnimationSystem.h"
 #include "ImguiUpdateDelegate.h"
 
+
 enum State {
 	Close = -2,
 	EndScreen = -1,
@@ -82,6 +83,8 @@ private:
 	float nextcamlevel = 0.f;
 	int camstage = 0;
     
+    void checkIfEndOfLevel();
+    bool levelComplete = false;
     void displayStats(float deltaTime, World &world, Physics &physics);
     void drawImGUIStuff(Window &window, GameObject *terrain);
     void drawTerrainWindow(Window &window, GameObject *terrain);

@@ -108,6 +108,8 @@ void CameraController::Update(World &world) {
 	camera->pos = pos;
     float xAdjustment = 0;
     float yAdjustment = 0;
+	if (camera->stat)
+		shakesRemaining = 0;
     if(shakesRemaining > 0)
     {
 //        float shakeFreqX = 20;
