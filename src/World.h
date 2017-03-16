@@ -49,6 +49,8 @@ public:
     GameObject *CreateGameObject(std::string name);
 	void ClearGameObjects();
     void RemoveGameObject(GameObject *go);
+    
+    bool showHelp = false;
 private:
     std::vector<GameObject*> gameObjects;
 //    KDTree *kdTree;

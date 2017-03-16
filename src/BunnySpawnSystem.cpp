@@ -188,6 +188,9 @@ void BunnySpawnSystem::KeyPressed(World *world, int windowWidth, int windowHeigh
                 }
             }
         }
+        else if (key == GLFW_KEY_H) {
+            world->showHelp = !world->showHelp;
+        }
 	}
 }
 

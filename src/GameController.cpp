@@ -102,6 +102,10 @@ void GameController::displayStats(float deltaTime, World &world, Physics &physic
 
 
 void GameController::ImGuiShowNames(World *world) {
+    //note on making it work for 4k displays!!
+    //FROM: http://stackoverflow.com/questions/25230841/how-to-find-display-scaling-factor-on-retina-4k-displays
+    //You need to use glfwGetFramebufferSize to get the actual size of the window in pixels on displays that use window coordinates that don't match pixels. Then pass those values to glViewport.
+    
     // draw names over sheep
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1,1,1,0));
     ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(1,1,1,0));
@@ -142,7 +146,7 @@ void GameController::ImGuiShowNames(World *world) {
             ImGui::SetNextWindowPos(ImVec2((projected.x - 10.0)/2.0f, (window.GetHeight() - (projected.y + 90.0))/ 2.0f));
             //ImGui::SetNextWindowPos(ImVec2(projected.x, window.GetHeight() - 100));
             //std::cout<< projected.x << " :   " <<projected.y << std::endl;
-            ImGui::SetNextWindowCollapsed(true, ImGuiSetCond_Once);
+            //ImGui::SetNextWindowCollapsed(true, ImGuiSetCond_Once);
             ImGui::Begin(textName->name.c_str(), nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs);
             ImGui::Text("%s", textName->name.c_str());
             ImGui::End();
@@ -156,11 +160,32 @@ void GameController::ImGuiShowNames(World *world) {
     ImGui::PopStyleColor();
 }
 
+void GameController::ImGuiShowHelp(World *world) {
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    if (!world->showHelp) {
+        ImGui::Begin("Need Help?", nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs);
+        ImGui::Text("Press 'H' to show help");
+    }
+    else {
+        ImGui::Begin("Help Window", nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs);
+        ImGui::Text("Movement - ASDF");
+        ImGui::Text("Jump - Space");
+        ImGui::Text("Throw follow orb - 1");
+        ImGui::Text("Remove follow orb - 2");
+        ImGui::Text("Ping to have sheep follow you - F");
+        ImGui::Text("Force Push Roar - Left Click");
+        ImGui::Text("Force Pull Roar - Right Click");
+        
+    }
+    ImGui::End();
+}
+
 void GameController::ImguiUpdate(World *world, bool drawGUI) {
     //    if(!drawGUI) return;
     if(terrain && drawGUI) drawTerrainWindow(window, terrain);
     if (drawGUI) LevelEditor::drawLevelEditor(window, world);
     ImGuiShowNames(world);
+    ImGuiShowHelp(world);
 }
 
 void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
