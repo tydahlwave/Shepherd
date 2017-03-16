@@ -274,16 +274,22 @@ void GameController::Run() {
 			Camera *c;
 			if (nextcamlevel > 0 && camlevel > nextcamlevel && state == Level1) {
 				c = (Camera *)world.mainCamera->GetComponent("Camera");
-				nextcamlevel += 2.f;
+				nextcamlevel += 4.f;
 				switch (camstage) {
 				case 0:
-					c->pos = glm::vec3(100, 100, 100);
+					c->pos = glm::vec3(-490.233f, 323.772, -547.755);
+					c->pitch = -59.f;
+					c->aap = 48.f;
 					break;
 				case 1:
-					c->pos = glm::vec3(200, 200, 200);
+					c->pos = glm::vec3(605.167, 372.280, -199.671);
+					c->pitch = -45.f;
+					c->aap = 275.f;
 					break;
 				case 2:
-					c->pos = glm::vec3(300, 300, 300);
+					c->pos = glm::vec3(-628.876, 500.95, 518.358);
+					c->pitch = -50.f;
+					c->aap = 480.f;
 					break;
 				case 3:
 					world.RemoveGameObject(world.mainCamera);
@@ -484,8 +490,8 @@ void GameController::LoadState() {
 		EntityFactory::createHUD(&world);
 		EntityFactory::createChargeBar(&world);
 		world.mainCamera = EntityFactory::createMainCamera(&world);
-		nextcamlevel = 2.f;
-		camlevel = 0.f;
+		nextcamlevel = .000001f;
+		camlevel = 1.f;
 		break;
 	}
 	case Level2:

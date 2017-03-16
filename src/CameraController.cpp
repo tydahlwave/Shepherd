@@ -135,6 +135,9 @@ void CameraController::BeginShaking(int framesToShake, float intensity)
 
 void CameraController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
 	Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
+	if (camera->stat && key == GLFW_KEY_P && action == GLFW_PRESS) {
+		printf("pitch at %f | aap at %f\n", camera->pitch, camera->aap);
+	}
 	if (camera->stat)
 		return;
 	if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
