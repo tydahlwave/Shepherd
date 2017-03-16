@@ -140,16 +140,6 @@ void Mesh::setupMesh() {
 //        std::cout<<"id 3: "<<v.id[3]<<"    weight 3 = :"<<v.weight[3]<<std::endl;
 //    }
     
-    // Send the id data
-    /*glGenBuffers(1, &VBO_IDs);
-    glBindBuffer(GL_ARRAY_BUFFER,VBO_IDs);
-    //glBufferData(GL_ARRAY_BUFFER,vertices.size()*4*sizeof(GLint),&vecIDs[0],GL_STATIC_DRAW);
-    glBufferData(GL_ARRAY_BUFFER,vertices.size()*4*sizeof(GLuint),&vecIDs[0],GL_STATIC_DRAW);
-    
-    //send the weight data
-    glGenBuffers(1,&VBO_Weights);
-    glBindBuffer(GL_ARRAY_BUFFER,VBO_Weights);
-    glBufferData(GL_ARRAY_BUFFER,vertices.size()*4*sizeof(GLfloat),&vecWeights[0],GL_STATIC_DRAW);*/
     
     
     

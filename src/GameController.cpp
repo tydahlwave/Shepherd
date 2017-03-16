@@ -285,6 +285,15 @@ void GameController::LoadState() {
 
 		world.mainCamera = EntityFactory::createMainCamera(&world);
 		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera);
+        
+        Animation* idleAnim = (Animation*) world.mainCharacter->GetComponent("Animation");
+        idleAnim->anim = true;
+        
+        BoneAnimation Anim_Test_Idle = *new BoneAnimation("idle", FramesToTime(glm::vec2(0,40)), 2);
+        idleAnim->skeleton.StopAnimating();
+        //idleAnim->skeleton.SetIdleAnimation(&Anim_Test_Idle);
+        //The true is for loop, and the false is for reset_to_start.
+        //idleAnim->skeleton.PlayAnimation(Anim_Test_Idle,true,false);
 
         //Create skybox
         GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);
@@ -313,19 +322,20 @@ void GameController::LoadState() {
 		// Create trees
 		treeSystem->Spawn(&world);
         
-        GameObject* test = EntityFactory::createTestAnim(&world);
-        Animation* testAnim = (Animation*) test->GetComponent("Animation");
-        testAnim->anim = true;
-        testAnim->skeleton = *ModelLibrary::monster->skeleton;
-        //static BoneAnimation Anim_Test_Walk("Walk", FramesToTime(glm::vec2(1,45)), 2);
-        //testAnim->skeleton.SetIdleAnimation(&Anim_Test_Walk);
-        //The true is for loop, and the false is for reset_to_start.
-        //testAnim->skeleton.PlayAnimation(Anim_Test_Walk,true,false);
-        
-        for(Bone b : testAnim->skeleton.bones)
-        {
-            std::cout<<"Bone "<<b.name<<std::endl;
-        }
+//        GameObject* test = EntityFactory::createTestAnim(&world);
+//        Animation* testAnim = (Animation*) test->GetComponent("Animation");
+//        testAnim->anim = true;
+//        
+//        BoneAnimation Anim_Test_Walk = *new BoneAnimation("Walk", FramesToTime(glm::vec2(0,30)), 2);
+//        //testAnim->skeleton.StopAnimating();
+//        testAnim->skeleton.SetIdleAnimation(&Anim_Test_Walk);
+//        //The true is for loop, and the false is for reset_to_start.
+//        testAnim->skeleton.PlayAnimation(Anim_Test_Walk,true,false);
+//
+//        for(Bone b : testAnim->skeleton.bones)
+//        {
+//            std::cout<<"Bone "<<b.name<<std::endl;
+//        }
         
         
 		EntityFactory::createHUD(&world);

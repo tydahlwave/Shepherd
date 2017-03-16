@@ -40,10 +40,11 @@ void Model::loadModel(std::string path) {
         return;
     }
 //    this->directory = path.substr(0, path.find_last_of('/')); // Set directory, used in locating textures
+    
     rootNode = scene->mRootNode;
     recursiveNodeProcess(rootNode);
     AnimNodeProcess();
-    globalInverseTransform = AiToGLMMat4(rootNode->mTransformation.Inverse());
+    globalInverseTransform = glm::transpose(AiToGLMMat4(rootNode->mTransformation.Inverse()));
     
     
     // Process meshes
@@ -55,13 +56,17 @@ void Model::loadModel(std::string path) {
         for(int j = 0; j < scene->mMeshes[i]->mNumBones; j++)
         {
             std::string b_name = scene->mMeshes[i]->mBones[j]->mName.data;
-            glm::mat4 b_mat = glm::transpose(AiToGLMMat4(scene->mMeshes[i]->mBones[j]->mOffsetMatrix));
-            //glm::mat4 b_mat = AiToGLMMat4(scene->mMeshes[i]->mBones[j]->mOffsetMatrix);
+            //glm::mat4 b_mat = glm::transpose(AiToGLMMat4(scene->mMeshes[i]->mBones[j]->mOffsetMatrix));
+            glm::mat4 b_mat = AiToGLMMat4(scene->mMeshes[i]->mBones[j]->mOffsetMatrix);
             
             //debug
-            std::cout<<"Bone "<<j<<" "<<b_name<<std::endl;
-            std::cout<<"TRANSPOSED OFFSET"<<std::endl;
-            printGLMMat4(b_mat);
+//            std::cout<<"Bone "<<j<<" "<<b_name<<std::endl;
+//            std::cout<<"TRANSPOSED OFFSET"<<std::endl;
+//            printGLMMat4(b_mat);
+//            
+//            std::cout<<"Bone "<<j<<" "<<b_name<<std::endl;
+//            std::cout<<"TGlobal Inverse OFFSET"<<std::endl;
+//            printGLMMat4(globalInverseTransform);
             
             //initial "bone"
             Bone bone(&meshes.at(i),i,b_name,b_mat);
@@ -79,8 +84,9 @@ void Model::loadModel(std::string path) {
                 printGLMMat4(AiToGLMMat4((FindAiNode(b_name)->mTransformation)));
             }
             bone.animNode = FindAiNodeAnim(b_name);
+            bone.actualAnimNode = FindNodeAnim(b_name);
             
-            if(bone.animNode == nullptr)
+            if(bone.actualAnimNode == nullptr)
                 std::cout<<"No Animations were found for "+b_name<<std::endl;
             
             //push the bone into the vector
@@ -103,14 +109,18 @@ void Model::loadModel(std::string path) {
                 std::cout<<b_name<<" parent is "<<parent_name<<std::endl;
         }
         
-        if(meshes.size() > 0){
+
+        if(meshes.size() > 0)
+        {
+            std::cout<<"Skeleton set For :"<<scene->mRootNode->mName.data<< "    bone size is :    "<<bones.size()<< "      meshes size is"<< meshes.size() << std::endl;
             skeleton = new Skeleton();
             skeleton->Init(bones,globalInverseTransform);
+        }
             //skeletonMap[path] = Skeleton();
             //skeletonMap[path].Init(bones,globalInverseTransform);
-        }
 
     }
+
     
     if(!scene->mMeshes[0]->HasBones())
     {
@@ -129,48 +139,6 @@ void Model::loadModel(std::string path) {
     this->calculateBounds();
 }
 
-void Model::LoadBones(uint MeshIndex, const aiMesh* pMesh, std::vector<VertexBoneData>& boneVData)
-{
-//    for (uint i = 0 ; i < pMesh->mNumBones ; i++) {
-//        uint BoneIndex = 0;
-//        std::string BoneName(pMesh->mBones[i]->mName.data);
-//        
-//        if (boneMap.find(BoneName) == boneMap.end()) {
-//            // Allocate an index for a new bone
-//            BoneIndex = numBones;
-//            numBones++;
-//            BoneInfo bi;
-//            boneInfo.push_back(bi);
-//            boneInfo[BoneIndex].BoneOffset = AiToGLMMat4(pMesh->mBones[i]->mOffsetMatrix);
-//            boneMap[BoneName] = BoneIndex;
-//        }
-//        else {
-//            BoneIndex = boneMap[BoneName];
-//        }
-//        
-//        for (uint j = 0 ; j < pMesh->mBones[i]->mNumWeights ; j++) {
-//            uint VertexID = pMesh->mBones[i]->mWeights[j].mVertexId;
-//            float Weight  = pMesh->mBones[i]->mWeights[j].mWeight;
-//            boneVData[VertexID].AddBoneData(BoneIndex, Weight);
-//        }
-//    }    
-}
-
-void Model::ReadNodeHeirarchy(float AnimationTime, aiNode* pNode, const glm::mat4& ParentTransform)
-{
-//    std::string NodeName(pNode->mName.data);
-//    glm::mat4 NodeTransformation = AiToGLMMat4(pNode->mTransformation);
-//    mat4 GlobalTransformation = ParentTransform * NodeTransformation;
-//    
-//    if (boneMap.find(NodeName) != boneMap.end()) {
-//        uint BoneIndex = boneMap[NodeName];
-//        boneInfo[BoneIndex].FinalTransformation = globalInverseTransform * GlobalTransformation * boneInfo[BoneIndex].BoneOffset;
-//    }
-//    
-//    for (uint i = 0 ; i < pNode->mNumChildren ; i++) {
-//        ReadNodeHeirarchy(AnimationTime, pNode->mChildren[i], GlobalTransformation);
-//    }
-}
 
 void Model::resize() {
     glm::vec3 scale, shift;
@@ -236,7 +204,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
     std::vector<Texture2D> textures;
-    std::vector<VertexBoneData> Bones;
     
     // Process vertex positions, normals and texture coordinates
     for (auto i = 0; i < mesh->mNumVertices; i++) {
@@ -254,7 +221,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
         }
     }
     //populate our bone structures
-    LoadBones(0, mesh, Bones);
+//    LoadBones(0, mesh, Bones);
     
     
     //Process Bones
@@ -405,9 +372,47 @@ void Model::AnimNodeProcess()
     if(scene->mNumAnimations == 0)
         return;
     //collect the animations
+    aiNodeAnim* temp;
+    AnimationNode* tempA;
+    std::vector<PositionKey> positionTemp;
+    std::vector<RotationKey> rotationTemp;
+    //collect the animation frames
     for(int i = 0; i < scene->mAnimations[0]->mNumChannels; i++)
-        ai_nodes_anim.push_back(scene->mAnimations[0]->mChannels[i]);
-    
+    {
+        temp = new aiNodeAnim(*scene->mAnimations[0]->mChannels[i]);
+        
+        positionTemp.resize(temp->mNumPositionKeys);
+        
+        for(unsigned int j = 0 ; j < temp->mNumPositionKeys - 1 ; j++)
+        {
+            //temp->mPositionKeys[j] = *new aiVectorKey(scene->mAnimations[0]->mChannels[i]->mPositionKeys[j]);
+            
+            aiVectorKey tKey = temp->mPositionKeys[j];
+            glm::vec3 tempV = glm::vec3(tKey.mValue.x, tKey.mValue.y, tKey.mValue.z);
+            
+            positionTemp[j].position = tempV;
+            positionTemp[j].startTime = tKey.mTime;
+        }
+        
+        rotationTemp.resize(temp->mNumRotationKeys);
+                                   
+        for(unsigned int k = 0 ; k < temp->mNumRotationKeys - 1 ; k++)
+        {
+            //temp->mRotationKeys[k] = *new aiQuatKey(scene->mAnimations[0]->mChannels[i]->mRotationKeys[k]);
+            
+            aiQuatKey tKey = temp->mRotationKeys[k];
+            glm::quat tempQ = glm::quat(tKey.mValue.w, tKey.mValue.x, tKey.mValue.y, tKey.mValue.z);
+            
+            
+            rotationTemp[k].rotation = tempQ;
+            rotationTemp[k].startTime = tKey.mTime;
+        }
+        tempA = new AnimationNode(temp->mNodeName.data, positionTemp, rotationTemp);
+        animNodes.push_back(tempA);
+        ai_nodes_anim.push_back(temp);
+
+    }
+    //ai_nodes_anim.push_back(scene->mAnimations[0]->mChannels[i]);
 }
 
 //scan bone vector for name
@@ -439,9 +444,25 @@ aiNodeAnim* Model::FindAiNodeAnim(std::string name)
     for(int i = 0; i < ai_nodes_anim.size(); i++)
     {
         if(ai_nodes_anim.at(i)->mNodeName.data == name)
+        {   //std::cout<<"Found anim node for/:   "<< ai_nodes_anim.at(i)->mNodeName.data << std::endl;
             return ai_nodes_anim.at(i);
+        }
     }
 
+    return nullptr;
+}
+
+//find animation node
+AnimationNode* Model::FindNodeAnim(std::string name)
+{
+    for(int i = 0; i < animNodes.size(); i++)
+    {
+        if(animNodes.at(i)->nodeName == name)
+        {   std::cout<<"Found anim node for/:   "<< ai_nodes_anim.at(i)->mNodeName.data << std::endl;
+            return animNodes.at(i);
+        }
+    }
+    
     return nullptr;
 }
 

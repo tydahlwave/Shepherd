@@ -20,6 +20,9 @@
 #include "MaterialLibrary.h"
 #include "Terrain.h"
 #include  "Path.h"
+#include "BoneAnimation.h"
+#include "Components/Animation.h"
+
 //#include <Bullet3Geometry>
 #include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
 
@@ -38,10 +41,12 @@ GameObject *EntityFactory::createMainCamera(World *world) {
 GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
 	camera->AddComponent("Character");
 	MeshRenderer *meshRenderer = (MeshRenderer*)camera->AddComponent("MeshRenderer");
-	meshRenderer->model = ModelLibrary::player;
-	meshRenderer->shader = ShaderLibrary::cell;
+    meshRenderer->model = ModelLibrary::player;
+    meshRenderer->shader = ShaderLibrary::anim;
 	meshRenderer->material = MaterialLibrary::pearl;
-	
+    Animation* comp = (Animation*) camera->AddComponent("Animation");
+    comp->skeleton = *ModelLibrary::player->skeleton;
+    
 	btTransform t;
 	t.setIdentity();
 	t.setOrigin(btVector3(0, 0, 0));
@@ -98,9 +103,14 @@ GameObject *EntityFactory::createTestAnim(World *world) {
     rigidBody->useGravity = true;
     //    rigidBody->isKinematic = true;
     gameObject->AddComponent("BoxCollider");
-    gameObject->AddComponent("Animation");
+    Animation* comp = (Animation*) gameObject->AddComponent("Animation");
+    comp->skeleton = *ModelLibrary::monster->skeleton;
+    for(Bone b : comp->skeleton.bones)
+    {
+        std::cout<<"Bone "<<b.name<<std::endl;
+    }
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->model = ModelLibrary::monster;
+    meshRenderer->model = ModelLibrary::player;
     meshRenderer->shader = ShaderLibrary::anim;
     meshRenderer->material = MaterialLibrary::pearl;
     btTransform t;
@@ -118,7 +128,6 @@ GameObject *EntityFactory::createTestAnim(World *world) {
     
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
-    gameObject->transform->SetScale(vec3(.01,.01,.01));
     return gameObject;
 }
 
@@ -145,6 +154,8 @@ GameObject *EntityFactory::createWolf(World *world) {
     btRigidBody::btRigidBodyConstructionInfo info(mass, motion, collisionShape);
     rigidBody->bulletRigidBody = new btRigidBody(info);
     rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+    
+    
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;

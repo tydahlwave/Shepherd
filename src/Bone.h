@@ -31,15 +31,21 @@ class GameObject;
 class Skeleton;
 
 
-
+//may not be a-ok *********
 static aiMatrix4x4 GLMMat4ToAi(glm::mat4 mat)
 {
     return aiMatrix4x4(mat[0][0],mat[0][1],mat[0][2],mat[0][3],
                        mat[1][0],mat[1][1],mat[1][2],mat[1][3],
                        mat[2][0],mat[2][1],mat[2][2],mat[2][3],
                        mat[3][0],mat[3][1],mat[3][2],mat[3][3]);
+//    return aiMatrix4x4(mat[0][0],mat[1][0],mat[2][0],mat[3][0],
+//                       mat[0][1],mat[1][1],mat[2][1],mat[3][1],
+//                       mat[0][2],mat[1][2],mat[2][2],mat[3][2],
+//                       mat[0][3],mat[1][3],mat[2][3],mat[3][3]);
 }
 
+
+//ian's works! keeping old for reference
 static glm::mat4 AiToGLMMat4(aiMatrix4x4& ai)
 {
 //    glm::mat4 tmp;
@@ -87,41 +93,50 @@ static void printGLMMat4(glm::mat4  mat)
     
 }
 
-struct BoneInfo
+//in house position struct
+struct PositionKey
 {
-    glm::mat4 BoneOffset;
-    glm::mat4 FinalTransformation;
+    glm::vec3 position;
+    float startTime;
     
-    BoneInfo()
+    PositionKey(const glm::vec3 pos, float start){
+        position = pos;
+        startTime = start;
+    }
+    PositionKey(){}
+};
+
+//in house rotation struct
+struct RotationKey
+{
+    glm::quat rotation;
+    float startTime;
+    
+    RotationKey(const glm::quat rot, float start){
+        rotation = rot;
+        startTime = start;
+    }
+    
+    RotationKey()
     {
-        BoneOffset = glm::mat4(0);
-        FinalTransformation = glm::mat4(0);
+        
     }
 };
 
-struct VertexBoneData
+//in house animation node
+struct AnimationNode
 {
-    uint IDs[4];
-    float Weights[4];
+    std::string nodeName;
+    std::vector<PositionKey> positionKeys;
+    std::vector<RotationKey> rotationKeys;
+    //leaving room for scaling
     
-    VertexBoneData()
-    {
-        Reset();
-    };
-    
-    void Reset()
-    {
-        IDs[0] = 0;
-        IDs[1] = 0;
-        IDs[2] = 0;
-        IDs[3] = 0;
-        Weights[0] = 0;
-        Weights[1] = 0;
-        Weights[2] = 0;
-        Weights[3] = 0;
+    AnimationNode(std::string node, std::vector<PositionKey> position, std::vector<RotationKey> rotation){
+        nodeName = node;
+        positionKeys = position;
+        rotationKeys = rotation;
     }
     
-    void AddBoneData(uint BoneID, float Weight);
 };
 
 
@@ -137,6 +152,8 @@ public:
     aiNode* node;    //This bone's corresponding aiNode
     
     aiNodeAnim* animNode;    //This is the bone's corresponding aiNodeAnim,
+    
+    AnimationNode* actualAnimNode;
     
     Bone* parent_bone;    //A pointer to this bone's parent bone.
     
@@ -170,7 +187,7 @@ public:
 };
 
 
-
+//Skeleton holds the bones for a class
 class Skeleton
 {
 public:
@@ -201,6 +218,7 @@ public:
         Init(in_bones,in_globalInverseTransform);
     }
     
+    //initialize bone state
     void Init(std::vector<Bone> in_bones, glm::mat4 in_globalInverseTransform)
     {
         bones = in_bones;
@@ -213,7 +231,10 @@ public:
         anim_loop = false;
         
         for(int i = 0; i < bones.size(); i++)
+        {
+            std::cout<<bones.at(i).name<<std::endl;
             bones.at(i).parent_skeleton = this;
+        }
     }
     
     //This next function is pretty self-explanatory...
@@ -227,6 +248,8 @@ public:
         return nullptr;
     }
     
+    
+    //Play selected bone animation
     void PlayAnimation(BoneAnimation& anim, bool loop, bool reset_to_start)
     {
         //If there's an animation currently playing
@@ -265,20 +288,20 @@ public:
     }
     
     //This function sets the idle animation
-    //(An idle animation, for those who don't know, is an animation
-    //that plays when no other animations are playing)
     void SetIdleAnimation(BoneAnimation* in_anim)
     {
         idle_animation = in_anim;
     }
     
-
+    //Gather all of the bones' global transforms
     void UpdateBoneMatsVector()
     {
-        //The purpose of this function is to gather all of the bones' global transforms
         
         if(bones.size() == 0)
+        {
+            std::cout<<"WHY IS BONE SIZE 0 "<<std::endl;
             return;
+        }
         
         //Make sure there's nothning left in the vector.
         boneMats.clear();
@@ -292,12 +315,13 @@ public:
                 boneMats.push_back(glm::mat4(1.0));
             else
             {
-                //Now for the complicated stuff...
                 //To get the concatenated transformation, we multiply the concatenated transforms of
                 //the bone's parents with the bone's transformation.
                 
                 
                 glm::mat4 concatenated_transformation = (bones.at(i).GetParentTransforms() * AiToGLMMat4(bones.at(i).node->mTransformation));
+                
+                
                 /*std::cout<<"Bone "<<bones[i].name<<"   Parent transform"<<std::endl;
                 printGLMMat4(bones.at(i).GetParentTransforms());*/
                 //glm::mat4 concatenated_transformation = AiToGLMMat4(bones.at(i).node->mTransformation);
@@ -309,50 +333,55 @@ public:
 //                printGLMMat4(AiToGLMMat4(bones.at(i).node->mTransformation));
 //                                                                     
 //
-//                glm::mat4 temp = globalInverseTransform * concatenated_transformation* bones.at(i).offset_matrix;
-//                std::cout<<"Bone "<<bones[i].name<<"   final transform"<<std::endl;
-//                printGLMMat4(temp);
-                /*std::cout<<"Bone "<<bones[i].name<<"   GLOBAL INVERSE transform"<<std::endl;
-                printGLMMat4(globalInverseTransform);
-                std::cout<<"Bone "<<bones[i].name<<"   OFFSET MATRIX transform"<<std::endl;
-                printGLMMat4(bones.at(i).offset_matrix);*/
+                glm::mat4 temp = globalInverseTransform * concatenated_transformation* bones.at(i).offset_matrix;
+                std::cout<<"Bone "<<bones[i].name<<"   final transform"<<std::endl;
+                printGLMMat4(temp);
+                //std::cout<<"Bone "<<bones[i].name<<"   FULL CALC transform"<<std::endl;
+                //printGLMMat4(globalInverseTransform * AiToGLMMat4(bones.at(i).node->mTransformation) * bones.at(i).offset_matrix);
+//                std::cout<<"Bone "<<bones[i].name<<"   OFFSET MATRIX transform"<<std::endl;
+//                printGLMMat4(bones.at(i).offset_matrix);
                 
                 
                 boneMats.push_back(globalInverseTransform * concatenated_transformation * bones.at(i).offset_matrix);
-                //boneMats.push_back(concatenated_transformation * bones.at(i).offset_matrix);
             }
         }
     }
                                                                      
     void Update(float deltaTime)
     {
+       //std::cout<<"Update Skeleton at dT"<< deltaTime <<std::endl;
        UpdateBoneMatsVector();
-//        if(!anim_play)
-//            //If we're not playing an animation, then just give up, do nothing.
-//            return;
-//        
-//        //Update the time variable by adding the delta time of the last frame
-//        //It's * 0.001f because the delta time is in milliseconds, and we
-//        //need it in seconds.
-//        time += deltaTime * 0.001f;
-//        
-//        //Make sure the time can't be less than our animation's start time.
-//        if(time < start_time)
-//            time = start_time;
-//        
-//        //Make sure the time can't be greater than our animation's end time.
-//        if(time > end_time)
-//        {
-//            if(anim_loop)
-//                //If looping is set, then loop!
-//                time = start_time;
-//            else
-//                //Else, give up.
-//                StopAnimating();
-//        }
-//        
-//        for(int i = 0; i < bones.size(); i++)
-//            bones.at(i).UpdateKeyframeTransform(time);
+        if(!anim_play)
+            //If we're not playing an animation, do nothing.
+            return;
+        
+        //Update the time variable by adding the delta time of the last frame
+        //It's * 0.001f because the delta time is in milliseconds, and we
+        //need it in seconds.
+        time += deltaTime * 0.001f;
+        
+        //Make sure the time can't be less than our animation's start time.
+        if(time < start_time)
+            time = start_time;
+        
+        //Make sure the time can't be greater than our animation's end time.
+        if(time > end_time)
+        {
+            if(anim_loop)
+                //If looping is set, then loop!
+                time = start_time;
+            else
+                //Else, give up.
+                StopAnimating();
+        }
+        std::cout<<"got to Update w time of "<< time <<std::endl;
+        
+        for(int i = 0; i < bones.size(); i++)
+        {
+            std::cout<<"Updating ky trans of bone: "<< bones[i].name <<std::endl;
+            bones.at(i).UpdateKeyframeTransform(time);
+            //bones.at(i).UpdateKeyframeTransform(1);
+        }
     }
 };
 

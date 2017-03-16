@@ -46,11 +46,12 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
     tree3           = new Model(resourceDir + "tree4.obj");
 //    tree4           = new Model(resourceDir + "tree4.obj");
 //    tree5           = new Model(resourceDir + "tree5.obj");
-    player          = new Model(resourceDir + "player.obj");
+    //player          = new Model(resourceDir + "player.obj");
+    player          = new Model(resourceDir + "Wolf_dae.dae");
     gadget          = new Model(resourceDir + "gadget.obj");
     sheep           = new Model(resourceDir + "sheep.obj");
 	menuSign		= new Model(resourceDir + "title.obj");
     lantern         = new Model(resourceDir + "lantern.obj");
-    monster        = new Model(resourceDir + "monstersmall.dae");
-    //monster        = new Model(resourceDir + "boy.dae");
+    //monster        = new Model(resourceDir + "monstersmall.dae");
+    monster        = new Model(resourceDir + "cube.obj");
 }

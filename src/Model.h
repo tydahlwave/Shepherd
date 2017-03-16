@@ -31,7 +31,6 @@ public:
     static std::map<std::string, Skeleton> skeletonMap;
     static Skeleton* skeleton;
     static std::map<std::string, uint> boneMap;
-    std::vector<BoneInfo> boneInfo;
     
 
     uint numBones = 0;
@@ -49,16 +48,18 @@ private:
     Bone* FindBone(std::string name);
     aiNode* FindAiNode(std::string name);
     aiNodeAnim* FindAiNodeAnim(std::string name);
+    AnimationNode* FindNodeAnim(std::string name);
     int FindBoneIDByName(std::string name);
     void recursiveProcess(aiNode* node,const aiScene* scene);
-    void LoadBones(uint MeshIndex, const aiMesh* pMesh, std::vector<VertexBoneData>& boneVData);
-    void ReadNodeHeirarchy(float AnimationTime, aiNode* pNode, const glm::mat4& ParentTransform);
+//    void LoadBones(uint MeshIndex, const aiMesh* pMesh, std::vector<VertexBoneData>& boneVData);
+//    void ReadNodeHeirarchy(float AnimationTime, aiNode* pNode, const glm::mat4& ParentTransform);
     
     // Stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
     std::vector<Texture2D> textures_loaded;
     std::string directory;
     std::vector<aiNode*> ai_nodes;
     std::vector<aiNodeAnim*> ai_nodes_anim;
+    std::vector<AnimationNode*> animNodes;
     void recursiveNodeProcess(aiNode* node);
     void AnimNodeProcess();
     void loadModel(std::string path);
