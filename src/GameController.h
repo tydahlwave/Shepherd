@@ -80,6 +80,7 @@ private:
 	int gameMusic = 0;
     
     void checkIfEndOfLevel();
+    bool levelComplete = false;
     void displayStats(float deltaTime, World &world, Physics &physics);
     void drawImGUIStuff(Window &window, GameObject *terrain);
     void drawTerrainWindow(Window &window, GameObject *terrain);

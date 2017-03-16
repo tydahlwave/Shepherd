@@ -215,11 +215,16 @@ void GameController::checkIfEndOfLevel() {
         }
     }
     //cout << "bunnies at end: " << bunnySpawnSystem->bunniesAtEnd.size() << endl;
-    if(numOfAliveBunnies == bunnySpawnSystem->bunniesAtEnd.size() || numOfAliveBunnies == 0) {
-        // endnumOfAliveBunnieslevel!! either you won or you lost
+    if(numOfAliveBunnies == bunnySpawnSystem->bunniesAtEnd.size()){// || numOfAliveBunnies == 0) {
+        //either you won or you lost
         cout << "bunnies are all at end!" << endl;
         std::cout << "Game Over" << std::endl;
-        exit(0);
+        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
+        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)characterController);
+        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
+        GameObject *winLevelTitle = EntityFactory::createTitle(&world);
+        winLevelTitle->transform->SetPosition(world.mainCharacter->transform->GetPosition());
+        levelComplete = true;
     }
 }
 
@@ -284,7 +289,7 @@ void GameController::Run() {
                 if (characterController)
                     characterController->Update(&world, idealDeltaTime);
                 if(state == Level1 || state == Level2 || state == Level3) {
-                    checkIfEndOfLevel();
+                    if (!levelComplete) checkIfEndOfLevel();
                 }
                 accumulator -= idealDeltaTime;
             }
