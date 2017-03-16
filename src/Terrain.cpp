@@ -140,6 +140,33 @@ void Terrain::loadTextureFromFile(std::string filePath) {
     FreeImage(texture);
 }
 
+void Terrain::setTextureFromHeightData() {
+    float regions[] = {
+        0, 0.5, 1
+    };
+    
+    for (int row = 0; row < height; row++) {
+        for (int col = 0; col < width; col++) {
+            int index = row * width + col;
+//            unsigned short height = data[index];
+            float height = getHeight(col, row) / max;
+            for (int region = 0; region < 3; region++) {
+                if (height <= regions[region]) {
+                    if (region > 0) {
+                        float prevTex = region-1;
+                        float distBetweenRegions = regions[region] - regions[region-1];
+                        float distFromLastRegion = height - regions[region-1];
+                        float distToNextTex = distFromLastRegion / distBetweenRegions;
+                        textureData[index] = (unsigned char)(prevTex + distToNextTex);
+                    } else {
+                        textureData[index] = region;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Terrain::updateVertexHeights() {
     for (int row = 0; row < height; row++) {
         for (int col = 0; col < width; col++) {
