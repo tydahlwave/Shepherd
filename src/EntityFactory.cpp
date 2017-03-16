@@ -411,6 +411,7 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
 //                                                                              false);
 //    btMotionState* motion = new btDefaultMotionState(t);
 //    btRigidBody::btRigidBodyConstructionInfo info(0.0, motion, collisionShape);
+
 //    rigidBody->bulletRigidBody = new btRigidBody(info);
 //    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
 //    

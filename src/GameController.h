@@ -29,6 +29,7 @@
 #include "AnimationSystem.h"
 #include "ImguiUpdateDelegate.h"
 
+
 enum State {
 	Close = -2,
 	EndScreen = -1,
@@ -79,6 +80,8 @@ private:
 	int gameMusic = 0;
     AnimationSystem *animSystem = nullptr;
     
+    void checkIfEndOfLevel();
+    bool levelComplete = false;
     void displayStats(float deltaTime, World &world, Physics &physics);
     void drawImGUIStuff(Window &window, GameObject *terrain);
     void drawTerrainWindow(Window &window, GameObject *terrain);
