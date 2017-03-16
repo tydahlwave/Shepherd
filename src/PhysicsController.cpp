@@ -67,7 +67,8 @@ bool PhysicsController::isLyingInCone(btVector3 &x, btVector3 &t, btVector3 &b, 
 
 
 void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY, int key, int action) {
-    
+	if (((Camera *)world->mainCamera->GetComponent("Camera"))->stat)
+		return; // might not need this.... just in case
     if (key == GLFW_MOUSE_BUTTON_LEFT || key == GLFW_MOUSE_BUTTON_RIGHT) {
         float coef = -1.0;
         if(key == GLFW_MOUSE_BUTTON_LEFT) {
@@ -86,7 +87,8 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
         }
         if(action == GLFW_RELEASE){
             charge = false;
-            //return; // might not need this.... just in case
+			if (((Camera *)world->mainCamera->GetComponent("Camera"))->stat)
+				return; // might not need this.... just in case
             SoundLibrary::playShot();
             std::cout<<"delta time is:   "<< Time::Now() - LeftClickPressTime<<std::endl;
             float dT = (float)(Time::Now() - LeftClickPressTime);
