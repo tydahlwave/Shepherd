@@ -328,7 +328,8 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
     terrainProps.octaveHeight = 55.0f;
     terrainProps.seed = 0;
 //    renderer->terrain = new Terrain(size, terrainProps);
-    renderer->terrain = new Terrain(resourceDir + "Heightmap.png");
+//    renderer->terrain = new Terrain(resourceDir + "Heightmap.png");
+    renderer->terrain = new Terrain(resourceDir + "../build/Debug/Level_Heightmap", true);
     renderer->terrain->createMesh();
     renderer->terrain->init();
     renderer->shader = ShaderLibrary::ground;

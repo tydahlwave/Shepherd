@@ -29,6 +29,7 @@ class Terrain {
 public:
     Terrain(int size = 256, NoiseProperties props = {});
     Terrain(std::string filePath);
+    Terrain(std::string filePath, bool useCustomFileFormat);
     virtual ~Terrain();
     
     int size = 256;

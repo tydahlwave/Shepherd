@@ -35,6 +35,24 @@ Terrain::Terrain(std::string imagePath) :heightmapTex("Heightmap") {
     heightmapTex.Load(data, imageProps);
 }
 
+// Use this method when saving/loading images composed of unsigned shorts
+Terrain::Terrain(std::string imagePath, bool useCustomFileFormat) :heightmapTex("Heightmap") {
+    // Load the image data for the terrain
+    ImageProperties imageProps = LoadImageCustom(imagePath, &data, &width, &height);
+    
+    size = width;
+    std::cout << "Terrain size: " << width << "x" << height << std::endl;
+    
+    // Set texture data to 0s
+    textureData.resize(width * height);
+    for (int i = 0; i < width*height; i++) {
+        textureData[i] = 0;
+    }
+    
+    // Load the heightmap into a texture
+    heightmapTex.Load(data, imageProps);
+}
+
 Terrain::~Terrain() {}
 
 void Terrain::generate(int size, NoiseProperties properties) {
