@@ -53,7 +53,7 @@ private:
 	bool flockToCamera = false;
 //	bool stop = false;
 	std::map<GameObject *, int> bunnyNode;
-	Path *path;
+	Path *path = nullptr;
     void CreateBunny(World *world);
     void jumpAtEndOfLevel(World *world);
     

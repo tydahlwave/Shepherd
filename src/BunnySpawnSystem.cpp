@@ -373,7 +373,7 @@ void BunnySpawnSystem::Cohesion(GameObject *bunny) {
 glm::vec3 BunnySpawnSystem::FollowPath(World *world, GameObject *bunny) {
 	glm::vec3 target = glm::vec3 (0, 0, 0);
 
-	if (path != NULL) {
+	if (path) {
 		std::vector<glm::vec3> nodes = (*path).GetNodes();
 //		RigidBody *rigidBody = (RigidBody*)bunny->GetComponent("RigidBody");
 

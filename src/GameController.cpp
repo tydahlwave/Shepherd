@@ -216,10 +216,12 @@ void GameController::checkIfEndOfLevel() {
         }
     }
     //cout << "bunnies at end: " << bunnySpawnSystem->bunniesAtEnd.size() << endl;
-    if(numOfAliveBunnies == bunnySpawnSystem->bunniesAtEnd.size()){// || numOfAliveBunnies == 0) {
+    if(numOfAliveBunnies == bunnySpawnSystem->bunniesAtEnd.size()){
         //either you won or you lost
-        cout << "bunnies are all at end!" << endl;
-        std::cout << "Game Over" << std::endl;
+        if(bunnySpawnSystem->bunniesAtEnd.size() == 0){
+            nextState = Level2;
+            return;
+        }
 //        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
 //        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)characterController);
 //        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
@@ -457,7 +459,7 @@ void GameController::LoadState() {
 		terrainController = new TerrainController();
 		bunnySpawnSystem = new BunnySpawnSystem();
         bunnySpawnSystem->startPosition = glm::vec3(-573, 4, -344);
-        bunnySpawnSystem->endPosition = glm::vec3(-365,3,647);
+        bunnySpawnSystem->endPosition = glm::vec3(185,241,362);
 		wolfSystem = new WolfSystem();
 		treeSystem = new TreeSystem();
         animSystem = new AnimationSystem();
@@ -536,6 +538,8 @@ void GameController::LoadState() {
 	}
 	case Level2:
 	{
+        
+        nextState = Level1;
 		break;
 	}
 	case Level3:
@@ -574,6 +578,14 @@ void GameController::UnloadState() {
     if (physicsController) {
         delete physicsController;
         physicsController = nullptr;
+    }
+    if (treeSystem) {
+        delete treeSystem;
+        treeSystem = nullptr;
+    }
+    if (animSystem) {
+        delete animSystem;
+        animSystem = nullptr;
     }
     window.drawMouse = false;
 }
