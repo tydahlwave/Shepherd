@@ -57,6 +57,7 @@ public:
     void setTexture(int x, int y, unsigned char textureId);
     std::vector<unsigned char> getTextureMap() { return textureData; }
     void loadTextureFromFile(std::string filePath);
+    void setTextureFromHeightData();
     
     void init();
     void uploadVertices();
