@@ -79,6 +79,9 @@ private:
 	float groundSize = 100.0f;
 	int gameMusic = 0;
     AnimationSystem *animSystem = nullptr;
+	float camlevel = -1.f;
+	float nextcamlevel = 0.f;
+	int camstage = 0;
     
     void displayStats(float deltaTime, World &world, Physics &physics);
     void drawImGUIStuff(Window &window, GameObject *terrain);

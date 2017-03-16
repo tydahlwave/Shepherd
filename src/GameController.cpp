@@ -247,7 +247,9 @@ void GameController::Run() {
 			oldTime = curTime;
 
 			accumulator += elapsedTime;
-
+			if (nextcamlevel > 0) {
+				camlevel += elapsedTime;
+			}
 			while (accumulator >= idealDeltaTime) {
 				//update
                 if(world.sheepDestinationObject && world.sheepDestinationObject->name != "Path") {
@@ -266,9 +268,31 @@ void GameController::Run() {
 				accumulator -= idealDeltaTime;
                 
 			}
-			if (cameraController)
+			if (cameraController) {
 				cameraController->Update(world);
-            
+			}
+			Camera *c;
+			if (nextcamlevel > 0 && camlevel > nextcamlevel && state == Level1) {
+				c = (Camera *)world.mainCamera->GetComponent("Camera");
+				nextcamlevel += 2.f;
+				switch (camstage) {
+				case 0:
+					c->pos = glm::vec3(100, 100, 100);
+					break;
+				case 1:
+					c->pos = glm::vec3(200, 200, 200);
+					break;
+				case 2:
+					c->pos = glm::vec3(300, 300, 300);
+					break;
+				case 3:
+					world.RemoveGameObject(world.mainCamera);
+					world.mainCamera = world.mainCharacter;
+					nextcamlevel = 0.f;
+					break;
+				}
+				camstage++;
+			}
 			renderer.Render(world, window);
 			CAudioEngine::instance()->Update();
 			window.Update();
@@ -459,7 +483,9 @@ void GameController::LoadState() {
         EntityFactory::createLight(&world, glm::vec3(1, 1, 1), true, glm::vec3(1, 1, 1), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
 		EntityFactory::createHUD(&world);
 		EntityFactory::createChargeBar(&world);
-
+		world.mainCamera = EntityFactory::createMainCamera(&world);
+		nextcamlevel = 2.f;
+		camlevel = 0.f;
 		break;
 	}
 	case Level2:

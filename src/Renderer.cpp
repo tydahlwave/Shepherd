@@ -13,7 +13,7 @@
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else
-#include <GL/glut.h>
+//#include <GL/glut.h>
 #endif
 
 
@@ -336,7 +336,7 @@ void Renderer::Render(World &world, Window &window) {
                 Animation* isAnim = (Animation*) gameObject->GetComponent("Animation");
                 if(isAnim)
                 {
-                    std::cout<<"Mat size for skeleton "<<isAnim->skeleton.boneMats.size()<<std::endl;
+                   // std::cout<<"Mat size for skeleton "<<isAnim->skeleton.boneMats.size()<<std::endl;
                     int i = 0;
 //                    for(glm::mat4 m : isAnim->skeleton.boneMats)
 //                    {
