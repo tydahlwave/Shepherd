@@ -90,8 +90,10 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
 			if (((Camera *)world->mainCamera->GetComponent("Camera"))->stat)
 				return; // might not need this.... just in case
             SoundLibrary::playShot();
+            std::cout<<"delta time is:   "<< Time::Now() - LeftClickPressTime<<std::endl;
+            float dT = (float)(Time::Now() - LeftClickPressTime);
             if (world->cameraController)
-                ((CameraController*)(world->cameraController))->BeginShaking(15, 200);
+                 ((CameraController*)(world->cameraController))->BeginShaking((int)((dT/ 100) + .5), 200);
         }
         
         

@@ -444,7 +444,7 @@ void GameController::LoadState() {
 		physicsController = new PhysicsController();
 		terrainController = new TerrainController();
 		bunnySpawnSystem = new BunnySpawnSystem();
-        bunnySpawnSystem->startPosition = glm::vec3(-220, -20, 520);
+        bunnySpawnSystem->startPosition = glm::vec3(-573, 4, -344);
         bunnySpawnSystem->endPosition = glm::vec3(-365,3,647);
 		wolfSystem = new WolfSystem();
 		treeSystem = new TreeSystem();
@@ -452,7 +452,7 @@ void GameController::LoadState() {
 		printf("Loading level 1\n");
         audio->toggleSound(gameMusic, true);
 		gameMusic = audio->PlaySound("back.wav");
-        audio->SetChannelvolume(gameMusic, 2);
+        audio->SetChannelvolume(gameMusic, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)terrainController, 1);
@@ -462,16 +462,9 @@ void GameController::LoadState() {
 
 
 		world.mainCamera = EntityFactory::createMainCamera(&world);
-		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera,glm::vec3(-228, 0, 524));
+		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera,glm::vec3(-573, 4, -344));
         
-        Animation* idleAnim = (Animation*) world.mainCharacter->GetComponent("Animation");
-        idleAnim->anim = true;
         
-        BoneAnimation Anim_Test_Idle = *new BoneAnimation("idle", FramesToTime(glm::vec2(0,40)), 2);
-        //idleAnim->skeleton.StopAnimating();
-        idleAnim->skeleton.SetIdleAnimation(&Anim_Test_Idle);
-        //The true is for loop, and the false is for reset_to_start.
-        idleAnim->skeleton.PlayAnimation(Anim_Test_Idle,true,false);
         world.cameraController = (GameObject*)cameraController;
 
         //Create skybox

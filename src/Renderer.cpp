@@ -357,9 +357,19 @@ void Renderer::Render(World &world, Window &window) {
             } else {
                 applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
             }
-            applyTransformMatrix(shader, gameObject->transform);
             
-            if (meshRenderer->shader == ShaderLibrary::cell) {
+            if(gameObject->name.compare("Camera") == 0 )
+            {
+                glm::vec3 rot = gameObject->transform->GetRotation();
+                Transform t = *new Transform(gameObject->transform->GetPosition(), glm::vec3(rot.x, rot.y - 90, rot.z), gameObject->transform->GetScale());
+                applyTransformMatrix(shader, &t);
+            }
+            else
+            {
+                applyTransformMatrix(shader, gameObject->transform);
+            }
+            
+            if (meshRenderer->shader == ShaderLibrary::cell || meshRenderer->shader == ShaderLibrary::anim) {
                 if (meshRenderer->texture) {
                     glActiveTexture(GL_TEXTURE0);
                     glBindTexture(GL_TEXTURE_2D, meshRenderer->texture->texID);

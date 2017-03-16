@@ -358,7 +358,7 @@ public:
         //Update the time variable by adding the delta time of the last frame
         //It's * 0.001f because the delta time is in milliseconds, and we
         //need it in seconds.
-        time += deltaTime * 0.005f;
+        time += deltaTime * 0.028f;
         
         //Make sure the time can't be less than our animation's start time.
         if(time < start_time)

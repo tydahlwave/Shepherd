@@ -39,7 +39,8 @@ GameObject *EntityFactory::createMainCamera(World *world) {
     rigidBody->isKinematic = true;
     gameObject->AddComponent("Camera");
     gameObject->AddComponent("BoxCollider");
-    gameObject->transform->SetScale(glm::vec3(.7, .7, .7));
+    gameObject->transform->SetScale(glm::vec3(.002, .002, .002));
+    gameObject->transform->SetRotation(glm::vec3(180,0,0));
     return gameObject;
 }
 

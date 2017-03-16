@@ -78,6 +78,7 @@ void CAudioEngine::LoadSounds(std::string resDir)
     
     instance()->Loadsound((resDir + "baa.wav"), true, false, false);
     instance()->Loadsound((resDir + "back.wav"), false, true, false);
+    instance()->Loadsound((resDir + "grassRun.wav"), false, true, false);
     instance()->Loadsound((resDir + "herdAmbient.wav"), false, true, false);
     
 }
