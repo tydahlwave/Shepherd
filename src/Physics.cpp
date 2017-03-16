@@ -17,6 +17,7 @@
 #include "MaterialLibrary.h"
 #include "Interpolation.h"
 #include "Components/Death.h"
+#include "Components/Force.h"
 #include "Components/TextName.h"
 
 void Physics::Update(float deltaTime, World &world) {
@@ -140,6 +141,52 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
             if(tn) {
                 tn->color = vec3(1,0,0);
             }
+        } else if (collision.gameObject2->name.compare("Wolf") == 0 && collision.gameObject1->name.compare("Boulder") == 0) {
+            RigidBody *body = (RigidBody*)collision.gameObject1->GetComponent("RigidBody");
+            std::cout << "Hit Wolf with Boulder" << std::endl;
+            std::cout << "Boulder velocity: " << body->bulletRigidBody->getLinearVelocity().length() << std::endl;
+            Force *force = (Force*)collision.gameObject1->GetComponent("Force");
+            if (force) {
+                std::cout << "Boulder force: " << glm::length(force->dir) << std::endl;
+            }
+            if(body && force && glm::length(force->dir) > 0) {
+                Death* gD = (Death*) collision.gameObject2->GetComponent("Death");
+                if(gD){
+                    CAudioEngine::instance()->PlaySound("wolfHurt.wav");
+                    collision.gameObject2->RemoveComponent("MeshRenderer");
+                    collision.gameObject2->RemoveComponent("BoxCollider");
+                    RigidBody *rb = (RigidBody*) collision.gameObject2->GetComponent("RigidBody");
+                    if (rb) {
+                        collision.gameObject2->RemoveComponent("RigidBody");
+                        if (rb->bulletRigidBody) {
+                            world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
+                        }
+                    }
+                }
+            }
+        } else if (collision.gameObject1->name.compare("Wolf") == 0 && collision.gameObject2->name.compare("Boulder") == 0) {
+            RigidBody *body = (RigidBody*)collision.gameObject2->GetComponent("RigidBody");
+            std::cout << "Hit Wolf with Boulder" << std::endl;
+            std::cout << "Boulder velocity: " << body->bulletRigidBody->getLinearVelocity().length() << std::endl;
+            Force *force = (Force*)collision.gameObject2->GetComponent("Force");
+            if (force) {
+                std::cout << "Boulder force: " << glm::length(force->dir) << std::endl;
+            }
+            if(body && force && glm::length(force->dir) > 0) {
+                Death* gD = (Death*) collision.gameObject1->GetComponent("Death");
+                if(gD){
+                    CAudioEngine::instance()->PlaySound("wolfHurt.wav");
+                    collision.gameObject1->RemoveComponent("MeshRenderer");
+                    collision.gameObject1->RemoveComponent("BoxCollider");
+                    RigidBody *rb = (RigidBody*) collision.gameObject1->GetComponent("RigidBody");
+                    if (rb) {
+                        collision.gameObject1->RemoveComponent("RigidBody");
+                        if (rb->bulletRigidBody) {
+                            world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -237,6 +284,12 @@ void Physics::HandleTerrainCollisions(World &world) {
                         RigidBody *rigidBody = (RigidBody*)obj->GetComponent("RigidBody");
                         if (rigidBody && rigidBody->bulletRigidBody) {
                             rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 0, 0));
+                            if (obj->name.compare("Boulder") == 0) {
+                                Force *force = (Force*)obj->GetComponent("Force");
+                                if (force && Time::Now() - force->time > 1000) {
+                                    force->dir = glm::vec3(0);
+                                }
+                            }
                         }
                     }
                 } else if (obj->name.compare("Tree") == 0) {

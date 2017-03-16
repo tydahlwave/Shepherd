@@ -47,7 +47,7 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
     boulder1        = new Model(resourceDir + "Boulder1.obj");
     boulder2        = new Model(resourceDir + "Boulder2.obj");
     boulder3        = new Model(resourceDir + "Boulder3.obj");
-    wolf            = new Model(resourceDir + "wolfNew.obj");
+    wolf            = new Model(resourceDir + "wolf.obj");
     title           = new Model(resourceDir + "title.obj");
     tree1           = new Model(resourceDir + "tree1.obj");
     tree2           = new Model(resourceDir + "tree2.obj");

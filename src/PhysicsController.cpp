@@ -15,6 +15,7 @@
 #include "Time.h"
 #include "SoundLibrary.h"
 #include "Components/Death.h"
+#include "Components/Force.h"
 #include "CameraController.h"
 
 
@@ -173,6 +174,12 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
 //                        rb->bulletRigidBody->setLinearVelocity(forceVector);
                     }
                     rb->bulletRigidBody->setLinearVelocity(forceVector);
+                    Force *force = (Force*)go->GetComponent("Force");
+                    if (!force) {
+                        force = (Force*)go->AddComponent("Force");
+                    }
+                    force->dir = glm::vec3(forceVector.x(), forceVector.y(), forceVector.z());
+                    force->time = Time::Now();
                 }
             }
         }
