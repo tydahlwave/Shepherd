@@ -175,6 +175,7 @@ void GameController::ImGuiShowHelp(World *world) {
         ImGui::Text("Ping to have sheep follow you - F");
         ImGui::Text("Force Push Roar - Left Click");
         ImGui::Text("Force Pull Roar - Right Click");
+        //ImGui::SetWindowFontScale(10);
         
     }
     ImGui::End();
@@ -366,6 +367,12 @@ void GameController::Run() {
 					world.mainCamera = world.mainCharacter;
 					nextcamlevel = 0.f;
                     EntityFactory::createHUD(&world);
+//                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController, 1);
+//                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController, 1);
+//                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)terrainController, 1);
+//                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)bunnySpawnSystem, 1);
+//                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)characterController, 1);
+
 					break;
 				}
 				camstage++;
@@ -556,6 +563,9 @@ void GameController::LoadState() {
 
 		// Create trees
 		//treeSystem->Spawn(&world);
+//        EntityFactory::createBarrier(&world, glm::vec3(200,100,60), 350);
+
+        
         
         GameObject* test = EntityFactory::createTestAnim(&world);
         Animation* testAnim = (Animation*) test->GetComponent("Animation");

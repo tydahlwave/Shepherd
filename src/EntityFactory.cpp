@@ -263,9 +263,29 @@ GameObject *EntityFactory::createGround(World *world) {
     return gameObject;
 }
 
-GameObject *EntityFactory::createBarrier(World *world) {
+GameObject *EntityFactory::createBarrier(World *world, glm::vec3 position, float size) {
     GameObject *gameObject = world->CreateGameObject("Barrier");
-    gameObject->AddComponent("BoxCollider");
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->model = ModelLibrary::cube;
+    meshRenderer->shader = ShaderLibrary::phong;
+    meshRenderer->material = MaterialLibrary::emerald;
+    RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
+    rigidBody->isKinematic = false;
+    btTransform t;
+    t.setIdentity();
+    t.setOrigin(btVector3(position.x,position.y,position.z));
+    btBoxShape* shape = new btBoxShape(btVector3(size/2.0,size/2.0,0));
+    gameObject->transform->SetScale(vec3(size/2.0,size/2.0,0));
+    btVector3 inertia(0,0,0);
+    float mass = 0.0;
+    if(mass != 0)
+        shape->calculateLocalInertia(mass, inertia);
+    btMotionState* motion = new btDefaultMotionState(t);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, shape, inertia);
+    rigidBody->bulletRigidBody = new btRigidBody(info);
+    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+    
+    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
 }
 
