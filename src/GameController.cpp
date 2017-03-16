@@ -212,14 +212,16 @@ void GameController::Run() {
 				if (wolfSystem)
                     wolfSystem->Update(idealDeltaTime, &world);
 				physics.Update(idealDeltaTime, world);
+                if (animSystem)
+                    animSystem->Update(elapsedTime, &world);
 				if (characterController)
 					characterController->Update(&world, idealDeltaTime);
 				accumulator -= idealDeltaTime;
+                
 			}
 			if (cameraController)
 				cameraController->Update(world);
-            if (animSystem)
-                animSystem->Update(elapsedTime, &world);
+            
 			renderer.Render(world, window);
 			CAudioEngine::instance()->Update();
 			if (window.drawGUI && terrain) drawTerrainWindow(window, terrain);
@@ -290,10 +292,10 @@ void GameController::LoadState() {
         idleAnim->anim = true;
         
         BoneAnimation Anim_Test_Idle = *new BoneAnimation("idle", FramesToTime(glm::vec2(0,40)), 2);
-        idleAnim->skeleton.StopAnimating();
-        //idleAnim->skeleton.SetIdleAnimation(&Anim_Test_Idle);
+        //idleAnim->skeleton.StopAnimating();
+        idleAnim->skeleton.SetIdleAnimation(&Anim_Test_Idle);
         //The true is for loop, and the false is for reset_to_start.
-        //idleAnim->skeleton.PlayAnimation(Anim_Test_Idle,true,false);
+        idleAnim->skeleton.PlayAnimation(Anim_Test_Idle,true,false);
 
         //Create skybox
         GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);
@@ -322,15 +324,15 @@ void GameController::LoadState() {
 		// Create trees
 		treeSystem->Spawn(&world);
         
-//        GameObject* test = EntityFactory::createTestAnim(&world);
-//        Animation* testAnim = (Animation*) test->GetComponent("Animation");
-//        testAnim->anim = true;
-//        
-//        BoneAnimation Anim_Test_Walk = *new BoneAnimation("Walk", FramesToTime(glm::vec2(0,30)), 2);
-//        //testAnim->skeleton.StopAnimating();
-//        testAnim->skeleton.SetIdleAnimation(&Anim_Test_Walk);
-//        //The true is for loop, and the false is for reset_to_start.
-//        testAnim->skeleton.PlayAnimation(Anim_Test_Walk,true,false);
+        GameObject* test = EntityFactory::createTestAnim(&world);
+        Animation* testAnim = (Animation*) test->GetComponent("Animation");
+        testAnim->anim = true;
+        
+        BoneAnimation Anim_Test_Walk = *new BoneAnimation("Walk", FramesToTime(glm::vec2(0,30)), 2);
+        //testAnim->skeleton.StopAnimating();
+        testAnim->skeleton.SetIdleAnimation(&Anim_Test_Walk);
+        //The true is for loop, and the false is for reset_to_start.
+        testAnim->skeleton.PlayAnimation(Anim_Test_Walk,true,false);
 //
 //        for(Bone b : testAnim->skeleton.bones)
 //        {

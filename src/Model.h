@@ -29,7 +29,7 @@ public:
     const aiScene* scene;
     Bounds bounds;
     static std::map<std::string, Skeleton> skeletonMap;
-    static Skeleton* skeleton;
+    Skeleton skeleton;
     static std::map<std::string, uint> boneMap;
     
 

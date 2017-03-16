@@ -45,7 +45,7 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera) {
     meshRenderer->shader = ShaderLibrary::anim;
 	meshRenderer->material = MaterialLibrary::pearl;
     Animation* comp = (Animation*) camera->AddComponent("Animation");
-    comp->skeleton = *ModelLibrary::player->skeleton;
+    comp->skeleton = ModelLibrary::player->skeleton;
     
 	btTransform t;
 	t.setIdentity();
@@ -104,15 +104,17 @@ GameObject *EntityFactory::createTestAnim(World *world) {
     //    rigidBody->isKinematic = true;
     gameObject->AddComponent("BoxCollider");
     Animation* comp = (Animation*) gameObject->AddComponent("Animation");
-    comp->skeleton = *ModelLibrary::monster->skeleton;
+    comp->skeleton = ModelLibrary::monster->skeleton;
     for(Bone b : comp->skeleton.bones)
     {
         std::cout<<"Bone "<<b.name<<std::endl;
     }
     MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
-    meshRenderer->model = ModelLibrary::player;
+    meshRenderer->model = ModelLibrary::monster;
     meshRenderer->shader = ShaderLibrary::anim;
     meshRenderer->material = MaterialLibrary::pearl;
+    gameObject->transform->SetScale(glm::vec3(0.01f, .01f, .01f));
+    
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 20, 0));
@@ -125,7 +127,6 @@ GameObject *EntityFactory::createTestAnim(World *world) {
     btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
     rigidBody->bulletRigidBody = new btRigidBody(info);
     rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
-    
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;

@@ -333,9 +333,9 @@ public:
 //                printGLMMat4(AiToGLMMat4(bones.at(i).node->mTransformation));
 //                                                                     
 //
-                glm::mat4 temp = globalInverseTransform * concatenated_transformation* bones.at(i).offset_matrix;
-                std::cout<<"Bone "<<bones[i].name<<"   final transform"<<std::endl;
-                printGLMMat4(temp);
+//                glm::mat4 temp = globalInverseTransform * concatenated_transformation* bones.at(i).offset_matrix;
+//                std::cout<<"Bone "<<bones[i].name<<"   final transform"<<std::endl;
+//                printGLMMat4(temp);
                 //std::cout<<"Bone "<<bones[i].name<<"   FULL CALC transform"<<std::endl;
                 //printGLMMat4(globalInverseTransform * AiToGLMMat4(bones.at(i).node->mTransformation) * bones.at(i).offset_matrix);
 //                std::cout<<"Bone "<<bones[i].name<<"   OFFSET MATRIX transform"<<std::endl;
@@ -358,7 +358,7 @@ public:
         //Update the time variable by adding the delta time of the last frame
         //It's * 0.001f because the delta time is in milliseconds, and we
         //need it in seconds.
-        time += deltaTime * 0.001f;
+        time += deltaTime * 0.005f;
         
         //Make sure the time can't be less than our animation's start time.
         if(time < start_time)
@@ -374,11 +374,11 @@ public:
                 //Else, give up.
                 StopAnimating();
         }
-        std::cout<<"got to Update w time of "<< time <<std::endl;
+        //std::cout<<"got to Update w time of "<< time <<std::endl;
         
         for(int i = 0; i < bones.size(); i++)
         {
-            std::cout<<"Updating ky trans of bone: "<< bones[i].name <<std::endl;
+            //std::cout<<"Updating ky trans of bone: "<< bones[i].name <<std::endl;
             bones.at(i).UpdateKeyframeTransform(time);
             //bones.at(i).UpdateKeyframeTransform(1);
         }

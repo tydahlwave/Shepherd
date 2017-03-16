@@ -17,7 +17,6 @@
 #include "SOIL/Soil.h"
 
 std::map<std::string, Skeleton> Model::skeletonMap;
-Skeleton* Model::skeleton = nullptr;
 
 Model::Model(std::string path) {
     this->loadModel(path);
@@ -51,7 +50,7 @@ void Model::loadModel(std::string path) {
     for (auto i = 0; i < scene->mNumMeshes; i++) {
         aiMesh *mesh = scene->mMeshes[i];
         this->meshes.push_back(this->processMesh(mesh, scene));
-        
+        bones.clear();
         
         for(int j = 0; j < scene->mMeshes[i]->mNumBones; j++)
         {
@@ -94,14 +93,14 @@ void Model::loadModel(std::string path) {
         }
         
         //collect bone parents
-        for(int i = 0; i < bones.size(); i++)
+        for(int k = 0; k < bones.size(); k++)
         {
-            std::string b_name = bones.at(i).name;
+            std::string b_name = bones.at(k).name;
             std::string parent_name = FindAiNode(b_name)->mParent->mName.data;
             
             Bone* p_bone = FindBone(parent_name);
             
-            bones.at(i).parent_bone = p_bone;
+            bones.at(k).parent_bone = p_bone;
             
             if(p_bone == nullptr)
                 std::cout<<"Parent Bone for "<<" does not exist (is nullptr)"<<std::endl;
@@ -113,8 +112,7 @@ void Model::loadModel(std::string path) {
         if(meshes.size() > 0)
         {
             std::cout<<"Skeleton set For :"<<scene->mRootNode->mName.data<< "    bone size is :    "<<bones.size()<< "      meshes size is"<< meshes.size() << std::endl;
-            skeleton = new Skeleton();
-            skeleton->Init(bones,globalInverseTransform);
+            skeleton.Init(bones,globalInverseTransform);
         }
             //skeletonMap[path] = Skeleton();
             //skeletonMap[path].Init(bones,globalInverseTransform);
@@ -127,8 +125,8 @@ void Model::loadModel(std::string path) {
     // Resize entire model
         this->resize();
     }
-    // Resize entire model
-    //this->resize();
+//    // Resize entire model
+//    this->resize();
     
     // Send mesh coords to GPU after resizing entire model
     for (auto i = 0; i < this->meshes.size(); i++) {
