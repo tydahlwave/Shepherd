@@ -2,12 +2,12 @@
 #define ParticleSystem_h
 
 #include "World.h"
-#include "GL\glew.h"
+#include "GL/glew.h"
 #include "Program.h"
 #include "GLSL.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "GLFW\glfw3.h"
+#include "GLFW/glfw3.h"
 
 #include <algorithm>
 #include <random>

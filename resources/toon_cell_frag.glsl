@@ -34,7 +34,7 @@ in VS_OUT {
 } vs_out;
 
 
-//interpolation helper
+//helper
 float stepmix(float edge0, float edge1, float E, float x)
 {
     float T = clamp(0.5 * (x - edge0 + E) / E, 0.0, 1.0);
@@ -64,31 +64,31 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
         }
     }
     
-    const float A = 0.05;
-    const float B = 0.1;
-    const float C = 0.3;
-    const float D = 0.5;
+    const float A = 0.1;
+    const float B = 0.2;
+    const float C = 0.4;
+    const float D = 0.6;
     const float E = 0.8;
     const float F = 1.0;
-    float distanceToLight = length(lightPos - fragPos);
+    
     float df = max(0.0, dot(vertexN, lightN));
     float W = fwidth(df);
     
-    //Stepmix!!!! for anti aliasing
+    //Stepmix!!!!
     if (df > A - W && df < A + W)
-    df = stepmix(A, B, W, df);
+    stepmix(A, B, W, df);
     
     else if (df > B - W && df < B + W)
-    df = stepmix(B, C, W, df);
+    stepmix(B, C, W, df);
     
     else if (df > C - W && df < C + W)
-    df = stepmix(C, D, W, df);
+    stepmix(C, D, W, df);
     
     else if (df > D - W && df < D + W)
-    df = stepmix(D, E, W, df);
+    stepmix(D, E, W, df);
     
     else if (df > E - W && df < E + W)
-    df = stepmix(E, F, W, df);
+    stepmix(E, F, W, df);
     //Else regular bands
     else if (df < A)
     df = 0.0;
@@ -102,13 +102,12 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     df = E;
     else
     df = F;
-    //df = df * (20 / (.5 * distanceToLight));
     
     float sf = max(0.0, dot(vertexN, normalize(lightN + vec3(0,0,1))));
     
-    sf = pow(sf, matShine * 2);
+    sf = pow(sf, matShine);
     
-    sf = step(0.2, sf);
+    sf = step(0.5, sf);
     
     vec3 ambientColor = matAmbientColor;
     vec3 diffuseColor = matDiffuseColor;
@@ -116,7 +115,6 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     if (useTexture == 0) {
         ambientColor = diffuseColor = specularColor = texture(myTexture, vs_out.vertTex).xyz / 2;
     }
-
     
     //ambient
     vec3 ambient = light.ambientCoefficient * ambientColor * light.intensities;
@@ -124,7 +122,6 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     //diffuse
     //vec3 diffuse = matDiffuseColor * max(dot(vertexN, lightN), 0) * light.intensities;
     vec3 diffuse = diffuseColor * df;
-
     
     //specular
     float alpha = matShine;
@@ -134,10 +131,9 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     
     //linear color (color before gamma correction)
     if (light.position.w == 0)
-        return ambient + (diffuse + specular);
+    return ambient + (diffuse + specular);
     else
-        return ambient + attenuation*(diffuse + specular);
-
+    return ambient + attenuation*(diffuse + specular);
 }
 
 
@@ -150,9 +146,7 @@ void main()
     vec3 linearColor = matAmbientColor;//vec3(0);
     for(int i = 0; i < numLights; ++i){
         vec3 pos = vec3(V * vec4(vec3(allLights[i].position), 1));
-        vec3 toAdd = ApplyLight(allLights[i], vertexN, viewN, pos);
-
-        linearColor += toAdd;
+        linearColor += ApplyLight(allLights[i], vertexN, viewN, pos);
     }
     
     float edgeDetection = (dot(viewN, vs_out.modelNor) > 0.3) ? 1 : 0;

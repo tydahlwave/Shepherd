@@ -39,7 +39,7 @@ GameObject *EntityFactory::createMainCamera(World *world) {
     rigidBody->isKinematic = true;
     gameObject->AddComponent("Camera");
     gameObject->AddComponent("BoxCollider");
-    gameObject->transform->SetScale(glm::vec3(3, 3, 3));
+    gameObject->transform->SetScale(glm::vec3(.7, .7, .7));
     return gameObject;
 }
 
@@ -48,7 +48,6 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera, gl
 	MeshRenderer *meshRenderer = (MeshRenderer*)camera->AddComponent("MeshRenderer");
     meshRenderer->model = ModelLibrary::player;
     meshRenderer->shader = ShaderLibrary::anim;
-	meshRenderer->shader = ShaderLibrary::cell;
 	meshRenderer->material = MaterialLibrary::pearl;
     Animation* comp = (Animation*) camera->AddComponent("Animation");
     comp->skeleton = ModelLibrary::player->skeleton;
@@ -134,6 +133,7 @@ GameObject *EntityFactory::createTestAnim(World *world) {
     meshRenderer->shader = ShaderLibrary::anim;
     meshRenderer->material = MaterialLibrary::pearl;
     gameObject->transform->SetScale(glm::vec3(0.01f, .01f, .01f));
+    gameObject->transform->SetPosition(glm::vec3(-228, 0, 524));
     
     btTransform t;
     t.setIdentity();

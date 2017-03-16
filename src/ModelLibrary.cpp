@@ -52,7 +52,7 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
     tree4           = new Model(resourceDir + "tree4.obj");
     tree5           = new Model(resourceDir + "tree5.obj");
     tree6           = new Model(resourceDir + "tree6.obj");
-    player          = new Model(resourceDir + "main_idle2.dae");
+    player          = new Model(resourceDir + "main_idle3.dae");
     gadget          = new Model(resourceDir + "gadget.obj");
     sheep           = new Model(resourceDir + "sheep.obj");
 	menuSign		= new Model(resourceDir + "title.obj");
