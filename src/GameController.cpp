@@ -537,6 +537,10 @@ void GameController::LoadState() {
 
 		// Create trees
 		//treeSystem->Spawn(&world);
+//        EntityFactory::createBarrier(&world, glm::vec3(-400,5,-260), 1000);
+//        GameObject *g = EntityFactory::createBarrier(&world, glm::vec3(-250,5,-430), 1000);
+//        g->transform->SetRotation(vec3(0,M_PI/2.0, 0));
+        
         
         GameObject* test = EntityFactory::createTestAnim(&world);
         Animation* testAnim = (Animation*) test->GetComponent("Animation");

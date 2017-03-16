@@ -28,7 +28,7 @@ public:
     static GameObject *createChargeBar(World *world);
     static GameObject *createTexturedSphere(World *world);
     static GameObject *createGround(World *world);
-    static GameObject *createBarrier(World *world);
+    static GameObject *createBarrier(World *world, glm::vec3 position, float size);
     static GameObject *createCube(World *world, glm::vec3 dimensions, glm::vec3 position, float mass);
     static GameObject *createSphere(World *world, float radius, glm::vec3 position, float mass);
     static GameObject *createPhysicsGround(World *world);

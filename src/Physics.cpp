@@ -18,6 +18,8 @@
 #include "Interpolation.h"
 #include "Components/Death.h"
 #include "Components/TextName.h"
+#include "SoundLibrary.h"
+#include "EntityFactory.h"
 
 void Physics::Update(float deltaTime, World &world) {
     if (!enabled) return;
@@ -235,7 +237,13 @@ void Physics::HandleTerrainCollisions(World &world) {
                     if (pos.y < newPosY) {
                         obj->transform->SetPosition(glm::vec3(pos.x, newPosY, pos.z));
                         RigidBody *rigidBody = (RigidBody*)obj->GetComponent("RigidBody");
-                        if (rigidBody && rigidBody->bulletRigidBody) {
+                        if(obj->name.compare("FollowSphere") == 0 ) {
+                            GameObject *b = EntityFactory::createRing(&world);
+                            b->transform->SetPosition(obj->transform->GetPosition());
+                            SoundLibrary::playPing();
+                            rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 30.0, 0));
+                        }
+                        else if (rigidBody && rigidBody->bulletRigidBody) {
                             rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 0, 0));
                         }
                     }
