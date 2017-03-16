@@ -49,6 +49,15 @@ void applyOrthographicMatrix(Program *program, Window &window, Camera *camera) {
     glUniformMatrix4fv(program->getUniform("P"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
 
+void ApplyOrthoMatrix(Program *shader) {
+    mat4 ortho = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, 0.1f, 300.0f);
+    glUniformMatrix4fv(shader->getUniform("LP"), 1, GL_FALSE, value_ptr(ortho));
+}
+
+void SetLightView(Program *shader, vec3 pos, vec3 LA, vec3 up) {
+    mat4 Cam = glm::lookAt(pos, LA, up);
+    glUniformMatrix4fv(shader->getUniform("LV"), 1, GL_FALSE, value_ptr(Cam));
+}
 
 void applyCameraMatrix(Program *program, Camera *camera, glm::vec3 position) {
     MatrixStack stack = MatrixStack();
@@ -84,6 +93,8 @@ void Renderer::Initialize() {
     //glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     // Enable z-buffer test.
     glEnable(GL_DEPTH_TEST);
+    
+    initShadows();
 }
 
 std::vector<LightStruct> setUpLights(World &world, Path *path) {
@@ -164,9 +175,76 @@ bool Renderer::intersectFrustumAABB(Camera *cam, vec3 min, vec3 max) {
     return true;
 }
 
+GLuint depthMapFBO;
+GLuint depthMap;
+
+void Renderer::initShadows() {
+    int S_WIDTH = 1080, S_HEIGHT = 920;
+    //generate the FBO for the shadow depth
+    glGenFramebuffers(1, &depthMapFBO);
+    
+    //generate the texture
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, S_WIDTH, S_HEIGHT,
+                 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    
+    //bind with framebuffer's depth buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::RenderShadows(World &world, Window &window) {
+    Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+    
+    //set up light's depth map
+    glViewport(0, 0, window.GetWidth(), window.GetHeight());
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glCullFace(GL_FRONT);
+    
+    //set up shadow shader
+    //render scene
+    Program *shadowShader = ShaderLibrary::shadowDepth->program;
+    shadowShader->bind();
+    ApplyOrthoMatrix(shadowShader);
+    SetLightView(shadowShader, vec3(10, 10, 10), vec3(0, 0, 0), vec3(0, 1, 0));
+//    drawScene(shadowShader, 0, 0);
+    for (GameObject *gameObject : world.GetGameObjects()) {
+        MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
+        if (meshRenderer && meshRenderer->draw == false) continue;
+        if (meshRenderer) {// && intersectFrustumAABB(camera, gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
+            applyTransformMatrix(shadowShader, gameObject->transform);
+            meshRenderer->model->draw(shadowShader);
+        }
+        TerrainRenderer *terrainRenderer = (TerrainRenderer*)gameObject->GetComponent("TerrainRenderer");
+        if (terrainRenderer) {
+            applyTransformMatrix(shadowShader, gameObject->transform);
+            terrainRenderer->terrain->draw();
+        }
+    }
+    shadowShader->unbind();
+    glCullFace(GL_BACK);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Renderer::Render(World &world, Window &window) {
     //#define DEBUG
 #ifndef DEBUG
+    
+//    if (shadow) {
+    RenderShadows(world, window);
+//    }
+    
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
@@ -416,7 +494,8 @@ void Renderer::Render(World &world, Window &window) {
         
         TerrainRenderer *terrainRenderer = (TerrainRenderer*)gameObject->GetComponent("TerrainRenderer");
         if (terrainRenderer) {
-            auto shader = terrainRenderer->shader->program;
+//            auto shader = terrainRenderer->shader->program;
+            auto shader = ShaderLibrary::shadowTerrain->program;
             auto terrain = terrainRenderer->terrain;
             shader->bind();
             
@@ -464,10 +543,21 @@ void Renderer::Render(World &world, Window &window) {
             applyTransformMatrix(shader, gameObject->transform);
             
             // Bind all textures for the terrain
-            for (int i = 0; i < terrainRenderer->textures.size(); i++) {
+            int i;
+            for (i = 0; i < terrainRenderer->textures.size(); i++) {
                 terrainRenderer->textures[i]->bind(i);
                 glUniform1i(shader->getUniform(terrainRenderer->textures[i]->name), i);
             }
+            
+            /* set up light depth map for shadows */
+            glActiveTexture(GL_TEXTURE0+i);
+            glBindTexture(GL_TEXTURE_2D, depthMap);
+            glUniform1i(shader->getUniform("shadowDepth"), i);
+            glUniform3f(shader->getUniform("lightDir"), 1, 1, 1);
+            
+            ApplyOrthoMatrix(shader);
+            SetLightView(shader, vec3(1, 1, 1), vec3(0, 0, 0), vec3(0, 1, 0));
+            
             terrain->draw();
             
             shader->unbind();

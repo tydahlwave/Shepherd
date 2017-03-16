@@ -28,6 +28,8 @@ public:
     static Shader *menu;
 	static Shader *skybox;
     static Shader *anim;
+    static Shader *shadowDepth;
+    static Shader *shadowTerrain;
 
     static std::string ConstructLightUniformName(const char* propertyName, size_t lightIndex) {
         std::ostringstream ss;

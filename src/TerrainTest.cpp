@@ -135,7 +135,20 @@ int main(int argc, char **argv) {
     Camera *mainCamera = (Camera*)world.mainCamera->GetComponent("Camera");
     mainCamera->lookAt = glm::vec3(0, -1, -0.1); // Initial lookvector to orient the camera to look along -z axis (can't be (0,-1,0))
     
-//    EntityFactory::createSphere(&world, 2, glm::vec3(0, 100, 0), 10);
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            for (int z = -1; z <= 1; z++) {
+                GameObject *sphere = EntityFactory::createSphere(&world, 2, glm::vec3(x*5, y*5, z*5), 0);
+                sphere->transform->SetPosition(glm::vec3(x*5, y*5, z*5));
+            }
+        }
+    }
+//    GameObject *sphere1 = EntityFactory::createSphere(&world, 2, glm::vec3(0, 0, 0), 0);
+//    sphere1->transform->SetPosition(glm::vec3(0, 0, 0));
+//    GameObject *sphere2 = EntityFactory::createSphere(&world, 2, glm::vec3(0, 0, 0), 0);
+//    sphere2->transform->SetPosition(glm::vec3(0, 5, 0));
+//    GameObject *sphere3 = EntityFactory::createSphere(&world, 2, glm::vec3(0, 0, 0), 0);
+//    sphere3->transform->SetPosition(glm::vec3(0, -5, 0));
     
     // Add directional light
     EntityFactory::createLight(&world, glm::vec3(1, 1, 1), true, glm::vec3(2, 2, 2), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
