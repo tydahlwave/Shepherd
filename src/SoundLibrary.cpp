@@ -27,8 +27,9 @@ void SoundLibrary::stopWalk()
 
 //Charge shot
 void SoundLibrary::playCharge(){
-    chargeChannel = CAudioEngine::instance()->PlaySound("charge.wav");
+    chargeChannel = CAudioEngine::instance()->PlaySound("growl.wav");
 }
+
 //end charge, shoot
 void SoundLibrary::playShot(){
     CAudioEngine::instance()->toggleSound(chargeChannel, true);
