@@ -19,6 +19,9 @@ public:
     ~SoundLibrary();
     
     static int chargeChannel;
+    static int walkChannel;
+    static void playWalk();
+    static void stopWalk();
     static void playCharge();
     static void playShot();
     static void playRandSheep();

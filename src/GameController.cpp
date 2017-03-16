@@ -275,15 +275,18 @@ void GameController::Run() {
         while (state == nextState) {
             if (state == MainMenu) sign->transform->SetRotation(vec3(0,180,cos(Time::Now() / 1000.0) * 2));
             //sign->transform->SetPosition(vec3(0,sin(Time::Now() / 2000.0) * .02 + .5 ,2));
-            long curTime = Time::Now();
-            float elapsedTime = (curTime - oldTime) / 1000.0f;
-            // Reset current frame time
-            oldTime = curTime;
-            
-            accumulator += elapsedTime;
-            
-            while (accumulator >= idealDeltaTime) {
-                //update
+
+			long curTime = Time::Now();
+			float elapsedTime = (curTime - oldTime) / 1000.0f;
+			// Reset current frame time
+			oldTime = curTime;
+
+			accumulator += elapsedTime;
+			if (nextcamlevel > 0) {
+				camlevel += elapsedTime;
+			}
+			while (accumulator >= idealDeltaTime) {
+				//update
                 if(world.sheepDestinationObject && world.sheepDestinationObject->name != "Path") {
                     SheepDestination* sd = (SheepDestination *)world.sheepDestinationObject->GetComponent("SheepDestination");
                     sd->Update();
@@ -304,9 +307,37 @@ void GameController::Run() {
 				accumulator -= idealDeltaTime;
                 
 			}
-			if (cameraController)
+			if (cameraController) {
 				cameraController->Update(world);
-            
+			}
+			Camera *c;
+			if (nextcamlevel > 0 && camlevel > nextcamlevel && state == Level1) {
+				c = (Camera *)world.mainCamera->GetComponent("Camera");
+				nextcamlevel += 4.f;
+				switch (camstage) {
+				case 0:
+					c->pos = glm::vec3(-490.233f, 323.772, -547.755);
+					c->pitch = -59.f;
+					c->aap = 48.f;
+					break;
+				case 1:
+					c->pos = glm::vec3(605.167, 372.280, -199.671);
+					c->pitch = -45.f;
+					c->aap = 275.f;
+					break;
+				case 2:
+					c->pos = glm::vec3(-628.876, 500.95, 518.358);
+					c->pitch = -50.f;
+					c->aap = 480.f;
+					break;
+				case 3:
+					world.RemoveGameObject(world.mainCamera);
+					world.mainCamera = world.mainCharacter;
+					nextcamlevel = 0.f;
+					break;
+				}
+				camstage++;
+			}
 			renderer.Render(world, window);
 			CAudioEngine::instance()->Update();
 			window.Update();
@@ -425,7 +456,7 @@ void GameController::LoadState() {
 		physicsController = new PhysicsController();
 		terrainController = new TerrainController();
 		bunnySpawnSystem = new BunnySpawnSystem();
-        bunnySpawnSystem->startPosition = glm::vec3(-220, -20, 520);
+        bunnySpawnSystem->startPosition = glm::vec3(-573, 4, -344);
         bunnySpawnSystem->endPosition = glm::vec3(-365,3,647);
 		wolfSystem = new WolfSystem();
 		treeSystem = new TreeSystem();
@@ -433,7 +464,7 @@ void GameController::LoadState() {
 		printf("Loading level 1\n");
         audio->toggleSound(gameMusic, true);
 		gameMusic = audio->PlaySound("back.wav");
-        audio->SetChannelvolume(gameMusic, 2);
+        audio->SetChannelvolume(gameMusic, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)terrainController, 1);
@@ -443,16 +474,9 @@ void GameController::LoadState() {
 
 
 		world.mainCamera = EntityFactory::createMainCamera(&world);
-		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera,glm::vec3(-228, 0, 524));
+		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera,glm::vec3(-573, 4, -344));
         
-        Animation* idleAnim = (Animation*) world.mainCharacter->GetComponent("Animation");
-        idleAnim->anim = true;
         
-        BoneAnimation Anim_Test_Idle = *new BoneAnimation("idle", FramesToTime(glm::vec2(0,40)), 2);
-        //idleAnim->skeleton.StopAnimating();
-        idleAnim->skeleton.SetIdleAnimation(&Anim_Test_Idle);
-        //The true is for loop, and the false is for reset_to_start.
-        idleAnim->skeleton.PlayAnimation(Anim_Test_Idle,true,false);
         world.cameraController = (GameObject*)cameraController;
 
         //Create skybox
@@ -505,7 +529,9 @@ void GameController::LoadState() {
         EntityFactory::createLight(&world, glm::vec3(1, 1, 1), true, glm::vec3(1, 1, 1), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
 		EntityFactory::createHUD(&world);
 		EntityFactory::createChargeBar(&world);
-
+		world.mainCamera = EntityFactory::createMainCamera(&world);
+		nextcamlevel = .000001f;
+		camlevel = 1.f;
 		break;
 	}
 	case Level2:

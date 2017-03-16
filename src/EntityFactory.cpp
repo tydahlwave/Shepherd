@@ -39,7 +39,8 @@ GameObject *EntityFactory::createMainCamera(World *world) {
     rigidBody->isKinematic = true;
     gameObject->AddComponent("Camera");
     gameObject->AddComponent("BoxCollider");
-    gameObject->transform->SetScale(glm::vec3(.7, .7, .7));
+    gameObject->transform->SetScale(glm::vec3(.002, .002, .002));
+    gameObject->transform->SetRotation(glm::vec3(180,0,0));
     return gameObject;
 }
 
@@ -385,6 +386,7 @@ GameObject *EntityFactory::createTerrain(World *world, std::string resourceDir, 
 //    renderer->terrain = new Terrain(resourceDir + "Heightmap.png");
     renderer->terrain = new Terrain(resourceDir + "Level_Heightmap", true);
     renderer->terrain->loadTextureFromFile(resourceDir + "Level_Texturemap.png");
+//    renderer->terrain->setTextureFromHeightData();
     renderer->terrain->createMesh();
     renderer->terrain->init();
     renderer->shader = ShaderLibrary::ground;

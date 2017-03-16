@@ -33,7 +33,6 @@ void Transform::SetPosition(glm::vec3 pos) {
 
 void Transform::SetRotation(glm::vec3 rot) {
     rotation = rot;
-//    return;
     
     // Below might be wonky
     RigidBody* rb = (RigidBody*)gameObject->GetComponent("RigidBody");

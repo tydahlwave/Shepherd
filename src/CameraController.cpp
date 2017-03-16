@@ -69,7 +69,7 @@ float heightAtPoint(World &world, glm::vec3 pos) {
 void CameraController::Update(World &world) {
 	Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
 	//get main character's position
-	glm::vec3 pos;
+	glm::vec3 pos = camera->pos;
 	bool check = true;
 	//get main characters rotation
 //	glm::vec3 rot = world.mainCamera->transform->GetRotation();
@@ -108,6 +108,8 @@ void CameraController::Update(World &world) {
 	camera->pos = pos;
     float xAdjustment = 0;
     float yAdjustment = 0;
+	if (camera->stat)
+		shakesRemaining = 0;
     if(shakesRemaining > 0)
     {
 //        float shakeFreqX = 20;
@@ -135,6 +137,11 @@ void CameraController::BeginShaking(int framesToShake, float intensity)
 
 void CameraController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
 	Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
+	if (camera->stat && key == GLFW_KEY_P && action == GLFW_PRESS) {
+		printf("pitch at %f | aap at %f\n", camera->pitch, camera->aap);
+	}
+	if (camera->stat)
+		return;
 	if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
 		camera->dist += .5;
 		capVal(camera->dist, 0., 20);
@@ -147,6 +154,8 @@ void CameraController::KeyPressed(World *world, int windowWidth, int windowHeigh
 
 void CameraController::MouseScrolled(World *world, double dx, double dy) {
 	Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
+	if (camera->stat)
+		return;
 	camera->dist -= dy;
 	capVal(camera->dist, 0., 20);
 }

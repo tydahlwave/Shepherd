@@ -17,7 +17,7 @@ void AnimationSystem::Update(float deltaTime, World *world)
         if(isAnim)    //If the object is rigged...
         {
             std::cout<<anim->name<< "Udpating at dT : " << deltaTime <<  std::endl;
-            isAnim->skeleton.Update(1);
+            isAnim->skeleton.Update(deltaTime * 50);
             //UpdateSkeleton();   
         }
     }
