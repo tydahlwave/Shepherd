@@ -131,9 +131,9 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     
     //linear color (color before gamma correction)
     if (light.position.w == 0)
-        return ambient + (diffuse + specular);
+    return ambient + (diffuse + specular);
     else
-        return ambient + attenuation*(diffuse + specular);
+    return ambient + attenuation*(diffuse + specular);
 }
 
 

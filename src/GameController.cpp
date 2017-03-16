@@ -19,6 +19,8 @@
 #include "Components/TerrainRenderer.h"
 #include "Components/HUDRenderer.h"
 #include "Components/Light.h"
+#include "Components/SheepDestination.h"
+#include "Components/TextName.h"
 #include "Terrain.h"
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
@@ -31,6 +33,8 @@
 #include "Time.h"
 #include "Components/MeshRenderer.h"
 #include "Components/PathRenderer.h"
+#include "Components/Animation.h"
+#include "Model.h"
 #include "Serializer.h"
 #include "Components/Clickable.h"
 #include "LevelEditor.h"
@@ -97,13 +101,62 @@ void GameController::displayStats(float deltaTime, World &world, Physics &physic
 }
 
 
-bool show_test_window = true;
-bool show_another_window = true;
-ImVec4 clear_color = ImColor(114, 144, 154);
+void GameController::ImGuiShowNames(World *world) {
+    // draw names over sheep
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1,1,1,0));
+    ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(1,1,1,0));
+    ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(1,1,1,0));
+    ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, ImVec4(1,1,1,0));
+//    ImGuiIO& io = ImGui::GetIO();
+//    ImFont* font0 = io.Fonts->AddFontDefault();
+//    ImFont* font = io.Fonts->AddFontFromFileTTF("../../resources/fonts/Baloo_Bhaina/BalooBhaina.ttf", 40);
+//    if(!font) cout << "error: counldn't load font\n";
+//    if(!font->IsLoaded()) cout << "font not loaded";
+//    ImGui::PushFont(font);
+    for (GameObject *gameObject : world->GetGameObjects()) {
+        TextName *textName = (TextName*)gameObject->GetComponent("TextName");
+        if(textName && Renderer::intersectFrustumAABB((Camera*)world->mainCamera->GetComponent("Camera"), gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
+            
+            GLint viewportArray[4];
+            glGetIntegerv(GL_VIEWPORT, viewportArray);
+            vec4 viewport = vec4(viewportArray[0], viewportArray[1], viewportArray[2], viewportArray[3]);
+            float aspectRatio = (float)window.GetWidth() / (float)window.GetHeight();
+            Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
+            mat4 P = glm::perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
+            mat4 V = glm::lookAt(camera->pos, camera->lookAt, camera->up);
+            
+            vec3 projected = glm::project(gameObject->transform->GetPosition(), V, P, viewport);
+            
+            // now write characters to screen in this projected screen pos
+            float distance = glm::distance(world->mainCharacter->transform->GetPosition(), gameObject->transform->GetPosition());
+            float alpha = 1.0 - distance*distance / 5000.0;
+            ImVec4 textCol = ImVec4(textName->color.x, textName->color.y, textName->color.z, alpha);
+            ImGui::PushStyleColor(ImGuiCol_Text, textCol);
+            
+            // define variables for width and height of each imgui name window
+            float width = 200;
+            float height = 30;
+            ImGui::SetNextWindowSize(ImVec2(width,height), ImGuiSetCond_FirstUseEver);
+            ImGui::SetNextWindowCollapsed(true, ImGuiSetCond_Once);
+            ImGui::Begin(textName->name.c_str(), nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs);
+            ImGui::Text("%s", textName->name.c_str());
+            ImGui::SetWindowPos(ImVec2(projected.x - 10.0, window.GetHeight() - (projected.y + 50.0)));
+            ImGui::End();
+            ImGui::PopStyleColor();
+        }
+    }
+//    ImGui::PopFont();
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+}
 
-void GameController::ImguiUpdate(World *world) {
-    if(terrain) drawTerrainWindow(window, terrain);
-    LevelEditor::drawLevelEditor(window, world);
+void GameController::ImguiUpdate(World *world, bool drawGUI) {
+//    if(!drawGUI) return;
+    if(terrain && drawGUI) drawTerrainWindow(window, terrain);
+    if (drawGUI) LevelEditor::drawLevelEditor(window, world);
+    ImGuiShowNames(world);
 }
 
 void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
@@ -197,17 +250,25 @@ void GameController::Run() {
 
 			while (accumulator >= idealDeltaTime) {
 				//update
+                if(world.sheepDestinationObject && world.sheepDestinationObject->name != "Path") {
+                    SheepDestination* sd = (SheepDestination *)world.sheepDestinationObject->GetComponent("SheepDestination");
+                    sd->Update();
+                }
 				if (bunnySpawnSystem)
-					bunnySpawnSystem->Update(idealDeltaTime, &world, path);
+					bunnySpawnSystem->Update(idealDeltaTime, &world, world.sheepDestinationObject);
 				if (wolfSystem)
-					wolfSystem->Update(idealDeltaTime, &world);
+                    wolfSystem->Update(idealDeltaTime, &world);
 				physics.Update(idealDeltaTime, world);
+                if (animSystem)
+                    animSystem->Update(elapsedTime, &world);
 				if (characterController)
 					characterController->Update(&world, idealDeltaTime);
 				accumulator -= idealDeltaTime;
+                
 			}
 			if (cameraController)
 				cameraController->Update(world);
+            
 			renderer.Render(world, window);
 			CAudioEngine::instance()->Update();
 			window.Update();
@@ -291,7 +352,9 @@ void GameController::LoadState() {
         GameObject *startMenuTerrain = EntityFactory::createStartMenuTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, -20, 0));
         
         // Add directional light
-        EntityFactory::createLight(&world, glm::vec3(-0.6, 0.8, -1), true, glm::vec3(2, 2, 2), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
+        EntityFactory::createLight(&world, glm::vec3(-0.6, 0.8, -1.0), true, glm::vec3(2, 2, 2), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
+        // Add point light in front of sign
+        EntityFactory::createLight(&world, glm::vec3(1.f, .3f, 1.3f), false, glm::vec3(1), 15.0, 0.15, 360., glm::vec3(1));
         
         //Create skybox
         EntityFactory::createSkybox(&world, resourceDir);
@@ -302,7 +365,7 @@ void GameController::LoadState() {
             glm::vec3(-40, -20, 70),
             glm::vec3(0, -20, 40)
         };
-        path = EntityFactory::createPath(&world, startMenuTerrain, pathPositions);
+        world.sheepDestinationObject = EntityFactory::createPath(&world, startMenuTerrain, pathPositions);
         
         bunnySpawnSystem = new BunnySpawnSystem();
         bunnySpawnSystem->startPosition = glm::vec3(60, -20, 40);
@@ -320,6 +383,7 @@ void GameController::LoadState() {
         bunnySpawnSystem->startPosition = glm::vec3(-220, -20, 520);
 		wolfSystem = new WolfSystem();
 		treeSystem = new TreeSystem();
+        animSystem = new AnimationSystem();
 		printf("Loading level 1\n");
         audio->toggleSound(gameMusic, true);
 		gameMusic = audio->PlaySound("back.wav");
@@ -333,7 +397,16 @@ void GameController::LoadState() {
 
 
 		world.mainCamera = EntityFactory::createMainCamera(&world);
-        world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera, glm::vec3(-228, 0, 524));
+		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera,glm::vec3(-228, 0, 524));
+        
+        Animation* idleAnim = (Animation*) world.mainCharacter->GetComponent("Animation");
+        idleAnim->anim = true;
+        
+        BoneAnimation Anim_Test_Idle = *new BoneAnimation("idle", FramesToTime(glm::vec2(0,40)), 2);
+        //idleAnim->skeleton.StopAnimating();
+        idleAnim->skeleton.SetIdleAnimation(&Anim_Test_Idle);
+        //The true is for loop, and the false is for reset_to_start.
+        idleAnim->skeleton.PlayAnimation(Anim_Test_Idle,true,false);
         world.cameraController = (GameObject*)cameraController;
 
         //Create skybox
@@ -348,8 +421,7 @@ void GameController::LoadState() {
 
 		// Place game objectsaw
 		//Create Path
-		path = EntityFactory::createPath(&world, terrain, 4);
-
+        world.sheepDestinationObject = nullptr;//world.mainCharacter;
         
         Serializer::DeserializeWorld(&world);
 //		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 20, 2.0), 4.0);
@@ -357,18 +429,34 @@ void GameController::LoadState() {
 //		EntityFactory::createSphere(&world, 2.0, glm::vec3(5, 10, 2.0), 4.0);
         
 		// Create boulders
-        PathRenderer *p = (PathRenderer*)path->GetComponent("PathRenderer");
-		randomlyPopulateWithBoulders(p->path);
+//        PathRenderer *p = (PathRenderer*)path->GetComponent("PathRenderer");
+//		randomlyPopulateWithBoulders(p->path);
 
 		// Create trees
 		treeSystem->Spawn(&world);
+        
+        GameObject* test = EntityFactory::createTestAnim(&world);
+        Animation* testAnim = (Animation*) test->GetComponent("Animation");
+        testAnim->anim = true;
+        
+        BoneAnimation Anim_Test_Walk = *new BoneAnimation("Walk", FramesToTime(glm::vec2(0,30)), 2);
+        //testAnim->skeleton.StopAnimating();
+        testAnim->skeleton.SetIdleAnimation(&Anim_Test_Walk);
+        //The true is for loop, and the false is for reset_to_start.
+        testAnim->skeleton.PlayAnimation(Anim_Test_Walk,true,false);
+//
+//        for(Bone b : testAnim->skeleton.bones)
+//        {
+//            std::cout<<"Bone "<<b.name<<std::endl;
+//        }
+        
+		//treeSystem->Spawn(&world);
         
         //Place a single light
         //EntityFactory::createLight(&world, glm::vec3(-4,100,10), false, glm::vec3(1, 1, 1), 0.1f, 0.0f, 360.0f, glm::vec3(0,-1,0));
 
         // Add directional light
         EntityFactory::createLight(&world, glm::vec3(1, 1, 1), true, glm::vec3(1, 1, 1), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
-        
 		EntityFactory::createHUD(&world);
 		EntityFactory::createChargeBar(&world);
 

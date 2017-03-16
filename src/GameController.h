@@ -26,6 +26,7 @@
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
 #include "Time.h"
+#include "AnimationSystem.h"
 #include "ImguiUpdateDelegate.h"
 
 enum State {
@@ -51,7 +52,7 @@ public:
 	void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY);
 	void MouseClicked(World *world, double mouseX, double mouseY, int key, int action);
 	void MouseScrolled(World *world, double dx, double dy);
-    void ImguiUpdate(World *world);
+    void ImguiUpdate(World *world, bool drawGUI);
 	void randomlyPopulateWithBoulders(Path *path);
 	int incrState();
 	int endState();
@@ -76,10 +77,12 @@ private:
     GameObject *sign = nullptr;
 	float groundSize = 100.0f;
 	int gameMusic = 0;
+    AnimationSystem *animSystem = nullptr;
     
     void displayStats(float deltaTime, World &world, Physics &physics);
     void drawImGUIStuff(Window &window, GameObject *terrain);
     void drawTerrainWindow(Window &window, GameObject *terrain);
+    void ImGuiShowNames(World *world);
 };
 
 #endif /* CharacterController_h */

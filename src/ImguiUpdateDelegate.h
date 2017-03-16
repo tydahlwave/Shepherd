@@ -13,7 +13,7 @@ class World;
 
 class ImguiUpdateDelegate {
 public:
-    virtual void ImguiUpdate(World *world) = 0;
+    virtual void ImguiUpdate(World *world, bool drawGUI) = 0;
 };
 
 #endif /* ImguiUpdateDelegate_h */

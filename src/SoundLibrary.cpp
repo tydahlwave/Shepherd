@@ -4,7 +4,7 @@
 //
 //  Created by Hermes Build Machine on 2/15/17.
 //
-//
+//Sound Lib class to abstract functionality of the AudioEngine
 
 #include "SoundLibrary.h"
 

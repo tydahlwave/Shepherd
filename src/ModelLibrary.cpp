@@ -30,6 +30,7 @@ Model *ModelLibrary::player = nullptr;
 Model *ModelLibrary::gadget = nullptr;
 Model *ModelLibrary::menuSign = nullptr;
 Model *ModelLibrary::lantern = nullptr;
+Model *ModelLibrary::monster = nullptr;
 Model *ModelLibrary::playSign = nullptr;
 Model *ModelLibrary::exitSign = nullptr;
 
@@ -51,11 +52,13 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
     tree4           = new Model(resourceDir + "tree4.obj");
     tree5           = new Model(resourceDir + "tree5.obj");
     tree6           = new Model(resourceDir + "tree6.obj");
-    player          = new Model(resourceDir + "player.obj");
+    player          = new Model(resourceDir + "main_idle3.dae");
     gadget          = new Model(resourceDir + "gadget.obj");
     sheep           = new Model(resourceDir + "sheep.obj");
 	menuSign		= new Model(resourceDir + "title.obj");
     lantern         = new Model(resourceDir + "lantern.obj");
+    monster        = new Model(resourceDir + "monstersmall.dae");
+    //monster        = new Model(resourceDir + "main_idle2.dae");
     playSign        = new Model(resourceDir + "Play.obj");
     exitSign        = new Model(resourceDir + "Exit.obj");
 }

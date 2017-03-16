@@ -15,6 +15,7 @@
 #include "WindowCallbackDelegate.h"
 #include <GLFW/glfw3.h>
 #include "Path.h"
+#include "Time.h"
 //static const int maxEntities = 20;
 
 class BunnySpawnSystem : WindowCallbackDelegate {
@@ -41,7 +42,7 @@ public:
 	void ObstacleAvoidance(World *world);
 
 private:
-    static const int maxEntities = 10;
+    static const int maxEntities = 30;
 	int count = 0;
     float elapsedTime = 0;
 //    float spawnRate = 3.0; // seconds per spawn
@@ -51,6 +52,8 @@ private:
 //	bool stop = false;
 	std::map<GameObject *, int> bunnyNode;
 	Path *path;
+    void CreateBunny(World *world);
+    
 };
 
 #endif /* BunnySpawnSystem_h */

@@ -18,6 +18,7 @@ class KDTree;
 #include "AudioEngine.h"
 
 #include "KDTree.h"
+#include "Path.h"
 #ifdef WIN32
 #include <btBulletDynamicsCommon.h>
 #else
@@ -42,6 +43,7 @@ public:
     GameObject *cameraController = nullptr;
     
     btDiscreteDynamicsWorld *dynamicsWorld;
+    GameObject *sheepDestinationObject;
     
     std::vector<GameObject*> GetGameObjects();
     GameObject *CreateGameObject(std::string name);

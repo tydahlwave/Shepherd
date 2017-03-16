@@ -253,7 +253,8 @@ void TerrainEditingController::texture(int x, int y, int radius) {
     }
 }
 
-void TerrainEditingController::ImguiUpdate(World *world) {
+void TerrainEditingController::ImguiUpdate(World *world, bool drawGUI) {
+    if (!drawGUI) return;
     Terrain *terrain = terrainRenderer->terrain;
     
     // 1. Show a simple window

@@ -199,7 +199,9 @@ void Window::Terminate() {
 
 void Window::Update() {
     PollEvents();
-    if (drawGUI) UpdateImgui();
+    //if (drawGUI) UpdateImgui();
+    UpdateImgui();
+    
     SwapBuffers();
 }
 
@@ -212,7 +214,7 @@ void Window::UpdateImgui() {
     
     // Execute all registered callbacks
     for (ImguiUpdateDelegate *delegate : imguiUpdateDelegates) {
-        delegate->ImguiUpdate(world);
+        delegate->ImguiUpdate(world, drawGUI);
     }
     
     // Render the gui windows

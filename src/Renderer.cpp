@@ -10,6 +10,12 @@
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
 #include "GLSL.h"
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
+
 
 #include "Renderer.h"
 #include "Components/MeshRenderer.h"
@@ -17,6 +23,7 @@
 #include "Components/TerrainRenderer.h"
 #include "Components/SkyboxRenderer.h"
 #include "Components/PathRenderer.h"
+#include "Components/Animation.h"
 #include "Components/Clickable.h"
 #include "Components/HUDRenderer.h"
 #include "Components/Button.h"
@@ -26,11 +33,13 @@
 #include "MaterialLibrary.h"
 #include "PhysicsController.h"
 #include "Time.h"
+#include "Window.h"
 
 Renderer::Renderer() {
-	printf("Rendering..\n");
+    printf("Rendering..\n");
     Initialize();
 }
+
 
 void applyProjectionMatrix(Program *program, Window &window, Camera *camera) {
     MatrixStack stack = MatrixStack();
@@ -40,10 +49,10 @@ void applyProjectionMatrix(Program *program, Window &window, Camera *camera) {
 }
 
 void applyOrthographicMatrix(Program *program, Window &window, Camera *camera) {
-	MatrixStack stack = MatrixStack();
-	stack.ortho2D(0.0, window.GetWidth(), window.GetHeight(), 0.f);
-	//stack.ortho2D(0.0, 10.f, 10.f, 0.f);
-	glUniformMatrix4fv(program->getUniform("P"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
+    MatrixStack stack = MatrixStack();
+    stack.ortho2D(0.0, window.GetWidth(), window.GetHeight(), 0.f);
+    //stack.ortho2D(0.0, 10.f, 10.f, 0.f);
+    glUniformMatrix4fv(program->getUniform("P"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
 
 
@@ -54,11 +63,11 @@ void applyCameraMatrix(Program *program, Camera *camera, glm::vec3 position) {
 }
 
 void applyScreenMatrix(Program *program, Transform *transform, int w, int h) {
-
-	MatrixStack stack = MatrixStack();
-	stack.loadIdentity();
-	glUniformMatrix4fv(program->getUniform("V"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
-	glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, value_ptr(transform->GetScreenMatrix(w, h)));
+    
+    MatrixStack stack = MatrixStack();
+    stack.loadIdentity();
+    glUniformMatrix4fv(program->getUniform("V"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
+    glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, value_ptr(transform->GetScreenMatrix(w, h)));
 }
 void applyTransformMatrix(Program *program, Transform *transform) {
     glUniformMatrix4fv(program->getUniform("M"), 1, GL_FALSE, value_ptr(transform->GetMatrix()));
@@ -78,14 +87,14 @@ void Renderer::Initialize() {
     GLSL::checkVersion();
     // Set background color.
     glClearColor(0.0f, 170/255.0f, 1.0f, 1.0f);
-	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    //glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     // Enable z-buffer test.
     glEnable(GL_DEPTH_TEST);
 }
 
 std::vector<LightStruct> setUpLights(World &world, Path *path) {
     std::vector<LightStruct> lights;
-  
+    
     LightStruct spotlight;
     spotlight.position = glm::vec4(-4,50,10,1);
     spotlight.intensities = glm::vec3(2, 2, 2); //strong white light
@@ -93,7 +102,7 @@ std::vector<LightStruct> setUpLights(World &world, Path *path) {
     spotlight.ambientCoefficient = 0.0f; //no ambient light
     spotlight.coneAngle = 45.0f;
     spotlight.coneDirection = glm::vec3(0,-1,0);
-//    lights.push_back(spotlight);
+    //    lights.push_back(spotlight);
     
     // Spotlight on the player
     //    Light playerLight;
@@ -106,31 +115,31 @@ std::vector<LightStruct> setUpLights(World &world, Path *path) {
     //    lights.push_back(playerLight);
     
     // Add lights at path nodes
-//    if (path) {
-//        glm::vec3 nodePos = path->GetNodes()[path->size-1];
-//        nodePos.y += 20.0f;
-////        for (glm::vec3 nodePos : path->GetNodes()) {
-//            LightStruct nodeLight;
-//            nodeLight.position = glm::vec4(nodePos, 1);
-//            nodeLight.intensities = glm::vec3(2, 2, 2); //strong white light
-//            nodeLight.attenuation = 0.1f;
-//            nodeLight.ambientCoefficient = 0.0f; //no ambient light
-//            nodeLight.coneAngle = 15.0f;
-//            nodeLight.coneDirection = glm::vec3(0,-1,0);
-//            lights.push_back(nodeLight);
-////        }
-//    }
+    //    if (path) {
+    //        glm::vec3 nodePos = path->GetNodes()[path->size-1];
+    //        nodePos.y += 20.0f;
+    ////        for (glm::vec3 nodePos : path->GetNodes()) {
+    //            LightStruct nodeLight;
+    //            nodeLight.position = glm::vec4(nodePos, 1);
+    //            nodeLight.intensities = glm::vec3(2, 2, 2); //strong white light
+    //            nodeLight.attenuation = 0.1f;
+    //            nodeLight.ambientCoefficient = 0.0f; //no ambient light
+    //            nodeLight.coneAngle = 15.0f;
+    //            nodeLight.coneDirection = glm::vec3(0,-1,0);
+    //            lights.push_back(nodeLight);
+    ////        }
+    //    }
     
-//    LightStruct directionalLight;
-//    directionalLight.position = glm::vec4(-0.6, 0.8, -1, 0); //w == 0 indications a directional light
-//    directionalLight.intensities = glm::vec3(2, 2, 2); //weak yellowish light
-//    directionalLight.ambientCoefficient = 0.15f;
-//    lights.push_back(directionalLight);
+    //    LightStruct directionalLight;
+    //    directionalLight.position = glm::vec4(-0.6, 0.8, -1, 0); //w == 0 indications a directional light
+    //    directionalLight.intensities = glm::vec3(2, 2, 2); //weak yellowish light
+    //    directionalLight.ambientCoefficient = 0.15f;
+    //    lights.push_back(directionalLight);
     
     return lights;
 }
 
-bool intersectFrustumAABB(Camera *cam, vec3 min, vec3 max) {
+bool Renderer::intersectFrustumAABB(Camera *cam, vec3 min, vec3 max) {
     // Indexed for the 'index trick' later
     vec3 box[] = {min, max};
     
@@ -162,12 +171,12 @@ bool intersectFrustumAABB(Camera *cam, vec3 min, vec3 max) {
 }
 
 void Renderer::Render(World &world, Window &window) {
-//#define DEBUG
+    //#define DEBUG
 #ifndef DEBUG
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
- 
+    glEnable(GL_DEPTH_TEST);
+    
     Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
     //GLfloat P[16]; //glm::make_mat4(P)
     //glGetFloatv(GL_PROJECTION_MATRIX, P);
@@ -256,13 +265,13 @@ void Renderer::Render(World &world, Window &window) {
                     if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].coneDirection.x,lights[i].coneDirection.y,lights[i].coneDirection.z);
                 }
                 
-                ModelLibrary::sphere->draw(shader);
+                //ModelLibrary::sphere->draw(shader);
                 shader->unbind();
             }
         }
-
+        
         MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
-		if (meshRenderer && meshRenderer->draw == false) continue;
+        if (meshRenderer && meshRenderer->draw == false) continue;
         if (meshRenderer && (gameObject->name.compare("HUD") == 0 || gameObject->name.compare("ChargeBar") == 0)) {
             auto shader = meshRenderer->shader->program;
             auto model = meshRenderer->model;
@@ -277,10 +286,10 @@ void Renderer::Render(World &world, Window &window) {
                 glUniform1f(shader->getUniform("charge"), charge);
                 
             }
-			if (gameObject->name.compare("HUD") == 0) {
-				glUniform1i(shader->getUniform("width"), window.GetWidth());
-				glUniform1i(shader->getUniform("height"), window.GetHeight());
-			}
+            if (gameObject->name.compare("HUD") == 0) {
+                glUniform1i(shader->getUniform("width"), window.GetWidth());
+                glUniform1i(shader->getUniform("height"), window.GetHeight());
+            }
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
             applyCameraMatrix(shader, camera, camera->pos);
@@ -297,10 +306,10 @@ void Renderer::Render(World &world, Window &window) {
                 applyMaterial(shader, meshRenderer->material);
             }
             // all of this till next comment will be taken out
-//            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
-//            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 0, 0, 1);
-//            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
-//            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
+            //            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
+            //            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 0, 0, 1);
+            //            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
+            //            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
             
             // all of this till next comment will be taken out
             
@@ -319,8 +328,33 @@ void Renderer::Render(World &world, Window &window) {
                 if (shader->hasUniform(uniformName)) glUniform1f(shader->getUniform(uniformName), lights[i].coneAngle);
                 uniformName = ShaderLibrary::ConstructLightUniformName("coneDirection", i);
                 if (shader->hasUniform(uniformName)) glUniform3f(shader->getUniform(uniformName), lights[i].coneDirection.x,lights[i].coneDirection.y,lights[i].coneDirection.z);
+                uniformName = ShaderLibrary::ConstructLightUniformName("coneDirection", i);
+                
             }
-
+            //Pass bones into shader
+            if (shader->hasUniform("Bones")){
+                Animation* isAnim = (Animation*) gameObject->GetComponent("Animation");
+                if(isAnim)
+                {
+                    std::cout<<"Mat size for skeleton "<<isAnim->skeleton.boneMats.size()<<std::endl;
+                    int i = 0;
+//                    for(glm::mat4 m : isAnim->skeleton.boneMats)
+//                    {
+//                        std::cout<<"BONE #:    "<<i<<std::endl;
+//                        printGLMMat4(m);
+//                        i++;
+//                    }
+                    
+                    
+                    glUniformMatrix4fv(shader->getUniform("Bones"), //We find the location of the gBones uniform.
+                                     //If the object is rigged...
+                            isAnim->skeleton.boneMats.size(),
+                               GL_FALSE,    //We don't need to transpose the matrices.
+                               &isAnim->skeleton.boneMats[0][0][0]);
+                }
+                
+            }
+            
             
             Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
             applyProjectionMatrix(shader, window, camera);
@@ -331,20 +365,36 @@ void Renderer::Render(World &world, Window &window) {
             }
             applyTransformMatrix(shader, gameObject->transform);
             
-            if (meshRenderer->texture) {
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, meshRenderer->texture->texID);
-                glUniform1i(shader->getUniform("myTexture"), 0);
-                glUniform1i(shader->getUniform("useTexture"), 0);
-            } else {
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, TextureLibrary::snow->texID);
-                glUniform1i(shader->getUniform("myTexture"), 0);
-                glUniform1i(shader->getUniform("useTexture"), 1);
+            if (meshRenderer->shader == ShaderLibrary::cell) {
+                if (meshRenderer->texture) {
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_2D, meshRenderer->texture->texID);
+                    glUniform1i(shader->getUniform("myTexture"), 0);
+                    glUniform1i(shader->getUniform("useTexture"), 0);
+                } else {
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_2D, TextureLibrary::snow->texID);
+                    glUniform1i(shader->getUniform("myTexture"), 0);
+                    glUniform1i(shader->getUniform("useTexture"), 1);
+                }
             }
             
             model->draw(shader);
             shader->unbind();
+            
+//            if(gameObject->name == "FollowSphere") {
+//                GLint viewportArray[4];
+//                glGetIntegerv(GL_VIEWPORT, viewportArray);
+//                vec4 viewport = vec4(viewportArray[0], viewportArray[1], viewportArray[2], viewportArray[3]);
+//                
+//                mat4 P = glm::perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
+//                mat4 V = glm::lookAt(camera->pos, camera->lookAt, camera->up);
+//                
+//                vec3 projected = glm::project(gameObject->transform->GetPosition(), V, P, viewport);
+//                
+//                // now write characters to screen in this projected screen pos
+//                
+//            }
             
             shader->bind();
             // If want to show AABBs
@@ -369,10 +419,10 @@ void Renderer::Render(World &world, Window &window) {
             if (terrainRenderer->material) {
                 applyMaterial(shader, terrainRenderer->material);
             }
-//            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
-//            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
-//            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
-//            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
+            //            if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
+            //            if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
+            //            if (shader->hasUniform("sunDir")) glUniform3f(shader->getUniform("sunDir"), 0, 1, 0);
+            //            if (shader->hasUniform("sunColor")) glUniform3f(shader->getUniform("sunColor"), 1, 1, 1);
             if (shader->hasUniform("terrainMin")) glUniform1i(shader->getUniform("terrainMin"), terrain->min + terrainRenderer->gameObject->transform->GetPosition().y);
             if (shader->hasUniform("terrainMax")) glUniform1i(shader->getUniform("terrainMax"), terrain->max + terrainRenderer->gameObject->transform->GetPosition().y);
             if (shader->hasUniform("terrainScale")) glUniform3f(shader->getUniform("terrainScale"), gameObject->transform->GetScale().x, gameObject->transform->GetScale().y, gameObject->transform->GetScale().z);
@@ -419,193 +469,194 @@ void Renderer::Render(World &world, Window &window) {
             shader->unbind();
         }
     }
-	
-	glDisable(GL_DEPTH_TEST);
-	for (GameObject * gameObject : world.GetGameObjects()) {
-		HUDRenderer *hr = (HUDRenderer*)gameObject->GetComponent("HudRenderer");
-		if (hr && hr->draw) {
-			//printf("Renderingo1!!\n");
-			auto shader = hr->shader->program;
-			auto model = hr->model;
-
-			shader->bind();
-
-			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
-			//applyProjectionMatrix(shader, window, camera);
-			applyOrthographicMatrix(shader, window, camera);
-			applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
-			//applyTransformMatrix(shader, gameObject->transform);
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, hr->texture->texID);
-			glUniform1i(shader->getUniform("ButtonTexture"), 0);
-			model->draw(shader);
-			shader->unbind();
-
-		}
-	}
-	glEnable(GL_DEPTH_TEST);
+    
+    glDisable(GL_DEPTH_TEST);
+    
+    for (GameObject * gameObject : world.GetGameObjects()) {
+        HUDRenderer *hr = (HUDRenderer*)gameObject->GetComponent("HudRenderer");
+        if (hr && hr->draw) {
+            //printf("Renderingo1!!\n");
+            auto shader = hr->shader->program;
+            auto model = hr->model;
+            
+            shader->bind();
+            
+            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+            //applyProjectionMatrix(shader, window, camera);
+            applyOrthographicMatrix(shader, window, camera);
+            applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
+            //applyTransformMatrix(shader, gameObject->transform);
+            
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, hr->texture->texID);
+            glUniform1i(shader->getUniform("ButtonTexture"), 0);
+            model->draw(shader);
+            shader->unbind();
+            
+        }
+    }
+    glEnable(GL_DEPTH_TEST);
 #else
-	glClearColor(0.0f, 0.f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glViewport(0, 0, window.GetWidth(), window.GetHeight());
-	glEnable(GL_DEPTH_TEST);
-
-	Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
-	//GLfloat P[16]; //glm::make_mat4(P)
-	//glGetFloatv(GL_PROJECTION_MATRIX, P);
-	float aspectRatio = window.GetWidth() / (float)window.GetHeight();
-	mat4 P = glm::perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
-	mat4 V = glm::lookAt(camera->pos, camera->lookAt, camera->up);
-
-	camera->ExtractVFPlanes(P, V);
-
-
-	for (GameObject *gameObject : world.GetGameObjects()) {
-		Clickable *cl = (Clickable*)gameObject->GetComponent("Clickable");
-		if (!cl)
-			continue;
-		HUDRenderer *hr = (HUDRenderer*)gameObject->GetComponent("HudRenderer");
-		MeshRenderer *mr = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
-		if (hr && hr->draw) {
-			if (!hr || hr->draw == false) continue;
-
-
-			auto shader = cl->shader->program;
-			auto model = hr->model;
-
-
-			shader->bind();
-			int r = (cl->id & 0x000000FF) >> 0;
-			int g = (cl->id & 0x0000FF00) >> 8;
-			int b = (cl->id & 0x00FF0000) >> 16;
-			glUniform4f(shader->getUniform("PickingColor"), r / 255.f, g / 255.f, b / 255.f, 1.0f);
-			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
-			//applyProjectionMatrix(shader, window, camera);
-			applyOrthographicMatrix(shader, window, camera);
-			applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
-			//applyTransformMatrix(shader, gameObject->transform);
-
-			model->draw(shader);
-			shader->unbind();
-		}
-		if (mr && mr->draw) {
-			auto shader = cl->shader->program;
-			auto model = mr->model;
-
-
-			shader->bind();
-			int r = (cl->id & 0x000000FF) >> 0;
-			int g = (cl->id & 0x0000FF00) >> 8;
-			int b = (cl->id & 0x00FF0000) >> 16;
-			glUniform4f(shader->getUniform("PickingColor"), r / 255.f, g / 255.f, b / 255.f, 1.0f);
-			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
-			applyProjectionMatrix(shader, window, camera);
-			//applyOrthographicMatrix(shader, window, camera);
-			//applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
-			if (world.mainCharacter) {
-				applyCameraMatrix(shader, camera, camera->pos);
-			}
-			else {
-				applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
-			}
-			applyTransformMatrix(shader, gameObject->transform);
-
-			model->draw(shader);
-			shader->unbind();
-		}
-	}
+    glClearColor(0.0f, 0.f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    glViewport(0, 0, window.GetWidth(), window.GetHeight());
+    glEnable(GL_DEPTH_TEST);
+    
+    Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+    //GLfloat P[16]; //glm::make_mat4(P)
+    //glGetFloatv(GL_PROJECTION_MATRIX, P);
+    float aspectRatio = window.GetWidth() / (float)window.GetHeight();
+    mat4 P = glm::perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
+    mat4 V = glm::lookAt(camera->pos, camera->lookAt, camera->up);
+    
+    camera->ExtractVFPlanes(P, V);
+    
+    
+    for (GameObject *gameObject : world.GetGameObjects()) {
+        Clickable *cl = (Clickable*)gameObject->GetComponent("Clickable");
+        if (!cl)
+            continue;
+        HUDRenderer *hr = (HUDRenderer*)gameObject->GetComponent("HudRenderer");
+        MeshRenderer *mr = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
+        if (hr && hr->draw) {
+            if (!hr || hr->draw == false) continue;
+            
+            
+            auto shader = cl->shader->program;
+            auto model = hr->model;
+            
+            
+            shader->bind();
+            int r = (cl->id & 0x000000FF) >> 0;
+            int g = (cl->id & 0x0000FF00) >> 8;
+            int b = (cl->id & 0x00FF0000) >> 16;
+            glUniform4f(shader->getUniform("PickingColor"), r / 255.f, g / 255.f, b / 255.f, 1.0f);
+            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+            //applyProjectionMatrix(shader, window, camera);
+            applyOrthographicMatrix(shader, window, camera);
+            applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
+            //applyTransformMatrix(shader, gameObject->transform);
+            
+            model->draw(shader);
+            shader->unbind();
+        }
+        if (mr && mr->draw) {
+            auto shader = cl->shader->program;
+            auto model = mr->model;
+            
+            
+            shader->bind();
+            int r = (cl->id & 0x000000FF) >> 0;
+            int g = (cl->id & 0x0000FF00) >> 8;
+            int b = (cl->id & 0x00FF0000) >> 16;
+            glUniform4f(shader->getUniform("PickingColor"), r / 255.f, g / 255.f, b / 255.f, 1.0f);
+            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+            applyProjectionMatrix(shader, window, camera);
+            //applyOrthographicMatrix(shader, window, camera);
+            //applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
+            if (world.mainCharacter) {
+                applyCameraMatrix(shader, camera, camera->pos);
+            }
+            else {
+                applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            }
+            applyTransformMatrix(shader, gameObject->transform);
+            
+            model->draw(shader);
+            shader->unbind();
+        }
+    }
 #endif
 }
 
 
 int Renderer::checkClickable(World &world, Window &window, int mx, int my) {
-	glViewport(0, 0, window.GetWidth(), window.GetHeight());
-	glEnable(GL_DEPTH_TEST);
-
-	glClearColor(0.0f, 0.f, .0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
-	//GLfloat P[16]; //glm::make_mat4(P)
-	//glGetFloatv(GL_PROJECTION_MATRIX, P);
-	float aspectRatio = window.GetWidth() / (float)window.GetHeight();
-	mat4 P = glm::perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
-	mat4 V = glm::lookAt(camera->pos, camera->lookAt, camera->up);
-
-	camera->ExtractVFPlanes(P, V);
-
-
-	for (GameObject *gameObject : world.GetGameObjects()) {
-		Clickable *cl = (Clickable*)gameObject->GetComponent("Clickable");
-		if (!cl)
-			continue;
-		HUDRenderer *hr = (HUDRenderer*)gameObject->GetComponent("HudRenderer");
-		MeshRenderer *mr = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
-		if (hr && hr->draw) {
-			if (!hr || hr->draw == false) continue;
-
-
-			auto shader = cl->shader->program;
-			auto model = hr->model;
-
-
-			shader->bind();
-			int r = (cl->id & 0x000000FF) >> 0;
-			int g = (cl->id & 0x0000FF00) >> 8;
-			int b = (cl->id & 0x00FF0000) >> 16;
-			glUniform4f(shader->getUniform("PickingColor"), r / 255.f, g / 255.f, b / 255.f, 1.0f);
-			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
-			//applyProjectionMatrix(shader, window, camera);
-			applyOrthographicMatrix(shader, window, camera);
-			applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
-			//applyTransformMatrix(shader, gameObject->transform);
-
-			model->draw(shader);
-			shader->unbind();
-		}
-		else if (mr && mr->draw) {
-			auto shader = cl->shader->program;
-			auto model = mr->model;
-
-
-			shader->bind();
-			int r = (cl->id & 0x000000FF) >> 0;
-			int g = (cl->id & 0x0000FF00) >> 8;
-			int b = (cl->id & 0x00FF0000) >> 16;
-			glUniform4f(shader->getUniform("PickingColor"), r / 255.f, g / 255.f, b / 255.f, 1.0f);
-			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
-			applyProjectionMatrix(shader, window, camera);
-			//applyOrthographicMatrix(shader, window, camera);
-			//applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
-			if (world.mainCharacter) {
-				applyCameraMatrix(shader, camera, camera->pos);
-			}
-			else {
-				applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
-			}
-			applyTransformMatrix(shader, gameObject->transform);
-
-			model->draw(shader);
-			shader->unbind();
-		}
-		
-	}
-	glFlush();
-	glFinish();
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	unsigned char data[4];
-	my = (window.GetHeight() - my);
-	glReadPixels(mx, my, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	int id = data[0] + data[1] * 256 + data[2] * 256 * 256;
-	printf("Clicked! got %d\n", id);
-
-	glClearColor(0.0f, 170 / 255.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	this->Render(world, window);
-	return id;
+    glViewport(0, 0, window.GetWidth(), window.GetHeight());
+    glEnable(GL_DEPTH_TEST);
+    
+    glClearColor(0.0f, 0.f, .0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+    //GLfloat P[16]; //glm::make_mat4(P)
+    //glGetFloatv(GL_PROJECTION_MATRIX, P);
+    float aspectRatio = window.GetWidth() / (float)window.GetHeight();
+    mat4 P = glm::perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
+    mat4 V = glm::lookAt(camera->pos, camera->lookAt, camera->up);
+    
+    camera->ExtractVFPlanes(P, V);
+    
+    
+    for (GameObject *gameObject : world.GetGameObjects()) {
+        Clickable *cl = (Clickable*)gameObject->GetComponent("Clickable");
+        if (!cl)
+            continue;
+        HUDRenderer *hr = (HUDRenderer*)gameObject->GetComponent("HudRenderer");
+        MeshRenderer *mr = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
+        if (hr && hr->draw) {
+            if (!hr || hr->draw == false) continue;
+            
+            
+            auto shader = cl->shader->program;
+            auto model = hr->model;
+            
+            
+            shader->bind();
+            int r = (cl->id & 0x000000FF) >> 0;
+            int g = (cl->id & 0x0000FF00) >> 8;
+            int b = (cl->id & 0x00FF0000) >> 16;
+            glUniform4f(shader->getUniform("PickingColor"), r / 255.f, g / 255.f, b / 255.f, 1.0f);
+            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+            //applyProjectionMatrix(shader, window, camera);
+            applyOrthographicMatrix(shader, window, camera);
+            applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
+            //applyTransformMatrix(shader, gameObject->transform);
+            
+            model->draw(shader);
+            shader->unbind();
+        }
+        else if (mr && mr->draw) {
+            auto shader = cl->shader->program;
+            auto model = mr->model;
+            
+            
+            shader->bind();
+            int r = (cl->id & 0x000000FF) >> 0;
+            int g = (cl->id & 0x0000FF00) >> 8;
+            int b = (cl->id & 0x00FF0000) >> 16;
+            glUniform4f(shader->getUniform("PickingColor"), r / 255.f, g / 255.f, b / 255.f, 1.0f);
+            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+            applyProjectionMatrix(shader, window, camera);
+            //applyOrthographicMatrix(shader, window, camera);
+            //applyScreenMatrix(shader, gameObject->transform, window.GetWidth(), window.GetHeight());
+            if (world.mainCharacter) {
+                applyCameraMatrix(shader, camera, camera->pos);
+            }
+            else {
+                applyCameraMatrix(shader, camera, world.mainCamera->transform->GetPosition());
+            }
+            applyTransformMatrix(shader, gameObject->transform);
+            
+            model->draw(shader);
+            shader->unbind();
+        }
+        
+    }
+    glFlush();
+    glFinish();
+    
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    
+    unsigned char data[4];
+    my = (window.GetHeight() - my);
+    glReadPixels(mx, my, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    int id = data[0] + data[1] * 256 + data[2] * 256 * 256;
+    printf("Clicked! got %d\n", id);
+    
+    glClearColor(0.0f, 170 / 255.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    this->Render(world, window);
+    return id;
 }

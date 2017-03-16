@@ -6,6 +6,7 @@
 #include "Components/Camera.h"
 #include "Components/RigidBody.h"
 #include "Components/Character.h"
+#include "EntityFactory.h"
 
 void CharacterController::Update(World *world, float deltaTime) {
     GameObject *mainCharacter = (world->mainCharacter) ? world->mainCharacter : world->mainCamera;

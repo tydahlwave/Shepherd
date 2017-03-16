@@ -17,6 +17,7 @@
 #include "MaterialLibrary.h"
 #include "Interpolation.h"
 #include "Components/Death.h"
+#include "Components/TextName.h"
 
 void Physics::Update(float deltaTime, World &world) {
     if (!enabled) return;
@@ -134,99 +135,11 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
                     world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
                 }
             }
-//        }
-//        else if (collision.gameObject2->name.compare("Terrain") == 0 && collision.gameObject1->name.compare("Wolf") == 0) {
-//            //            collision.gameObject1->Destroy();
-//            
-//            Death* gD = (Death*) collision.gameObject1->GetComponent("Death");
-////            std::cout<<"got in d loop";
-//            if(gD){
-////                std::cout<<"found collision";
-//                if(gD->shouldDie){
-////                    std::cout<<"should die true";
-//                    collision.gameObject1->RemoveComponent("MeshRenderer");
-//                    collision.gameObject1->RemoveComponent("BoxCollider");
-//                    RigidBody *rb = (RigidBody*) collision.gameObject1->GetComponent("RigidBody");
-//                    if (rb) {
-//                        collision.gameObject1->RemoveComponent("RigidBody");
-//                        if (rb->bulletRigidBody) {
-//                            world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
-//                        }
-//                    }
-//                }
-//            }
-//            
-//            
-//        }else if (collision.gameObject2->name.compare("Wolf") == 0 && collision.gameObject1->name.compare("Terrain") == 0) {
-//            //            collision.gameObject1->Destroy();
-//            
-//            Death* gD = (Death*) collision.gameObject2->GetComponent("Death");
-////            std::cout<<"got in d loop";
-//            if(gD){
-////                std::cout<<"found collision";
-//                if(gD->shouldDie){
-////                    std::cout<<"should die true";
-//                    collision.gameObject2->RemoveComponent("MeshRenderer");
-//                    collision.gameObject2->RemoveComponent("BoxCollider");
-//                    RigidBody *rb = (RigidBody*) collision.gameObject2->GetComponent("RigidBody");
-//                    if (rb) {
-//                        collision.gameObject2->RemoveComponent("RigidBody");
-//                        if (rb->bulletRigidBody) {
-//                            world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
-//                        }
-//                    }
-//                }
-//            }
-        
             
-        }else {
-        
-            // Move objects so they are no longer colliding
-//        if (rigidBody1 && rigidBody2 && !rigidBody1->isKinematic && !rigidBody2->isKinematic) {
-//            // TODO: don't just move up
-//            float dy;
-//            if (bounds2.getMax().y > bounds1.getMax().y) {
-//                dy = bounds1.getMax().y - bounds2.getMin().y;
-//                collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetRotation() + glm::vec3(0, dy, 0));
-//                rigidBody1->velocity.y = rigidBody1->velocity.y/2;
-//                rigidBody1->acceleration = glm::vec3(0, 0, 0);
-//                rigidBody2->velocity.y = 0;
-//                rigidBody2->acceleration = glm::vec3(0, 0, 0);
-//            } else {
-//                dy = bounds2.getMax().y - bounds1.getMin().y;
-//                collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetRotation() + glm::vec3(0, dy, 0));
-//                rigidBody2->velocity.y = -rigidBody2->velocity.y/2;
-//                rigidBody2->acceleration = glm::vec3(0, 0, 0);
-//                rigidBody1->velocity.y = 0;
-//                rigidBody1->acceleration = glm::vec3(0, 0, 0);
-//            }
-////            collision.gameObject1->transform->position += glm::vec3(0, dy/2, 0);
-////            rigidBody1->velocity.y = 0;
-////            rigidBody1->acceleration = glm::vec3(0, 0, 0);
-////            rigidBody1->acceleration = rigidBody1->acceleration / glm::vec3(2, 2, 2);
-////            rigidBody1->acceleration.y = -rigidBody1->acceleration.y;
-////            collision.gameObject2->transform->position += glm::vec3(0, -dy/2, 0);
-////            rigidBody2->velocity.y = 0;
-////            rigidBody2->acceleration = glm::vec3(0, 0, 0);
-////            rigidBody2->acceleration = rigidBody2->acceleration / glm::vec3(2, 2, 2);
-////            rigidBody2->acceleration.y = -rigidBody2->acceleration.y;
-//        } else if (rigidBody1 && !rigidBody1->isKinematic) {
-//            // TODO: don't just move up
-//            float dy = bounds2.getMax().y - bounds1.getMin().y;
-//            collision.gameObject1->transform->SetRotation(collision.gameObject1->transform->GetRotation() + glm::vec3(0, dy, 0));
-//            rigidBody1->velocity.y = 0;
-//            rigidBody1->acceleration = glm::vec3(0, 0, 0);
-////            rigidBody1->acceleration = rigidBody1->acceleration / glm::vec3(2, 2, 2);
-////            rigidBody1->acceleration.y = -rigidBody1->acceleration.y;
-//        } else if (rigidBody2 && !rigidBody2->isKinematic) {
-//            // TODO: don't just move up
-//            float dy = bounds1.getMax().y - bounds2.getMin().y;
-//            collision.gameObject2->transform->SetRotation(collision.gameObject2->transform->GetRotation() + glm::vec3(0, dy, 0));
-//            rigidBody2->velocity.y = 0;
-//            rigidBody2->acceleration = glm::vec3(0, 0, 0);
-////            rigidBody2->acceleration = rigidBody2->acceleration / glm::vec3(2, 2, 2);
-////            rigidBody2->acceleration.y = -rigidBody2->acceleration.y;
-//        }
+            TextName* tn = (TextName*)collision.gameObject1->GetComponent("TextName");
+            if(tn) {
+                tn->color = vec3(1,0,0);
+            }
         }
     }
 }

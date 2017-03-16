@@ -17,12 +17,17 @@
 #include "Components/PathRenderer.h"
 #include "Components/SkyboxRenderer.h"
 #include "Components/Light.h"
+#include "Components/SheepDestination.h"
+#include "Components/TextName.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
 #include "TextureLibrary.h"
 #include "Terrain.h"
 #include  "Path.h"
+#include "BoneAnimation.h"
+#include "Components/Animation.h"
+#include "RandomNames.h"
 //#include <Bullet3Geometry>
 #include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
 
@@ -34,18 +39,19 @@ GameObject *EntityFactory::createMainCamera(World *world) {
     rigidBody->isKinematic = true;
     gameObject->AddComponent("Camera");
     gameObject->AddComponent("BoxCollider");
-    gameObject->transform->SetScale(glm::vec3(3, 3, 3));
+    gameObject->transform->SetScale(glm::vec3(.7, .7, .7));
     return gameObject;
 }
 
 GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera, glm::vec3 pos) {
 	camera->AddComponent("Character");
 	MeshRenderer *meshRenderer = (MeshRenderer*)camera->AddComponent("MeshRenderer");
-	meshRenderer->model = ModelLibrary::player;
-//    meshRenderer->model = ModelLibrary::gadget;
-	meshRenderer->shader = ShaderLibrary::cell;
+    meshRenderer->model = ModelLibrary::player;
+    meshRenderer->shader = ShaderLibrary::anim;
 	meshRenderer->material = MaterialLibrary::pearl;
-	
+    Animation* comp = (Animation*) camera->AddComponent("Animation");
+    comp->skeleton = ModelLibrary::player->skeleton;
+    
 	btTransform t;
 	t.setIdentity();
 	t.setOrigin(btVector3(pos.x, pos.y, pos.z));
@@ -71,6 +77,12 @@ GameObject *EntityFactory::upgradeCharacter(World *world, GameObject *camera, gl
     
     camera->transform->SetPosition(pos);
     
+    SheepDestination *dest = (SheepDestination*)camera->AddComponent("SheepDestination");
+    dest->path = new Path();
+    dest->path->size = 1;
+    dest->path->radius = 5;
+    dest->path->AddNode(pos);
+    
 	return camera;
 }
 
@@ -88,9 +100,49 @@ GameObject *EntityFactory::createBunny(World *world) {
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0, 0, 0));
-    btSphereShape* sphere = new btSphereShape(1);
+    btCollisionShape* sphere = new btBoxShape(btVector3(meshRenderer->model->bounds.halfwidths.x, meshRenderer->model->bounds.halfwidths.y, meshRenderer->model->bounds.halfwidths.z));
     btVector3 inertia(0,0,0);
     float mass = 2.0f;
+    if(mass != 0)
+        sphere->calculateLocalInertia(mass, inertia);
+    btMotionState* motion = new btDefaultMotionState(t);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere);
+    rigidBody->bulletRigidBody = new btRigidBody(info);
+    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+    
+    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    
+    TextName *name = (TextName*)gameObject->AddComponent("TextName");
+    name->name = RandomNames::getRandomName();
+    return gameObject;
+}
+
+//test anim creature
+GameObject *EntityFactory::createTestAnim(World *world) {
+    GameObject *gameObject = world->CreateGameObject("Monster");
+    RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
+    rigidBody->useGravity = true;
+    //    rigidBody->isKinematic = true;
+    gameObject->AddComponent("BoxCollider");
+    Animation* comp = (Animation*) gameObject->AddComponent("Animation");
+    comp->skeleton = ModelLibrary::monster->skeleton;
+    for(Bone b : comp->skeleton.bones)
+    {
+        std::cout<<"Bone "<<b.name<<std::endl;
+    }
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->model = ModelLibrary::monster;
+    meshRenderer->shader = ShaderLibrary::anim;
+    meshRenderer->material = MaterialLibrary::pearl;
+    gameObject->transform->SetScale(glm::vec3(0.01f, .01f, .01f));
+    gameObject->transform->SetPosition(glm::vec3(-228, 0, 524));
+    
+    btTransform t;
+    t.setIdentity();
+    t.setOrigin(btVector3(0, 20, 0));
+    btBoxShape* sphere = new btBoxShape(btVector3(10,10,10));
+    btVector3 inertia(0,0,0);
+    float mass = 0.0f;
     if(mass != 0)
         sphere->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);
@@ -127,6 +179,8 @@ GameObject *EntityFactory::createWolf(World *world) {
     rigidBody->bulletRigidBody = new btRigidBody(info);
     rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     
+    
+    
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
     return gameObject;
 }
@@ -144,6 +198,7 @@ GameObject *EntityFactory::createTitle(World *world) {
 	MeshRenderer *mesh = (MeshRenderer*)gameObject->AddComponent("MeshRenderer");
 	mesh->model = ModelLibrary::title;
 	mesh->shader = ShaderLibrary::menu;
+    mesh->material = MaterialLibrary::emerald;
 	gameObject->transform->SetPosition(glm::vec3(0.f, .5f, 2.f));
 	gameObject->transform->SetRotation(glm::vec3(0.f, 180.f, 0.f));
 
@@ -415,6 +470,9 @@ GameObject *EntityFactory::createPath(World *world, GameObject *terrainObject, i
         EntityFactory::createLight(world, pos, false, glm::vec3(0.5, 0.5, 0.5), 0.1, 0.15, 50, glm::vec3(0, -1, 0));
     }
     
+    SheepDestination *dest = (SheepDestination*)gameObject->AddComponent("SheepDestination");
+    dest->path = renderer->path;
+    
     return gameObject;
 }
 
@@ -432,6 +490,9 @@ GameObject *EntityFactory::createPath(World *world, GameObject *terrainObject, s
     for (glm::vec3 pos : positions) {
         renderer->path->AddNode(glm::vec3(pos.x, getTerrainHeightForPosition(terrainObject, terrain, pos.x, pos.z), pos.z));
     }
+    
+    SheepDestination *dest = (SheepDestination*)gameObject->AddComponent("SheepDestination");
+    dest->path = renderer->path;
     
     return gameObject;
 }
@@ -544,5 +605,60 @@ GameObject *EntityFactory::createStartMenuTerrain(World *world, std::string reso
     rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
     
     world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    return gameObject;
+}
+
+GameObject *EntityFactory::createNodeSphere(World *world) {
+    // get some values to use
+    float radius = 1.0;
+    float mass = 1.0;
+    glm::vec3 rot = world->mainCharacter->transform->GetRotation();
+    float theta = glm::radians(rot.y);
+    vec3 camLookAt = vec3(sin(theta) * 1, 0, cos(theta) * 1);
+    vec3 position = world->mainCharacter->transform->GetPosition() + 5.0f*camLookAt;
+    btVector3 velocityVector = btVector3(camLookAt.x,camLookAt.y,camLookAt.z);
+    velocityVector.setY(0.7);
+    velocityVector.normalize();
+    velocityVector = 50.0*velocityVector;
+    
+    GameObject *gameObject = world->CreateGameObject("FollowSphere");
+    gameObject->isSerializable = true;
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->model = ModelLibrary::sphere;
+    meshRenderer->shader = ShaderLibrary::cell;
+    meshRenderer->material = MaterialLibrary::polishedGold;
+    RigidBody *rigidBody = (RigidBody*) gameObject->AddComponent("RigidBody");
+    rigidBody->isKinematic = true;
+    rigidBody->useGravity = true;
+    btTransform t;
+    t.setIdentity();
+    t.setOrigin(btVector3(position.x,position.y,position.z));
+    btSphereShape* sphere = new btSphereShape(radius);
+    gameObject->transform->SetScale(glm::vec3(radius));
+    btVector3 inertia(0,0,0);
+    if(mass != 0)
+        sphere->calculateLocalInertia(mass, inertia);
+    btMotionState* motion = new btDefaultMotionState(t);
+    btRigidBody::btRigidBodyConstructionInfo info(mass, motion, sphere, inertia);
+    rigidBody->bulletRigidBody = new btRigidBody(info);
+    rigidBody->bulletRigidBody->setActivationState(DISABLE_DEACTIVATION);
+    rigidBody->bulletRigidBody->setFriction(1.f);
+    rigidBody->bulletRigidBody->setRollingFriction(0.3f);
+    rigidBody->bulletRigidBody->setAnisotropicFriction(sphere->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
+    rigidBody->bulletRigidBody->setLinearVelocity(velocityVector);
+    world->dynamicsWorld->addRigidBody(rigidBody->bulletRigidBody);
+    
+    if(world->sheepDestinationObject && world->sheepDestinationObject->name == "FollowSphere") {
+        world->RemoveGameObject(world->sheepDestinationObject);
+        world->sheepDestinationObject = nullptr;
+    }
+    //world->sheepDestinationObject = gameObject;
+    
+    SheepDestination *dest = (SheepDestination*)gameObject->AddComponent("SheepDestination");
+    dest->path = new Path();
+    dest->path->size = 1;
+    dest->path->radius = 5;
+    dest->path->AddNode(position);
+    
     return gameObject;
 }
