@@ -346,34 +346,8 @@ void TerrainEditingController::ImguiUpdate(World *world) {
         }
         ImGui::SameLine();
         if (ImGui::Button("Save")) {
-            // Convert heightmap to unsigned chars
-//            std::vector<unsigned char> heightmap;
-//            std::vector<float> flattenedHeightmap = terrain->flattenHeightMap();
-//            for (int i = 0; i < flattenedHeightmap.size(); i++) {
-//                heightmap.push_back((unsigned char)flattenedHeightmap[i]);
-//            }
-//
-            // Save heightmap
-//            if (!SOIL_save_image("Level_Heightmap.bmp", SOIL_SAVE_TYPE_BMP, terrain->size, terrain->size, 3, heightmap.data()))
-//                std::cout << "Failed to save heightmap" << std::endl;
-            
-            unsigned short *heightmap = (unsigned short *)terrain->getHeightmap();
-            std::vector<unsigned short> flattenedHeightmap;
-            for (int i = 0; i < terrain->width*terrain->height; i++) {
-                unsigned short value = (unsigned short)((float)heightmap[i]/SHRT_MAX * 255.0f);
-                flattenedHeightmap.push_back(value);
-                flattenedHeightmap.push_back(value);
-                flattenedHeightmap.push_back(value);
-//                if (value > 0) {
-//                    std::cout << value << std::endl;
-//                }
-            }
-            
-//            SaveImage("Level_Heightmap.png", terrain->width, terrain->height, 1, terrain->getHeightmap(), GL_UNSIGNED_SHORT);
-//            SaveImage("Level_Heightmap.hdr", terrain->width, terrain->height, 4, flattenedHeightmap.data());
-//            SaveImage("Level_Heightmap.png", terrain->width, terrain->height, 3, flattenedHeightmap.data(), GL_UNSIGNED_SHORT);
-//            SaveImage("Level_Texturemap.png", terrain->width, terrain->height, 1, terrain->getTextureMap().data(), GL_UNSIGNED_BYTE);
-            SaveImageCustom("Level_Heightmap", terrain->width, terrain->height, 3, (unsigned short *)terrain->getHeightmap());
+            SaveImage(resourceDir + "Level_Texturemap.png", terrain->width, terrain->height, 1, terrain->getTextureMap().data(), GL_UNSIGNED_BYTE);
+            SaveImageCustom(resourceDir + "Level_Heightmap", terrain->width, terrain->height, 3, (unsigned short *)terrain->getHeightmap());
         }
         
         ImGui::End();

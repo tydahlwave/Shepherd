@@ -144,7 +144,7 @@ static ImageProperties LoadImageCustom(std::string imagePath, unsigned short **i
                 (*image)[index++] = (unsigned short)value;
             }
             
-            std::cout << value << '\n';
+//            std::cout << value << '\n';
         }
         file.close();
     } else {

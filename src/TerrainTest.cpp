@@ -106,6 +106,7 @@ int main(int argc, char **argv) {
     BunnySpawnSystem bunnySpawnSystem = BunnySpawnSystem();
     WolfSystem wolfSystem = WolfSystem();
     
+    terrainController.SetResourceDir(resourceDir);
     bool playerControllersLinked = false;
     physics.enabled = false;
     

@@ -125,6 +125,21 @@ void Terrain::smooth(int iterations, int kernelSize) {
     }
 }
 
+void Terrain::loadTextureFromFile(std::string filePath) {
+    // Load the image data for the terrain
+    unsigned char *texture;
+    int texWidth, texHeight;
+    LoadImage(filePath, &texture, &texWidth, &texHeight, 0, 0);
+    
+    // Set texture data to image data
+//    textureData.resize(width * height);
+    for (int i = 0; i < width*height; i++) {
+        textureData[i] = texture[i];
+        if (texture[i] > 0) std::cout << (int)texture[i] << std::endl;
+    }
+    FreeImage(texture);
+}
+
 void Terrain::updateVertexHeights() {
     for (int row = 0; row < height; row++) {
         for (int col = 0; col < width; col++) {
@@ -166,7 +181,7 @@ void Terrain::createMesh() {
     }
     this->min = 0;
     this->max = (float)max / SHRT_MAX * maxHeight - (float)min / SHRT_MAX * maxHeight;
-        
+    
     // Reset buffers
     if (!vertices.empty()) vertices.clear();
     vertices.resize(width * height);
