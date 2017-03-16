@@ -34,6 +34,8 @@ Model *ModelLibrary::monster = nullptr;
 Model *ModelLibrary::playSign = nullptr;
 Model *ModelLibrary::exitSign = nullptr;
 Model *ModelLibrary::ring = nullptr;
+Model *ModelLibrary::fence = nullptr;
+Model *ModelLibrary::fenceWithDoor = nullptr;
 
 void ModelLibrary::LoadModels(std::string resourceDir) {
     bunny           = new Model(resourceDir + "bunny.obj");
@@ -59,8 +61,10 @@ void ModelLibrary::LoadModels(std::string resourceDir) {
 	menuSign		= new Model(resourceDir + "title.obj");
     lantern         = new Model(resourceDir + "lantern.obj");
     //monster        = new Model(resourceDir + "monstersmall.dae");
-    monster        = new Model(resourceDir + "cube.obj");
+    monster         = new Model(resourceDir + "cube.obj");
     playSign        = new Model(resourceDir + "Play.obj");
     exitSign        = new Model(resourceDir + "Exit.obj");
-    ring        = new Model(resourceDir + "ring.obj");
+    ring            = new Model(resourceDir + "ring.obj");
+    fence           = new Model(resourceDir + "fence.obj");
+    fenceWithDoor   = new Model(resourceDir + "fence_door.obj");
 }

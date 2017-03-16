@@ -175,6 +175,7 @@ void GameController::ImGuiShowHelp(World *world) {
         ImGui::Text("Ping to have sheep follow you - F");
         ImGui::Text("Force Push Roar - Left Click");
         ImGui::Text("Force Pull Roar - Right Click");
+        //ImGui::SetWindowFontScale(10);
         
     }
     ImGui::End();
@@ -366,6 +367,12 @@ void GameController::Run() {
 					world.mainCamera = world.mainCharacter;
 					nextcamlevel = 0.f;
                     EntityFactory::createHUD(&world);
+//                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController, 1);
+//                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController, 1);
+//                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)terrainController, 1);
+//                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)bunnySpawnSystem, 1);
+//                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)characterController, 1);
+
 					break;
 				}
 				camstage++;
@@ -488,7 +495,7 @@ void GameController::LoadState() {
 		physicsController = new PhysicsController();
 		terrainController = new TerrainController();
 		bunnySpawnSystem = new BunnySpawnSystem();
-        bunnySpawnSystem->startPosition = glm::vec3(-573, 4, -344);
+        bunnySpawnSystem->startPosition = glm::vec3(-500, 4, -350);
         bunnySpawnSystem->endPosition = glm::vec3(185,241,362);
         //bunnySpawnSystem->endPosition = glm::vec3(-490,5,-316);
 		wolfSystem = new WolfSystem();
@@ -507,10 +514,29 @@ void GameController::LoadState() {
 
 
 		world.mainCamera = EntityFactory::createMainCamera(&world);
-		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera,glm::vec3(-573, 4, -344));
-        
-        
+		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera,glm::vec3(-500, 4, -350));
         world.cameraController = (GameObject*)cameraController;
+        
+        // Create fences
+        GameObject *fence1 = EntityFactory::createStaticObject(&world, "Fence", ModelLibrary::fence, ShaderLibrary::cell, MaterialLibrary::brown);
+        fence1->transform->SetPosition(glm::vec3(185,241,322));
+        fence1->transform->SetRotation(glm::vec3(0, 0, 0));
+        fence1->transform->SetScale(glm::vec3(40, 40, 40));
+        
+        GameObject *fence2 = EntityFactory::createStaticObject(&world, "Fence", ModelLibrary::fence, ShaderLibrary::cell, MaterialLibrary::brown);
+        fence2->transform->SetPosition(glm::vec3(185,241,402));
+        fence2->transform->SetRotation(glm::vec3(0, 0, 0));
+        fence2->transform->SetScale(glm::vec3(40, 40, 40));
+        
+        GameObject *fence3 = EntityFactory::createStaticObject(&world, "Fence", ModelLibrary::fence, ShaderLibrary::cell, MaterialLibrary::brown);
+        fence3->transform->SetPosition(glm::vec3(227,241,361));
+        fence3->transform->SetRotation(glm::vec3(0, 90, 0));
+        fence3->transform->SetScale(glm::vec3(40, 40, 40));
+        
+//        GameObject *fence4 = EntityFactory::createStaticObject(&world, "Fence", ModelLibrary::fenceWithDoor, ShaderLibrary::cell, MaterialLibrary::brown);
+//        fence4->transform->SetPosition(glm::vec3(135,241,362));
+//        fence4->transform->SetRotation(glm::vec3(0, 90, 0));
+//        fence4->transform->SetScale(glm::vec3(40, 40, 40));
 
         //Create skybox
         GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);
@@ -537,6 +563,9 @@ void GameController::LoadState() {
 
 		// Create trees
 		//treeSystem->Spawn(&world);
+//        EntityFactory::createBarrier(&world, glm::vec3(200,100,60), 350);
+
+        
         
         GameObject* test = EntityFactory::createTestAnim(&world);
         Animation* testAnim = (Animation*) test->GetComponent("Animation");
