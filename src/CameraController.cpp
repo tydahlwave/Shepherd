@@ -133,6 +133,10 @@ void CameraController::BeginShaking(int framesToShake, float intensity)
     shakeIntensity = intensity;
 }
 
+void CameraController::InvertPitch(World *world) {
+	Camera * camera = (Camera*)world->mainCamera->GetComponent("Camera");
+	camera->pitch = -camera->pitch;
+}
 
 void CameraController::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {
 	Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");

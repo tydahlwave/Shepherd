@@ -25,6 +25,8 @@
 #include "Components/Light.h"
 #include "Components/SheepDestination.h"
 #include "Components/TextName.h"
+#include "Components/ParticleRenderer.h"
+#include "Components/WaterRenderer.h"
 
 GameObject::GameObject() :components() {
     name = "GameObject";
@@ -136,7 +138,14 @@ Component *GameObject::AddComponent(std::string name) {
             component = (Component *) new SheepDestination();
         } else if (name.compare("TextName") == 0) {
             component = (Component *) new TextName();
-        }else {
+        }
+		else if (name.compare("ParticleRenderer") == 0) {
+			component = (Component *) new ParticleRenderer();
+		}
+		else if (name.compare("WaterRenderer") == 0) {
+			component = (Component *) new WaterRenderer();
+		}
+		else {
             component = nullptr;
             std::cout << name << " component does not exist." << std::endl;
         }

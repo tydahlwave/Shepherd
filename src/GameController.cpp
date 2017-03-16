@@ -36,6 +36,9 @@
 #include "Serializer.h"
 #include "Components/Clickable.h"
 #include "LevelEditor.h"
+#include "ParticleSystem.h"
+#include "Components/ParticleRenderer.h"
+#include "Components/WaterRenderer.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
@@ -259,10 +262,43 @@ void GameController::Run() {
 				physics.Update(idealDeltaTime, world);
 				if (characterController)
 					characterController->Update(&world, idealDeltaTime);
+				for (GameObject *go : world.GetGameObjects()) {
+					ParticleRenderer *particleRenderer = (ParticleRenderer*)go->GetComponent("ParticleRenderer");
+					if (particleRenderer) {
+						auto particleSystem = particleRenderer->particleSystem;
+						particleSystem->Update(world, idealDeltaTime, world.mainCamera->transform->GetPosition());
+					}
+				}
 				accumulator -= idealDeltaTime;
 			}
 			if (cameraController)
 				cameraController->Update(world);
+
+			/*if (water) {
+				WaterRenderer *wr = (WaterRenderer*)water->GetComponent("WaterRenderer");
+
+				glEnable(GL_CLIP_DISTANCE0);
+				//render to reflection texture
+				wr->buffers->bindReflectionFrameBuffer();
+				wr->waterTile->plane = 0;
+				float distance = 2 * (world.mainCamera->transform->GetPosition().y - wr->waterTile->height);
+				glm::vec3 pos = world.mainCamera->transform->GetPosition();
+				world.mainCamera->transform->SetPosition(glm::vec3(pos.x, pos.y - distance, pos.z));
+				cameraController->InvertPitch(&world);
+				renderer.Render(world, window);
+				pos = world.mainCamera->transform->GetPosition();
+				world.mainCamera->transform->SetPosition(glm::vec3(pos.x, pos.y + distance, pos.z));
+				cameraController->InvertPitch(&world);
+				wr->buffers->unbindCurrentFrameBuffer();
+
+				//render to refraction texture;
+				wr->buffers->bindRefractionFrameBuffer();
+				wr->waterTile->plane = 1;
+				renderer.Render(world, window);
+				glDisable(GL_CLIP_DISTANCE0);
+				wr->buffers->unbindCurrentFrameBuffer();
+			}*/
+
 			renderer.Render(world, window);
 			CAudioEngine::instance()->Update();
 			window.Update();
@@ -396,12 +432,18 @@ void GameController::LoadState() {
         //Create skybox
         GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);
         
+		//Create Snow Particle System
+		ps = EntityFactory::createParticleSystem(&world, "Snow", 3000, 2.5f, 8.5f, -1.0f, 0.5f, glm::vec3(-30, 300, -30));
+
 		// Create terrain
 		terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 541, glm::vec3(0, 0, 0));
 		terrain->transform->SetScale(glm::vec3(5, 5, 5));
 		
 		//create skybox
 		skybox = EntityFactory::createSkybox(&world, resourceDir);
+
+		// Create water
+		//water = EntityFactory::createWater(&world, world.mainCharacter->transform->GetPosition().x, world.mainCharacter->transform->GetPosition().z, 0.75f);
 
 		// Place game objectsaw
 		//Create Path

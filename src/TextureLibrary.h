@@ -21,6 +21,12 @@ public:
 	static Texture *startButton;
 	static Texture *quitButton;
     static Texture *hair;
+	static Texture *circle;
+	static Texture *snowflake;
+	static Texture *blood;
+	static Texture *ring;
+	static Texture *normalMap;
+	static Texture *dudvMap;
 
 };
 

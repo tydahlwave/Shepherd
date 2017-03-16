@@ -2,7 +2,7 @@
 #define ParticleSystem_h
 
 #include "World.h"
-#include "GL\glew.h"
+//#include "GL\glew.h"
 #include "Program.h"
 #include "GLSL.h"
 #include "Shader.h"
@@ -13,7 +13,6 @@
 #include <random>
 #include <glm/gtx/norm.hpp>
 
-
 struct Particle {
 	glm::vec3 position;
 	glm::vec3 velocity;
@@ -21,7 +20,6 @@ struct Particle {
 	float life;
 	float scale;
 	float cameraDistance;
-	mat4 M;
 
 	bool operator<(Particle& that) {
 		// Sort in reverse order : far particles drawn first
@@ -59,6 +57,8 @@ public:
 	void setPositionRange(glm::vec2 xRange, glm::vec2 yRange, glm::vec2 zRange);
 	void setVelocityRange(glm::vec2 xRange, glm::vec2 yRange, glm::vec2 zRange);
 	int FindUnusedParticle();
+	void setPosition(glm::vec3 position);
+	void setColor(glm::vec4 color);
 
 private:
 	int lastUsedParticle = 0;
@@ -66,6 +66,7 @@ private:
 	float life;
 	float speed;
 	glm::vec3 position;
+	glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	glm::vec2 x_pos_range, x_vel_range;
 	glm::vec2 y_pos_range, y_vel_range;
 	glm::vec2 z_pos_range, z_vel_range;

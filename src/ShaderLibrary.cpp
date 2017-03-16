@@ -19,6 +19,8 @@ Shader *ShaderLibrary::clickable = nullptr;
 Shader *ShaderLibrary::ground = nullptr;
 Shader *ShaderLibrary::menu = nullptr;
 Shader *ShaderLibrary::skybox = nullptr;
+Shader *ShaderLibrary::particle = nullptr;
+Shader *ShaderLibrary::water = nullptr;
 
 void ShaderLibrary::LoadShaders(std::string resourceDir) {
     Program *program = new Program();
@@ -225,4 +227,37 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
 	program->addAttribute("vertPos");
 	program->addAttribute("vertNor");
 	skybox = new Shader(program);
+
+	program = new Program();
+	program->setVerbose(true);
+	program->setShaderNames(resourceDir + "particle_vert.glsl", resourceDir + "particle_frag.glsl");
+	program->init();
+	program->addUniform("P");
+	program->addUniform("V");
+	program->addUniform("textureSamp");
+	program->addUniform("scale");
+	program->addUniform("hasTexture");
+	program->addUniform("CameraRight_worldspace");
+	program->addUniform("CameraUp_worldspace");
+	particle = new Shader(program);
+
+	program = new Program();
+	program->setVerbose(true);
+	program->setShaderNames(resourceDir + "water_vert.glsl", resourceDir + "water_frag.glsl");
+	program->init();
+	program->addUniform("P");
+	program->addUniform("M");
+	program->addUniform("V");
+	program->addUniform("lightPos");
+	program->addUniform("lightColor");
+	//program->addUniform("plane");
+	program->addUniform("reflectionTexture");
+	program->addUniform("refractionTexture");
+	program->addUniform("dudvMap");
+	program->addUniform("normalMap");
+	program->addUniform("cameraPos");
+	//program->addUniform("moveFactor");
+	program->addAttribute("vertPos");
+	program->addAttribute("vertNor");
+	water = new Shader(program);
 }

@@ -19,6 +19,8 @@
 #include "Components/Light.h"
 #include "Components/SheepDestination.h"
 #include "Components/TextName.h"
+#include "Components/ParticleRenderer.h"
+#include "Components/WaterRenderer.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
@@ -615,3 +617,54 @@ GameObject *EntityFactory::createNodeSphere(World *world) {
     
     return gameObject;
 }
+
+GameObject *EntityFactory::createParticleSystem(World *world, std::string name, int num, float scale, float life, float systemLife, float speed, glm::vec3 position) {
+	GameObject *gameObject = world->CreateGameObject("ParticleSystem");
+	ParticleRenderer *renderer = (ParticleRenderer*)gameObject->AddComponent("ParticleRenderer");
+	renderer->particleSystem = new ParticleSystem(name, num, scale, life, systemLife, speed, position);
+	if (name.compare("Snow") == 0) {
+		renderer->texture = TextureLibrary::snowflake;
+		renderer->particleSystem->setPositionRange(glm::vec2(-800.0f, 800.0f), glm::vec2(-150.0f, 50.0f), glm::vec2(-800.0f, 800.0f));
+		renderer->particleSystem->setVelocityRange(glm::vec2(0.0f, 0.0f), glm::vec2(-10.0f, -10.0f), glm::vec2(0.0f, 0.0f));
+		renderer->particleSystem->hasTexture = 1.0f;
+	}
+	else if (name.compare("Blood") == 0) {
+		renderer->texture = TextureLibrary::blood;
+		renderer->particleSystem->setPositionRange(glm::vec2(-0.75f, 0.75f), glm::vec2(-1.0f, 1.0f), glm::vec2(-0.75f, 0.75f));
+		renderer->particleSystem->setVelocityRange(glm::vec2(-1.0, 1.0f), glm::vec2(-1.0f, -0.5f), glm::vec2(-1.0f, 1.0f));
+		renderer->particleSystem->hasTexture = 1.0f;
+	}
+	else if (name.compare("Ring") == 0) {
+		renderer->texture = TextureLibrary::ring;
+		renderer->particleSystem->setPositionRange(glm::vec2(-1.0f, 1.0f), glm::vec2(1.0f, 1.0f), glm::vec2(-1.0f, 1.0f));
+		renderer->particleSystem->setVelocityRange(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f));
+		renderer->particleSystem->hasTexture = 1.0f;
+	}
+	else if (name.compare("Push") == 0) {
+		renderer->texture = TextureLibrary::circle;
+		renderer->particleSystem->setPositionRange(glm::vec2(-2.0f, 2.0f), glm::vec2(-1.0f, 1.0f), glm::vec2(-2.0f, 2.0f));
+		renderer->particleSystem->setVelocityRange(glm::vec2(-1.0f, 1.0f), glm::vec2(-1.0f, 1.0f), glm::vec2(-1.0f, 1.0f));
+		renderer->particleSystem->hasTexture = 1.0f;
+	}
+	renderer->shader = ShaderLibrary::particle;
+
+	return gameObject;
+}
+
+GameObject *EntityFactory::createWater(World *world, float x, float z, float height) {
+	GameObject *gameObject = world->CreateGameObject("Water");
+	WaterRenderer *renderer = (WaterRenderer*)gameObject->AddComponent("WaterRenderer");
+	renderer->waterTile = new WaterTile(x, z, height);
+	renderer->waterTile->tileSize = 50;
+	renderer->waterTile->reflectionPlane = glm::vec4(0.0f, 1.0f, 0.0f, -height);
+	renderer->waterTile->refractionPlane = glm::vec4(0.0f, -1.0f, 0.0f, height);
+	renderer->model = ModelLibrary::boulder3;
+	renderer->shader = ShaderLibrary::water;
+	renderer->dudv = TextureLibrary::dudvMap;
+	renderer->normal = TextureLibrary::normalMap;
+	renderer->buffers = new WaterFrameBuffers();
+	gameObject->transform->SetPosition(glm::vec3(x, height, z));
+	gameObject->transform->SetScale(glm::vec3(renderer->waterTile->tileSize, height, renderer->waterTile->tileSize));
+	return gameObject;
+}
+

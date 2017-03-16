@@ -10,12 +10,6 @@
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
 #include "GLSL.h"
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
-
 
 #include "Renderer.h"
 #include "Components/MeshRenderer.h"
@@ -27,6 +21,8 @@
 #include "Components/HUDRenderer.h"
 #include "Components/Button.h"
 #include "Components/Light.h"
+#include "Components/ParticleRenderer.h"
+#include "Components/WaterRenderer.h"
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
@@ -58,6 +54,11 @@ void applyOrthographicMatrix(Program *program, Window &window, Camera *camera) {
 void applyCameraMatrix(Program *program, Camera *camera, glm::vec3 position) {
     MatrixStack stack = MatrixStack();
     stack.lookAt(position, camera->lookAt, camera->up);
+	mat4 view = stack.topMatrix();
+	if (program->hasUniform("CameraRight_worldspace"))
+		glUniform3f(program->getUniform("CameraRight_worldspace"), view[0][0], view[1][0], view[2][0]);
+	if (program->hasUniform("CameraUp_worldspace"))
+		glUniform3f(program->getUniform("CameraUp_worldspace"), view[0][1], view[1][1], view[2][1]);
     glUniformMatrix4fv(program->getUniform("V"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
 
@@ -201,7 +202,7 @@ void Renderer::Render(World &world, Window &window) {
             lights.push_back(light->GetLight());
         }
     }
-    
+
     for (GameObject *gameObject : world.GetGameObjects()) {
         SkyboxRenderer *skyboxRenderer = (SkyboxRenderer*)gameObject->GetComponent("SkyboxRenderer");
         if (skyboxRenderer) {
@@ -441,6 +442,88 @@ void Renderer::Render(World &world, Window &window) {
             
             shader->unbind();
         }
+
+		ParticleRenderer *particleRenderer = (ParticleRenderer*)gameObject->GetComponent("ParticleRenderer");
+		if (particleRenderer) {
+			auto shader = particleRenderer->shader->program;
+			auto ps = particleRenderer->particleSystem;
+			auto texture = particleRenderer->texture;
+
+			if (ps->systemLife == -1.0f || ps->systemLife > 0.0f) {
+				shader->bind();
+				Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+				applyProjectionMatrix(shader, window, camera);
+				applyCameraMatrix(shader, camera, camera->pos);
+				glUniform1f(shader->getUniform("scale"), ps->scale);
+				glUniform1f(shader->getUniform("hasTexture"), ps->hasTexture);
+
+				glUniform1i(shader->getUniform("textureSamp"), 0);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, texture->texID);
+
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				ps->AddInstancedAttribute();
+				glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, ps->numParticles);
+				//glBlendFunc(GL_SRC_ALPHA, GL_BLEND_SRC_ALPHA);
+				glDisable(GL_BLEND);
+				glDisableVertexAttribArray(0);
+				glDisableVertexAttribArray(1);
+				glDisableVertexAttribArray(2);
+
+				shader->unbind();
+			}
+		}
+
+		WaterRenderer *waterRenderer = (WaterRenderer*)gameObject->GetComponent("WaterRenderer");
+		if (waterRenderer) {
+			auto shader = waterRenderer->shader->program;
+			auto waterTile = waterRenderer->waterTile;
+			auto model = waterRenderer->model;
+			shader->bind();
+
+			//waterTile->moveFactor += waterTile->waveSpeed * 0.016f;
+			//fmod(waterTile->moveFactor, 1.0);
+
+			if (waterRenderer->material) {
+				applyMaterial(shader, waterRenderer->material);
+			}
+			if (shader->hasUniform("lightPos")) glUniform3f(shader->getUniform("lightPos"), 5, 5, 5);
+			if (shader->hasUniform("lightColor")) glUniform3f(shader->getUniform("lightColor"), 1, 1, 1);
+			/*glm::vec4 plane;
+			if (waterTile->plane == 0) {
+			plane = waterTile->reflectionPlane;
+			}
+			else {
+			plane = waterTile->refractionPlane;
+			}
+			if (shader->hasUniform("plane")) glUniform4f(shader->getUniform("plane"), plane.x, plane.y, plane.z, plane.w);*/
+
+			glUniform1i(shader->getUniform("reflectionTexture"), 0);
+			glUniform1i(shader->getUniform("refractionTexture"), 1);
+			glUniform1i(shader->getUniform("dudvMap"), 2);
+			glUniform1i(shader->getUniform("normalMap"), 3);
+			//glUniform1f(shader->getUniform("moveFactor"), waterTile->moveFactor);
+			glm::vec3 pos = world.mainCamera->transform->GetPosition();
+			glUniform3f(shader->getUniform("cameraPos"), pos.x, pos.y, pos.z);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, waterRenderer->buffers->getReflectionTexture());
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, waterRenderer->buffers->getRefractionTexture());
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, waterRenderer->dudv->texID);
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_2D, waterRenderer->normal->texID);
+
+			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+			applyProjectionMatrix(shader, window, camera);
+			applyCameraMatrix(shader, camera, camera->pos);
+			applyTransformMatrix(shader, gameObject->transform);
+
+			model->draw(shader);
+
+			shader->unbind();
+		}
     }
     
     glDisable(GL_DEPTH_TEST);

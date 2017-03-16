@@ -44,6 +44,9 @@ public:
     static GameObject *createStaticObject(World *world, std::string name, Model *model, Shader *shader);
     static GameObject *createStartMenuTerrain(World *world, std::string resourceDir, int type, int size, glm::vec3 pos);
     static GameObject *createNodeSphere(World *world);
+	static GameObject *createParticleSystem(World *world, std::string name, int num, float scale, float life, float gravity, float speed, glm::vec3 position);
+	static GameObject *createWater(World *world, float x, float z, float height);
+
 };
 
 #endif /* EntityFactory_h */

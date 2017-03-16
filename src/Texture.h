@@ -31,8 +31,9 @@ public:
     std::string name;
     std::string filePath;
     TextureProperties properties;
-    
+
     void Load();
+
 };
 
 #endif /* Texture_h */

@@ -38,6 +38,8 @@ private:
     void HandleTerrainCollisions(World &world);
     static void *StepBullet( void *world);
 //    Bounds *BoundsForGameObject(GameObject *gameObject);
+
+	GameObject *blood = nullptr;
 };
 
 #endif /* Physics_h */

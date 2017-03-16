@@ -8,10 +8,10 @@ uniform float hasTexture;
 void main() {
 	if (hasTexture == 1.0f) {
 		vec4 texture = texture2D(textureSamp, UV);
-		if (texture.x < 0.25) {
+		if (texture.x < 0.15) {
 			discard;
 		}
-		frag_color = texture(textureSamp, UV);
+		frag_color = vec4(texture(textureSamp, UV).xyz, particle_color.w);
 	}
 	else {
 		frag_color = particle_color;

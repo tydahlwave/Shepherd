@@ -18,6 +18,8 @@
 #include "Interpolation.h"
 #include "Components/Death.h"
 #include "Components/TextName.h"
+#include "Components/ParticleRenderer.h"
+#include "EntityFactory.h"
 
 void Physics::Update(float deltaTime, World &world) {
     if (!enabled) return;
@@ -32,7 +34,7 @@ void Physics::Update(float deltaTime, World &world) {
             gameObject->transform->SetPosition(gameObject->transform->GetPosition()+vel);
         }
     }
-    UpdateBulletPhysics(deltaTime, world);
+    //UpdateBulletPhysics(deltaTime, world);
     ComputeCollisions(world);
     HandleTerrainCollisions(world);
 }
@@ -142,7 +144,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
                 }
             }
         } else if (collision.gameObject2->name.compare("Wolf") == 0 && collision.gameObject1->name.compare("Bunny") == 0) {
-//            collision.gameObject1->Destroy();
+//            collision.gameObject1->Destroy();	
             collision.gameObject1->RemoveComponent("MeshRenderer");
             collision.gameObject1->RemoveComponent("BoxCollider");
             RigidBody *rb = (RigidBody*) collision.gameObject1->GetComponent("RigidBody");
@@ -156,6 +158,15 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
             if(tn) {
                 tn->color = vec3(1,0,0);
             }
+			if (blood == nullptr) {
+				blood = EntityFactory::createParticleSystem(&world, "Blood", 1, 2.0f, 0.25f, 0.25f, 0.1f, collision.gameObject1->transform->GetPosition());
+			}
+			else {
+				ParticleRenderer *pr = (ParticleRenderer*) blood->GetComponent("ParticleRenderer");
+				pr->particleSystem->systemLife = 0.25f;
+				glm::vec3 position = collision.gameObject1->transform->GetPosition();
+				pr->particleSystem->setPosition(position);
+			}
         }
         else if (collision.gameObject2->name.compare("Terrain") == 0 && collision.gameObject1->name.compare("Wolf") == 0) {
             //            collision.gameObject1->Destroy();

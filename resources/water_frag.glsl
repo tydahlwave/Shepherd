@@ -13,7 +13,7 @@ in vec3 fromLightVector;
 
 out vec4 color;
 
-uniform float moveFactor;
+//uniform float moveFactor;
 
 const float waveStrength = 0.01;
 const float shineDamper = 40.0;
@@ -25,8 +25,8 @@ void main() {
    vec2 refractTexCoords = vec2(ndc.x, ndc.y);
    vec2 reflectTexCoords = vec2(ndc.x, -ndc.y);
 
-   vec2 distortedTexCoords = texture(dudvMap, vec2(textureCoords.x + moveFactor, textureCoords.y)).rg*0.1;
-   distortedTexCoords = textureCoords + vec2(distortedTexCoords.x, distortedTexCoords.y+moveFactor);
+   vec2 distortedTexCoords = texture(dudvMap, vec2(textureCoords.x, textureCoords.y)).rg * 0.1;
+   distortedTexCoords = textureCoords + vec2(distortedTexCoords.x, distortedTexCoords.y);
    vec2 total = (texture(dudvMap, distortedTexCoords).rg * 2.0 - 1.0) * waveStrength;
 
    refractTexCoords += total;
@@ -53,5 +53,5 @@ void main() {
    vec3 specularHighlights = lightColor * specular * reflectivity;
 
    color = mix(reflectColor, refractColor, refractiveFactor);
-   color = mix(color, vec4(0.0, 1.0, 1.0, 1.0), 0.5) + vec4(specularHighlights, 0.0);
+   color = mix(color, vec4(0.1, 0.69, 1.0, 0.8), 0.5) + vec4(specularHighlights, 0.0);
 }

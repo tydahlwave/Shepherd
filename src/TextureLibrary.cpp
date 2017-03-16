@@ -15,6 +15,11 @@ Texture *TextureLibrary::snow = nullptr;
 Texture *TextureLibrary::startButton = nullptr;
 Texture *TextureLibrary::quitButton = nullptr;
 Texture *TextureLibrary::hair = nullptr;
+Texture *TextureLibrary::circle = nullptr;
+Texture *TextureLibrary::snowflake = nullptr;
+Texture *TextureLibrary::blood = nullptr;
+Texture *TextureLibrary::normalMap = nullptr;
+Texture *TextureLibrary::dudvMap = nullptr;
 
 void TextureLibrary::LoadTextures(std::string resourceDir) {
     crate = new Texture("Crate", resourceDir + "crate.bmp");
@@ -38,4 +43,19 @@ void TextureLibrary::LoadTextures(std::string resourceDir) {
     
     hair = new Texture("Hair", resourceDir + "hair.bmp");
     hair->Load();
+
+	circle = new Texture("Circle", resourceDir + "circle.jpg");
+	circle->Load();
+
+	snowflake = new Texture("Snowflake", resourceDir + "snowflake.png");
+	snowflake->Load();
+
+	blood = new Texture("Blood", resourceDir + "blood.png");
+	blood->Load();
+
+	normalMap = new Texture("NormalMap", resourceDir + "normalMap.bmp");
+	normalMap->Load();
+
+	dudvMap = new Texture("DudvMap", resourceDir + "waterdudv.bmp");
+	dudvMap->Load();
 }

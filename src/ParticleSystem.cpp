@@ -57,21 +57,21 @@ void ParticleSystem::Update(World &world, float deltaTime, glm::vec3 cameraPos) 
 		if (systemLife > 0.0f) {
 			systemLife -= deltaTime;
 		}
-
 		GenerateParticles(deltaTime);
 
 		for (int i = 0; i < numParticles; i++) {
-			if (particles[i].life > 0.0f) {
-				particles[i].life -= deltaTime;
-
-				if (particles[i].life > 0.0f) {
+			if (name.compare("Snow") == 0) {
+				if (particles[i].position.y < 0) {
+					EmitParticle(i);
+				}
+				else {
 					particles[i].velocity *= 1.01f;
 					particles[i].position += particles[i].velocity * deltaTime;
 					particles[i].cameraDistance = glm::length2(particles[i].position - cameraPos);
-					//particles[i].color.w -= 1.0f / (particles[i].life / deltaTime);
-					//if (particles[i].color.w < 0.1f) {
-					//	particles[i].color.w = 0.1f;
-					//}
+					particles[i].color.w -= 1.0f / (particles[i].life / deltaTime);
+					if (particles[i].color.w < 0.1f) {
+						particles[i].color.w = 0.1f;
+					}
 
 					posBuf[3 * i + 0] = particles[i].position.x;
 					posBuf[3 * i + 1] = particles[i].position.y;
@@ -81,11 +81,34 @@ void ParticleSystem::Update(World &world, float deltaTime, glm::vec3 cameraPos) 
 					colorBuf[4 * i + 1] = particles[i].color.y;
 					colorBuf[4 * i + 2] = particles[i].color.z;
 					colorBuf[4 * i + 3] = particles[i].color.w;
-
 				}
-				else {
-					particles[i].cameraDistance = -1.0f;
-					EmitParticle(i);
+			}
+			else {
+				if (particles[i].life > 0.0f) {
+					particles[i].life -= deltaTime;
+
+					if (particles[i].life > 0.0f) {
+						particles[i].velocity *= 1.01f;
+						particles[i].position += particles[i].velocity * deltaTime;
+						particles[i].cameraDistance = glm::length2(particles[i].position - cameraPos);
+						particles[i].color.w -= 1.0f / (particles[i].life / deltaTime);
+						if (particles[i].color.w < 0.1f) {
+							particles[i].color.w = 0.1f;
+						}
+
+						posBuf[3 * i + 0] = particles[i].position.x;
+						posBuf[3 * i + 1] = particles[i].position.y;
+						posBuf[3 * i + 2] = particles[i].position.z;
+
+						colorBuf[4 * i + 0] = particles[i].color.x;
+						colorBuf[4 * i + 1] = particles[i].color.y;
+						colorBuf[4 * i + 2] = particles[i].color.z;
+						colorBuf[4 * i + 3] = particles[i].color.w;
+					}
+					else {
+						particles[i].cameraDistance = -1.0f;
+						EmitParticle(i);
+					}
 				}
 			}
 		}
@@ -120,16 +143,13 @@ void ParticleSystem::EmitParticle(int unusedParticle) {
 	glm::vec3 velocity = glm::vec3(rand_xVel(vel), rand_yVel(vel), rand_zVel(vel));
 
 	velocity = glm::normalize(velocity) * speed;
-	GLfloat rColor = 0.5 + ((rand() % 100) / 100.0f);
-
-	std::mt19937 span(rd());
-	std::uniform_real_distribution<float> randLife(1.0f, life);
+	//GLfloat rColor = 0.5 + ((rand() % 100) / 100.0f);
 
 	particles[unusedParticle].position = position + offset;
 	particles[unusedParticle].velocity = velocity;
 	particles[unusedParticle].life = life;
 	particles[unusedParticle].scale = scale;
-	particles[unusedParticle].color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	particles[unusedParticle].color = color;
 }
 
 void ParticleSystem::SortParticles() {
@@ -166,6 +186,14 @@ void ParticleSystem::AddInstancedAttribute() {
 	//unbind buffers
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+}
+
+void ParticleSystem::setPosition(glm::vec3 position) {
+	this->position = position;
+}
+
+void ParticleSystem::setColor(glm::vec4 color) {
+	this->color = color;
 }
 
 void ParticleSystem::setPositionRange(glm::vec2 xRange, glm::vec2 yRange, glm::vec2 zRange) {
