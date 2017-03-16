@@ -88,7 +88,8 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
             charge = false;
             //return; // might not need this.... just in case
             SoundLibrary::playShot();
-            ((CameraController*)(world->cameraController))->BeginShaking(15, 200);
+            if (world->cameraController)
+                ((CameraController*)(world->cameraController))->BeginShaking(15, 200);
         }
         
         
@@ -99,7 +100,7 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
 		glm::vec3 rot = mainCharacter->transform->GetRotation();
 		glm::vec3 pos = mainCharacter->transform->GetPosition();
 		float theta = glm::radians(rot.y);
-        btVector3 camPos = btVector3(pos.x, pos.y, pos.z);
+        btVector3 camPos = btVector3(pos.x, pos.y-2, pos.z);
         
         btVector3 camLookAt = btVector3(sin(theta) * 1, 0, cos(theta) * 1);
         btVector3 endPoint = camPos + (camLookAt)*30.0; // multiplied by a large number to make sure i got far enough

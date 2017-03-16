@@ -8,15 +8,28 @@
 
 #include "Texture.h"
 
-#include "SOIL/SOIL.h"
+#include "STB/stb_image.h"
 
-Texture::Texture(std::string name, std::string filePath)
-: name(name), filePath(filePath) {
+#include "ImageLoader.h"
+
+Texture::Texture(std::string name) :name(name) {
     // Generate the texture reference id
     glGenTextures(1, &texID);
 }
 
-void Texture::Load() {
+void Texture::Load(std::string filePath) {
+    // Load the image
+    unsigned char *image = nullptr;
+    ImageProperties imageProps = LoadImage(filePath.c_str(), &image, &width, &height);
+    
+    // Load the texture
+    Load(image, imageProps);
+    
+    // Free the image
+    FreeImage(image);
+}
+
+void Texture::Load(void *image, ImageProperties imageProps) {
     // Bind the texture
     glBindTexture(GL_TEXTURE_2D, texID);
     
@@ -26,12 +39,33 @@ void Texture::Load() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, properties.minFilter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, properties.magFilter);
     
+    // Fix pixel alignment
+    if (imageProps.inputFormat != GL_RGBA) {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    } else if (imageProps.inputFormat == GL_RED && imageProps.dataType == GL_UNSIGNED_SHORT) {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+    } else {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    }
+    
     // Load and generate the texture
-    unsigned char* image = SOIL_load_image(filePath.c_str(), &width, &height, 0, SOIL_LOAD_RGB);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    glTexImage2D(GL_TEXTURE_2D, 0, imageProps.inputFormat, imageProps.width, imageProps.height,
+                 0, imageProps.outputFormat, imageProps.dataType, image);
     if (properties.mipmapped) glGenerateMipmap(GL_TEXTURE_2D);
-    SOIL_free_image_data(image);
     
     // Unbind the texture
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    // Log GL Error if it occurs
+    LogGLError(__FILE__, __LINE__);
+}
+
+void Texture::bind(GLuint unit) {
+    glActiveTexture(GL_TEXTURE0 + unit);
+    glBindTexture(GL_TEXTURE_2D, texID);
+}
+
+void Texture::unbind(GLuint unit) {
+    glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, 0);
 }

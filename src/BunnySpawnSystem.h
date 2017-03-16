@@ -42,7 +42,7 @@ public:
 	void ObstacleAvoidance(World *world);
 
 private:
-    static const int maxEntities = 60;
+    static const int maxEntities = 30;
 	int count = 0;
     float elapsedTime = 0;
 //    float spawnRate = 3.0; // seconds per spawn

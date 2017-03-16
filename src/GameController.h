@@ -18,7 +18,6 @@
 #include "TerrainController.h"
 #include "Components/RigidBody.h"
 #include "Components/TerrainRenderer.h"
-#include "Terrain.h"
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
 #include "AudioEngine.h"

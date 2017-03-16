@@ -9,6 +9,9 @@
 #include <iostream>
 #include <vector>
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+
 #include "Time.h"
 #include "Mesh.h"
 #include "TextureLibrary.h"
@@ -28,12 +31,12 @@
 #include "ModelLibrary.h"
 #include "ShaderLibrary.h"
 #include "MaterialLibrary.h"
+#include "BunnySpawnSystem.h"
+#include "WolfSystem.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
 #include "Path.h"
-
-#include "SOIL/Soil.h"
 
 #ifdef WIN32
 #include <btBulletDynamicsCommon.h>
@@ -100,7 +103,10 @@ int main(int argc, char **argv) {
     CharacterController characterController = CharacterController();
     PhysicsController physicsController = PhysicsController();
     TerrainEditingController terrainController = TerrainEditingController();
+    BunnySpawnSystem bunnySpawnSystem = BunnySpawnSystem();
+    WolfSystem wolfSystem = WolfSystem();
     
+    terrainController.SetResourceDir(resourceDir);
     bool playerControllersLinked = false;
     physics.enabled = false;
     
@@ -110,28 +116,40 @@ int main(int argc, char **argv) {
     TextureLibrary::LoadTextures(resourceDir);
     MaterialLibrary::InitializeMaterials();
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&cameraController, 1);
-    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController, 1);
     Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&terrainController, 1);
+//    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController, 1);
 //    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&playerController, 1);
 //    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController, 1);
+//    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem, 1);
     Window::AddImguiUpdateDelegate((ImguiUpdateDelegate*)&terrainController);
     CAudioEngine::instance()->Init();
     CAudioEngine::instance()->LoadSounds(resourceDir);
     
-    // Initialize main camera position and lookvector
-    world.mainCamera->transform->SetPosition(glm::vec3(0, 200, 200));
-    Camera *mainCamera = (Camera*)world.mainCamera->GetComponent("Camera");
-    mainCamera->lookAt = glm::vec3(0, -1, -0.1); // Initial lookvector to orient the camera to look along -z axis (can't be (0,-1,0))
-    
     // Create terrain
     GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, 0, 0));
-    terrain->transform->SetScale(glm::vec3(1, 1, 1));
+    terrain->transform->SetScale(glm::vec3(3, 3, 3));
     terrainController.SetTerrain((TerrainRenderer*)terrain->GetComponent("TerrainRenderer"));
+    
+    // Initialize main camera position and lookvector
+    world.mainCamera->transform->SetPosition(glm::vec3(0, 200, 200)*terrain->transform->GetScale());
+    Camera *mainCamera = (Camera*)world.mainCamera->GetComponent("Camera");
+    mainCamera->lookAt = glm::vec3(0, -1, -0.1); // Initial lookvector to orient the camera to look along -z axis (can't be (0,-1,0))
     
 //    EntityFactory::createSphere(&world, 2, glm::vec3(0, 100, 0), 10);
     
     // Add directional light
     EntityFactory::createLight(&world, glm::vec3(1, 1, 1), true, glm::vec3(2, 2, 2), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
+    
+    // Create skybox
+    EntityFactory::createSkybox(&world, resourceDir);
+    
+    //Create Path
+    std::vector<glm::vec3> pathPositions = {
+        glm::vec3(50, -20, 50),
+        glm::vec3(-40, -20, 70),
+        glm::vec3(0, -20, 40)
+    };
+    GameObject *path = nullptr;
     
     // Seed random generator
     srand(time(0));
@@ -149,25 +167,37 @@ int main(int argc, char **argv) {
         
         displayStats(elapsedTime, world, physics);
         
+        if (world.mainCharacter && !playerControllersLinked) {
+            playerControllersLinked = true;
+            physics.enabled = true;
+            Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&physicsController, 1);
+            Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&playerController, 1);
+            Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController, 1);
+            Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem, 1);
+            path = EntityFactory::createPath(&world, terrain, pathPositions);
+        }
+        
         accumulator += elapsedTime;
         while(accumulator >= idealDeltaTime) {
-            physics.Update(idealDeltaTime, world);
-            if (world.mainCharacter)
+            if (world.mainCharacter) {
+                physics.Update(idealDeltaTime, world);
+                bunnySpawnSystem.Update(idealDeltaTime, &world, path);
+                wolfSystem.Update(idealDeltaTime, &world);
                 characterController.Update(&world, idealDeltaTime);
+            }
             accumulator -= idealDeltaTime;
         }
         
         if (world.mainCharacter) {
-            if (!playerControllersLinked) {
-                playerControllersLinked = true;
-                physics.enabled = true;
-                Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&playerController, 1);
-                Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController, 1);
-            }
+            glm::vec3 charPos = world.mainCharacter->transform->GetPosition();
+            RigidBody *rigidBody = (RigidBody*)world.mainCharacter->GetComponent("RigidBody");
+//            std::cout << "Character Position: (" << charPos.x << "," << charPos.y << "," << charPos.z << ")" << std::endl;
+//            std::cout << "Character Velocity: (" << rigidBody->velocity.x << "," << rigidBody->velocity.y << "," << rigidBody->velocity.z << ")" << std::endl;
             playerController.Update(world);
         } else {
             cameraController.Update(world);
         }
+        
         CAudioEngine::instance()->Update();
         renderer.Render(world, window);
         
