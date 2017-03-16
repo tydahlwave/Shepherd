@@ -12,6 +12,7 @@
 #include "Components/PathRenderer.h"
 #include "Components/SheepDestination.h"
 #include <GLFW/glfw3.h>
+#include "SoundLibrary.h"
 
 void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
     if (world->GetGameObjects().size() < maxEntities) CreateBunny(world); // does this mean a bunny spawns whenver a game object is destroyed??
@@ -32,8 +33,8 @@ void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
         
         for (GameObject *gameObject : world->GetGameObjects())  {
             RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
+            
             if(gameObject->name != "Bunny" || !rigidBody || gameObject->isBunnyAndIsAtEnd) continue;
-        
             if(glm::length(rigidBody->velocity) < 0.5 && Time::Now() - rigidBody->pointInTime > rigidBody->waitTime) {
                 int randomAngle = rand() % 360;
                 float velX = cos(randomAngle/180.0*M_PI);
@@ -165,6 +166,14 @@ void BunnySpawnSystem::KeyPressed(World *world, int windowWidth, int windowHeigh
 	if (action == GLFW_PRESS) {
 		if (key == GLFW_KEY_F) {
 			flockToCamera = !flockToCamera;
+            if(flockToCamera)
+            {
+                GameObject *b = EntityFactory::createRing(world);
+                SoundLibrary::playPing();
+            }
+            else{
+                SoundLibrary::playPong();
+            }
         }
         else if (key == GLFW_KEY_1) {
             world->sheepDestinationObject = EntityFactory::createNodeSphere(world);

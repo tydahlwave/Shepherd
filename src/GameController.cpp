@@ -121,23 +121,27 @@ void GameController::ImGuiShowNames(World *world) {
             glGetIntegerv(GL_VIEWPORT, viewportArray);
             vec4 viewport = vec4(viewportArray[0], viewportArray[1], viewportArray[2], viewportArray[3]);
             float aspectRatio = (float)window.GetWidth() / (float)window.GetHeight();
+            //std::cout<<window.GetWidth() << " :   " <<window.GetHeight() << std::endl;
             Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
             mat4 P = glm::perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
             mat4 V = glm::lookAt(camera->pos, camera->lookAt, camera->up);
             
             vec3 projected = glm::project(gameObject->transform->GetPosition(), V, P, viewport);
+
             
             // now write characters to screen in this projected screen pos
             float distance = glm::distance(world->mainCharacter->transform->GetPosition(), gameObject->transform->GetPosition());
             float alpha = 1.0 - distance*distance / 5000.0;
-            ImVec4 textCol = ImVec4(textName->color.x, textName->color.y, textName->color.z, alpha);
+            ImVec4 textCol = ImVec4(textName->color.x, textName->color.y, textName->color.z, 1);
             ImGui::PushStyleColor(ImGuiCol_Text, textCol);
             
             // define variables for width and height of each imgui name window
             float width = 200;
             float height = 30;
             ImGui::SetNextWindowSize(ImVec2(width,height), ImGuiSetCond_FirstUseEver);
-            ImGui::SetNextWindowPos(ImVec2(projected.x - 10.0, window.GetHeight() - (projected.y + 50.0)));
+            ImGui::SetNextWindowPos(ImVec2((projected.x - 10.0)/2.0f, (window.GetHeight() - (projected.y + 90.0))/ 2.0f));
+            //ImGui::SetNextWindowPos(ImVec2(projected.x, window.GetHeight() - 100));
+            //std::cout<< projected.x << " :   " <<projected.y << std::endl;
             ImGui::SetNextWindowCollapsed(true, ImGuiSetCond_Once);
             ImGui::Begin(textName->name.c_str(), nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs);
             ImGui::Text("%s", textName->name.c_str());

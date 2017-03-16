@@ -45,6 +45,7 @@ public:
     static GameObject *createStaticObject(World *world, std::string name, Model *model, Shader *shader);
     static GameObject *createStartMenuTerrain(World *world, std::string resourceDir, int type, int size, glm::vec3 pos);
     static GameObject *createNodeSphere(World *world);
+    static GameObject *createRing(World *world);
 };
 
 #endif /* EntityFactory_h */
