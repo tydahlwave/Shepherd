@@ -45,7 +45,7 @@ GameObject *World::CreateGameObject(std::string name) {
 
 void World::ClearGameObjects() {
 	for (GameObject *go : gameObjects) {
-		delete go;
+        RemoveGameObject(go);
 	}
 	gameObjects.clear();
 }

@@ -29,6 +29,8 @@ public:
     static void playWolfSpawn();
     static void playTreeHit();
     static void playRockHit();
+    static void playPing();
+    static void playPong();
     
 private:
  

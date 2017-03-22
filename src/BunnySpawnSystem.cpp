@@ -12,6 +12,7 @@
 #include "Components/PathRenderer.h"
 #include "Components/SheepDestination.h"
 #include <GLFW/glfw3.h>
+#include "SoundLibrary.h"
 
 void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
     if (world->GetGameObjects().size() < maxEntities) CreateBunny(world); // does this mean a bunny spawns whenver a game object is destroyed??
@@ -32,8 +33,8 @@ void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
         
         for (GameObject *gameObject : world->GetGameObjects())  {
             RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
+            
             if(gameObject->name != "Bunny" || !rigidBody || gameObject->isBunnyAndIsAtEnd) continue;
-        
             if(glm::length(rigidBody->velocity) < 0.5 && Time::Now() - rigidBody->pointInTime > rigidBody->waitTime) {
                 int randomAngle = rand() % 360;
                 float velX = cos(randomAngle/180.0*M_PI);
@@ -56,7 +57,6 @@ void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
             glm::vec3 rotation = glm::vec3(0, (angle * 180 / M_PI), 0);
             gameObject->transform->SetRotation(rotation);
         }
-        //ObstacleAvoidance(world);
     }
     jumpAtEndOfLevel(world);
 }
@@ -65,23 +65,19 @@ void BunnySpawnSystem::jumpAtEndOfLevel(World*world) {
     for(GameObject * gameObject : bunniesAtEnd) {
         RigidBody *rb = (RigidBody*)gameObject->GetComponent("RigidBody");
         if(rb) {
-            if(glm::length(vec2(rb->velocity)) > 0.1) {
-                rb->velocity.x = rb->velocity.x/1000.f;
-                rb->velocity.z = rb->velocity.z/1000.f;
-                rb->pointInTime = Time::Now();
-                rb->waitTime = 2000;
-            }
-            else if(Time::Now() - rb->pointInTime > rb->waitTime) {
-                //cout << "SHOOT UP " << endl;
+            rb->velocity.x = rb->velocity.x/1000.f;
+            rb->velocity.z = rb->velocity.z/1000.f;
+            if(Time::Now() - rb->pointInTime > rb->waitTime) {
+                cout << "SHOOT UP " << endl;
                 if(rb->bulletRigidBody) {
                     rb->bulletRigidBody->setLinearVelocity(btVector3(0,30.0,0));
                     rb->pointInTime = Time::Now();
+                    rb->waitTime = rand() % 2000 + 750;
                 }
             }
             float angle = atan2(rb->velocity.x, rb->velocity.z);
             glm::vec3 rotation = glm::vec3(0, (angle * 180 / M_PI), 0);
             gameObject->transform->SetRotation(rotation);
-            
         }
     }
 }
@@ -165,6 +161,14 @@ void BunnySpawnSystem::KeyPressed(World *world, int windowWidth, int windowHeigh
 	if (action == GLFW_PRESS) {
 		if (key == GLFW_KEY_F) {
 			flockToCamera = !flockToCamera;
+            if(flockToCamera)
+            {
+                GameObject *b = EntityFactory::createRing(world);
+                SoundLibrary::playPing();
+            }
+            else{
+                SoundLibrary::playPong();
+            }
         }
         else if (key == GLFW_KEY_1) {
             world->sheepDestinationObject = EntityFactory::createNodeSphere(world);
@@ -183,6 +187,9 @@ void BunnySpawnSystem::KeyPressed(World *world, int windowWidth, int windowHeigh
                     }
                 }
             }
+        }
+        else if (key == GLFW_KEY_H) {
+            world->showHelp = !world->showHelp;
         }
 	}
 }
@@ -373,7 +380,7 @@ void BunnySpawnSystem::Cohesion(GameObject *bunny) {
 glm::vec3 BunnySpawnSystem::FollowPath(World *world, GameObject *bunny) {
 	glm::vec3 target = glm::vec3 (0, 0, 0);
 
-	if (path != NULL) {
+	if (path) {
 		std::vector<glm::vec3> nodes = (*path).GetNodes();
 //		RigidBody *rigidBody = (RigidBody*)bunny->GetComponent("RigidBody");
 

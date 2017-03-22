@@ -15,6 +15,7 @@
 #include "Time.h"
 #include "SoundLibrary.h"
 #include "Components/Death.h"
+#include "Components/Force.h"
 #include "CameraController.h"
 
 
@@ -107,7 +108,7 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
         btVector3 camPos = btVector3(pos.x, pos.y-2, pos.z);
         
         btVector3 camLookAt = btVector3(sin(theta) * 1, 0, cos(theta) * 1);
-        btVector3 endPoint = camPos + (camLookAt)*30.0; // multiplied by a large number to make sure i got far enough
+        btVector3 endPoint = camPos + (camLookAt)*50.0; // multiplied by a large number to make sure i got far enough
         
         
         btVector3 forceVector = camLookAt;
@@ -137,7 +138,7 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                 //world->dynamicsWorld->rayTest(camPos, endPoint, RayCallback);
                 
                 //if(RayCallback.m_collisionObject == rb->bulletRigidBody) {
-                if(isLyingInCone(objPos, camPos, endPoint, M_PI/3.0)) {
+                if(isLyingInCone(objPos, camPos, endPoint, M_PI/1.5)) {
                     //rb->bulletRigidBody->applyForce(forceVector, camPos - objPos);
                     //rb->bulletRigidBody->applyImpulse(forceVector, camPos - objPos);
                     //is sheep, baa
@@ -173,6 +174,12 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
 //                        rb->bulletRigidBody->setLinearVelocity(forceVector);
                     }
                     rb->bulletRigidBody->setLinearVelocity(forceVector);
+                    Force *force = (Force*)go->GetComponent("Force");
+                    if (!force) {
+                        force = (Force*)go->AddComponent("Force");
+                    }
+                    force->dir = glm::vec3(forceVector.x(), forceVector.y(), forceVector.z());
+                    force->time = Time::Now();
                 }
             }
         }

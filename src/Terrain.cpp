@@ -74,13 +74,14 @@ void Terrain::generate(int size, NoiseProperties properties) {
     std::cout << "Terrain size: " << heightMap.size() << "x" << heightMap[0].size() << std::endl;
     
     // TODO: refactor the noise methods to return a 1D array
-    std::vector<unsigned short> heightMapFlat;
+    dataFloat.resize(width*height);
+//    std::vector<float> heightMapFlat;
     for (int i = 0; i < heightMap.size(); i++) {
         for (int j = 0; j < heightMap[i].size(); j++) {
-            heightMapFlat.push_back((unsigned short)heightMap[j][i]);
+            dataFloat[i * width + j] = heightMap[j][i];
         }
     }
-    data = heightMapFlat.data();
+//    dataFloat = &heightMap[0][0];
     
     // Set texture data to 0s
     textureData.resize(width * height);
@@ -90,7 +91,7 @@ void Terrain::generate(int size, NoiseProperties properties) {
     
     // Load the heightmap into a texture
     ImageProperties imageProps(width, height, 0, GL_R16F, GL_RED, GL_FLOAT);
-    heightmapTex.Load(data, imageProps);
+    heightmapTex.Load(dataFloat.data(), imageProps);
 }
 
 void Terrain::smooth(int iterations, int kernelSize) {
@@ -171,7 +172,10 @@ void Terrain::updateVertexHeights() {
     for (int row = 0; row < height; row++) {
         for (int col = 0; col < width; col++) {
             int index = row * width + col;
-            vertices[index].pos.y = (float)data[index]/SHRT_MAX*maxHeight;;
+            if (!data)
+                vertices[index].pos.y = dataFloat[index];
+            else
+                vertices[index].pos.y = (float)data[index]/SHRT_MAX*maxHeight;
         }
     }
     ComputeNormals();
@@ -191,23 +195,43 @@ void Terrain::createMesh() {
 //    smooth(3, 3);
     
     // Record max/min and resize data to put lowest point at 0
-    unsigned short max = 0;
-    unsigned short min = USHRT_MAX;
-    for (int col = 0; col < width; col++) {
-        for (int row = 0; row < height; row++) {
-            int index = row * width + col;
-            if (data[index] > max) max = data[index];
-            if (data[index] < min) min = data[index];
+    if (!data) {
+        max = FLT_MIN;
+        min = FLT_MAX;
+        for (int col = 0; col < width; col++) {
+            for (int row = 0; row < height; row++) {
+                int index = row * width + col;
+                if (dataFloat[index] > max) max = dataFloat[index];
+                if (dataFloat[index] < min) min = dataFloat[index];
+            }
         }
-    }
-    for (int col = 0; col < width; col++) {
-        for (int row = 0; row < height; row++) {
-            int index = row * width + col;
-            data[index] -= min;
+//        for (int col = 0; col < width; col++) {
+//            for (int row = 0; row < height; row++) {
+//                int index = row * width + col;
+//                dataFloat[index] -= min;
+//            }
+//        }
+//        this->min = 0;
+//        this->max = max - min;
+    } else {
+        unsigned short max = 0;
+        unsigned short min = USHRT_MAX;
+        for (int col = 0; col < width; col++) {
+            for (int row = 0; row < height; row++) {
+                int index = row * width + col;
+                if (data[index] > max) max = data[index];
+                if (data[index] < min) min = data[index];
+            }
         }
+        for (int col = 0; col < width; col++) {
+            for (int row = 0; row < height; row++) {
+                int index = row * width + col;
+                data[index] -= min;
+            }
+        }
+        this->min = 0;
+        this->max = (float)max / SHRT_MAX * maxHeight - (float)min / SHRT_MAX * maxHeight;
     }
-    this->min = 0;
-    this->max = (float)max / SHRT_MAX * maxHeight - (float)min / SHRT_MAX * maxHeight;
     
     // Reset buffers
     if (!vertices.empty()) vertices.clear();
@@ -227,7 +251,11 @@ void Terrain::createMesh() {
         for (int col = 0; col < width; col++) {
             int index = row * width + col;
             float x = col - width/2.0f;
-            float y = (float)data[index]/SHRT_MAX*maxHeight;
+            float y;
+            if (!data)
+                y = dataFloat[index];
+            else
+                y = (float)data[index]/SHRT_MAX*maxHeight;
             float z = row - height/2.0f;
             vertices[index].pos = glm::vec3(x, y, z);
             vertices[index].tex = textureData[index];
@@ -369,11 +397,17 @@ void Terrain::draw() {
 
 float Terrain::getHeight(int x, int y) {
 //    Log(ERROR, "Unimplemented", __FILE__, __LINE__);
-    return (float)data[y * width + x] / SHRT_MAX * maxHeight;
+    if (!data)
+        return dataFloat[y * width + x];
+    else
+        return (float)data[y * width + x] / SHRT_MAX * maxHeight;
 }
 
 void Terrain::setHeight(int x, int y, float height) {
-    data[y * width + x] = std::max((unsigned short)0, (unsigned short)(height / maxHeight * SHRT_MAX));
+    if (!data)
+        dataFloat[y * width + x] = height;
+    else
+        data[y * width + x] = std::max((unsigned short)0, (unsigned short)(height / maxHeight * SHRT_MAX));
 //    Log(ERROR, "Unimplemented", __FILE__, __LINE__);
 }
 

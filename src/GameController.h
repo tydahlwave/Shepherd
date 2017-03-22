@@ -89,6 +89,7 @@ private:
     void drawImGUIStuff(Window &window, GameObject *terrain);
     void drawTerrainWindow(Window &window, GameObject *terrain);
     void ImGuiShowNames(World *world);
+    void ImGuiShowHelp(World *world);
 };
 
 #endif /* CharacterController_h */

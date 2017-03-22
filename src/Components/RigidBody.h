@@ -30,7 +30,7 @@ public:
 	bool isPushPullable = true;
     btRigidBody *bulletRigidBody = nullptr;
     
-    long pointInTime = Time::Now();
+    long pointInTime = 0;
     int waitTime = 0;
     
     void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) {

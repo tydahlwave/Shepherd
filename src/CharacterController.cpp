@@ -1,7 +1,5 @@
 
-#include <iostream>
-#include <GLFW/glfw3.h>
-
+#include "Components/TerrainRenderer.h"
 #include "CharacterController.h"
 #include "Components/Camera.h"
 #include "Components/RigidBody.h"
@@ -9,6 +7,9 @@
 #include "Components/Animation.h"
 #include "EntityFactory.h"
 #include "SoundLibrary.h"
+
+#include <iostream>
+#include <GLFW/glfw3.h>
 
 void CharacterController::Update(World *world, float deltaTime) {
     GameObject *mainCharacter = (world->mainCharacter) ? world->mainCharacter : world->mainCamera;
@@ -79,10 +80,21 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
             SoundLibrary::playWalk();
 		}
 		else if (key == GLFW_KEY_SPACE) {
-//			glm::vec3 pos = mainCharacter->transform->GetPosition();
-			//pos.y += 100;
-            ((RigidBody*)mainCharacter->GetComponent("RigidBody"))->bulletRigidBody->setLinearVelocity(btVector3(0,60,0));
-			//mainCharacter->transform->SetPosition(pos);
+            
+            GameObject*terrainObject;
+            // Find the terrain
+            for (GameObject *obj : world->GetGameObjects()) {
+                if (obj->name.compare("Terrain") == 0) {
+                    terrainObject = obj;
+                    break;
+                }
+            }
+            TerrainRenderer *terrainRenderer = (TerrainRenderer*)terrainObject->GetComponent("TerrainRenderer");
+            Terrain *terrain = terrainRenderer->terrain;
+            if (mainCharacter->transform->GetPosition().y + 15.0 < EntityFactory::getTerrainHeightForPosition(terrainObject, terrain, mainCharacter->transform->GetPosition().x, mainCharacter->transform->GetPosition().z)) {
+                
+                ((RigidBody*)mainCharacter->GetComponent("RigidBody"))->bulletRigidBody->setLinearVelocity(btVector3(0,60,0));
+            }
 		}
 	}
 	else if (action == GLFW_RELEASE) {

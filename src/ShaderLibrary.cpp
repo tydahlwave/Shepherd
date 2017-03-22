@@ -22,6 +22,7 @@ Shader *ShaderLibrary::skybox = nullptr;
 Shader *ShaderLibrary::anim = nullptr;
 Shader *ShaderLibrary::shadowDepth = nullptr;
 Shader *ShaderLibrary::shadowTerrain = nullptr;
+Shader *ShaderLibrary::inFrontOfCamera = nullptr;
 
 void ShaderLibrary::LoadShaders(std::string resourceDir) {
     Program *program = new Program();
@@ -325,4 +326,13 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("shadowDepth");
     program->addUniform("lightDir");
     shadowTerrain = new Shader(program);
+
+    program = new Program();
+    program->setVerbose(true);
+    program->setShaderNames(resourceDir + "in_front_of_cam_vert.glsl", resourceDir + "in_front_of_cam_frag.glsl");
+    program->init();
+    program->addUniform("P");
+    program->addUniform("M");
+    program->addUniform("V");
+    inFrontOfCamera = new Shader(program);
 }

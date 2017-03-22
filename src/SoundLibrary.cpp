@@ -48,7 +48,7 @@ void SoundLibrary::playShot(){
 }
 
 void SoundLibrary::playRandSheep(){
-    int v2 = rand() % 5 + 1;
+    int v2 = rand() % 4 + 1;
     int sheep;
     switch(v2){
         case 2:{
@@ -82,4 +82,12 @@ void SoundLibrary::playWolfSpawn(){
 }
  void SoundLibrary::playRockHit(){
     CAudioEngine::instance()->PlaySound("rock.wav");
+}
+
+void SoundLibrary::playPing(){
+    CAudioEngine::instance()->PlaySound("ping.wav");
+}
+
+void SoundLibrary::playPong(){
+    CAudioEngine::instance()->PlaySound("pong.wav");
 }

@@ -102,6 +102,10 @@ void GameController::displayStats(float deltaTime, World &world, Physics &physic
 
 
 void GameController::ImGuiShowNames(World *world) {
+    //note on making it work for 4k displays!!
+    //FROM: http://stackoverflow.com/questions/25230841/how-to-find-display-scaling-factor-on-retina-4k-displays
+    //You need to use glfwGetFramebufferSize to get the actual size of the window in pixels on displays that use window coordinates that don't match pixels. Then pass those values to glViewport.
+    
     // draw names over sheep
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(1,1,1,0));
     ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(1,1,1,0));
@@ -121,24 +125,28 @@ void GameController::ImGuiShowNames(World *world) {
             glGetIntegerv(GL_VIEWPORT, viewportArray);
             vec4 viewport = vec4(viewportArray[0], viewportArray[1], viewportArray[2], viewportArray[3]);
             float aspectRatio = (float)window.GetWidth() / (float)window.GetHeight();
+            //std::cout<<window.GetWidth() << " :   " <<window.GetHeight() << std::endl;
             Camera *camera = (Camera*)world->mainCamera->GetComponent("Camera");
             mat4 P = glm::perspective(45.0f, aspectRatio, 0.01f, 1000.0f);
             mat4 V = glm::lookAt(camera->pos, camera->lookAt, camera->up);
             
             vec3 projected = glm::project(gameObject->transform->GetPosition(), V, P, viewport);
+
             
             // now write characters to screen in this projected screen pos
             float distance = glm::distance(world->mainCharacter->transform->GetPosition(), gameObject->transform->GetPosition());
             float alpha = 1.0 - distance*distance / 5000.0;
-            ImVec4 textCol = ImVec4(textName->color.x, textName->color.y, textName->color.z, alpha);
+            ImVec4 textCol = ImVec4(textName->color.x, textName->color.y, textName->color.z, 1);
             ImGui::PushStyleColor(ImGuiCol_Text, textCol);
             
             // define variables for width and height of each imgui name window
             float width = 200;
             float height = 30;
             ImGui::SetNextWindowSize(ImVec2(width,height), ImGuiSetCond_FirstUseEver);
-            ImGui::SetNextWindowPos(ImVec2(projected.x - 10.0, window.GetHeight() - (projected.y + 50.0)));
-            ImGui::SetNextWindowCollapsed(true, ImGuiSetCond_Once);
+            ImGui::SetNextWindowPos(ImVec2((projected.x - 10.0)/2.0f, (window.GetHeight() - (projected.y + 90.0))/ 2.0f));
+            //ImGui::SetNextWindowPos(ImVec2(projected.x, window.GetHeight() - 100));
+            //std::cout<< projected.x << " :   " <<projected.y << std::endl;
+            //ImGui::SetNextWindowCollapsed(true, ImGuiSetCond_Once);
             ImGui::Begin(textName->name.c_str(), nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs);
             ImGui::Text("%s", textName->name.c_str());
             ImGui::End();
@@ -152,11 +160,33 @@ void GameController::ImGuiShowNames(World *world) {
     ImGui::PopStyleColor();
 }
 
+void GameController::ImGuiShowHelp(World *world) {
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    if (!world->showHelp) {
+        ImGui::Begin("Need Help?", nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs);
+        ImGui::Text("Press 'H' to show help");
+    }
+    else {
+        ImGui::Begin("Help Window", nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs);
+        ImGui::Text("Movement - ASDF");
+        ImGui::Text("Jump - Space");
+        ImGui::Text("Throw follow orb - 1");
+        ImGui::Text("Remove follow orb - 2");
+        ImGui::Text("Ping to have sheep follow you - F");
+        ImGui::Text("Force Push Roar - Left Click");
+        ImGui::Text("Force Pull Roar - Right Click");
+        //ImGui::SetWindowFontScale(10);
+        
+    }
+    ImGui::End();
+}
+
 void GameController::ImguiUpdate(World *world, bool drawGUI) {
     //    if(!drawGUI) return;
     if(terrain && drawGUI) drawTerrainWindow(window, terrain);
     if (drawGUI) LevelEditor::drawLevelEditor(window, world);
     ImGuiShowNames(world);
+    ImGuiShowHelp(world);
 }
 
 void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
@@ -207,7 +237,7 @@ void GameController::checkIfEndOfLevel() {
         RigidBody *rb = (RigidBody*)gameObject->GetComponent("RigidBody");
         if(rb) {
             numOfAliveBunnies++;
-            if( glm::distance(bunnySpawnSystem->endPosition, gameObject->transform->GetPosition()) < 40.0f) {
+            if( glm::distance(bunnySpawnSystem->endPosition, gameObject->transform->GetPosition()) < 50.0f) {
                 if(!gameObject->isBunnyAndIsAtEnd) {
                     gameObject->isBunnyAndIsAtEnd = true;
                     bunnySpawnSystem->bunniesAtEnd.push_back(gameObject);
@@ -216,15 +246,24 @@ void GameController::checkIfEndOfLevel() {
         }
     }
     //cout << "bunnies at end: " << bunnySpawnSystem->bunniesAtEnd.size() << endl;
-    if(numOfAliveBunnies == bunnySpawnSystem->bunniesAtEnd.size()){// || numOfAliveBunnies == 0) {
+    if(numOfAliveBunnies == bunnySpawnSystem->bunniesAtEnd.size()){
         //either you won or you lost
-        cout << "bunnies are all at end!" << endl;
-        std::cout << "Game Over" << std::endl;
-        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
-        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)characterController);
-        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
+        if(bunnySpawnSystem->bunniesAtEnd.size() == 0){
+            nextState = Level2;
+            return;
+        }
+//        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
+//        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)characterController);
+//        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
+        wolfSystem = nullptr;
         GameObject *winLevelTitle = EntityFactory::createTitle(&world);
-        winLevelTitle->transform->SetPosition(world.mainCharacter->transform->GetPosition());
+        MeshRenderer *mesh = (MeshRenderer*)winLevelTitle->GetComponent("MeshRenderer");
+        mesh->shader = ShaderLibrary::inFrontOfCamera;
+        winLevelTitle->transform->SetPosition(glm::vec3(0.f,0.5f,0.f));
+        winLevelTitle->transform->SetScale(glm::vec3(1,-1,1)*0.5f);
+        winLevelTitle->transform->SetRotation(glm::vec3(180.f, 0.f, 0.f));
+        MeshRenderer *meshRenderer = (MeshRenderer*)winLevelTitle->GetComponent("MeshRenderer");
+        meshRenderer->model->bounds.halfwidths = vec3(INFINITY);
         levelComplete = true;
     }
 }
@@ -247,6 +286,8 @@ void GameController::Run() {
     audio->LoadSounds(resourceDir);
     nextState = MainMenu;
     state = MainMenu;
+    
+    world.resourceDir = this->resourceDir;
     
     while (state != Close) {
         LoadState();
@@ -328,6 +369,13 @@ void GameController::Run() {
 					world.RemoveGameObject(world.mainCamera);
 					world.mainCamera = world.mainCharacter;
 					nextcamlevel = 0.f;
+                    EntityFactory::createHUD(&world);
+//                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController, 1);
+//                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController, 1);
+//                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)terrainController, 1);
+//                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)bunnySpawnSystem, 1);
+//                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)characterController, 1);
+
 					break;
 				}
 				camstage++;
@@ -361,6 +409,10 @@ void GameController::LoadState() {
 
 		//load sign
         sign = EntityFactory::createTitle(&world);
+        //sign->transform->SetScale(vec3(0));
+        
+       
+        
 		//load enterbutton
 //		GameObject *startButton = EntityFactory::createHUD2(&world);
 //		startButton->transform->SetPosition(glm::vec3(0.5f, 0.7f, 0));
@@ -414,6 +466,8 @@ void GameController::LoadState() {
         
         // Create terrain
         GameObject *startMenuTerrain = EntityFactory::createStartMenuTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, -20, 0));
+        startMenuTerrain->transform->SetPosition(glm::vec3(0, -20, 0));
+      
         
         // Add directional light
         EntityFactory::createLight(&world, glm::vec3(-0.6, 0.8, -1.0), true, glm::vec3(2, 2, 2), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
@@ -444,8 +498,9 @@ void GameController::LoadState() {
 		physicsController = new PhysicsController();
 		terrainController = new TerrainController();
 		bunnySpawnSystem = new BunnySpawnSystem();
-        bunnySpawnSystem->startPosition = glm::vec3(-573, 4, -344);
-        bunnySpawnSystem->endPosition = glm::vec3(-365,3,647);
+        bunnySpawnSystem->startPosition = glm::vec3(-500, 4, -350);
+        bunnySpawnSystem->endPosition = glm::vec3(185,241,362);
+        //bunnySpawnSystem->endPosition = glm::vec3(-490,5,-316);
 		wolfSystem = new WolfSystem();
 		treeSystem = new TreeSystem();
         animSystem = new AnimationSystem();
@@ -462,10 +517,29 @@ void GameController::LoadState() {
 
 
 		world.mainCamera = EntityFactory::createMainCamera(&world);
-		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera,glm::vec3(-573, 4, -344));
-        
-        
+		world.mainCharacter = EntityFactory::upgradeCharacter(&world, world.mainCamera,glm::vec3(-500, 4, -350));
         world.cameraController = (GameObject*)cameraController;
+        
+        // Create fences
+        GameObject *fence1 = EntityFactory::createStaticObject(&world, "Fence", ModelLibrary::fence, ShaderLibrary::cell, MaterialLibrary::brown);
+        fence1->transform->SetPosition(glm::vec3(185,241,322));
+        fence1->transform->SetRotation(glm::vec3(0, 0, 0));
+        fence1->transform->SetScale(glm::vec3(40, 40, 40));
+        
+        GameObject *fence2 = EntityFactory::createStaticObject(&world, "Fence", ModelLibrary::fence, ShaderLibrary::cell, MaterialLibrary::brown);
+        fence2->transform->SetPosition(glm::vec3(185,241,402));
+        fence2->transform->SetRotation(glm::vec3(0, 0, 0));
+        fence2->transform->SetScale(glm::vec3(40, 40, 40));
+        
+        GameObject *fence3 = EntityFactory::createStaticObject(&world, "Fence", ModelLibrary::fence, ShaderLibrary::cell, MaterialLibrary::brown);
+        fence3->transform->SetPosition(glm::vec3(227,241,361));
+        fence3->transform->SetRotation(glm::vec3(0, 90, 0));
+        fence3->transform->SetScale(glm::vec3(40, 40, 40));
+        
+//        GameObject *fence4 = EntityFactory::createStaticObject(&world, "Fence", ModelLibrary::fenceWithDoor, ShaderLibrary::cell, MaterialLibrary::brown);
+//        fence4->transform->SetPosition(glm::vec3(135,241,362));
+//        fence4->transform->SetRotation(glm::vec3(0, 90, 0));
+//        fence4->transform->SetScale(glm::vec3(40, 40, 40));
 
         //Create skybox
         GameObject *skybox = EntityFactory::createSkybox(&world, resourceDir);
@@ -491,7 +565,10 @@ void GameController::LoadState() {
 //		randomlyPopulateWithBoulders(p->path);
 
 		// Create trees
-		treeSystem->Spawn(&world);
+		//treeSystem->Spawn(&world);
+//        EntityFactory::createBarrier(&world, glm::vec3(200,100,60), 350);
+
+        
         
         GameObject* test = EntityFactory::createTestAnim(&world);
         Animation* testAnim = (Animation*) test->GetComponent("Animation");
@@ -515,15 +592,18 @@ void GameController::LoadState() {
 
         // Add directional light
         EntityFactory::createLight(&world, glm::vec3(1, 1, 1), true, glm::vec3(1, 1, 1), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
-		EntityFactory::createHUD(&world);
+//		EntityFactory::createHUD(&world);
 		EntityFactory::createChargeBar(&world);
 		world.mainCamera = EntityFactory::createMainCamera(&world);
 		nextcamlevel = .000001f;
 		camlevel = 1.f;
+        camstage = 0;
 		break;
 	}
 	case Level2:
 	{
+        
+        nextState = Level1;
 		break;
 	}
 	case Level3:
@@ -562,6 +642,14 @@ void GameController::UnloadState() {
     if (physicsController) {
         delete physicsController;
         physicsController = nullptr;
+    }
+    if (treeSystem) {
+        delete treeSystem;
+        treeSystem = nullptr;
+    }
+    if (animSystem) {
+        delete animSystem;
+        animSystem = nullptr;
     }
     window.drawMouse = false;
 }
@@ -607,6 +695,10 @@ void GameController::KeyPressed(World *world, int windowWidth, int windowHeight,
         Serializer::SerializeWorld(world);
     if (key == GLFW_KEY_F1 && action == GLFW_PRESS)
         nextState = MainMenu;
+    if (key == GLFW_KEY_ENTER && action == GLFW_PRESS){
+        cout << "I PRESSED ENTER" << endl;
+        camstage = 3;
+    }
 }
 void GameController::MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY) {
     //printf("mousemoving!");
