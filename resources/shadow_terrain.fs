@@ -49,16 +49,18 @@ out vec4 color;
 
 float TestShadow() {
     float bias = 0.001;
-//    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005); 
+//    float bias = max(0.005 * (1.0 - dot(normalize(vertNor), normalize(vec3(1, 1, 1)))), 0.0005);
     
     vec4 fPosLS = fPosLS1;
     int shadowDepthIndex = 0;
     if (fragPos.z > -30) {
         fPosLS = fPosLS3;
         shadowDepthIndex = 2;
+        bias = 0.00003;
     } else if (fragPos.z > -70) {
         fPosLS = fPosLS2;
         shadowDepthIndex = 1;
+        bias = 0.0001;
     }
     //1: shift the coordinates from -1, 1 to 0 ,1
     vec4 shifted = (fPosLS + 1)/2.0f;

@@ -255,7 +255,13 @@ void Renderer::RenderShadows(World &world) {
             MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
             if (meshRenderer && meshRenderer->draw == false) continue;
             if (meshRenderer) {// && intersectFrustumAABB(camera, gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
-                applyTransformMatrix(shadowShader, gameObject->transform);
+                if(gameObject->name.compare("Camera") == 0) {
+                    glm::vec3 rot = gameObject->transform->GetRotation();
+                    Transform t = *new Transform(gameObject->transform->GetPosition(), glm::vec3(rot.x, rot.y - 90, rot.z), gameObject->transform->GetScale());
+                    applyTransformMatrix(shadowShader, &t);
+                } else {
+                    applyTransformMatrix(shadowShader, gameObject->transform);
+                }
                 meshRenderer->model->draw(shadowShader);
             }
             TerrainRenderer *terrainRenderer = (TerrainRenderer*)gameObject->GetComponent("TerrainRenderer");

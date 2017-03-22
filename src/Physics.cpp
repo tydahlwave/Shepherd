@@ -280,7 +280,16 @@ void Physics::HandleTerrainCollisions(World &world) {
                 float halfObjectHeight = meshRenderer->model->bounds.halfwidths.y * obj->transform->GetScale().y;
                 float newPosY = terrainPos.y + terrainHeight + halfObjectHeight;
                 
-                if (obj->name.compare("Bunny") == 0 || obj->name.compare("Wolf") == 0 || obj->name.compare("Boulder") == 0 || obj->name.compare("Camera") == 0 || obj->name.compare("FollowSphere") == 0) {
+                if (obj->name.compare("Camera") == 0) {
+                    if (pos.y < newPosY - 1.75) {
+                        obj->transform->SetPosition(glm::vec3(pos.x, newPosY - 1.75, pos.z));
+                        
+                        RigidBody *rigidBody = (RigidBody*)obj->GetComponent("RigidBody");
+                        if (rigidBody && rigidBody->bulletRigidBody) {
+                            rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 0, 0));
+                        }
+                    }
+                } else if (obj->name.compare("Bunny") == 0 || obj->name.compare("Wolf") == 0 || obj->name.compare("Boulder") == 0 || obj->name.compare("FollowSphere") == 0) {
                     if (pos.y < newPosY) {
                         obj->transform->SetPosition(glm::vec3(pos.x, newPosY, pos.z));
                         RigidBody *rigidBody = (RigidBody*)obj->GetComponent("RigidBody");
