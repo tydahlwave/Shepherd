@@ -5,12 +5,12 @@
 Skybox::Skybox(std::string resourceDir)
 {
 	rd = resourceDir;
-	faces.push_back("right.jpg");
 	faces.push_back("left.jpg");
+	faces.push_back("right.jpg");
 	faces.push_back("top.jpg");
 	faces.push_back("bottom.jpg");
-	faces.push_back("back.jpg");
 	faces.push_back("front.jpg");
+	faces.push_back("back.jpg");
 	loadCubeMap();
 }
 
