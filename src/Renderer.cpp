@@ -186,11 +186,9 @@ void calcShadowOrthos(World &world) {
         float offsetX = 0.0f;
         float offsetZ = 0.0f;
         if (world.mainCharacter) {
-            std::cout << "Character Pos: (" << world.mainCharacter->transform->GetPosition().x << "," << world.mainCharacter->transform->GetPosition().y << "," << world.mainCharacter->transform->GetPosition().z << ")" << std::endl;
             offsetX = world.mainCharacter->transform->GetPosition().x * cos(M_PI/4) - world.mainCharacter->transform->GetPosition().z * sin(M_PI/4);
             offsetZ = (-world.mainCharacter->transform->GetPosition().z * cos(M_PI/4) - world.mainCharacter->transform->GetPosition().x * sin(M_PI/4)) * cos(M_PI*55/180);;
         } else if (world.mainCamera) {
-            std::cout << "Main Camera Pos: (" << world.mainCamera->transform->GetPosition().x << "," << world.mainCamera->transform->GetPosition().y << "," << world.mainCamera->transform->GetPosition().z << ")" << std::endl;
             offsetX = world.mainCamera->transform->GetPosition().x * cos(M_PI/4) - world.mainCamera->transform->GetPosition().z * sin(M_PI/4);
             offsetZ = (-world.mainCamera->transform->GetPosition().z * cos(M_PI/4) - world.mainCamera->transform->GetPosition().x * sin(M_PI/4)) * cos(M_PI*55/180);
         }
