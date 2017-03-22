@@ -11,7 +11,9 @@ out vec3 vertNor;
 out vec3 viewNor;
 out float vertTex;
 out vec3 vColor;
-out vec4 fPosLS;
+out vec4 fPosLS1;
+out vec4 fPosLS2;
+out vec4 fPosLS3;
 
 in VS_OUT {
     vec3 fragPos;
@@ -22,7 +24,9 @@ in VS_OUT {
     vec3 viewNor;
     float vertTex;
     vec3 vColor;
-    vec4 fPosLS;
+    vec4 fPosLS1;
+    vec4 fPosLS2;
+    vec4 fPosLS3;
 } gs_in[];
 
 
@@ -42,7 +46,9 @@ void makeTriangle() {
         viewNor = gs_in[i].viewNor;
         vertTex = gs_in[i].vertTex;
         vColor = gs_in[i].vColor;
-        fPosLS = gs_in[i].fPosLS;
+        fPosLS1 = gs_in[i].fPosLS1;
+        fPosLS2 = gs_in[i].fPosLS2;
+        fPosLS3 = gs_in[i].fPosLS3;
         EmitVertex();
     }
     EndPrimitive();

@@ -175,62 +175,97 @@ bool Renderer::intersectFrustumAABB(Camera *cam, vec3 min, vec3 max) {
     return true;
 }
 
+#define SHADOW_CASCADES 3
 GLuint depthMapFBO;
-GLuint depthMap;
+GLuint depthMap[SHADOW_CASCADES];
+mat4 shadowOrthos[SHADOW_CASCADES];
+
+void calcShadowOrthos(World &world) {
+    for (int i = 0; i < SHADOW_CASCADES; i++) {
+        float magnitude = pow(2, (SHADOW_CASCADES-i-1)*2) * 40;
+        float offsetX = 0.0f;
+        float offsetZ = 0.0f;
+        if (world.mainCharacter) {
+            std::cout << "Character Pos: (" << world.mainCharacter->transform->GetPosition().x << "," << world.mainCharacter->transform->GetPosition().y << "," << world.mainCharacter->transform->GetPosition().z << ")" << std::endl;
+            offsetX = world.mainCharacter->transform->GetPosition().x * cos(M_PI/4) - world.mainCharacter->transform->GetPosition().z * sin(M_PI/4);
+            offsetZ = (-world.mainCharacter->transform->GetPosition().z * cos(M_PI/4) - world.mainCharacter->transform->GetPosition().x * sin(M_PI/4)) * cos(M_PI*55/180);;
+        } else if (world.mainCamera) {
+            std::cout << "Main Camera Pos: (" << world.mainCamera->transform->GetPosition().x << "," << world.mainCamera->transform->GetPosition().y << "," << world.mainCamera->transform->GetPosition().z << ")" << std::endl;
+            offsetX = world.mainCamera->transform->GetPosition().x * cos(M_PI/4) - world.mainCamera->transform->GetPosition().z * sin(M_PI/4);
+            offsetZ = (-world.mainCamera->transform->GetPosition().z * cos(M_PI/4) - world.mainCamera->transform->GetPosition().x * sin(M_PI/4)) * cos(M_PI*55/180);
+        }
+        shadowOrthos[i] = glm::ortho(-magnitude+offsetX, magnitude+offsetX, -magnitude+offsetZ, magnitude+offsetZ, 0.1f, 2000.0f);
+    }
+    shadowOrthos[0] = glm::ortho(-800.0f, 800.0f, -800.0f, 800.0f, 0.1f, 2000.0f);
+}
 
 void Renderer::initShadows() {
-    int S_WIDTH = window.GetWidth();
-    int S_HEIGHT = window.GetHeight();
+    int S_WIDTH = 2048;//window.GetWidth();
+    int S_HEIGHT = 2048;//window.GetHeight();
+    
     //generate the FBO for the shadow depth
     glGenFramebuffers(1, &depthMapFBO);
     
     //generate the texture
-    glGenTextures(1, &depthMap);
-    glBindTexture(GL_TEXTURE_2D, depthMap);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, S_WIDTH, S_HEIGHT,
-                 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glGenTextures(SHADOW_CASCADES, depthMap);
+    for (int i = 0; i < SHADOW_CASCADES; i++) {
+        glBindTexture(GL_TEXTURE_2D, depthMap[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, S_WIDTH, S_HEIGHT,
+                     0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    }
     
     //bind with framebuffer's depth buffer
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
+//    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap[0], 0);
+    for (int i = 0; i < SHADOW_CASCADES; i++) {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap[i], 0);
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+    }
+//    glDrawBuffer(GL_NONE);
+//    glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Renderer::RenderShadows(World &world) {
-    //set up light's depth map
-    glViewport(0, 0, window.GetWidth(), window.GetHeight());
-    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glCullFace(GL_FRONT);
+    calcShadowOrthos(world);
     
-    //set up shadow shader
-    //render scene
-    Program *shadowShader = ShaderLibrary::shadowDepth->program;
-    shadowShader->bind();
-    ApplyOrthoMatrix(shadowShader);
-    SetLightView(shadowShader, vec3(1000, 1000, 1000), vec3(0, 0, 0), vec3(0, 1, 0));
-//    drawScene(shadowShader, 0, 0);
-    for (GameObject *gameObject : world.GetGameObjects()) {
-        MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
-        if (meshRenderer && meshRenderer->draw == false) continue;
-        if (meshRenderer) {// && intersectFrustumAABB(camera, gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
-            applyTransformMatrix(shadowShader, gameObject->transform);
-            meshRenderer->model->draw(shadowShader);
+    //set up light's depth map
+    glViewport(0, 0, 2048, 2048);//window.GetWidth(), window.GetHeight());
+    
+    
+    glCullFace(GL_FRONT);
+    for (int i = 0; i < SHADOW_CASCADES; i++) {
+        // Render to shadow depth buffer 3
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap[i], 0);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        //set up shadow shader
+        //render scene
+        Program *shadowShader = ShaderLibrary::shadowDepth->program;
+        shadowShader->bind();
+        glUniformMatrix4fv(shadowShader->getUniform("LP"), 1, GL_FALSE, value_ptr(shadowOrthos[i]));
+        SetLightView(shadowShader, vec3(1000, 1000, 1000), vec3(0, 0, 0), vec3(0, 1, 0));
+        //    drawScene(shadowShader, 0, 0);
+        for (GameObject *gameObject : world.GetGameObjects()) {
+            MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
+            if (meshRenderer && meshRenderer->draw == false) continue;
+            if (meshRenderer) {// && intersectFrustumAABB(camera, gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
+                applyTransformMatrix(shadowShader, gameObject->transform);
+                meshRenderer->model->draw(shadowShader);
+            }
+            TerrainRenderer *terrainRenderer = (TerrainRenderer*)gameObject->GetComponent("TerrainRenderer");
+            if (terrainRenderer) {
+                applyTransformMatrix(shadowShader, gameObject->transform);
+                terrainRenderer->terrain->draw();
+            }
         }
-        TerrainRenderer *terrainRenderer = (TerrainRenderer*)gameObject->GetComponent("TerrainRenderer");
-        if (terrainRenderer) {
-            applyTransformMatrix(shadowShader, gameObject->transform);
-            terrainRenderer->terrain->draw();
-        }
+        shadowShader->unbind();
     }
-    shadowShader->unbind();
     glCullFace(GL_BACK);
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -549,12 +584,17 @@ void Renderer::Render(World &world) {
             }
             
             /* set up light depth map for shadows */
-            glActiveTexture(GL_TEXTURE0+i);
-            glBindTexture(GL_TEXTURE_2D, depthMap);
-            glUniform1i(shader->getUniform("shadowDepth"), i);
+            for (int j = 0; j < SHADOW_CASCADES; j++) {
+                glActiveTexture(GL_TEXTURE0+i+j);
+                glBindTexture(GL_TEXTURE_2D, depthMap[j]);
+//                glUniform1i(shader->getUniform("shadowDepth"+to_string(j+1)), i+j);
+                glUniformMatrix4fv(shader->getUniform("LP"+to_string(j+1)), 1, GL_FALSE, value_ptr(shadowOrthos[j]));
+            }
+            int texIDs[SHADOW_CASCADES] = {i, i+1, i+2};
+            glUniform1iv(shader->getUniform("shadowDepth"), SHADOW_CASCADES, texIDs);
             glUniform3f(shader->getUniform("lightDir"), 1, 1, 1);
             
-            ApplyOrthoMatrix(shader);
+//            ApplyOrthoMatrix(shader);
             SetLightView(shader, vec3(1000, 1000, 1000), vec3(0, 0, 0), vec3(0, 1, 0));
             
             terrain->draw();

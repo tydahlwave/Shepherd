@@ -4,7 +4,9 @@ layout(location = 1) in vec3 vertNor;
 layout(location = 2) in float vertTex;
 uniform mat4 P;
 uniform mat4 V;
-uniform mat4 LP;
+uniform mat4 LP1;
+uniform mat4 LP2;
+uniform mat4 LP3;
 uniform mat4 LV;
 uniform mat4 M;
 uniform vec3 matDiffuseColor;
@@ -23,7 +25,9 @@ out VS_OUT {
     vec3 viewNor;
     float vertTex;
     vec3 vColor;
-    vec4 fPosLS;
+    vec4 fPosLS1;
+    vec4 fPosLS2;
+    vec4 fPosLS3;
 } vs_out;
 
 
@@ -41,7 +45,9 @@ void main() {
     vs_out.vertTex = vertTex;
     
     /* The vertex in light space */
-    vs_out.fPosLS = LP * LV * M * vec4(vertPos.xyz, 1.0);
+    vs_out.fPosLS1 = LP1 * LV * M * vec4(vertPos.xyz, 1.0);
+    vs_out.fPosLS2 = LP2 * LV * M * vec4(vertPos.xyz, 1.0);
+    vs_out.fPosLS3 = LP3 * LV * M * vec4(vertPos.xyz, 1.0);
     /* a color that could be blended - or be shading */
     vs_out.vColor = vec3(max(dot(vs_out.modelNor, normalize(lightDir)), 0));
 }

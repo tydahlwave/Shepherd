@@ -289,7 +289,9 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->init();
     program->addUniform("P");
     program->addUniform("V");
-    program->addUniform("LP");
+    program->addUniform("LP1");
+    program->addUniform("LP2");
+    program->addUniform("LP3");
     program->addUniform("LV");
     program->addUniform("M");
     program->addAttribute("vertPos");

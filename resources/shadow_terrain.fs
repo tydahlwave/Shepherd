@@ -8,10 +8,11 @@ uniform int terrainMin;
 uniform int terrainMax;
 uniform vec3 terrainScale;
 
+#define SHADOW_CASCADES 3
 uniform sampler2D Grass;
 uniform sampler2D Mountain;
 uniform sampler2D Snow;
-uniform sampler2D shadowDepth;
+uniform sampler2D shadowDepth[SHADOW_CASCADES];
 
 uniform bool useTextureMap;
 uniform bool useTextures;
@@ -40,38 +41,50 @@ in vec3 vertNor;
 in vec3 viewNor;
 in float vertTex;
 in vec3 vColor;
-in vec4 fPosLS;
+in vec4 fPosLS1;
+in vec4 fPosLS2;
+in vec4 fPosLS3;
 
 out vec4 color;
 
 float TestShadow() {
-    float bias = 0.01;
+    float bias = 0.001;
 //    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005); 
     
+    vec4 fPosLS = fPosLS1;
+    int shadowDepthIndex = 0;
+    if (fragPos.z > -30) {
+        fPosLS = fPosLS3;
+        shadowDepthIndex = 2;
+    } else if (fragPos.z > -70) {
+        fPosLS = fPosLS2;
+        shadowDepthIndex = 1;
+    }
     //1: shift the coordinates from -1, 1 to 0 ,1
     vec4 shifted = (fPosLS + 1)/2.0f;
     //2: read off the stored depth (.) from the ShadowDepth, using the shifted.xy
-    float depth = texture(shadowDepth, shifted.xy).r;
+    float depth = texture(shadowDepth[shadowDepthIndex], shifted.xy).r;
     //3: compare to the current depth (.z) of the projected depth
     if (shifted.z - bias > depth) {
         //4: return 1 if the point is shadowed
         return 0.5f;//1.0f;
-    } else {
-        int sum = 0;
-        if (shifted.z - bias > texture(shadowDepth, shifted.xy + vec2(0, 0.001)).r) {
-            sum += 1;
-        }
-        if (shifted.z - bias > texture(shadowDepth, shifted.xy + vec2(0, -0.001)).r) {
-            sum += 1;
-        }
-        if (shifted.z - bias > texture(shadowDepth, shifted.xy + vec2(0.001, 0)).r) {
-            sum += 1;
-        }
-        if (shifted.z - bias > texture(shadowDepth, shifted.xy + vec2(-0.001, 0)).r) {
-            sum += 1;
-        }
-        return 0.125 * sum;
     }
+//    else {
+//        int sum = 0;
+//        if (shifted.z - bias > texture(shadowDepth[shadowDepthIndex], shifted.xy + vec2(0, 0.001)).r) {
+//            sum += 1;
+//        }
+//        if (shifted.z - bias > texture(shadowDepth[shadowDepthIndex], shifted.xy + vec2(0, -0.001)).r) {
+//            sum += 1;
+//        }
+//        if (shifted.z - bias > texture(shadowDepth[shadowDepthIndex], shifted.xy + vec2(0.001, 0)).r) {
+//            sum += 1;
+//        }
+//        if (shifted.z - bias > texture(shadowDepth[shadowDepthIndex], shifted.xy + vec2(-0.001, 0)).r) {
+//            sum += 1;
+//        }
+//        return 0.125 * sum;
+//    }
     
     return 0.0;
 }
@@ -154,13 +167,13 @@ vec4 getColor() {
     
     
     //1: shift the coordinates from -1, 1 to 0 ,1
-    vec4 shifted = (fPosLS + 1)/2.0f;
-    //2: read off the stored depth (.) from the ShadowDepth, using the shifted.xy
-    float depth = texture(shadowDepth, shifted.xy).r;
-    
-    if (shifted.x < 0 || shifted.x > 1 || shifted.y < 0 || shifted.y > 1) {
-        return vec4(heightColor*modelN.y + randIntensity, 1.0);
-    }
+//    vec4 shifted = (fPosLS1 + 1)/2.0f;
+//    //2: read off the stored depth (.) from the ShadowDepth, using the shifted.xy
+//    float depth = texture(shadowDepth1, shifted.xy).r;
+//    
+//    if (shifted.x < 0 || shifted.x > 1 || shifted.y < 0 || shifted.y > 1) {
+//        return vec4(heightColor*modelN.y + randIntensity, 1.0);
+//    }
     
 //    return vec4(0, fPosLS.z, fPosLS.z, 1.0);
 //    return depth * vec4(1);
