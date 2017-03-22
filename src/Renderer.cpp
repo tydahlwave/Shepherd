@@ -29,7 +29,7 @@
 #include "Time.h"
 #include "Window.h"
 
-Renderer::Renderer() {
+Renderer::Renderer(Window &window) :window(window) {
     printf("Rendering..\n");
     Initialize();
 }
@@ -50,7 +50,7 @@ void applyOrthographicMatrix(Program *program, Window &window, Camera *camera) {
 }
 
 void ApplyOrthoMatrix(Program *shader) {
-    mat4 ortho = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, 0.1f, 300.0f);
+    mat4 ortho = glm::ortho(-400.0f, 400.0f, -400.0f, 400.0f, 0.1f, 2000.0f);
     glUniformMatrix4fv(shader->getUniform("LP"), 1, GL_FALSE, value_ptr(ortho));
 }
 
@@ -179,7 +179,8 @@ GLuint depthMapFBO;
 GLuint depthMap;
 
 void Renderer::initShadows() {
-    int S_WIDTH = 1080, S_HEIGHT = 920;
+    int S_WIDTH = window.GetWidth();
+    int S_HEIGHT = window.GetHeight();
     //generate the FBO for the shadow depth
     glGenFramebuffers(1, &depthMapFBO);
     
@@ -191,8 +192,8 @@ void Renderer::initShadows() {
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     
     //bind with framebuffer's depth buffer
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -202,9 +203,7 @@ void Renderer::initShadows() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Renderer::RenderShadows(World &world, Window &window) {
-    Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
-    
+void Renderer::RenderShadows(World &world) {
     //set up light's depth map
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -216,7 +215,7 @@ void Renderer::RenderShadows(World &world, Window &window) {
     Program *shadowShader = ShaderLibrary::shadowDepth->program;
     shadowShader->bind();
     ApplyOrthoMatrix(shadowShader);
-    SetLightView(shadowShader, vec3(10, 10, 10), vec3(0, 0, 0), vec3(0, 1, 0));
+    SetLightView(shadowShader, vec3(1000, 1000, 1000), vec3(0, 0, 0), vec3(0, 1, 0));
 //    drawScene(shadowShader, 0, 0);
     for (GameObject *gameObject : world.GetGameObjects()) {
         MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
@@ -237,12 +236,12 @@ void Renderer::RenderShadows(World &world, Window &window) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Renderer::Render(World &world, Window &window) {
+void Renderer::Render(World &world) {
     //#define DEBUG
 #ifndef DEBUG
     
 //    if (shadow) {
-    RenderShadows(world, window);
+    RenderShadows(world);
 //    }
     
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
@@ -556,7 +555,7 @@ void Renderer::Render(World &world, Window &window) {
             glUniform3f(shader->getUniform("lightDir"), 1, 1, 1);
             
             ApplyOrthoMatrix(shader);
-            SetLightView(shader, vec3(1, 1, 1), vec3(0, 0, 0), vec3(0, 1, 0));
+            SetLightView(shader, vec3(1000, 1000, 1000), vec3(0, 0, 0), vec3(0, 1, 0));
             
             terrain->draw();
             
@@ -665,7 +664,7 @@ void Renderer::Render(World &world, Window &window) {
 }
 
 
-int Renderer::checkClickable(World &world, Window &window, int mx, int my) {
+int Renderer::checkClickable(World &world, int mx, int my) {
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
     glEnable(GL_DEPTH_TEST);
     
@@ -751,6 +750,6 @@ int Renderer::checkClickable(World &world, Window &window, int mx, int my) {
     glClearColor(0.0f, 170 / 255.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    this->Render(world, window);
+    this->Render(world);
     return id;
 }

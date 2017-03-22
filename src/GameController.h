@@ -41,7 +41,7 @@ enum State {
 
 class GameController : WindowCallbackDelegate, ImguiUpdateDelegate {
 public:
-	GameController() : window(&world, 1080, 920) { };
+	GameController() : window(&world, 1080, 920), renderer(window) { };
 	virtual ~GameController() {};
 	State state;
 	State nextState;

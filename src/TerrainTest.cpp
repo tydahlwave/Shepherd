@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
     World world = World();
     Window window = Window(&world, 1080, 920);
     Physics physics = Physics();
-    Renderer renderer = Renderer();
+    Renderer renderer = Renderer(window);
     FreeCameraController cameraController = FreeCameraController();
     CameraController playerController = CameraController();
     CharacterController characterController = CharacterController();
@@ -212,7 +212,7 @@ int main(int argc, char **argv) {
         }
         
         CAudioEngine::instance()->Update();
-        renderer.Render(world, window);
+        renderer.Render(world);
         
         window.Update();
     }

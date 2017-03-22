@@ -332,7 +332,7 @@ void GameController::Run() {
 				}
 				camstage++;
 			}
-			renderer.Render(world, window);
+			renderer.Render(world);
 			CAudioEngine::instance()->Update();
 			window.Update();
 
@@ -613,7 +613,7 @@ void GameController::MouseMoved(World *world, int windowWidth, int windowHeight,
 }
 void GameController::MouseClicked(World *world2, double mouseX, double mouseY, int key, int action) {
     if (window.drawMouse == true) {
-        int id = renderer.checkClickable(world, window, mouseX, mouseY);
+        int id = renderer.checkClickable(world, mouseX, mouseY);
         for (GameObject *go : world.GetGameObjects()) {
             Clickable *cl = (Clickable *)go->GetComponent("Clickable");
             if (!cl || cl->id != id)

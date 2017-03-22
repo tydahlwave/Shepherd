@@ -46,6 +46,7 @@ out vec4 color;
 
 float TestShadow() {
     float bias = 0.01;
+//    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005); 
     
     //1: shift the coordinates from -1, 1 to 0 ,1
     vec4 shifted = (fPosLS + 1)/2.0f;
@@ -54,7 +55,22 @@ float TestShadow() {
     //3: compare to the current depth (.z) of the projected depth
     if (shifted.z - bias > depth) {
         //4: return 1 if the point is shadowed
-        return 1.0f;
+        return 0.5f;//1.0f;
+    } else {
+        int sum = 0;
+        if (shifted.z - bias > texture(shadowDepth, shifted.xy + vec2(0, 0.001)).r) {
+            sum += 1;
+        }
+        if (shifted.z - bias > texture(shadowDepth, shifted.xy + vec2(0, -0.001)).r) {
+            sum += 1;
+        }
+        if (shifted.z - bias > texture(shadowDepth, shifted.xy + vec2(0.001, 0)).r) {
+            sum += 1;
+        }
+        if (shifted.z - bias > texture(shadowDepth, shifted.xy + vec2(-0.001, 0)).r) {
+            sum += 1;
+        }
+        return 0.125 * sum;
     }
     
     return 0.0;
@@ -142,12 +158,16 @@ vec4 getColor() {
     //2: read off the stored depth (.) from the ShadowDepth, using the shifted.xy
     float depth = texture(shadowDepth, shifted.xy).r;
     
+    if (shifted.x < 0 || shifted.x > 1 || shifted.y < 0 || shifted.y > 1) {
+        return vec4(heightColor*modelN.y + randIntensity, 1.0);
+    }
+    
 //    return vec4(0, fPosLS.z, fPosLS.z, 1.0);
-    return depth * vec4(1);
+//    return depth * vec4(1);
     if (useTextures) {
-        return (1.0-Shade)*vec4(1);//*vec4(textureColor*modelN.y, 1.0);
+        return (1.0-Shade)*vec4(textureColor*modelN.y, 1.0);
     } else {
-        return (1.0-Shade)*vec4(1);//*vec4(heightColor*modelN.y + randIntensity, 1.0);
+        return (1.0-Shade)*vec4(heightColor*modelN.y + randIntensity, 1.0);
     }
 }
 
@@ -245,19 +265,19 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
 }
 
 void main() {
-        color = getColor();
+//        color = getColor();
     
-//    // Normalize the vectors
-//    vec3 vertexN = normalize(modelNor);
-//    vec3 viewN = normalize(viewNor);
-//    //combine color from all the lights
-//    vec3 linearColor = vec3(0);
-//    for(int i = 0; i < numLights; ++i){
-//        vec3 pos = vec3(V * vec4(vec3(allLights[i].position), 1));
-//        linearColor += ApplyLight(allLights[i], vertexN, viewN, pos);
-//    }
-//    
-//    float edgeDetection = (dot(viewN, vertexN) > 0.3) ? 1 : 0;
-//    color = vec4(linearColor, 1.0);
+    // Normalize the vectors
+    vec3 vertexN = normalize(modelNor);
+    vec3 viewN = normalize(viewNor);
+    //combine color from all the lights
+    vec3 linearColor = vec3(0);
+    for(int i = 0; i < numLights; ++i){
+        vec3 pos = vec3(V * vec4(vec3(allLights[i].position), 1));
+        linearColor += ApplyLight(allLights[i], vertexN, viewN, pos);
+    }
+    
+    float edgeDetection = (dot(viewN, vertexN) > 0.3) ? 1 : 0;
+    color = vec4(linearColor, 1.0);
     
 }

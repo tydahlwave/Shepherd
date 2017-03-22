@@ -15,17 +15,20 @@
 
 class Renderer {
 public:
-    Renderer();
+    Renderer(Window &window);
     virtual ~Renderer() {};
     
     void Initialize();
     void initShadows();
     
-	void Render(World &world, Window &window);
-    void RenderShadows(World &world, Window &window);
+	void Render(World &world);
+    void RenderShadows(World &world);
     
-	int checkClickable(World &world, Window &window, int mx, int my);
+	int checkClickable(World &world, int mx, int my);
     static bool intersectFrustumAABB(Camera *cam, vec3 min, vec3 max);
+    
+private:
+    Window &window;
 };
 
 #endif /* Renderer_h */
