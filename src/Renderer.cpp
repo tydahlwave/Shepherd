@@ -250,9 +250,23 @@ void Renderer::RenderShadows(World &world) {
         SetLightView(shadowShader, vec3(1000, 1000, 1000), vec3(0, 0, 0), vec3(0, 1, 0));
         //    drawScene(shadowShader, 0, 0);
         for (GameObject *gameObject : world.GetGameObjects()) {
+            glUniform1i(shadowShader->getUniform("hasBones"), false);
             MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
             if (meshRenderer && meshRenderer->draw == false) continue;
             if (meshRenderer) {// && intersectFrustumAABB(camera, gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
+                
+                if (shadowShader->hasUniform("Bones")) {
+                    Animation* isAnim = (Animation*) gameObject->GetComponent("Animation");
+                    if (isAnim) {
+                        glUniform1i(shadowShader->getUniform("hasBones"), true);
+                        glUniformMatrix4fv(shadowShader->getUniform("Bones"), //We find the location of the gBones uniform.
+                                           //If the object is rigged...
+                                           isAnim->skeleton.boneMats.size(),
+                                           GL_FALSE,    //We don't need to transpose the matrices.
+                                           &isAnim->skeleton.boneMats[0][0][0]);
+                    }
+                }
+                
                 if(gameObject->name.compare("Camera") == 0) {
                     glm::vec3 rot = gameObject->transform->GetRotation();
                     Transform t = *new Transform(gameObject->transform->GetPosition(), glm::vec3(rot.x, rot.y - 90, rot.z), gameObject->transform->GetScale());

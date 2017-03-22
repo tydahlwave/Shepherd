@@ -280,7 +280,12 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("LP");
     program->addUniform("LV");
     program->addUniform("M");
+    program->addUniform("Bones");
+    program->addUniform("hasBones");
     program->addAttribute("vertPos");
+    program->addAttribute("vertNor");
+    program->addAttribute("vertID");
+    program->addAttribute("vertWeight");
     shadowDepth = new Shader(program);
     
     program = new Program();
