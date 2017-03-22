@@ -167,24 +167,10 @@ vec4 getColor() {
     //    color = vec4(heightColor*modelN.y + randIntensity, 1.0);
     //    color = vec4(textureColor*modelN.y, 1.0);
     
-    float Shade = TestShadow();
-    
-    
-    //1: shift the coordinates from -1, 1 to 0 ,1
-//    vec4 shifted = (fPosLS1 + 1)/2.0f;
-//    //2: read off the stored depth (.) from the ShadowDepth, using the shifted.xy
-//    float depth = texture(shadowDepth1, shifted.xy).r;
-//    
-//    if (shifted.x < 0 || shifted.x > 1 || shifted.y < 0 || shifted.y > 1) {
-//        return vec4(heightColor*modelN.y + randIntensity, 1.0);
-//    }
-    
-//    return vec4(0, fPosLS.z, fPosLS.z, 1.0);
-//    return depth * vec4(1);
     if (useTextures) {
-        return (1.0-Shade)*vec4(textureColor*modelN.y, 1.0);
+        return vec4(textureColor*modelN.y, 1.0);
     } else {
-        return (1.0-Shade)*vec4(heightColor*modelN.y + randIntensity, 1.0);
+        return vec4(heightColor*modelN.y + randIntensity, 1.0);
     }
 }
 
@@ -278,7 +264,8 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     specular = vec3(0);
     
     //linear color (color before gamma correction)
-    return ambient + attenuation*(diffuse + specular);
+    float Shade = TestShadow();
+    return ambient + (1.0-Shade)*attenuation*(diffuse + specular);
 }
 
 void main() {
