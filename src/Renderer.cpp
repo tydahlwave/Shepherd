@@ -194,9 +194,9 @@ void calcShadowOrthos(World &world) {
             offsetX = world.mainCamera->transform->GetPosition().x * cos(M_PI/4) - world.mainCamera->transform->GetPosition().z * sin(M_PI/4);
             offsetZ = (-world.mainCamera->transform->GetPosition().z * cos(M_PI/4) - world.mainCamera->transform->GetPosition().x * sin(M_PI/4)) * cos(M_PI*55/180);
         }
-        shadowOrthos[i] = glm::ortho(-magnitude+offsetX, magnitude+offsetX, -magnitude+offsetZ, magnitude+offsetZ, 0.1f, 2000.0f);
+        shadowOrthos[i] = glm::ortho(-magnitude+offsetX, magnitude+offsetX, -magnitude+offsetZ, magnitude+offsetZ, 0.1f, 3000.0f);
     }
-    shadowOrthos[0] = glm::ortho(-800.0f, 800.0f, -800.0f, 800.0f, 0.1f, 2000.0f);
+    shadowOrthos[0] = glm::ortho(-700.0f, 700.0f, -700.0f, 700.0f, 0.1f, 3000.0f);
 }
 
 void Renderer::initShadows() {
