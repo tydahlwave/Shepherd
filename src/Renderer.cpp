@@ -186,11 +186,23 @@ void calcShadowOrthos(World &world) {
         float offsetX = 0.0f;
         float offsetZ = 0.0f;
         if (world.mainCharacter) {
-            offsetX = world.mainCharacter->transform->GetPosition().x * cos(M_PI/4) - world.mainCharacter->transform->GetPosition().z * sin(M_PI/4);
-            offsetZ = (-world.mainCharacter->transform->GetPosition().z * cos(M_PI/4) - world.mainCharacter->transform->GetPosition().x * sin(M_PI/4)) * cos(M_PI*55/180);;
+            // Fix for shadows on tall surfaces
+            glm::vec3 pos = world.mainCharacter->transform->GetPosition();
+            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+            if (camera) {
+                pos = camera->pos;
+            }
+            float newX = pos.x - pos.y;
+            float newZ = pos.z - pos.y;
+            offsetX = (newX * cos(M_PI/4) - newZ * sin(M_PI/4));
+            offsetZ = (-newZ * cos(M_PI/4) - newX * sin(M_PI/4)) * cos(M_PI*55/180);
         } else if (world.mainCamera) {
-            offsetX = world.mainCamera->transform->GetPosition().x * cos(M_PI/4) - world.mainCamera->transform->GetPosition().z * sin(M_PI/4);
-            offsetZ = (-world.mainCamera->transform->GetPosition().z * cos(M_PI/4) - world.mainCamera->transform->GetPosition().x * sin(M_PI/4)) * cos(M_PI*55/180);
+            // Fix for shadows on tall surfaces
+            glm::vec3 pos = world.mainCamera->transform->GetPosition();
+            float newX = pos.x - pos.y;
+            float newZ = pos.z - pos.y;
+            offsetX = (newX * cos(M_PI/4) - newZ * sin(M_PI/4));
+            offsetZ = (-newZ * cos(M_PI/4) - newX * sin(M_PI/4)) * cos(M_PI*55/180);
         }
         shadowOrthos[i] = glm::ortho(-magnitude+offsetX, magnitude+offsetX, -magnitude+offsetZ, magnitude+offsetZ, 0.1f, 3000.0f);
     }
