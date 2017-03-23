@@ -158,11 +158,11 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     
     //diffuse
     //vec3 diffuse = diffuseColor * max(dot(vertexN, lightN), 0) * light.intensities;
-    //vec3 diffuse = diffuseColor * max(dot(vertexN, lightN), 0) * light.intensities;
-    vec3 diffuse = diffuseColor * df;
+    vec3 diffuse = diffuseColor * max(dot(vertexN, lightN), 0) * light.intensities * df;
+    //vec3 diffuse = diffuseColor * light.intensities;
     
     //specular
-    vec3 specular = lightColor * specularColor  * NdotL * (k + specC * (1.0 - k)) * sf;
+    vec3 specular = lightColor * specularColor  * (k + specC * (1.0 - k)) * sf;
     
     //linear color (color before gamma correction)
     if (light.position.w == 0)
