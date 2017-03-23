@@ -25,6 +25,7 @@ public:
     static void playCharge();
     static void playShot();
     static void playRandSheep();
+    static void playRandFun();
     static void playWolfHurt();
     static void playWolfSpawn();
     static void playTreeHit();

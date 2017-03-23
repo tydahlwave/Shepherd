@@ -554,7 +554,8 @@ void GameController::LoadState() {
         animSystem = new AnimationSystem();
 		printf("Loading level 1\n");
         audio->toggleSound(gameMusic, true);
-		gameMusic = audio->PlaySound("back.wav");
+		//gameMusic = audio->PlaySound("back.wav");
+        gameMusic = audio->PlaySound("fun.wav");
         audio->SetChannelvolume(gameMusic, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController, 1);

@@ -122,6 +122,7 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
         float forceScalar = deltaTime/10.0f;
         if(forceScalar > 200.) forceScalar = 200.;
         if(forceScalar < 80.) forceScalar = 80.;
+        forceScalar += rand() % 50 - 25;
         
         forceVector = coef*forceVector*forceScalar;
         
@@ -173,12 +174,16 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                         SoundLibrary::playRockHit();
 //                        rb->bulletRigidBody->setLinearVelocity(forceVector);
                     }
-                    rb->bulletRigidBody->setLinearVelocity(forceVector);
+                    //random scale for fun-ness
+                    float scale = .8f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(1.3f-0.8f)));
+                    btVector3 temp = forceVector * scale;
+                    rb->bulletRigidBody->setLinearVelocity(temp);
+                    rb->isAirborne = true;
                     Force *force = (Force*)go->GetComponent("Force");
                     if (!force) {
                         force = (Force*)go->AddComponent("Force");
                     }
-                    force->dir = glm::vec3(forceVector.x(), forceVector.y(), forceVector.z());
+                    force->dir = glm::vec3(temp.x(), temp.y(), temp.z());
                     force->time = Time::Now();
                 }
             }

@@ -70,6 +70,26 @@ void SoundLibrary::playRandSheep(){
     CAudioEngine::instance()->SetChannelvolume(sheep, .2);
 }
 
+void SoundLibrary::playRandFun(){
+    int v2 = rand() % 4 + 1;
+    int sheep;
+    switch(v2){
+        case 2:{
+            sheep = CAudioEngine::instance()->PlaySound("fun1.wav");
+        }
+        case 3:{
+            sheep = CAudioEngine::instance()->PlaySound("fun2.wav");
+        }
+        case 4:{
+            sheep = CAudioEngine::instance()->PlaySound("fun3.wav");
+        }
+        case 5:{
+            sheep = CAudioEngine::instance()->PlaySound("fun4.wav");
+        }
+    }
+    CAudioEngine::instance()->SetChannelvolume(sheep, .2);
+}
+
 void SoundLibrary::playWolfHurt(){
     CAudioEngine::instance()->PlaySound("wolfOw.wav");
     

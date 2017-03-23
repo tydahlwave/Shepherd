@@ -290,13 +290,27 @@ void Physics::HandleTerrainCollisions(World &world) {
                         }
                     }
                 } else if (obj->name.compare("Bunny") == 0 || obj->name.compare("Wolf") == 0 || obj->name.compare("Boulder") == 0 || obj->name.compare("FollowSphere") == 0) {
+                    
+                    
                     if (pos.y < newPosY) {
                         obj->transform->SetPosition(glm::vec3(pos.x, newPosY, pos.z));
                         RigidBody *rigidBody = (RigidBody*)obj->GetComponent("RigidBody");
+                        if(rigidBody && rigidBody->isAirborne)
+                        {
+                            glm::vec3 curRot = obj->transform->GetRotation();
+                            obj->transform->SetRotation(glm::vec3(0,curRot.y,0));
+                            rigidBody->isAirborne = false;
+                            if(obj->name.compare("FollowSphere") != 0)
+                            {
+                                SoundLibrary::playRandFun();
+                            }
+                        }
+                        
                         if(obj->name.compare("FollowSphere") == 0 ) {
                             GameObject *b = EntityFactory::createRing(&world);
                             b->transform->SetPosition(obj->transform->GetPosition());
-                            SoundLibrary::playPing();
+                            //SoundLibrary::playPing();
+                            CAudioEngine::instance()->PlaySound("boing.wav");
                             rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 80.0, 0));
                         }
                         else if (rigidBody && rigidBody->bulletRigidBody) {
@@ -307,6 +321,7 @@ void Physics::HandleTerrainCollisions(World &world) {
                                     force->dir = glm::vec3(0);
                                 }
                             }
+                            
                         }
                     }
                 } else if (obj->name.compare("Tree") == 0) {

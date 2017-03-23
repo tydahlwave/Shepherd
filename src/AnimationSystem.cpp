@@ -7,6 +7,7 @@
 //
 
 #include "AnimationSystem.h"
+#include "Components/RigidBody.h"
 
 void AnimationSystem::Update(float deltaTime, World *world)
 {
@@ -35,6 +36,13 @@ void AnimationSystem::Update(float deltaTime, World *world)
             else{
                anim->Destroy();
             }
+        }
+        
+        RigidBody* rb = (RigidBody*) anim->GetComponent("RigidBody");
+        if(rb && rb->isAirborne)
+        {
+            glm::vec3 rot = anim->transform->GetRotation();
+            anim->transform->SetRotation(glm::vec3(rot.x + 5, rot.y, rot.z));
         }
     }
 }

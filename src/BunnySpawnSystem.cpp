@@ -33,7 +33,7 @@ void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
         
         for (GameObject *gameObject : world->GetGameObjects())  {
             RigidBody *rigidBody = (RigidBody*)gameObject->GetComponent("RigidBody");
-            
+            glm::vec3 curRot = gameObject->transform->GetRotation();
             if(gameObject->name != "Bunny" || !rigidBody || gameObject->isBunnyAndIsAtEnd) continue;
             if(glm::length(rigidBody->velocity) < 0.5 && Time::Now() - rigidBody->pointInTime > rigidBody->waitTime) {
                 int randomAngle = rand() % 360;
@@ -42,7 +42,7 @@ void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
                 glm::vec3 vel = normalize(glm::vec3(velX, 0, velZ)) * 2.0f;
                 rigidBody->velocity.x = vel.x;
                 rigidBody->velocity.z = vel.z;
-                gameObject->transform->SetRotation(vec3(0, randomAngle, 0));
+                gameObject->transform->SetRotation(vec3(curRot.x, randomAngle, curRot.z));
                 rigidBody->pointInTime = Time::Now();
                 rigidBody->waitTime = rand() % 3000 + 1000;
             }
@@ -54,7 +54,8 @@ void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
             }
             
             float angle = atan2(rigidBody->velocity.x, rigidBody->velocity.z);
-            glm::vec3 rotation = glm::vec3(0, (angle * 180 / M_PI), 0);
+            
+            glm::vec3 rotation = glm::vec3(curRot.x, (angle * 180 / M_PI), curRot.z);
             gameObject->transform->SetRotation(rotation);
         }
     }
@@ -153,6 +154,7 @@ void BunnySpawnSystem::CreateBunny(World *world) {
     
     b->transform->SetPosition(randPosition);
     rigidBody->useGravity = true;
+    
     b->transform->SetRotation(vec3(0, -randomAngle, 0));
     bunnyNode.insert(std::make_pair(b, 0));
 }
@@ -228,7 +230,8 @@ glm::vec3 BunnySpawnSystem::Seek(World *world, GameObject *bunny, glm::vec3 targ
         steering.y = 0;
 
         angle = atan2((target - bunny->transform->GetPosition()).x, (target - bunny->transform->GetPosition()).z) * 180.0 / 3.14;
-        bunny->transform->SetRotation(glm::vec3(0, angle, 0));
+        glm::vec3 curRot = bunny->transform->GetRotation();
+        bunny->transform->SetRotation(glm::vec3(curRot.x, angle, curRot.z));
     }
     return steering;
 }
@@ -254,7 +257,8 @@ void BunnySpawnSystem::Arrival(World *world, GameObject *bunny, glm::vec3 target
 		distX = position.x - bunny->transform->GetPosition().x;
 		distZ = position.z - bunny->transform->GetPosition().z;
         angle = atan2((position - bunny->transform->GetPosition()).x, (position - bunny->transform->GetPosition()).z) * 180.0 / 3.14;
-		bunny->transform->SetRotation(vec3(0, angle, 0));
+        glm::vec3 curRot = bunny->transform->GetRotation();
+		bunny->transform->SetRotation(vec3(curRot.x, angle, curRot.z));
 
         glm::vec3 desiredVel = glm::normalize(glm::vec3(distX, 0, distZ)) * maxSpeed;
         float dist = glm::length(desiredVel);
