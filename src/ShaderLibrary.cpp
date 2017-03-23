@@ -88,7 +88,6 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
 	program->addUniform("P");
 	program->addUniform("M");
 	program->addUniform("V");
-	program->addUniform("ButtonTexture");
 	program->addAttribute("vertPos");
 	program->addAttribute("vertNor");
 	hud2 = new Shader(program);

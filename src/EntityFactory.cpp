@@ -213,13 +213,10 @@ GameObject *EntityFactory::createTitle(World *world) {
 }
 
 GameObject *EntityFactory::createHUD2(World *world) {
-	GameObject *gameObject = world->CreateGameObject("HUD2");
-	HUDRenderer *hd = (HUDRenderer*)gameObject->AddComponent("HudRenderer");
-	gameObject->AddComponent("Clickable");
-	hd->model = ModelLibrary::button;
-	hd->shader = ShaderLibrary::hud2;
-	//gameObject->transform->SetPosition(glm::vec3(.5f, .5f, 0.f)); //moves to center
-	//gameObject->transform->SetScale(glm::vec3(100.f, 50.f, 00.f)); //makes 100px wide / 50px tall
+    GameObject *gameObject = world->CreateGameObject("HUD2");
+    MeshRenderer *meshRenderer = (MeshRenderer*) gameObject->AddComponent("MeshRenderer");
+    meshRenderer->model = ModelLibrary::cube;
+    meshRenderer->shader = ShaderLibrary::hud2;
 
 	return gameObject;
 }

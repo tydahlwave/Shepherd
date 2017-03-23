@@ -72,10 +72,8 @@ void main()
     // Normalize the vectors
     vec3 vertexN = normalize(modelNor);
     vec3 viewN = normalize(viewNormal);
-    
     //combine color from all the lights
     vec3 linearColor = vec3(0);
-    
     for(int i = 0; i < numLights; ++i){
         vec3 pos = vec3(V * vec4(vec3(allLights[i].position), 1));
         linearColor += ApplyLight(allLights[i], vertexN, viewN, pos);

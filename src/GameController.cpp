@@ -183,8 +183,7 @@ void GameController::ImGuiShowHelp(World *world) {
         ImGui::Text("Ping to have sheep follow you - F");
         ImGui::Text("Force Push Roar - Left Click");
         ImGui::Text("Force Pull Roar - Right Click");
-        //ImGui::SetWindowFontScale(10);
-        
+//        ImGui::SetWindowFontScale(5);
     }
     ImGui::End();
 }
@@ -279,6 +278,15 @@ void GameController::checkIfEndOfLevel() {
         window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
         window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)characterController);
         window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
+        for (GameObject *go : world.GetGameObjects()) {
+            if (go->name == "Wolf") {
+                go->Destroy();
+            }
+        }
+        RigidBody *mainCharRB = (RigidBody*)world.mainCharacter->GetComponent("RigidBody");
+        if(mainCharRB) {
+            mainCharRB->velocity = vec3(0);
+        }
         wolfSystem = nullptr;
         GameObject *winLevelTitle = EntityFactory::createTitle(&world);
         MeshRenderer *mesh = (MeshRenderer*)winLevelTitle->GetComponent("MeshRenderer");
