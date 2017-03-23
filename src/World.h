@@ -38,6 +38,8 @@ public:
     World();
     virtual ~World() {};
     
+    string resourceDir;
+    
     GameObject *mainCharacter = nullptr;
 	GameObject *mainCamera = nullptr;
     GameObject *cameraController = nullptr;
@@ -51,9 +53,10 @@ public:
     void RemoveGameObject(GameObject *go);
     
     bool showHelp = false;
+    
+    KDTree *kdTree;
 private:
     std::vector<GameObject*> gameObjects;
-//    KDTree *kdTree;
 
 };
 

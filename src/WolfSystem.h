@@ -22,10 +22,10 @@ public:
     
     void Update(float deltaTime, World *world);
 private:
-    static const int maxEntities = 10;
+    static const int maxEntities = 200;
     float elapsedTime = -10.f;
-    float spawnRate = 10.0f; // seconds per spawn
-    float maxSpeed = 5.0f;
+    float spawnRate = 15.0f; // seconds per spawn
+    float maxSpeed = 10.0f;
     std::vector<GameObject*> wolves;
     
     void Spawn(World *world);

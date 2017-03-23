@@ -7,6 +7,7 @@
 //
 
 #include "AnimationSystem.h"
+#include "Components/RigidBody.h"
 
 void AnimationSystem::Update(float deltaTime, World *world)
 {
@@ -16,7 +17,7 @@ void AnimationSystem::Update(float deltaTime, World *world)
         Animation* isAnim = (Animation*) anim->GetComponent("Animation");
         if(isAnim)    //If the object is rigged...
         {
-            //std::cout<<anim->name<< "Udpating at dT : " << deltaTime <<  std::endl;
+//            std::cout<<anim->name<< "Udpating at dT : " << deltaTime <<  std::endl;
             isAnim->skeleton.Update(deltaTime * 50);
             //UpdateSkeleton();   
         }
@@ -35,6 +36,13 @@ void AnimationSystem::Update(float deltaTime, World *world)
             else{
                anim->Destroy();
             }
+        }
+        
+        RigidBody* rb = (RigidBody*) anim->GetComponent("RigidBody");
+        if(rb && rb->isAirborne)
+        {
+            glm::vec3 rot = anim->transform->GetRotation();
+            anim->transform->SetRotation(glm::vec3(rot.x + 5, rot.y, rot.z));
         }
     }
 }

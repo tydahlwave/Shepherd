@@ -29,6 +29,7 @@ public:
     bool isKinematic = false; // Kinematic objects are not affected by forces/physics
 	bool isPushPullable = true;
     btRigidBody *bulletRigidBody = nullptr;
+    bool isAirborne = false;
     
     long pointInTime = 0;
     int waitTime = 0;

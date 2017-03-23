@@ -30,6 +30,8 @@ public:
 	static Shader *particle;
 	static Shader *water;
     static Shader *anim;
+    static Shader *shadowDepth;
+    static Shader *shadowTerrain;
     static Shader *inFrontOfCamera;
 
     static std::string ConstructLightUniformName(const char* propertyName, size_t lightIndex) {

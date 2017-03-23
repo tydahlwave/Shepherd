@@ -41,6 +41,7 @@
 #include "ParticleSystem.h"
 #include "Components/ParticleRenderer.h"
 #include "Components/WaterRenderer.h"
+#include "Keyframe.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
@@ -114,12 +115,12 @@ void GameController::ImGuiShowNames(World *world) {
     ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(1,1,1,0));
     ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(1,1,1,0));
     ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, ImVec4(1,1,1,0));
-    //    ImGuiIO& io = ImGui::GetIO();
-    //    ImFont* font0 = io.Fonts->AddFontDefault();
-    //    ImFont* font = io.Fonts->AddFontFromFileTTF("../../resources/fonts/Baloo_Bhaina/BalooBhaina.ttf", 40);
+//        ImGuiIO& io = ImGui::GetIO();
+//        ImFont* font0 = io.Fonts->AddFontDefault();
+//        ImFont* font = io.Fonts->AddFontFromFileTTF("../../resources/fonts/Baloo_Bhaina/BalooBhaina.ttf", 40);
     //    if(!font) cout << "error: counldn't load font\n";
     //    if(!font->IsLoaded()) cout << "font not loaded";
-    //    ImGui::PushFont(font);
+//        ImGui::PushFont(font);
     for (GameObject *gameObject : world->GetGameObjects()) {
         TextName *textName = (TextName*)gameObject->GetComponent("TextName");
         if(textName && Renderer::intersectFrustumAABB((Camera*)world->mainCamera->GetComponent("Camera"), gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
@@ -146,7 +147,14 @@ void GameController::ImGuiShowNames(World *world) {
             float width = 200;
             float height = 30;
             ImGui::SetNextWindowSize(ImVec2(width,height), ImGuiSetCond_FirstUseEver);
-            ImGui::SetNextWindowPos(ImVec2((projected.x - 10.0)/2.0f, (window.GetHeight() - (projected.y + 90.0))/ 2.0f));
+            
+            //on retina, change the 1.0f's to 2.0f... and vice versa
+            float constant = 1.0f;
+            if (window.GetWidth() > 1200) { // this is a very hack fix... but i think it works
+                constant = 2.0f;
+            }
+            ImGui::SetNextWindowPos(ImVec2((projected.x - 10.0)/1, (window.GetHeight() - (projected.y + 90.0))/1));
+            
             //ImGui::SetNextWindowPos(ImVec2(projected.x, window.GetHeight() - 100));
             //std::cout<< projected.x << " :   " <<projected.y << std::endl;
             //ImGui::SetNextWindowCollapsed(true, ImGuiSetCond_Once);
@@ -178,9 +186,23 @@ void GameController::ImGuiShowHelp(World *world) {
         ImGui::Text("Ping to have sheep follow you - F");
         ImGui::Text("Force Push Roar - Left Click");
         ImGui::Text("Force Pull Roar - Right Click");
-        //ImGui::SetWindowFontScale(10);
-        
+//        ImGui::SetWindowFontScale(5);
     }
+    ImGui::End();
+}
+
+void GameController::ImGuiShowStats(World *world) {
+    ImGui::SetNextWindowPos(ImVec2(250, 0));
+
+    ImGui::Begin("Stats Stuff", nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs);
+    ImGui::Text("Sheep At End: %lu  ", bunnySpawnSystem->bunniesAtEnd.size());
+    unsigned long numOfAliveSheep = 0;
+    for (GameObject *go : world->GetGameObjects()) {
+        if (go->name == "Bunny" && go->GetComponent("RigidBody")) {
+            numOfAliveSheep++;
+        }
+    }
+    ImGui::Text("Sheep Still Alive: %lu  ", numOfAliveSheep);
     ImGui::End();
 }
 
@@ -190,6 +212,7 @@ void GameController::ImguiUpdate(World *world, bool drawGUI) {
     if (drawGUI) LevelEditor::drawLevelEditor(window, world);
     ImGuiShowNames(world);
     ImGuiShowHelp(world);
+    ImGuiShowStats(world);
 }
 
 void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
@@ -255,9 +278,19 @@ void GameController::checkIfEndOfLevel() {
             nextState = Level2;
             return;
         }
-//        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
-//        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)characterController);
-//        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
+        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
+        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)characterController);
+        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
+        for (GameObject *go : world.GetGameObjects()) {
+            if (go->name == "Wolf") {
+                go->Destroy();
+            }
+        }
+        RigidBody *mainCharRB = (RigidBody*)world.mainCharacter->GetComponent("RigidBody");
+        if(mainCharRB) {
+            mainCharRB->velocity = vec3(0);
+        }
+        wolfSystem = nullptr;
         GameObject *winLevelTitle = EntityFactory::createTitle(&world);
         MeshRenderer *mesh = (MeshRenderer*)winLevelTitle->GetComponent("MeshRenderer");
         mesh->shader = ShaderLibrary::inFrontOfCamera;
@@ -291,6 +324,8 @@ void GameController::Run() {
     nextState = MainMenu;
     state = MainMenu;
     
+    world.resourceDir = this->resourceDir;
+    
     while (state != Close) {
         LoadState();
         
@@ -319,9 +354,7 @@ void GameController::Run() {
 			oldTime = curTime;
 
 			accumulator += elapsedTime;
-			if (nextcamlevel > 0) {
-				camlevel += elapsedTime;
-			}
+
 			while (accumulator >= idealDeltaTime) {
 				//update
                 if(world.sheepDestinationObject && world.sheepDestinationObject->name != "Path") {
@@ -352,8 +385,13 @@ void GameController::Run() {
                 
 			}
 			if (cameraController) {
-				cameraController->Update(world);
+				if (cameraController->Update(world, elapsedTime*1000)) {
+					world.RemoveGameObject(world.mainCamera);
+					world.mainCamera = world.mainCharacter;
+					EntityFactory::createHUD(&world);
+				}
 			}
+
 			if (water) {
 				WaterRenderer *wr = (WaterRenderer*)water->GetComponent("WaterRenderer");
 
@@ -365,7 +403,7 @@ void GameController::Run() {
 				glm::vec3 pos = world.mainCamera->transform->GetPosition();
 				world.mainCamera->transform->SetPosition(glm::vec3(pos.x, pos.y - distance, pos.z));
 				cameraController->InvertPitch(&world);
-				renderer.Render(world, window);
+				renderer.Render(world);
 				pos = world.mainCamera->transform->GetPosition();
 				world.mainCamera->transform->SetPosition(glm::vec3(pos.x, pos.y + distance, pos.z));
 				cameraController->InvertPitch(&world);
@@ -374,11 +412,13 @@ void GameController::Run() {
 				//render to refraction texture;
 				wr->buffers->bindRefractionFrameBuffer();
 				wr->waterTile->plane = 1;
-				renderer.Render(world, window);
+				renderer.Render(world);
 				glDisable(GL_CLIP_DISTANCE0);
 				wr->buffers->unbindCurrentFrameBuffer();
 			}
 
+
+			/*
 			Camera *c;
 			if (nextcamlevel > 0 && camlevel > nextcamlevel && state == Level1) {
 				c = (Camera *)world.mainCamera->GetComponent("Camera");
@@ -404,6 +444,16 @@ void GameController::Run() {
 					world.mainCamera = world.mainCharacter;
 					nextcamlevel = 0.f;
                     EntityFactory::createHUD(&world);
+                        
+//                        GameObject *winLevelTitle = EntityFactory::createTitle(&world);
+//                        MeshRenderer *mesh = (MeshRenderer*)winLevelTitle->GetComponent("MeshRenderer");
+//                        mesh->shader = ShaderLibrary::inFrontOfCamera;
+//                        winLevelTitle->transform->SetPosition(glm::vec3(0.f,0.5f,0.f));
+//                        winLevelTitle->transform->SetScale(glm::vec3(1,-1,1)*0.5f);
+//                        winLevelTitle->transform->SetRotation(glm::vec3(180.f, 0.f, 0.f));
+//                        MeshRenderer *meshRenderer = (MeshRenderer*)winLevelTitle->GetComponent("MeshRenderer");
+//                        meshRenderer->model->bounds.halfwidths = vec3(INFINITY);
+                        
 //                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController, 1);
 //                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController, 1);
 //                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)terrainController, 1);
@@ -414,12 +464,14 @@ void GameController::Run() {
 				}
 				camstage++;
 			}
+			*/
 
-			renderer.Render(world, window);
+			renderer.Render(world);
 			CAudioEngine::instance()->Update();
 			window.Update();
 
-            displayStats(elapsedTime, world, physics);
+            //displayStats(elapsedTime, world, physics);
+			
             
         }
         UnloadState();
@@ -522,6 +574,7 @@ void GameController::LoadState() {
         
         bunnySpawnSystem = new BunnySpawnSystem();
         bunnySpawnSystem->startPosition = glm::vec3(60, -20, 40);
+
         
         gameMusic = audio->PlaySound("menu.wav");
 		break;
@@ -532,6 +585,7 @@ void GameController::LoadState() {
 		characterController = new CharacterController();
 		physicsController = new PhysicsController();
 		terrainController = new TerrainController();
+        minimapController = new MinimapController();
 		bunnySpawnSystem = new BunnySpawnSystem();
         bunnySpawnSystem->startPosition = glm::vec3(-500, 4, -350);
         bunnySpawnSystem->endPosition = glm::vec3(185,241,362);
@@ -541,13 +595,15 @@ void GameController::LoadState() {
         animSystem = new AnimationSystem();
 		printf("Loading level 1\n");
         audio->toggleSound(gameMusic, true);
-		gameMusic = audio->PlaySound("back.wav");
+		//gameMusic = audio->PlaySound("back.wav");
+        gameMusic = audio->PlaySound("fun.wav");
         audio->SetChannelvolume(gameMusic, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)terrainController, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)bunnySpawnSystem, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)characterController, 1);
+        Window::AddImguiUpdateDelegate((ImguiUpdateDelegate*)minimapController);
         Window::AddImguiUpdateDelegate(this);
 
 
@@ -585,6 +641,8 @@ void GameController::LoadState() {
 		// Create terrain
 		terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 541, glm::vec3(0, 0, 0));
 		terrain->transform->SetScale(glm::vec3(5, 5, 5));
+        minimapController->SetTerrain((TerrainRenderer*)terrain->GetComponent("TerrainRenderer"));
+        minimapController->SetWindow(&window);
 		
 		//create skybox
 		skybox = EntityFactory::createSkybox(&world, resourceDir);
@@ -636,14 +694,71 @@ void GameController::LoadState() {
 //		EntityFactory::createHUD(&world);
 		EntityFactory::createChargeBar(&world);
 		world.mainCamera = EntityFactory::createMainCamera(&world);
-		nextcamlevel = .000001f;
-		camlevel = 1.f;
-        camstage = 0;
-		break;
+        
+        
+		Camera * c = (Camera *)world.mainCamera->GetComponent("Camera");
+		Keyframe ks;
+		c->pos = ks.pos = glm::vec3(-540.0f, 20.0f, -350.0f);
+		c->pitch = ks.pitch = -20.0f;
+		c->aap = ks.aap = 90.0f;
+		ks.time = 1000.0f;
+		c->kfs.add(ks);
+        c->kfs.add(ks);
+        ks.pos = glm::vec3(-400.0f, 80.0f, -350.0f);
+        ks.pitch = -10.0f;
+        ks.aap = 90.0f;
+        ks.time = 2500.f;
+        c->kfs.add(ks);
+        ks.pos = glm::vec3(0.0f, 100.0f, -350.0f);
+        ks.pitch = -10.0f;
+        ks.aap = 80.0f;
+        ks.time = 3000.f;
+        c->kfs.add(ks);
+        ks.pos = glm::vec3(350.0f, 100.0f, -350.0f);
+        ks.pitch = -10.0f;
+        ks.aap = 0.0f;
+        ks.time = 2500.f;
+        c->kfs.add(ks);
+		ks.pos = glm::vec3(500.0f, 100.0f, -50.0f);
+		ks.pitch = -20.0f;
+		ks.aap = -80.0f;
+		ks.time = 2500.f;
+		c->kfs.add(ks); 
+		ks.pos = glm::vec3(-300.0f, 100.0f, 100.0f);
+		ks.pitch = -20.0f;
+		ks.aap = -40.0f;
+		ks.time = 5000.f;
+		c->kfs.add(ks);
+        ks.pos = glm::vec3(-470.0f, 100.0f, 345.0f);
+        ks.pitch = 0.0f;
+        ks.aap = 85.0f;
+        ks.time = 2500.f;
+        c->kfs.add(ks);
+        ks.pos = glm::vec3(100.0f, 300.0f, 350.0f);
+        ks.pitch = -10.0f;
+        ks.aap = 85.0f;
+        ks.time = 4000.f;
+        c->kfs.add(ks);
+        ks.pos = glm::vec3(200.0f, 400.0f, 350.0f);
+        ks.pitch = -59.0f;
+        ks.aap = 200.0f;
+        ks.time = 2000.f;
+        c->kfs.add(ks);
+        ks.pos = glm::vec3(350.0f, 500.0f, -350.0f);
+        ks.pitch = -59.0f;
+        ks.aap = 315.0f;
+        ks.time = 4000.f;
+        c->kfs.add(ks);
+        ks.pos = world.mainCharacter->transform->GetPosition() + glm::vec3(-10, 4, 0);
+        ks.pitch = 0.0f;
+        ks.aap = 450.0f;
+        ks.time = 5000.f;
+        c->kfs.add(ks);
+//		ks.time = 1000.f;
+//		c->kfs.hold(1000);
 	}
 	case Level2:
 	{
-        
         nextState = Level1;
 		break;
 	}
@@ -746,7 +861,7 @@ void GameController::MouseMoved(World *world, int windowWidth, int windowHeight,
 }
 void GameController::MouseClicked(World *world2, double mouseX, double mouseY, int key, int action) {
     if (window.drawMouse == true) {
-        int id = renderer.checkClickable(world, window, mouseX, mouseY);
+        int id = renderer.checkClickable(world, mouseX, mouseY);
         for (GameObject *go : world.GetGameObjects()) {
             Clickable *cl = (Clickable *)go->GetComponent("Clickable");
             if (!cl || cl->id != id)

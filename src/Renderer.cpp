@@ -31,7 +31,7 @@
 #include "Time.h"
 #include "Window.h"
 
-Renderer::Renderer() {
+Renderer::Renderer(Window &window) :window(window) {
     printf("Rendering..\n");
     Initialize();
 }
@@ -51,6 +51,15 @@ void applyOrthographicMatrix(Program *program, Window &window, Camera *camera) {
     glUniformMatrix4fv(program->getUniform("P"), 1, GL_FALSE, value_ptr(stack.topMatrix()));
 }
 
+void ApplyOrthoMatrix(Program *shader) {
+    mat4 ortho = glm::ortho(-400.0f, 400.0f, -400.0f, 400.0f, 0.1f, 2000.0f);
+    glUniformMatrix4fv(shader->getUniform("LP"), 1, GL_FALSE, value_ptr(ortho));
+}
+
+void SetLightView(Program *shader, vec3 pos, vec3 LA, vec3 up) {
+    mat4 Cam = glm::lookAt(pos, LA, up);
+    glUniformMatrix4fv(shader->getUniform("LV"), 1, GL_FALSE, value_ptr(Cam));
+}
 
 void applyCameraMatrix(Program *program, Camera *camera, glm::vec3 position) {
     MatrixStack stack = MatrixStack();
@@ -91,6 +100,8 @@ void Renderer::Initialize() {
     //glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     // Enable z-buffer test.
     glEnable(GL_DEPTH_TEST);
+    
+    initShadows();
 }
 
 std::vector<LightStruct> setUpLights(World &world, Path *path) {
@@ -171,9 +182,141 @@ bool Renderer::intersectFrustumAABB(Camera *cam, vec3 min, vec3 max) {
     return true;
 }
 
-void Renderer::Render(World &world, Window &window) {
+#define SHADOW_CASCADES 3
+GLuint depthMapFBO;
+GLuint depthMap[SHADOW_CASCADES];
+mat4 shadowOrthos[SHADOW_CASCADES];
+
+void calcShadowOrthos(World &world) {
+    for (int i = 0; i < SHADOW_CASCADES; i++) {
+        float magnitude = pow(2, (SHADOW_CASCADES-i-1)*2) * 40;
+        float offsetX = 0.0f;
+        float offsetZ = 0.0f;
+        if (world.mainCharacter) {
+            // Fix for shadows on tall surfaces
+            glm::vec3 pos = world.mainCharacter->transform->GetPosition();
+            Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+            if (camera) {
+                pos = camera->pos;
+            }
+            float newX = pos.x - pos.y;
+            float newZ = pos.z - pos.y;
+            offsetX = (newX * cos(M_PI/4) - newZ * sin(M_PI/4));
+            offsetZ = (-newZ * cos(M_PI/4) - newX * sin(M_PI/4)) * cos(M_PI*55/180);
+        } else if (world.mainCamera) {
+            // Fix for shadows on tall surfaces
+            glm::vec3 pos = world.mainCamera->transform->GetPosition();
+            float newX = pos.x - pos.y;
+            float newZ = pos.z - pos.y;
+            offsetX = (newX * cos(M_PI/4) - newZ * sin(M_PI/4));
+            offsetZ = (-newZ * cos(M_PI/4) - newX * sin(M_PI/4)) * cos(M_PI*55/180);
+        }
+        shadowOrthos[i] = glm::ortho(-magnitude+offsetX, magnitude+offsetX, -magnitude+offsetZ, magnitude+offsetZ, 0.1f, 3000.0f);
+    }
+    shadowOrthos[0] = glm::ortho(-700.0f, 700.0f, -700.0f, 700.0f, 0.1f, 3000.0f);
+}
+
+void Renderer::initShadows() {
+    int S_WIDTH = 2048;//window.GetWidth();
+    int S_HEIGHT = 2048;//window.GetHeight();
+    
+    //generate the FBO for the shadow depth
+    glGenFramebuffers(1, &depthMapFBO);
+    
+    //generate the texture
+    glGenTextures(SHADOW_CASCADES, depthMap);
+    for (int i = 0; i < SHADOW_CASCADES; i++) {
+        glBindTexture(GL_TEXTURE_2D, depthMap[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, S_WIDTH, S_HEIGHT,
+                     0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    }
+    
+    //bind with framebuffer's depth buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+//    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap[0], 0);
+    for (int i = 0; i < SHADOW_CASCADES; i++) {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap[i], 0);
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+    }
+//    glDrawBuffer(GL_NONE);
+//    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::RenderShadows(World &world) {
+    calcShadowOrthos(world);
+    
+    //set up light's depth map
+    glViewport(0, 0, 2048, 2048);//window.GetWidth(), window.GetHeight());
+    
+    
+    glCullFace(GL_FRONT);
+    for (int i = 0; i < SHADOW_CASCADES; i++) {
+        // Render to shadow depth buffer 3
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap[i], 0);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        //set up shadow shader
+        //render scene
+        Program *shadowShader = ShaderLibrary::shadowDepth->program;
+        shadowShader->bind();
+        glUniformMatrix4fv(shadowShader->getUniform("LP"), 1, GL_FALSE, value_ptr(shadowOrthos[i]));
+        SetLightView(shadowShader, vec3(1000, 1000, 1000), vec3(0, 0, 0), vec3(0, 1, 0));
+        //    drawScene(shadowShader, 0, 0);
+        for (GameObject *gameObject : world.GetGameObjects()) {
+            glUniform1i(shadowShader->getUniform("hasBones"), false);
+            MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
+            if (meshRenderer && meshRenderer->draw == false) continue;
+            if (meshRenderer) {// && intersectFrustumAABB(camera, gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
+                
+                if (shadowShader->hasUniform("Bones")) {
+                    Animation* isAnim = (Animation*) gameObject->GetComponent("Animation");
+                    if (isAnim) {
+                        glUniform1i(shadowShader->getUniform("hasBones"), true);
+                        glUniformMatrix4fv(shadowShader->getUniform("Bones"), //We find the location of the gBones uniform.
+                                           //If the object is rigged...
+                                           isAnim->skeleton.boneMats.size(),
+                                           GL_FALSE,    //We don't need to transpose the matrices.
+                                           &isAnim->skeleton.boneMats[0][0][0]);
+                    }
+                }
+                
+                if(gameObject->name.compare("Camera") == 0) {
+                    glm::vec3 rot = gameObject->transform->GetRotation();
+                    Transform t = *new Transform(gameObject->transform->GetPosition(), glm::vec3(rot.x, rot.y - 90, rot.z), gameObject->transform->GetScale());
+                    applyTransformMatrix(shadowShader, &t);
+                } else {
+                    applyTransformMatrix(shadowShader, gameObject->transform);
+                }
+                meshRenderer->model->draw(shadowShader);
+            }
+            TerrainRenderer *terrainRenderer = (TerrainRenderer*)gameObject->GetComponent("TerrainRenderer");
+            if (terrainRenderer) {
+                applyTransformMatrix(shadowShader, gameObject->transform);
+                terrainRenderer->terrain->draw();
+            }
+        }
+        shadowShader->unbind();
+    }
+    glCullFace(GL_BACK);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::Render(World &world) {
+    
     //#define DEBUG
 #ifndef DEBUG
+    
+//    if (shadow) {
+    RenderShadows(world);
+//    }
+    
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
@@ -204,6 +347,12 @@ void Renderer::Render(World &world, Window &window) {
         }
     }
 
+    
+//    std::vector<GameObject*> gos;
+//    if (world.kdTree) {
+//        gos = world.kdTree->getStaticObjectsInViewFrustrum(camera);
+//    }
+    
     for (GameObject *gameObject : world.GetGameObjects()) {
 		SkyboxRenderer *skyboxRenderer = (SkyboxRenderer*)gameObject->GetComponent("SkyboxRenderer");
 		if (skyboxRenderer) {
@@ -219,7 +368,7 @@ void Renderer::Render(World &world, Window &window) {
 			glActiveTexture(GL_TEXTURE2);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubeMapTexture);
 
-			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+			
 			applyProjectionMatrix(shader, window, camera);
             applyCameraMatrix(shader, camera, (world.mainCharacter) ? camera->pos : world.mainCamera->transform->GetPosition());
 			applyTransformMatrix(shader, gameObject->transform);
@@ -274,6 +423,7 @@ void Renderer::Render(World &world, Window &window) {
         MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
         if (meshRenderer && meshRenderer->draw == false) continue;
         if (meshRenderer && (gameObject->name.compare("HUD") == 0 || gameObject->name.compare("ChargeBar") == 0)) {
+            //glEnable (GL_BLEND); glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             auto shader = meshRenderer->shader->program;
             auto model = meshRenderer->model;
             shader->bind();
@@ -423,7 +573,8 @@ void Renderer::Render(World &world, Window &window) {
         
         TerrainRenderer *terrainRenderer = (TerrainRenderer*)gameObject->GetComponent("TerrainRenderer");
         if (terrainRenderer) {
-            auto shader = terrainRenderer->shader->program;
+//            auto shader = terrainRenderer->shader->program;
+            auto shader = ShaderLibrary::shadowTerrain->program;
             auto terrain = terrainRenderer->terrain;
             shader->bind();
             
@@ -471,10 +622,26 @@ void Renderer::Render(World &world, Window &window) {
             applyTransformMatrix(shader, gameObject->transform);
             
             // Bind all textures for the terrain
-            for (int i = 0; i < terrainRenderer->textures.size(); i++) {
+            int i;
+            for (i = 0; i < terrainRenderer->textures.size(); i++) {
                 terrainRenderer->textures[i]->bind(i);
                 glUniform1i(shader->getUniform(terrainRenderer->textures[i]->name), i);
             }
+            
+            /* set up light depth map for shadows */
+            for (int j = 0; j < SHADOW_CASCADES; j++) {
+                glActiveTexture(GL_TEXTURE0+i+j);
+                glBindTexture(GL_TEXTURE_2D, depthMap[j]);
+//                glUniform1i(shader->getUniform("shadowDepth"+to_string(j+1)), i+j);
+                glUniformMatrix4fv(shader->getUniform("LP"+to_string(j+1)), 1, GL_FALSE, value_ptr(shadowOrthos[j]));
+            }
+            int texIDs[SHADOW_CASCADES] = {i, i+1, i+2};
+            glUniform1iv(shader->getUniform("shadowDepth"), SHADOW_CASCADES, texIDs);
+            glUniform3f(shader->getUniform("lightDir"), 1, 1, 1);
+            
+//            ApplyOrthoMatrix(shader);
+            SetLightView(shader, vec3(1000, 1000, 1000), vec3(0, 0, 0), vec3(0, 1, 0));
+            
             terrain->draw();
             
             shader->unbind();
@@ -666,7 +833,7 @@ void Renderer::Render(World &world, Window &window) {
 }
 
 
-int Renderer::checkClickable(World &world, Window &window, int mx, int my) {
+int Renderer::checkClickable(World &world, int mx, int my) {
     glViewport(0, 0, window.GetWidth(), window.GetHeight());
     glEnable(GL_DEPTH_TEST);
     
@@ -752,6 +919,6 @@ int Renderer::checkClickable(World &world, Window &window, int mx, int my) {
     glClearColor(0.0f, 170 / 255.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    this->Render(world, window);
+    this->Render(world);
     return id;
 }

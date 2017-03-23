@@ -28,6 +28,7 @@
 #include "Time.h"
 #include "AnimationSystem.h"
 #include "ImguiUpdateDelegate.h"
+#include "MinimapController.h"
 
 
 enum State {
@@ -41,7 +42,7 @@ enum State {
 
 class GameController : WindowCallbackDelegate, ImguiUpdateDelegate {
 public:
-	GameController() : window(&world, 1080, 920) { };
+	GameController() : window(&world, 1080, 920), renderer(window) { };
 	virtual ~GameController() {};
 	State state;
 	State nextState;
@@ -69,6 +70,7 @@ private:
 	CharacterController *characterController = nullptr;
 	PhysicsController *physicsController = nullptr;
 	TerrainController *terrainController = nullptr;
+    MinimapController *minimapController = nullptr;
 	BunnySpawnSystem *bunnySpawnSystem = nullptr;
 	WolfSystem *wolfSystem = nullptr;
 	TreeSystem *treeSystem = nullptr;
@@ -93,6 +95,7 @@ private:
     void drawTerrainWindow(Window &window, GameObject *terrain);
     void ImGuiShowNames(World *world);
     void ImGuiShowHelp(World *world);
+    void ImGuiShowStats(World *world);
 };
 
 #endif /* CharacterController_h */

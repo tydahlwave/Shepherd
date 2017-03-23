@@ -27,7 +27,10 @@ public:
 	static Texture *dust;
 	static Texture *normalMap;
 	static Texture *dudvMap;
-
+    static Texture *sheepIcon;
+    static Texture *wolfIcon;
+    static Texture *goalIcon;
+    static Texture *faceIcon;
 };
 
 #endif /* Texture_h */

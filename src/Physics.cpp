@@ -17,6 +17,7 @@
 #include "MaterialLibrary.h"
 #include "Interpolation.h"
 #include "Components/Death.h"
+#include "Components/Force.h"
 #include "Components/TextName.h"
 #include "Components/ParticleRenderer.h"
 #include "SoundLibrary.h"
@@ -153,6 +154,54 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
 				glm::vec3 position = collision.gameObject1->transform->GetPosition();
 				pr->particleSystem->setPosition(position);
 			}
+        } else if (collision.gameObject2->name.compare("Wolf") == 0 && collision.gameObject1->name.compare("Boulder") == 0) {
+            RigidBody *body = (RigidBody*)collision.gameObject1->GetComponent("RigidBody");
+//            std::cout << "Hit Wolf with Boulder" << std::endl;
+//            std::cout << "Boulder velocity: " << body->bulletRigidBody->getLinearVelocity().length() << std::endl;
+            Force *force = (Force*)collision.gameObject1->GetComponent("Force");
+            if (force) {
+                std::cout << "Boulder force: " << glm::length(force->dir) << std::endl;
+            }
+            if(body && force && glm::length(force->dir) > 0) {
+                Death* gD = (Death*) collision.gameObject2->GetComponent("Death");
+                if(gD){
+                    CAudioEngine::instance()->PlaySound("wolfHurt.wav");
+                    SoundLibrary::playYay();
+                    collision.gameObject2->RemoveComponent("MeshRenderer");
+                    collision.gameObject2->RemoveComponent("BoxCollider");
+                    RigidBody *rb = (RigidBody*) collision.gameObject2->GetComponent("RigidBody");
+                    if (rb) {
+                        collision.gameObject2->RemoveComponent("RigidBody");
+                        if (rb->bulletRigidBody) {
+                            world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
+                        }
+                    }
+                }
+            }
+        } else if (collision.gameObject1->name.compare("Wolf") == 0 && collision.gameObject2->name.compare("Boulder") == 0) {
+            RigidBody *body = (RigidBody*)collision.gameObject2->GetComponent("RigidBody");
+//            std::cout << "Hit Wolf with Boulder" << std::endl;
+//            std::cout << "Boulder velocity: " << body->bulletRigidBody->getLinearVelocity().length() << std::endl;
+            Force *force = (Force*)collision.gameObject2->GetComponent("Force");
+            if (force) {
+                std::cout << "Boulder force: " << glm::length(force->dir) << std::endl;
+            }
+            if(body && force && glm::length(force->dir) > 0) {
+                Death* gD = (Death*) collision.gameObject1->GetComponent("Death");
+                if(gD){
+                    CAudioEngine::instance()->PlaySound("wolfHurt.wav");
+                    SoundLibrary::playYay();
+                    collision.gameObject1->RemoveComponent("MeshRenderer");
+                    collision.gameObject1->RemoveComponent("BoxCollider");
+                    RigidBody *rb = (RigidBody*) collision.gameObject1->GetComponent("RigidBody");
+                    if (rb) {
+                        collision.gameObject1->RemoveComponent("RigidBody");
+                        if (rb->bulletRigidBody) {
+                            world.dynamicsWorld->removeRigidBody(rb->bulletRigidBody);
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -232,6 +281,7 @@ void Physics::HandleTerrainCollisions(World &world) {
 								pr->particleSystem->setPosition(position);
 							}
                             CAudioEngine::instance()->PlaySound("wolfHurt.wav");
+                            SoundLibrary::playYay();
                             obj->RemoveComponent("MeshRenderer");
                             obj->RemoveComponent("BoxCollider");
                             RigidBody *rb = (RigidBody*) obj->GetComponent("RigidBody");
@@ -253,18 +303,48 @@ void Physics::HandleTerrainCollisions(World &world) {
                 float halfObjectHeight = meshRenderer->model->bounds.halfwidths.y * obj->transform->GetScale().y;
                 float newPosY = terrainPos.y + terrainHeight + halfObjectHeight;
                 
-                if (obj->name.compare("Bunny") == 0 || obj->name.compare("Wolf") == 0 || obj->name.compare("Boulder") == 0 || obj->name.compare("Camera") == 0 || obj->name.compare("FollowSphere") == 0) {
+                if (obj->name.compare("Camera") == 0) {
+                    if (pos.y < newPosY - 1.75) {
+                        obj->transform->SetPosition(glm::vec3(pos.x, newPosY - 1.75, pos.z));
+                        
+                        RigidBody *rigidBody = (RigidBody*)obj->GetComponent("RigidBody");
+                        if (rigidBody && rigidBody->bulletRigidBody) {
+                            rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 0, 0));
+                        }
+                    }
+                } else if (obj->name.compare("Bunny") == 0 || obj->name.compare("Wolf") == 0 || obj->name.compare("Boulder") == 0 || obj->name.compare("FollowSphere") == 0) {
+                    
+                    
                     if (pos.y < newPosY) {
                         obj->transform->SetPosition(glm::vec3(pos.x, newPosY, pos.z));
                         RigidBody *rigidBody = (RigidBody*)obj->GetComponent("RigidBody");
+                        if(rigidBody && rigidBody->isAirborne)
+                        {
+                            glm::vec3 curRot = obj->transform->GetRotation();
+                            obj->transform->SetRotation(glm::vec3(0,curRot.y,0));
+                            rigidBody->isAirborne = false;
+                            if(obj->name.compare("FollowSphere") != 0)
+                            {
+                                SoundLibrary::playRandFun();
+                            }
+                        }
+                        
                         if(obj->name.compare("FollowSphere") == 0 ) {
                             GameObject *b = EntityFactory::createRing(&world);
                             b->transform->SetPosition(obj->transform->GetPosition());
-                            SoundLibrary::playPing();
-                            rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 30.0, 0));
+                            //SoundLibrary::playPing();
+                            CAudioEngine::instance()->PlaySound("boing.wav");
+                            rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 80.0, 0));
                         }
                         else if (rigidBody && rigidBody->bulletRigidBody) {
                             rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 0, 0));
+                            if (obj->name.compare("Boulder") == 0) {
+                                Force *force = (Force*)obj->GetComponent("Force");
+                                if (force && Time::Now() - force->time > 1000) {
+                                    force->dir = glm::vec3(0);
+                                }
+                            }
+                            
                         }
                     }
                 } else if (obj->name.compare("Tree") == 0) {

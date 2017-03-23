@@ -33,6 +33,7 @@
 #include "MaterialLibrary.h"
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
+#include "MinimapController.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
@@ -97,12 +98,13 @@ int main(int argc, char **argv) {
     World world = World();
     Window window = Window(&world, 1080, 920);
     Physics physics = Physics();
-    Renderer renderer = Renderer();
+    Renderer renderer = Renderer(window);
     FreeCameraController cameraController = FreeCameraController();
     CameraController playerController = CameraController();
     CharacterController characterController = CharacterController();
     PhysicsController physicsController = PhysicsController();
     TerrainEditingController terrainController = TerrainEditingController();
+    MinimapController minimapController = MinimapController();
     BunnySpawnSystem bunnySpawnSystem = BunnySpawnSystem();
     WolfSystem wolfSystem = WolfSystem();
     
@@ -122,6 +124,7 @@ int main(int argc, char **argv) {
 //    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController, 1);
 //    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem, 1);
     Window::AddImguiUpdateDelegate((ImguiUpdateDelegate*)&terrainController);
+    Window::AddImguiUpdateDelegate((ImguiUpdateDelegate*)&minimapController);
     CAudioEngine::instance()->Init();
     CAudioEngine::instance()->LoadSounds(resourceDir);
     
@@ -129,13 +132,28 @@ int main(int argc, char **argv) {
     GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, 0, 0));
     terrain->transform->SetScale(glm::vec3(3, 3, 3));
     terrainController.SetTerrain((TerrainRenderer*)terrain->GetComponent("TerrainRenderer"));
+    minimapController.SetTerrain((TerrainRenderer*)terrain->GetComponent("TerrainRenderer"));
+    minimapController.SetWindow(&window);
     
     // Initialize main camera position and lookvector
     world.mainCamera->transform->SetPosition(glm::vec3(0, 200, 200)*terrain->transform->GetScale());
     Camera *mainCamera = (Camera*)world.mainCamera->GetComponent("Camera");
     mainCamera->lookAt = glm::vec3(0, -1, -0.1); // Initial lookvector to orient the camera to look along -z axis (can't be (0,-1,0))
     
-//    EntityFactory::createSphere(&world, 2, glm::vec3(0, 100, 0), 10);
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            for (int z = -1; z <= 1; z++) {
+                GameObject *sphere = EntityFactory::createSphere(&world, 2, glm::vec3(x*5, y*5, z*5), 0);
+                sphere->transform->SetPosition(glm::vec3(x*5, y*5, z*5));
+            }
+        }
+    }
+//    GameObject *sphere1 = EntityFactory::createSphere(&world, 2, glm::vec3(0, 0, 0), 0);
+//    sphere1->transform->SetPosition(glm::vec3(0, 0, 0));
+//    GameObject *sphere2 = EntityFactory::createSphere(&world, 2, glm::vec3(0, 0, 0), 0);
+//    sphere2->transform->SetPosition(glm::vec3(0, 5, 0));
+//    GameObject *sphere3 = EntityFactory::createSphere(&world, 2, glm::vec3(0, 0, 0), 0);
+//    sphere3->transform->SetPosition(glm::vec3(0, -5, 0));
     
     // Add directional light
     EntityFactory::createLight(&world, glm::vec3(1, 1, 1), true, glm::vec3(2, 2, 2), 1.0, 0.15, 1.0, glm::vec3(1, 1, 1));
@@ -184,22 +202,23 @@ int main(int argc, char **argv) {
                 bunnySpawnSystem.Update(idealDeltaTime, &world, path);
                 wolfSystem.Update(idealDeltaTime, &world);
                 characterController.Update(&world, idealDeltaTime);
+                playerController.Update(world, idealDeltaTime);
             }
             accumulator -= idealDeltaTime;
         }
         
         if (world.mainCharacter) {
-            glm::vec3 charPos = world.mainCharacter->transform->GetPosition();
-            RigidBody *rigidBody = (RigidBody*)world.mainCharacter->GetComponent("RigidBody");
-//            std::cout << "Character Position: (" << charPos.x << "," << charPos.y << "," << charPos.z << ")" << std::endl;
-//            std::cout << "Character Velocity: (" << rigidBody->velocity.x << "," << rigidBody->velocity.y << "," << rigidBody->velocity.z << ")" << std::endl;
-            playerController.Update(world);
+//            glm::vec3 charPos = world.mainCharacter->transform->GetPosition();
+//            RigidBody *rigidBody = (RigidBody*)world.mainCharacter->GetComponent("RigidBody");
+////            std::cout << "Character Position: (" << charPos.x << "," << charPos.y << "," << charPos.z << ")" << std::endl;
+////            std::cout << "Character Velocity: (" << rigidBody->velocity.x << "," << rigidBody->velocity.y << "," << rigidBody->velocity.z << ")" << std::endl;
+//            playerController.Update(world);
         } else {
             cameraController.Update(world);
         }
         
         CAudioEngine::instance()->Update();
-        renderer.Render(world, window);
+        renderer.Render(world);
         
         window.Update();
     }

@@ -49,8 +49,28 @@ Terrain::Terrain(std::string imagePath, bool useCustomFileFormat) :heightmapTex(
         textureData[i] = 0;
     }
     
+    unsigned char max = 0;
+    for (int i = 0; i < width*height; i++) {
+        unsigned char value = (unsigned char)((float)data[i] / USHRT_MAX * 255.0f);
+        if (value > max) {
+            max = value;
+        }
+    }
+    
+    std::vector<unsigned char> rgbData(width * height * 3);
+    for (int i = 0; i < width*height; i++) {
+        unsigned char value = (unsigned char)(pow((float)data[i] / USHRT_MAX * 255.0f / max, 0.5) * 255.0f) / 35 * 35;
+        rgbData[3*i] = value;
+        rgbData[3*i + 1] = value;
+        rgbData[3*i + 2] = value;
+    }
+    imageProps.channels = 3;
+    imageProps.dataType = GL_UNSIGNED_BYTE;
+    imageProps.inputFormat = GL_RGB;
+    imageProps.outputFormat = GL_RGB;
+    
     // Load the heightmap into a texture
-    heightmapTex.Load(data, imageProps);
+    heightmapTex.Load(rgbData.data(), imageProps);
 }
 
 Terrain::~Terrain() {}
@@ -136,7 +156,7 @@ void Terrain::loadTextureFromFile(std::string filePath) {
 //    textureData.resize(width * height);
     for (int i = 0; i < width*height; i++) {
         textureData[i] = texture[i];
-        if (texture[i] > 0) std::cout << (int)texture[i] << std::endl;
+//        if (texture[i] > 0) std::cout << (int)texture[i] << std::endl;
     }
     FreeImage(texture);
 }
