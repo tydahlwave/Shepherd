@@ -158,8 +158,8 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     
     //diffuse
     //vec3 diffuse = diffuseColor * max(dot(vertexN, lightN), 0) * light.intensities;
-    vec3 diffuse = diffuseColor * max(dot(vertexN, lightN), 0) * light.intensities;
-    //vec3 diffuse = diffuseColor * df;
+    //vec3 diffuse = diffuseColor * max(dot(vertexN, lightN), 0) * light.intensities;
+    vec3 diffuse = diffuseColor * df;
     
     //specular
     vec3 specular = lightColor * specularColor  * NdotL * (k + specC * (1.0 - k)) * sf;
