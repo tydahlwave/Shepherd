@@ -276,9 +276,9 @@ void GameController::checkIfEndOfLevel() {
             nextState = Level2;
             return;
         }
-//        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
-//        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)characterController);
-//        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
+        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)cameraController);
+        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)characterController);
+        window.DeleteWindowCallbackDelegate((WindowCallbackDelegate*)physicsController);
         wolfSystem = nullptr;
         GameObject *winLevelTitle = EntityFactory::createTitle(&world);
         MeshRenderer *mesh = (MeshRenderer*)winLevelTitle->GetComponent("MeshRenderer");
