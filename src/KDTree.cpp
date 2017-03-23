@@ -13,8 +13,9 @@
 #include "Renderer.h"
 
 std::vector<GameObject*> KDTree::getStaticObjectsInViewFrustrumRec(Camera *camera, Node *root) {
+    if(!root->left && !root->right) return root->gameObjects;
     std::vector<GameObject*> objects;
-    if(Renderer::intersectFrustumAABB(camera, root->minVals, root->maxVals)) {
+    if(root && Renderer::intersectFrustumAABB(camera, root->minVals, root->maxVals)) {
         std::vector<GameObject*> leftObjects = getStaticObjectsInViewFrustrumRec(camera, root->left);
         std::vector<GameObject*> rightObjects = getStaticObjectsInViewFrustrumRec(camera, root->right);
         objects.insert(objects.end(), leftObjects.begin(), leftObjects.end());
@@ -81,17 +82,24 @@ Node *KDTree::createTree(std::vector<GameObject*> gameObjects, int dimension, gl
         n->halfWayPoint = gameObjects[0]->transform->GetPosition()[dimension];
     }
     else {
+        n->left = new Node;
+        n->right = new Node;
         std::vector<GameObject*> leftObjects;
         std::vector<GameObject*> rightObjects;
         n->halfWayPoint = putIntoRightAndLeft(gameObjects, leftObjects, rightObjects, dimension);
+//        if(gameObjects.size() == leftObjects.size() && gameObjects.size() == rightObjects.size()) {
+//            n->left = n->right = nullptr;
+//            n->halfWayPoint = gameObjects[0]->transform->GetPosition()[dimension];
+//            return n;
+//        }
         n->left->minVals = parentMinVals;
         n->left->maxVals = parentMaxVals;
         n->left->maxVals[dimension] = n->halfWayPoint;
-        n->left = createTree(leftObjects, (dimension + 1) % 3, n->left->minVals, n->left->maxVals);
+        n->left = createTree(leftObjects, (dimension + 1) % 3, n->left->minVals, n->left->maxVals); //(dimension + 1) % 3
         n->right->minVals = parentMinVals;
         n->right->minVals[dimension] = n->halfWayPoint;
         n->right->maxVals = parentMaxVals;
-        n->right = createTree(rightObjects, (dimension + 1) % 3, n->right->minVals, n->right->maxVals);
+        n->right = createTree(rightObjects, (dimension + 1) % 3, n->right->minVals, n->right->maxVals); //(dimension == 0) ? 2 : 0
     }
     return n;
 }

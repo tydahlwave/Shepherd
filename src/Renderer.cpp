@@ -327,6 +327,12 @@ void Renderer::Render(World &world) {
         }
     }
     
+    
+//    std::vector<GameObject*> gos;
+//    if (world.kdTree) {
+//        gos = world.kdTree->getStaticObjectsInViewFrustrum(camera);
+//    }
+    
     for (GameObject *gameObject : world.GetGameObjects()) {
 		SkyboxRenderer *skyboxRenderer = (SkyboxRenderer*)gameObject->GetComponent("SkyboxRenderer");
 		if (skyboxRenderer) {
@@ -342,7 +348,7 @@ void Renderer::Render(World &world) {
 			glActiveTexture(GL_TEXTURE2);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubeMapTexture);
 
-			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+			
 			applyProjectionMatrix(shader, window, camera);
             applyCameraMatrix(shader, camera, (world.mainCharacter) ? camera->pos : world.mainCamera->transform->GetPosition());
 			applyTransformMatrix(shader, gameObject->transform);

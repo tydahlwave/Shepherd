@@ -119,9 +119,9 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
         long deltaTime;
         if(key == GLFW_MOUSE_BUTTON_LEFT) deltaTime = Time::Now() - LeftClickPressTime;
         else deltaTime = Time::Now() - RightClickPressTime;
-        float forceScalar = deltaTime /30.;
+        float forceScalar = deltaTime/10.0f;
         if(forceScalar > 200.) forceScalar = 200.;
-        if(forceScalar < 40.) forceScalar = 30.;
+        if(forceScalar < 80.) forceScalar = 80.;
         
         forceVector = coef*forceVector*forceScalar;
         

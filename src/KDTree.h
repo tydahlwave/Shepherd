@@ -26,7 +26,10 @@ typedef struct Node {
 
 class KDTree {
 public:
-    KDTree(std::vector<GameObject*> gameObjects) { root = createTree(gameObjects, 0, glm::vec3(-INFINITY), glm::vec3(INFINITY));}
+    KDTree(std::vector<GameObject*> gameObjects) {
+        
+        root = createTree(gameObjects, 0, glm::vec3(-INFINITY), glm::vec3(INFINITY));
+    }
     virtual ~KDTree() {};
     std::vector<GameObject*> getStaticObjectsInViewFrustrum(Camera *camera);
 

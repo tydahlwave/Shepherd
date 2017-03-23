@@ -29,18 +29,30 @@ void WolfSystem::Update(float deltaTime, World *world) {
 }
 
 void WolfSystem::Spawn(World *world) {
-    GameObject *wolf = EntityFactory::createWolf(world);
-    glm::vec3 center = CalculateSheepCenter(world);
-    center.y = 2;
+   
+    glm::vec3 sheepCenter = CalculateSheepCenter(world);
+    sheepCenter.y = 2;
+    glm::vec3 spawnPos1 = glm::vec3(379,6,-451);
+    glm::vec3 spawnPos2 = glm::vec3(-55, 1, 299);
     float angle = (float)(rand() % 360);
     glm::vec3 direction = glm::vec3(0, 0, 0);
     direction.x = cos(angle * 180 / M_PI);
     direction.z = sin(angle * 180 / M_PI);
-    float distance = 40.0f;
-    wolf->transform->SetPosition(center + direction * distance);
-    wolf->transform->SetScale(glm::vec3(3, 3, 3));
-    wolves.push_back(wolf);
-    SoundLibrary::playWolfSpawn();
+    float distance = 450.0f;
+    if(glm::distance(sheepCenter, spawnPos1) < distance) {
+        GameObject *wolf = EntityFactory::createWolf(world);
+        wolf->transform->SetPosition(spawnPos1);// + direction * distance);
+        wolf->transform->SetScale(glm::vec3(3, 3, 3));
+        wolves.push_back(wolf);
+        SoundLibrary::playWolfSpawn();
+    }
+    if(glm::distance(sheepCenter, spawnPos2) < distance) {
+        GameObject *wolf = EntityFactory::createWolf(world);
+        wolf->transform->SetPosition(spawnPos2);// + direction * distance);
+        wolf->transform->SetScale(glm::vec3(3, 3, 3));
+        wolves.push_back(wolf);
+        SoundLibrary::playWolfSpawn();
+    }
 }
 
 void WolfSystem::MoveWolf(GameObject *wolf, float deltaTime, World *world) {

@@ -1,17 +1,3 @@
-//#version 330 core
-//out vec4 color;
-//
-//in vec3 vertexNormal;
-//in vec3 viewNormal;
-//in vec3 col;
-//
-//void main()
-//{
-//
-//    color = vec4(col, 1.0);
-//}
-
-
 #version 330 core
 in vec3 fragPos;
 in vec3 fragNor;
@@ -86,8 +72,10 @@ void main()
     // Normalize the vectors
     vec3 vertexN = normalize(modelNor);
     vec3 viewN = normalize(viewNormal);
+    
     //combine color from all the lights
     vec3 linearColor = vec3(0);
+    
     for(int i = 0; i < numLights; ++i){
         vec3 pos = vec3(V * vec4(vec3(allLights[i].position), 1));
         linearColor += ApplyLight(allLights[i], vertexN, viewN, pos);

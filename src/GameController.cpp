@@ -111,12 +111,12 @@ void GameController::ImGuiShowNames(World *world) {
     ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(1,1,1,0));
     ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(1,1,1,0));
     ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed, ImVec4(1,1,1,0));
-    //    ImGuiIO& io = ImGui::GetIO();
-    //    ImFont* font0 = io.Fonts->AddFontDefault();
-    //    ImFont* font = io.Fonts->AddFontFromFileTTF("../../resources/fonts/Baloo_Bhaina/BalooBhaina.ttf", 40);
+//        ImGuiIO& io = ImGui::GetIO();
+//        ImFont* font0 = io.Fonts->AddFontDefault();
+//        ImFont* font = io.Fonts->AddFontFromFileTTF("../../resources/fonts/Baloo_Bhaina/BalooBhaina.ttf", 40);
     //    if(!font) cout << "error: counldn't load font\n";
     //    if(!font->IsLoaded()) cout << "font not loaded";
-    //    ImGui::PushFont(font);
+//        ImGui::PushFont(font);
     for (GameObject *gameObject : world->GetGameObjects()) {
         TextName *textName = (TextName*)gameObject->GetComponent("TextName");
         if(textName && Renderer::intersectFrustumAABB((Camera*)world->mainCamera->GetComponent("Camera"), gameObject->getBounds().getMin(), gameObject->getBounds().getMax())) {
@@ -143,7 +143,14 @@ void GameController::ImGuiShowNames(World *world) {
             float width = 200;
             float height = 30;
             ImGui::SetNextWindowSize(ImVec2(width,height), ImGuiSetCond_FirstUseEver);
-            ImGui::SetNextWindowPos(ImVec2((projected.x - 10.0)/2.0f, (window.GetHeight() - (projected.y + 90.0))/ 2.0f));
+            
+            //on retina, change the 1.0f's to 2.0f... and vice versa
+            float constant = 1.0f;
+            if (window.GetWidth() > 1200) { // this is a very hack fix... but i think it works
+                constant = 2.0f;
+            }
+            ImGui::SetNextWindowPos(ImVec2((projected.x - 10.0)/constant, (window.GetHeight() - (projected.y + 90.0))/constant));
+            
             //ImGui::SetNextWindowPos(ImVec2(projected.x, window.GetHeight() - 100));
             //std::cout<< projected.x << " :   " <<projected.y << std::endl;
             //ImGui::SetNextWindowCollapsed(true, ImGuiSetCond_Once);
@@ -181,12 +188,28 @@ void GameController::ImGuiShowHelp(World *world) {
     ImGui::End();
 }
 
+void GameController::ImGuiShowStats(World *world) {
+    ImGui::SetNextWindowPos(ImVec2(100, 100));
+
+    ImGui::Begin("Stats Stuff", nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs);
+    ImGui::Text("Sheep At End: %lu  ", bunnySpawnSystem->bunniesAtEnd.size());
+    unsigned long numOfAliveSheep = 0;
+    for (GameObject *go : world->GetGameObjects()) {
+        if (go->name == "Bunny" && go->GetComponent("RigidBody")) {
+            numOfAliveSheep++;
+        }
+    }
+    ImGui::Text("Sheep Still Alive: %lu  ", numOfAliveSheep);
+    ImGui::End();
+}
+
 void GameController::ImguiUpdate(World *world, bool drawGUI) {
     //    if(!drawGUI) return;
     if(terrain && drawGUI) drawTerrainWindow(window, terrain);
     if (drawGUI) LevelEditor::drawLevelEditor(window, world);
     ImGuiShowNames(world);
     ImGuiShowHelp(world);
+    ImGuiShowStats(world);
 }
 
 void GameController::drawTerrainWindow(Window &window, GameObject *terrain) {
@@ -370,6 +393,16 @@ void GameController::Run() {
 					world.mainCamera = world.mainCharacter;
 					nextcamlevel = 0.f;
                     EntityFactory::createHUD(&world);
+                        
+//                        GameObject *winLevelTitle = EntityFactory::createTitle(&world);
+//                        MeshRenderer *mesh = (MeshRenderer*)winLevelTitle->GetComponent("MeshRenderer");
+//                        mesh->shader = ShaderLibrary::inFrontOfCamera;
+//                        winLevelTitle->transform->SetPosition(glm::vec3(0.f,0.5f,0.f));
+//                        winLevelTitle->transform->SetScale(glm::vec3(1,-1,1)*0.5f);
+//                        winLevelTitle->transform->SetRotation(glm::vec3(180.f, 0.f, 0.f));
+//                        MeshRenderer *meshRenderer = (MeshRenderer*)winLevelTitle->GetComponent("MeshRenderer");
+//                        meshRenderer->model->bounds.halfwidths = vec3(INFINITY);
+                        
 //                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)cameraController, 1);
 //                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)physicsController, 1);
 //                        Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)terrainController, 1);
@@ -598,11 +631,18 @@ void GameController::LoadState() {
 		nextcamlevel = .000001f;
 		camlevel = 1.f;
         camstage = 0;
+        
+//        std::vector<GameObject*> staticObjects;
+//        for (GameObject * go : world.GetGameObjects()) {
+//            if (go->name == "Tree") {
+//                staticObjects.push_back(go);
+//            }
+//        }
+//        world.kdTree = new KDTree(staticObjects);
 		break;
 	}
 	case Level2:
 	{
-        
         nextState = Level1;
 		break;
 	}
