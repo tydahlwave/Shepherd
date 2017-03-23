@@ -108,6 +108,8 @@ bool CameraController::Update(World &world, float dt) {
 		else {
 			((MeshRenderer*)world.mainCharacter->GetComponent("MeshRenderer"))->draw = true;
 		}
+
+		camera->pos = pos;
 	}
 	else {
 		if (camera->kfs.update(camera, dt) == 2) {
@@ -115,7 +117,6 @@ bool CameraController::Update(World &world, float dt) {
 		}
 	}
 	camera->yaw = glm::radians(camera->aap);
-	camera->pos = pos;
     float xAdjustment = 0;
     float yAdjustment = 0;
 	if (camera->stat)

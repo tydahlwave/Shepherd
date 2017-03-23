@@ -309,7 +309,7 @@ void GameController::Run() {
         
         // Game loop
         while (state == nextState) {
-            //if (state == MainMenu) sign->transform->SetRotation(vec3(0,180,cos(Time::Now() / 1000.0) * 2));
+            if (state == MainMenu) sign->transform->SetRotation(vec3(0,180,cos(Time::Now() / 1000.0) * 2));
             //sign->transform->SetPosition(vec3(0,sin(Time::Now() / 2000.0) * .02 + .5 ,2));
 
 			long curTime = Time::Now();
@@ -493,23 +493,7 @@ void GameController::LoadState() {
         
         bunnySpawnSystem = new BunnySpawnSystem();
         bunnySpawnSystem->startPosition = glm::vec3(60, -20, 40);
-		Camera * c = (Camera *)world.mainCamera->GetComponent("Camera");
-		Keyframe ks;
-		ks.pos = glm::vec3(-490.233f, 323.772, -547.755);
-		ks.pitch = -59.f;
-		ks.aap = 48.f;
-		ks.time = 5000.f;
-		c->kfs.add(ks);
-		ks.pos = glm::vec3(605.167, 372.280, -199.671);
-		ks.pitch = -45.f;
-		ks.aap = 275.f;
-		ks.time = 5000.f;
-		c->kfs.add(ks);
-		ks.pos = glm::vec3(-628.876, 500.95, 518.358);
-		ks.pitch = -50.f;
-		ks.aap = 480.f;
-		ks.time = 5000.f;
-		c->kfs.add(ks);
+
         
         gameMusic = audio->PlaySound("menu.wav");
 		break;
@@ -620,20 +604,20 @@ void GameController::LoadState() {
 		world.mainCamera = EntityFactory::createMainCamera(&world);
 		Camera * c = (Camera *)world.mainCamera->GetComponent("Camera");
 		Keyframe ks;
-		ks.pos = glm::vec3(-490.233f, 323.772, -547.755);
-		ks.pitch = -59.f;
-		ks.aap = 48.f;
+		c->pos = ks.pos = glm::vec3(-490.233f, 323.772, -547.755);
+		c->pitch = ks.pitch = -59.f;
+		c->aap = ks.aap = 48.f;
 		ks.time = 5000.f;
 		c->kfs.add(ks);
 		ks.pos = glm::vec3(605.167, 372.280, -199.671);
 		ks.pitch = -45.f;
-		ks.aap = 275.f;
+		ks.aap = 275.f-360.f;
 		ks.time = 5000.f;
 		c->kfs.add(ks); 
 		ks.pos = glm::vec3(-628.876, 500.95, 518.358);
 		ks.pitch = -50.f;
-		ks.aap = 480.f;
-		ks.time = 5000.f;
+		ks.aap = 120.f;
+		ks.time = 2000.f;
 		c->kfs.add(ks);
 
 	}

@@ -8,6 +8,7 @@ class Camera;
 
 class Keyframe {
 public:
+	//time in ms it holds for
 	float time;
 	glm::vec3 pos;
 	float aap;
