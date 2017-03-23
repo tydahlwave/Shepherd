@@ -21,7 +21,9 @@ public:
 	static Texture *startButton;
 	static Texture *quitButton;
     static Texture *hair;
-
+    static Texture *sheepIcon;
+    static Texture *wolfIcon;
+    static Texture *goalIcon;
 };
 
 #endif /* Texture_h */

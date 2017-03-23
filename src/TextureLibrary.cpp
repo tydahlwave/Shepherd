@@ -15,6 +15,9 @@ Texture *TextureLibrary::snow = nullptr;
 Texture *TextureLibrary::startButton = nullptr;
 Texture *TextureLibrary::quitButton = nullptr;
 Texture *TextureLibrary::hair = nullptr;
+Texture *TextureLibrary::sheepIcon = nullptr;
+Texture *TextureLibrary::wolfIcon = nullptr;
+Texture *TextureLibrary::goalIcon = nullptr;
 
 void TextureLibrary::LoadTextures(std::string resourceDir) {
     crate = new Texture("Crate");
@@ -37,4 +40,13 @@ void TextureLibrary::LoadTextures(std::string resourceDir) {
     
     hair = new Texture("Hair");
     hair->Load(resourceDir + "hair.bmp");
+    
+    sheepIcon = new Texture("SheepIcon");
+    sheepIcon->Load(resourceDir + "sheep_icon.png");
+    
+    wolfIcon = new Texture("WolfIcon");
+    wolfIcon->Load(resourceDir + "wolf_icon.png");
+    
+    goalIcon = new Texture("GoalIcon");
+    goalIcon->Load(resourceDir + "goal_icon.png");
 }

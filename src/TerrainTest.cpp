@@ -33,6 +33,7 @@
 #include "MaterialLibrary.h"
 #include "BunnySpawnSystem.h"
 #include "WolfSystem.h"
+#include "MinimapController.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
@@ -103,6 +104,7 @@ int main(int argc, char **argv) {
     CharacterController characterController = CharacterController();
     PhysicsController physicsController = PhysicsController();
     TerrainEditingController terrainController = TerrainEditingController();
+    MinimapController minimapController = MinimapController();
     BunnySpawnSystem bunnySpawnSystem = BunnySpawnSystem();
     WolfSystem wolfSystem = WolfSystem();
     
@@ -122,6 +124,7 @@ int main(int argc, char **argv) {
 //    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&characterController, 1);
 //    Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)&bunnySpawnSystem, 1);
     Window::AddImguiUpdateDelegate((ImguiUpdateDelegate*)&terrainController);
+    Window::AddImguiUpdateDelegate((ImguiUpdateDelegate*)&minimapController);
     CAudioEngine::instance()->Init();
     CAudioEngine::instance()->LoadSounds(resourceDir);
     
@@ -129,6 +132,8 @@ int main(int argc, char **argv) {
     GameObject *terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 256, glm::vec3(0, 0, 0));
     terrain->transform->SetScale(glm::vec3(3, 3, 3));
     terrainController.SetTerrain((TerrainRenderer*)terrain->GetComponent("TerrainRenderer"));
+    minimapController.SetTerrain((TerrainRenderer*)terrain->GetComponent("TerrainRenderer"));
+    minimapController.SetWindow(&window);
     
     // Initialize main camera position and lookvector
     world.mainCamera->transform->SetPosition(glm::vec3(0, 200, 200)*terrain->transform->GetScale());
