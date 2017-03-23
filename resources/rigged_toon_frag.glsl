@@ -149,7 +149,7 @@ void main()
         linearColor += ApplyLight(allLights[i], vertexN, viewN, pos);
     }
     
-    float edgeDetection = (dot(viewN, vs_out.modelNor) > 0.3) ? 1 : 0;
+    float edgeDetection = (dot(viewN, vertexN) > 0.3) ? 1 : 0;
     
     color = vec4(linearColor, 1.0);
     //final color (after gamma correction)

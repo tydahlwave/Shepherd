@@ -47,6 +47,20 @@ void Mesh::draw(Program *shader) {
     
     // Draw mesh
     glBindVertexArray(this->VAO);
+    glClearStencil(0);
+    glClear(GL_STENCIL_BUFFER_BIT);
+    
+    // Render the mesh into the stencil buffer.
+    
+    /*glEnable(GL_STENCIL_TEST);
+    
+    glStencilFunc(GL_ALWAYS, 1, -1);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    
+    glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);*/
+    
+    // Render the thick wireframe version.
+   
     glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }

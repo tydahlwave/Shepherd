@@ -94,7 +94,9 @@ void Renderer::Initialize() {
     // Enable z-buffer test.
     glEnable(GL_DEPTH_TEST);
     
+    initQuad();
     initShadows();
+    initPost();
 }
 
 std::vector<LightStruct> setUpLights(World &world, Path *path) {
@@ -289,6 +291,98 @@ void Renderer::RenderShadows(World &world) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+/*
+ Helper function to create the framebuffer object and associated texture to write to
+ */
+void Renderer::createFBO(GLuint& fb, GLuint& tex) {
+    //initialize FBO (global memory)
+    int S_WIDTH = 2048;//window.GetWidth();
+    int S_HEIGHT = 2048;//window.GetHeight();
+    
+    //set up framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, fb);
+    //set up texture
+    glBindTexture(GL_TEXTURE_2D, tex);
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, S_WIDTH, S_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+    
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        cout << "Error setting up frame buffer - exiting" << endl;
+        exit(0);
+    }
+}
+void Renderer::initPost()
+{
+    int S_WIDTH = 2048;//window.GetWidth();
+    int S_HEIGHT = 2048;//window.GetHeight();
+    //create two frame buffer objects to toggle between
+    glGenFramebuffers(2, frameBuf);
+    glGenTextures(2, texBuf);
+    glGenRenderbuffers(1, &depthBuf);
+    createFBO(frameBuf[0], texBuf[0]);
+    
+    //set up depth necessary since we are rendering a mesh that needs depth test
+    glBindRenderbuffer(GL_RENDERBUFFER, depthBuf);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, S_WIDTH, S_HEIGHT);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuf);
+    
+    //more FBO set up
+    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, DrawBuffers);
+    
+    //create another FBO so we can swap back and forth
+    createFBO(frameBuf[1], texBuf[1]);
+}
+
+
+/**** geometry set up for a quad *****/
+void Renderer::initQuad() {
+    
+    //now set up a simple quad for rendering FBO
+    glGenVertexArrays(1, &quad_VertexArrayID);
+    glBindVertexArray(quad_VertexArrayID);
+    
+    static const GLfloat g_quad_vertex_buffer_data[] = {
+        -1.0f, -1.0f, 0.0f,
+        1.0f, -1.0f, 0.0f,
+        -1.0f,  1.0f, 0.0f,
+        -1.0f,  1.0f, 0.0f,
+        1.0f, -1.0f, 0.0f,
+        1.0f,  1.0f, 0.0f,
+    };
+    
+    glGenBuffers(1, &quad_vertexbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
+    
+}
+
+void Renderer::renderPostProc(GLuint inTex){
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, inTex);
+    
+    // example applying of 'drawing' the FBO texture
+   
+    Program* post = ShaderLibrary::postProcess->program;
+    post->bind();
+    glUniform1i(post->getUniform("texBuf"), 0);
+    GLfloat move = ((float)Time::Now()) / 1000.0 * 2*3.14159 * .75;  // 3/4 of a wave cycle per second
+    glUniform1f(post->getUniform("offset"), move);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(0);
+    post->unbind();
+}
+
+
 void Renderer::Render(World &world) {
     //#define DEBUG
 #ifndef DEBUG
@@ -297,7 +391,15 @@ void Renderer::Render(World &world) {
     RenderShadows(world);
 //    }
     
-    glViewport(0, 0, window.GetWidth(), window.GetHeight());
+    int S_WIDTH = 2048;//window.GetWidth();
+    int S_HEIGHT = 2048;//window.GetHeight();
+    
+    //glViewport(0, 0, window.GetWidth(), window.GetHeight());
+    glViewport(0, 0, S_WIDTH, S_HEIGHT);
+    
+    //set up to render to buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBuf[0]);
+    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
     
@@ -620,6 +722,16 @@ void Renderer::Render(World &world) {
             shader->unbind();
         }
     }
+    //rebind to orig buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    assert(GLTextureWriter::WriteImage(texBuf[0],"Texture_output.png"));
+    
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    renderPostProc(texBuf[0]);
+   
+    
     
     glDisable(GL_DEPTH_TEST);
     

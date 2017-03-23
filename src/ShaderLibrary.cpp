@@ -23,6 +23,7 @@ Shader *ShaderLibrary::anim = nullptr;
 Shader *ShaderLibrary::shadowDepth = nullptr;
 Shader *ShaderLibrary::shadowTerrain = nullptr;
 Shader *ShaderLibrary::inFrontOfCamera = nullptr;
+Shader *ShaderLibrary::postProcess = nullptr;
 
 void ShaderLibrary::LoadShaders(std::string resourceDir) {
     Program *program = new Program();
@@ -342,4 +343,14 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
     program->addUniform("M");
     program->addUniform("V");
     inFrontOfCamera = new Shader(program);
+    
+    program = new Program();
+    program->setVerbose(true);
+    program->setShaderNames(resourceDir + "post_proc_vert.glsl", resourceDir + "post_proc_frag.glsl");
+    program->init();
+    program->addAttribute("vertPos");
+    program->addUniform("texBuf");
+    program->addUniform("offset");
+    program->addUniform("settings");
+    postProcess = new Shader(program);
 }

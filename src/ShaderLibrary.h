@@ -31,6 +31,7 @@ public:
     static Shader *shadowDepth;
     static Shader *shadowTerrain;
     static Shader *inFrontOfCamera;
+    static Shader *postProcess;
 
     static std::string ConstructLightUniformName(const char* propertyName, size_t lightIndex) {
         std::ostringstream ss;
