@@ -17,14 +17,17 @@ void Keyframes::add(Keyframe k) {
 //returns 2 if no more kfs
 //returns 0 if else
 int Keyframes::update(Camera * c, float dt) {
+	if (state == 2) {
+		state = 0;
+		return 2;
+	}
 	if (state == 0)
 		return 0;
 	int ret = 0;
 	Keyframe kf = kfs.front();
 	time += dt;
 	if (time > kf.time) {
-		if (next())
-			return 2;
+		next();
 		time -= kf.time;
 		ret = 1;
 		c->pos = last.pos;
@@ -40,12 +43,12 @@ int Keyframes::update(Camera * c, float dt) {
 
 //returns true if empy
 bool Keyframes::next() {
-	printf("NEXT KEYFRAME!\n");
-	if (kfs.empty()) {
-		state = 0;
-		return true;
-	}
+
 	last = kfs.front();
 	kfs.pop();
+	if (kfs.empty()) {
+		state = 2;
+		return true;
+	}
 	return false;
 }
