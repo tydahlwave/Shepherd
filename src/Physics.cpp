@@ -145,8 +145,8 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
             }
         } else if (collision.gameObject2->name.compare("Wolf") == 0 && collision.gameObject1->name.compare("Boulder") == 0) {
             RigidBody *body = (RigidBody*)collision.gameObject1->GetComponent("RigidBody");
-            std::cout << "Hit Wolf with Boulder" << std::endl;
-            std::cout << "Boulder velocity: " << body->bulletRigidBody->getLinearVelocity().length() << std::endl;
+//            std::cout << "Hit Wolf with Boulder" << std::endl;
+//            std::cout << "Boulder velocity: " << body->bulletRigidBody->getLinearVelocity().length() << std::endl;
             Force *force = (Force*)collision.gameObject1->GetComponent("Force");
             if (force) {
                 std::cout << "Boulder force: " << glm::length(force->dir) << std::endl;
@@ -168,8 +168,8 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
             }
         } else if (collision.gameObject1->name.compare("Wolf") == 0 && collision.gameObject2->name.compare("Boulder") == 0) {
             RigidBody *body = (RigidBody*)collision.gameObject2->GetComponent("RigidBody");
-            std::cout << "Hit Wolf with Boulder" << std::endl;
-            std::cout << "Boulder velocity: " << body->bulletRigidBody->getLinearVelocity().length() << std::endl;
+//            std::cout << "Hit Wolf with Boulder" << std::endl;
+//            std::cout << "Boulder velocity: " << body->bulletRigidBody->getLinearVelocity().length() << std::endl;
             Force *force = (Force*)collision.gameObject2->GetComponent("Force");
             if (force) {
                 std::cout << "Boulder force: " << glm::length(force->dir) << std::endl;
@@ -297,7 +297,7 @@ void Physics::HandleTerrainCollisions(World &world) {
                             GameObject *b = EntityFactory::createRing(&world);
                             b->transform->SetPosition(obj->transform->GetPosition());
                             SoundLibrary::playPing();
-                            rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 30.0, 0));
+                            rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 80.0, 0));
                         }
                         else if (rigidBody && rigidBody->bulletRigidBody) {
                             rigidBody->bulletRigidBody->setLinearVelocity(btVector3(0, 0, 0));

@@ -290,6 +290,7 @@ void Renderer::RenderShadows(World &world) {
 }
 
 void Renderer::Render(World &world) {
+    
     //#define DEBUG
 #ifndef DEBUG
     
@@ -327,6 +328,12 @@ void Renderer::Render(World &world) {
         }
     }
     
+    
+//    std::vector<GameObject*> gos;
+//    if (world.kdTree) {
+//        gos = world.kdTree->getStaticObjectsInViewFrustrum(camera);
+//    }
+    
     for (GameObject *gameObject : world.GetGameObjects()) {
 		SkyboxRenderer *skyboxRenderer = (SkyboxRenderer*)gameObject->GetComponent("SkyboxRenderer");
 		if (skyboxRenderer) {
@@ -342,7 +349,7 @@ void Renderer::Render(World &world) {
 			glActiveTexture(GL_TEXTURE2);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubeMapTexture);
 
-			Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
+			
 			applyProjectionMatrix(shader, window, camera);
             applyCameraMatrix(shader, camera, (world.mainCharacter) ? camera->pos : world.mainCamera->transform->GetPosition());
 			applyTransformMatrix(shader, gameObject->transform);
@@ -397,6 +404,7 @@ void Renderer::Render(World &world) {
         MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
         if (meshRenderer && meshRenderer->draw == false) continue;
         if (meshRenderer && (gameObject->name.compare("HUD") == 0 || gameObject->name.compare("ChargeBar") == 0)) {
+            //glEnable (GL_BLEND); glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             auto shader = meshRenderer->shader->program;
             auto model = meshRenderer->model;
             shader->bind();

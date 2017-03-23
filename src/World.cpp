@@ -29,6 +29,8 @@ World::World() :gameObjects() {
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
     
     dynamicsWorld->setGravity(btVector3(0,-100,0));
+    
+//    kdTree = new KDTree(gameObjects);
 }
 
 

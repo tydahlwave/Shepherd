@@ -1,9 +1,11 @@
 #version 330 core
 
 out vec4 Outcolor;
-uniform sampler2D ButtonTexture;
-in vec2 pos;
+uniform int width;
+uniform int height;
 
 void main() {
-    Outcolor = texture(ButtonTexture, pos);
+
+    Outcolor = vec4(0, 0, 0, 0.5);
+
 }

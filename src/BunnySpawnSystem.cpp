@@ -68,7 +68,7 @@ void BunnySpawnSystem::jumpAtEndOfLevel(World*world) {
             rb->velocity.x = rb->velocity.x/1000.f;
             rb->velocity.z = rb->velocity.z/1000.f;
             if(Time::Now() - rb->pointInTime > rb->waitTime) {
-                cout << "SHOOT UP " << endl;
+//                cout << "SHOOT UP " << endl;
                 if(rb->bulletRigidBody) {
                     rb->bulletRigidBody->setLinearVelocity(btVector3(0,30.0,0));
                     rb->pointInTime = Time::Now();
