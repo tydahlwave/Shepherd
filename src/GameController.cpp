@@ -332,7 +332,7 @@ void GameController::Run() {
 				if (bunnySpawnSystem)
 					bunnySpawnSystem->Update(idealDeltaTime, &world, world.sheepDestinationObject);
 				if (wolfSystem)
-                    //wolfSystem->Update(idealDeltaTime, &world);
+                    wolfSystem->Update(idealDeltaTime, &world);
 				physics.Update(idealDeltaTime, world);
                 if (animSystem)
                     animSystem->Update(elapsedTime, &world);
