@@ -47,7 +47,7 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     float roughnessValue = 0.8; // 0 : smooth, 1: rough
     float F0 = 0.6; // fresnel reflectance at normal incidence
     float k = 0.3; // fraction of diffuse reflection (specular reflection = 1 - k)
-    vec3 lightColor = vec3(0.9, 0.3, 0.9);
+    vec3 lightColor = vec3(0.9, 0.9, 0.9);
     
     
     
@@ -157,11 +157,12 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     vec3 ambient = light.ambientCoefficient * ambientColor * light.intensities;
     
     //diffuse
+    //vec3 diffuse = diffuseColor * max(dot(vertexN, lightN), 0) * light.intensities;
     vec3 diffuse = diffuseColor * max(dot(vertexN, lightN), 0) * light.intensities;
     //vec3 diffuse = diffuseColor * df;
     
     //specular
-    vec3 specular = specularColor  * NdotL * (k + specC * (1.0 - k)) * sf;
+    vec3 specular = lightColor * specularColor  * NdotL * (k + specC * (1.0 - k)) * sf;
     
     //linear color (color before gamma correction)
     if (light.position.w == 0)
@@ -185,7 +186,7 @@ void main()
         linearColor += ApplyLight(allLights[i], vertexN, viewN, pos);
     }
     
-    float edgeDetection = (dot(viewN, vs_out.modelNor) > 0.3) ? 1 : 0;
+    float edgeDetection = (dot(viewN, vertexN) < 0.3) ? 1 : 0;
     
     color = vec4(linearColor, 1.0);
     //final color (after gamma correction)
