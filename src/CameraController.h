@@ -18,8 +18,8 @@ class CameraController : WindowCallbackDelegate {
 public:
     CameraController() {};
     virtual ~CameraController() {};
-    
-    void Update(World &world);
+    //returns true if end of keyframes, signals create hud
+	bool Update(World &world, float dt);
     void KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action);
     void MouseMoved(World *world, int windowWidth, int windowHeight, double mouseX, double mouseY);
     void MouseClicked(World *world, double mouseX, double mouseY, int key, int action);

@@ -169,7 +169,7 @@ static ImageProperties LoadImageCustom(std::string imagePath, unsigned short **i
     
     if (width) *width = _width;
     if (height) *height = _height;
-    return { _width, _height, _channels, inputFormat, outputFormat, GL_FLOAT };
+    return { _width, _height, _channels, inputFormat, outputFormat, GL_UNSIGNED_SHORT };
 }
 
 static void SaveImageCustom(std::string fileName, int width, int height, int channels, const unsigned short *data) {

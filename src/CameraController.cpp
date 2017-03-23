@@ -66,13 +66,18 @@ float heightAtPoint(World &world, glm::vec3 pos) {
 	return interpolatedHeight*terrainObject->transform->GetScale().y;
 }
 
-void CameraController::Update(World &world) {
+bool CameraController::Update(World &world, float dt) {
+	bool ret = false;
 	Camera *camera = (Camera*)world.mainCamera->GetComponent("Camera");
 	//get main character's position
 	glm::vec3 pos = camera->pos;
 	bool check = true;
 	//get main characters rotation
 //	glm::vec3 rot = world.mainCamera->transform->GetRotation();
+
+	while (camera->aap > 360) camera->aap -= 360;
+	while (camera->aap < 0) camera->aap += 360;
+
 	if (!camera->stat) {
 		while (check) {
 			pos = world.mainCamera->transform->GetPosition();
@@ -103,9 +108,15 @@ void CameraController::Update(World &world) {
 		else {
 			((MeshRenderer*)world.mainCharacter->GetComponent("MeshRenderer"))->draw = true;
 		}
+
+		camera->pos = pos;
+	}
+	else {
+		if (camera->kfs.update(camera, dt) == 2) {
+			ret = true;
+		}
 	}
 	camera->yaw = glm::radians(camera->aap);
-	camera->pos = pos;
     float xAdjustment = 0;
     float yAdjustment = 0;
 	if (camera->stat)
@@ -126,6 +137,7 @@ void CameraController::Update(World &world) {
     }
     
 	camera->lookAt = camera->pos + glm::vec3(sin(camera->yaw) + xAdjustment, sin(glm::radians(camera->pitch)) + yAdjustment, cos(camera->yaw));
+	return ret;
 }
 
 void CameraController::BeginShaking(int framesToShake, float intensity)
