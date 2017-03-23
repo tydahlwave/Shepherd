@@ -155,6 +155,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
                 Death* gD = (Death*) collision.gameObject2->GetComponent("Death");
                 if(gD){
                     CAudioEngine::instance()->PlaySound("wolfHurt.wav");
+                    SoundLibrary::playYay();
                     collision.gameObject2->RemoveComponent("MeshRenderer");
                     collision.gameObject2->RemoveComponent("BoxCollider");
                     RigidBody *rb = (RigidBody*) collision.gameObject2->GetComponent("RigidBody");
@@ -178,6 +179,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
                 Death* gD = (Death*) collision.gameObject1->GetComponent("Death");
                 if(gD){
                     CAudioEngine::instance()->PlaySound("wolfHurt.wav");
+                    SoundLibrary::playYay();
                     collision.gameObject1->RemoveComponent("MeshRenderer");
                     collision.gameObject1->RemoveComponent("BoxCollider");
                     RigidBody *rb = (RigidBody*) collision.gameObject1->GetComponent("RigidBody");
@@ -259,6 +261,7 @@ void Physics::HandleTerrainCollisions(World &world) {
                         if(gD->shouldDie){
 //                            std::cout<<"should die true";
                             CAudioEngine::instance()->PlaySound("wolfHurt.wav");
+                            SoundLibrary::playYay();
                             obj->RemoveComponent("MeshRenderer");
                             obj->RemoveComponent("BoxCollider");
                             RigidBody *rb = (RigidBody*) obj->GetComponent("RigidBody");

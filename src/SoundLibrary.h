@@ -32,6 +32,7 @@ public:
     static void playRockHit();
     static void playPing();
     static void playPong();
+    static void playYay();
     
 private:
  

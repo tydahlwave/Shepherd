@@ -92,7 +92,6 @@ void SoundLibrary::playRandFun(){
 
 void SoundLibrary::playWolfHurt(){
     CAudioEngine::instance()->PlaySound("wolfOw.wav");
-    
 }
 void SoundLibrary::playWolfSpawn(){
     CAudioEngine::instance()->PlaySound("wolfGrowl.wav");
@@ -110,4 +109,8 @@ void SoundLibrary::playPing(){
 
 void SoundLibrary::playPong(){
     CAudioEngine::instance()->PlaySound("pong.wav");
+}
+
+void SoundLibrary::playYay(){
+    CAudioEngine::instance()->PlaySound("yay.wav");
 }
