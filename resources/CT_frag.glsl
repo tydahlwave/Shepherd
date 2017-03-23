@@ -74,9 +74,9 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     }
     
     const float A = 0.1;
-    const float B = 0.2;
-    const float C = 0.4;
-    const float D = 0.6;
+    const float B = 0.3;
+    const float C = 0.6;
+    const float D = 1.0;
     const float E = 0.8;
     const float F = 1.0;
     
@@ -92,12 +92,6 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     
     else if (df > C - W && df < C + W)
         stepmix(C, D, W, df);
-    
-    else if (df > D - W && df < D + W)
-        stepmix(D, E, W, df);
-    
-    else if (df > E - W && df < E + W)
-        stepmix(E, F, W, df);
     //Else regular bands
     else if (df < A)
         df = 0.0;
@@ -105,12 +99,8 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
         df = B;
     else if (df < C)
         df = C;
-    else if (df < D)
-        df = D;
-    else if (df < E)
-        df = E;
     else
-        df = F;
+        df = D;
     
     float sf = max(0.0, dot(vertexN, normalize(lightN + vec3(0,0,1))));
     
@@ -176,10 +166,10 @@ vec3 ApplyLight(Light light, vec3 vertexN, vec3 viewN, vec3 lightPos) {
     //linear color (color before gamma correction)
     if (light.position.w == 0)
         return ambient + (diffuse + specular);
-    //return specular;
+        //return specular;
     else
         return ambient + attenuation*(diffuse + specular);
-    //return attenuation * specular;
+        //return attenuation * specular;
 }
 
 

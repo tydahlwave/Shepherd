@@ -22,18 +22,18 @@ public:
 	int state = 0;
 	float time = 0;
 
-	void Keyframes::add(Keyframe k);
+	void add(Keyframe k);
 
 	//returns 1 if keyframe jumps
 	//returns 2 if no more kfs
 	//returns 0 if else
-	int Keyframes::update(Camera * c, float dt);
+	int update(Camera * c, float dt);
 
 	//returns true if empy
-	bool Keyframes::next();
+	bool next();
 
 	//holds last keyframe for x seconds
-	void Keyframes::hold(float time);
+	void hold(float time);
 
 };
 

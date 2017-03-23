@@ -107,7 +107,9 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
 
     program = new Program();
     program->setVerbose(true);
-    program->setShaderNames(resourceDir + "toon_cell_vert.glsl", resourceDir + "toon_cell_frag.glsl");
+    program->setShaderNames(resourceDir + "CT_vert.glsl", resourceDir + "CT_frag.glsl");
+    
+    //program->setShaderNames(resourceDir + "toon_cell_vert.glsl", resourceDir + "toon_cell_frag.glsl");
     program->init();
     program->addUniform("P");
     program->addUniform("M");

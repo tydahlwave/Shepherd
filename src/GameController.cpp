@@ -619,8 +619,8 @@ void GameController::LoadState() {
 		ks.aap = 120.f;
 		ks.time = 5000.f;
 		c->kfs.add(ks);
-		ks.time = 1000.f;
-		c->kfs.hold(1000);
+		//ks.time = 1000.f;
+		//c->kfs.hold(1000);
 
 	}
 	case Level2:
