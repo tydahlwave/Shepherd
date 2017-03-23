@@ -24,6 +24,7 @@ public:
     static Texture *sheepIcon;
     static Texture *wolfIcon;
     static Texture *goalIcon;
+    static Texture *faceIcon;
 };
 
 #endif /* Texture_h */

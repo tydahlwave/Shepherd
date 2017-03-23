@@ -202,16 +202,17 @@ int main(int argc, char **argv) {
                 bunnySpawnSystem.Update(idealDeltaTime, &world, path);
                 wolfSystem.Update(idealDeltaTime, &world);
                 characterController.Update(&world, idealDeltaTime);
+                playerController.Update(world, idealDeltaTime);
             }
             accumulator -= idealDeltaTime;
         }
         
         if (world.mainCharacter) {
-            glm::vec3 charPos = world.mainCharacter->transform->GetPosition();
-            RigidBody *rigidBody = (RigidBody*)world.mainCharacter->GetComponent("RigidBody");
-//            std::cout << "Character Position: (" << charPos.x << "," << charPos.y << "," << charPos.z << ")" << std::endl;
-//            std::cout << "Character Velocity: (" << rigidBody->velocity.x << "," << rigidBody->velocity.y << "," << rigidBody->velocity.z << ")" << std::endl;
-            playerController.Update(world);
+//            glm::vec3 charPos = world.mainCharacter->transform->GetPosition();
+//            RigidBody *rigidBody = (RigidBody*)world.mainCharacter->GetComponent("RigidBody");
+////            std::cout << "Character Position: (" << charPos.x << "," << charPos.y << "," << charPos.z << ")" << std::endl;
+////            std::cout << "Character Velocity: (" << rigidBody->velocity.x << "," << rigidBody->velocity.y << "," << rigidBody->velocity.z << ")" << std::endl;
+//            playerController.Update(world);
         } else {
             cameraController.Update(world);
         }
