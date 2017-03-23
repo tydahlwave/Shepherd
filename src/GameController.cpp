@@ -38,6 +38,7 @@
 #include "Serializer.h"
 #include "Components/Clickable.h"
 #include "LevelEditor.h"
+#include "Keyframe.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
@@ -317,9 +318,7 @@ void GameController::Run() {
 			oldTime = curTime;
 
 			accumulator += elapsedTime;
-			if (nextcamlevel > 0) {
-				camlevel += elapsedTime;
-			}
+
 			while (accumulator >= idealDeltaTime) {
 				//update
                 if(world.sheepDestinationObject && world.sheepDestinationObject->name != "Path") {
@@ -343,8 +342,13 @@ void GameController::Run() {
                 
 			}
 			if (cameraController) {
-				cameraController->Update(world);
+				if (cameraController->Update(world, elapsedTime*1000)) {
+					world.RemoveGameObject(world.mainCamera);
+					world.mainCamera = world.mainCharacter;
+					EntityFactory::createHUD(&world);
+				}
 			}
+			/*
 			Camera *c;
 			if (nextcamlevel > 0 && camlevel > nextcamlevel && state == Level1) {
 				c = (Camera *)world.mainCamera->GetComponent("Camera");
@@ -380,11 +384,13 @@ void GameController::Run() {
 				}
 				camstage++;
 			}
+			*/
 			renderer.Render(world);
 			CAudioEngine::instance()->Update();
 			window.Update();
 
-            displayStats(elapsedTime, world, physics);
+            //displayStats(elapsedTime, world, physics);
+			
             
         }
         UnloadState();
@@ -487,6 +493,7 @@ void GameController::LoadState() {
         
         bunnySpawnSystem = new BunnySpawnSystem();
         bunnySpawnSystem->startPosition = glm::vec3(60, -20, 40);
+
         
         gameMusic = audio->PlaySound("menu.wav");
 		break;
@@ -595,10 +602,26 @@ void GameController::LoadState() {
 //		EntityFactory::createHUD(&world);
 		EntityFactory::createChargeBar(&world);
 		world.mainCamera = EntityFactory::createMainCamera(&world);
-		nextcamlevel = .000001f;
-		camlevel = 1.f;
-        camstage = 0;
-		break;
+		Camera * c = (Camera *)world.mainCamera->GetComponent("Camera");
+		Keyframe ks;
+		c->pos = ks.pos = glm::vec3(-490.233f, 323.772, -547.755);
+		c->pitch = ks.pitch = -59.f;
+		c->aap = ks.aap = 48.f;
+		ks.time = 5000.f;
+		c->kfs.add(ks);
+		ks.pos = glm::vec3(605.167, 372.280, -199.671);
+		ks.pitch = -45.f;
+		ks.aap = 275.f-360.f;
+		ks.time = 5000.f;
+		c->kfs.add(ks); 
+		ks.pos = glm::vec3(-628.876, 500.95, 518.358);
+		ks.pitch = -50.f;
+		ks.aap = 120.f;
+		ks.time = 5000.f;
+		c->kfs.add(ks);
+		ks.time = 1000.f;
+		c->kfs.hold(1000);
+
 	}
 	case Level2:
 	{
