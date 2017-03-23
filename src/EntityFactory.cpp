@@ -698,6 +698,7 @@ GameObject *EntityFactory::createParticleSystem(World *world, std::string name, 
 	GameObject *gameObject = world->CreateGameObject("ParticleSystem");
 	ParticleRenderer *renderer = (ParticleRenderer*)gameObject->AddComponent("ParticleRenderer");
 	renderer->particleSystem = new ParticleSystem(name, num, scale, life, systemLife, speed, position);
+
 	if (name.compare("Snow") == 0) {
 		renderer->texture = TextureLibrary::snowflake;
 		renderer->particleSystem->setPositionRange(glm::vec2(-800.0f, 800.0f), glm::vec2(-150.0f, 50.0f), glm::vec2(-800.0f, 800.0f));
@@ -710,7 +711,17 @@ GameObject *EntityFactory::createParticleSystem(World *world, std::string name, 
 		renderer->particleSystem->setVelocityRange(glm::vec2(-1.0, 1.0f), glm::vec2(-1.0f, -0.5f), glm::vec2(-1.0f, 1.0f));
 		renderer->particleSystem->hasTexture = 1.0f;
 	}
-
+	else if (name.compare("Dust") == 0) {
+		renderer->texture = TextureLibrary::dust;
+		renderer->particleSystem->setPositionRange(glm::vec2(-0.75f, 0.75f), glm::vec2(-1.0f, 1.0f), glm::vec2(-0.75f, 0.75f));
+		renderer->particleSystem->setVelocityRange(glm::vec2(-1.0, 1.0f), glm::vec2(-1.0f, -0.5f), glm::vec2(-1.0f, 1.0f));
+		renderer->particleSystem->hasTexture = 1.0f;
+	}
+	else if (name.compare("Confetti") == 0) {
+		renderer->particleSystem->setPositionRange(glm::vec2(-150.0f, 150.0f), glm::vec2(-30.0f, 100.0f), glm::vec2(-150.0f, 150.0f));
+		renderer->particleSystem->setVelocityRange(glm::vec2(-20.0, 20.0f), glm::vec2(-10.0f, 20.0f), glm::vec2(-20.0f, 20.0f));
+		renderer->particleSystem->hasTexture = 0.0f;
+	}
 	renderer->shader = ShaderLibrary::particle;
 
 	return gameObject;

@@ -494,9 +494,11 @@ void Renderer::Render(World &world, Window &window) {
 				glUniform1f(shader->getUniform("scale"), ps->scale);
 				glUniform1f(shader->getUniform("hasTexture"), ps->hasTexture);
 
-				glUniform1i(shader->getUniform("textureSamp"), 0);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, texture->texID);
+				if (ps->hasTexture == 1.0f) {
+					glUniform1i(shader->getUniform("textureSamp"), 0);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, texture->texID);
+				}
 
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -519,8 +521,8 @@ void Renderer::Render(World &world, Window &window) {
 			auto model = waterRenderer->model;
 			shader->bind();
 
-			//waterTile->moveFactor += waterTile->waveSpeed * 0.016f;
-			//fmod(waterTile->moveFactor, 1.0);
+			waterTile->moveFactor += waterTile->waveSpeed * 0.016f;
+			fmod(waterTile->moveFactor, 1.0);
 
 			if (waterRenderer->material) {
 				applyMaterial(shader, waterRenderer->material);
@@ -540,7 +542,7 @@ void Renderer::Render(World &world, Window &window) {
 			glUniform1i(shader->getUniform("refractionTexture"), 1);
 			glUniform1i(shader->getUniform("dudvMap"), 2);
 			glUniform1i(shader->getUniform("normalMap"), 3);
-			//glUniform1f(shader->getUniform("moveFactor"), waterTile->moveFactor);
+			glUniform1f(shader->getUniform("moveFactor"), waterTile->moveFactor);
 			glm::vec3 pos = world.mainCamera->transform->GetPosition();
 			glUniform3f(shader->getUniform("cameraPos"), pos.x, pos.y, pos.z);
 			glActiveTexture(GL_TEXTURE0);

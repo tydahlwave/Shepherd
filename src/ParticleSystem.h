@@ -67,9 +67,9 @@ private:
 	float speed;
 	glm::vec3 position;
 	glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec2 x_pos_range, x_vel_range;
-	glm::vec2 y_pos_range, y_vel_range;
-	glm::vec2 z_pos_range, z_vel_range;
+	glm::vec2 x_pos_range = glm::vec2(0.0f, 0.0f), x_vel_range = glm::vec2(0.0f, 0.0f);
+	glm::vec2 y_pos_range = glm::vec2(0.0f, 0.0f), y_vel_range = glm::vec2(0.0f, 0.0f);
+	glm::vec2 z_pos_range = glm::vec2(0.0f, 0.0f), z_vel_range = glm::vec2(0.0f, 0.0f);
 	std::vector<float> posBuf;
 	std::vector<float> colorBuf;
 

@@ -56,6 +56,8 @@ private:
 	Path *path = nullptr;
     void CreateBunny(World *world);
     void jumpAtEndOfLevel(World *world);
+	GameObject *dust = nullptr;
+	std::map<GameObject *, GameObject *> ps;
     
 };
 

@@ -31,6 +31,7 @@ private:
 //	float turnSpeed = 0;
 	float moveSpeed = MOVE_SPEED;
 	glm::vec2 mousePrev = { 0, 0 };
+	GameObject *dust = nullptr;
 };
 
 #endif /* CharacterController_h */

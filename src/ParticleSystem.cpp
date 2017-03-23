@@ -15,7 +15,6 @@ ParticleSystem::ParticleSystem(std::string name, int num, float scale, float lif
 	Init();
 }
 
-
 ParticleSystem::~ParticleSystem()
 {
 }
@@ -143,17 +142,28 @@ void ParticleSystem::EmitParticle(int unusedParticle) {
 	glm::vec3 velocity = glm::vec3(rand_xVel(vel), rand_yVel(vel), rand_zVel(vel));
 
 	velocity = glm::normalize(velocity) * speed;
-	//GLfloat rColor = 0.5 + ((rand() % 100) / 100.0f);
 
 	particles[unusedParticle].position = position + offset;
 	particles[unusedParticle].velocity = velocity;
 	particles[unusedParticle].life = life;
 	particles[unusedParticle].scale = scale;
-	particles[unusedParticle].color = color;
+	if (name.compare("Confetti") == 0) {
+		std::random_device rd;
+		std::mt19937 col(rd());
+		std::uniform_real_distribution<float> rand_R(0.0f, 1.0f);
+		std::uniform_real_distribution<float> rand_G(0.0f, 1.0f);
+		std::uniform_real_distribution<float> rand_B(0.0f, 1.0f);
+		glm::vec3 rColor = glm::vec3(rand_R(col), rand_G(col), rand_B(col));
+		particles[unusedParticle].color = glm::vec4(rColor, 1.0f);
+
+	}
+	else {
+		particles[unusedParticle].color = color;
+	}
 }
 
 void ParticleSystem::SortParticles() {
-	//std::sort(&particles[0], &particles[numParticles]);
+	std::sort(&particles[0], &particles[numParticles]);
 }
 
 void ParticleSystem::UpdateVBOs() {

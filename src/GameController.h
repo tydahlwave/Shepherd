@@ -77,6 +77,7 @@ private:
 //	GameObject *skybox = nullptr;
     GameObject *sign = nullptr;
 	GameObject *ps = nullptr;
+	GameObject *confetti = nullptr;
 	GameObject *water = nullptr;
 	float groundSize = 100.0f;
 	int gameMusic = 0;

@@ -5,6 +5,7 @@
 //
 //
 
+#include "Components/ParticleRenderer.h"
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <thread>
@@ -16,6 +17,7 @@
 #include "SoundLibrary.h"
 #include "Components/Death.h"
 #include "CameraController.h"
+#include "EntityFactory.h"
 
 
 bool PhysicsController::charge = false;
@@ -96,9 +98,7 @@ void PhysicsController::MouseClicked(World *world, double mouseX, double mouseY,
                  ((CameraController*)(world->cameraController))->BeginShaking((int)((dT/ 100) + .5), 200);
         }
         
-        
-        
-        GameObject *mainCharacter = (world->mainCharacter) ? world->mainCharacter : world->mainCamera;
+		GameObject *mainCharacter = (world->mainCharacter) ? world->mainCharacter : world->mainCamera;
 //        Camera* cam = (Camera*)mainCharacter->GetComponent("Camera");
 
 		glm::vec3 rot = mainCharacter->transform->GetRotation();

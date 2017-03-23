@@ -301,7 +301,7 @@ void ShaderLibrary::LoadShaders(std::string resourceDir) {
 	program->addUniform("dudvMap");
 	program->addUniform("normalMap");
 	program->addUniform("cameraPos");
-	//program->addUniform("moveFactor");
+	program->addUniform("moveFactor");
 	program->addAttribute("vertPos");
 	program->addAttribute("vertNor");
 	water = new Shader(program);

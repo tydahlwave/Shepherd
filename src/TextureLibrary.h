@@ -24,6 +24,7 @@ public:
 	static Texture *circle;
 	static Texture *snowflake;
 	static Texture *blood;
+	static Texture *dust;
 	static Texture *normalMap;
 	static Texture *dudvMap;
 

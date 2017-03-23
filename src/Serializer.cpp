@@ -37,7 +37,7 @@ void Serializer::SerializeWorld(World *world) {
     
     puts(sb.GetString());
     std::ofstream myfile;
-    myfile.open ("../../resources/jsons/savedWorld.json");
+    myfile.open ("../resources/jsons/savedWorld.json");
     myfile << sb.GetString();
     myfile.close();
 }
@@ -119,7 +119,7 @@ GameObject *Serializer::DeserializeLightObject(rapidjson::Value &v, World *world
 
 void Serializer::DeserializeWorld(World *world) {
     std::fstream inFile;
-    inFile.open("../../resources/jsons/loadedWorld.json");//open the input file
+    inFile.open("../resources/jsons/loadedWorld.json");//open the input file
     std::stringstream strStream;
     strStream << inFile.rdbuf();//read the file
     std::string json = strStream.str();//str holds the content of the file

@@ -6,6 +6,7 @@
 //
 //
 
+#include "Components/ParticleRenderer.h"
 #include "BunnySpawnSystem.h"
 #include "EntityFactory.h"
 #include "Components/RigidBody.h"
@@ -21,13 +22,27 @@ void BunnySpawnSystem::Update(float deltaTime, World *world, GameObject *p) {
             SheepDestination *pathRenderer = (SheepDestination*)p->GetComponent("SheepDestination");
             path = pathRenderer->path;
         }
-        
+
         std::map<GameObject*, int>::iterator it;
         for (it = bunnyNode.begin(); it != bunnyNode.end(); ++it) {
             if (it->first->isBunnyAndIsAtEnd) continue;
             glm::vec3 target = FollowPath(world, it->first);
             Flock(world, it->first, target);
         }
+
+		std::map<GameObject*, GameObject*>::iterator it2;
+		for (it2 = ps.begin(); it2 != ps.end(); ++it2) {
+			ParticleRenderer *pr = (ParticleRenderer*)it2->second->GetComponent("ParticleRenderer");
+			if (it2->first->GetComponent("RigidBody")) {
+				if (glm::distance(it2->first->transform->GetPosition(), path->GetNodes()[0]) < 2.0f) {
+					pr->particleSystem->systemLife = 0.0f;
+				}
+				else {
+					pr->particleSystem->setPosition(it2->first->transform->GetPosition());
+					pr->particleSystem->systemLife = 0.5;
+				}
+			}
+		}
     }
     else {
         
@@ -155,6 +170,13 @@ void BunnySpawnSystem::CreateBunny(World *world) {
     rigidBody->useGravity = true;
     b->transform->SetRotation(vec3(0, -randomAngle, 0));
     bunnyNode.insert(std::make_pair(b, 0));
+
+	dust = EntityFactory::createParticleSystem(world, "Dust", 30, 1.25f, 0.5f, 0.5f, 0.1f, b->transform->GetPosition());
+	ParticleRenderer *pr = (ParticleRenderer*)dust->GetComponent("ParticleRenderer");
+	pr->particleSystem->setPositionRange(glm::vec2(-0.7f, 0.7f), glm::vec2(-0.3f, 0.3f), glm::vec2(-0.7f, 0.7f));
+	pr->particleSystem->setVelocityRange(glm::vec2(-0.5f, 0.5f), glm::vec2(0.0f, 0.3f), glm::vec2(-0.5f, 0.5f));
+	pr->particleSystem->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.3f));
+	ps.insert(std::make_pair(b, dust));
 }
 
 void BunnySpawnSystem::KeyPressed(World *world, int windowWidth, int windowHeight, int key, int action) {

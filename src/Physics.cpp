@@ -145,7 +145,7 @@ void Physics::ResolveCollisions(World &world, std::vector<Collision> collisions)
                 tn->color = vec3(1,0,0);
             }
 			if (blood == nullptr) {
-				blood = EntityFactory::createParticleSystem(&world, "Blood", 1, 2.0f, 0.25f, 0.25f, 0.1f, collision.gameObject1->transform->GetPosition());
+				blood = EntityFactory::createParticleSystem(&world, "Blood", 1, 2.5f, 0.25f, 0.25f, 0.1f, collision.gameObject1->transform->GetPosition());
 			}
 			else {
 				ParticleRenderer *pr = (ParticleRenderer*) blood->GetComponent("ParticleRenderer");
@@ -222,6 +222,15 @@ void Physics::HandleTerrainCollisions(World &world) {
 //                        std::cout<<"found collision";
                         if(gD->shouldDie){
 //                            std::cout<<"should die true";
+							if (blood == nullptr) {
+								blood = EntityFactory::createParticleSystem(&world, "Blood", 1, 3.0f, 0.25f, 0.25f, 0.1f, obj->transform->GetPosition());
+							}
+							else {
+								ParticleRenderer *pr = (ParticleRenderer*)blood->GetComponent("ParticleRenderer");
+								pr->particleSystem->systemLife = 0.25f;
+								glm::vec3 position = obj->transform->GetPosition();
+								pr->particleSystem->setPosition(position);
+							}
                             CAudioEngine::instance()->PlaySound("wolfHurt.wav");
                             obj->RemoveComponent("MeshRenderer");
                             obj->RemoveComponent("BoxCollider");

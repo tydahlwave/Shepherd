@@ -31,6 +31,7 @@ public:
     
 private:
     bool isLyingInCone(btVector3 &x, btVector3 &t, btVector3 &b, float aperture);
+
 };
 
 #endif /* CameraController_h */

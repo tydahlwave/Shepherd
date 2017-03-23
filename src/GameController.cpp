@@ -267,6 +267,8 @@ void GameController::checkIfEndOfLevel() {
         MeshRenderer *meshRenderer = (MeshRenderer*)winLevelTitle->GetComponent("MeshRenderer");
         meshRenderer->model->bounds.halfwidths = vec3(INFINITY);
         levelComplete = true;
+
+		confetti = EntityFactory::createParticleSystem(&world, "Confetti", 500, 1.0f, 8.5f, -1.0f, 0.5f, glm::vec3(185, 241, 322));
     }
 }
 
@@ -330,7 +332,7 @@ void GameController::Run() {
 				if (bunnySpawnSystem)
 					bunnySpawnSystem->Update(idealDeltaTime, &world, world.sheepDestinationObject);
 				if (wolfSystem)
-                    wolfSystem->Update(idealDeltaTime, &world);
+                    //wolfSystem->Update(idealDeltaTime, &world);
 				physics.Update(idealDeltaTime, world);
                 if (animSystem)
                     animSystem->Update(elapsedTime, &world);
@@ -352,7 +354,7 @@ void GameController::Run() {
 			if (cameraController) {
 				cameraController->Update(world);
 			}
-			/*if (water) {
+			if (water) {
 				WaterRenderer *wr = (WaterRenderer*)water->GetComponent("WaterRenderer");
 
 				glEnable(GL_CLIP_DISTANCE0);
@@ -367,7 +369,7 @@ void GameController::Run() {
 				pos = world.mainCamera->transform->GetPosition();
 				world.mainCamera->transform->SetPosition(glm::vec3(pos.x, pos.y + distance, pos.z));
 				cameraController->InvertPitch(&world);
-				wr->buffers->unbindCurrentFrameBuffer();
+				//wr->buffers->unbindCurrentFrameBuffer();
 
 				//render to refraction texture;
 				wr->buffers->bindRefractionFrameBuffer();
@@ -375,7 +377,7 @@ void GameController::Run() {
 				renderer.Render(world, window);
 				glDisable(GL_CLIP_DISTANCE0);
 				wr->buffers->unbindCurrentFrameBuffer();
-			}*/
+			}
 
 			Camera *c;
 			if (nextcamlevel > 0 && camlevel > nextcamlevel && state == Level1) {
@@ -588,7 +590,7 @@ void GameController::LoadState() {
 		skybox = EntityFactory::createSkybox(&world, resourceDir);
 
 		// Create water
-		//water = EntityFactory::createWater(&world, world.mainCharacter->transform->GetPosition().x, world.mainCharacter->transform->GetPosition().z, 0.75f);
+		//water = EntityFactory::createWater(&world, world.mainCharacter->transform->GetPosition().x + 100, world.mainCharacter->transform->GetPosition().z, 2.8f);
 
 		// Place game objectsaw
 		//Create Path

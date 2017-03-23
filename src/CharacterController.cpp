@@ -1,4 +1,5 @@
 
+#include "Components/ParticleRenderer.h"
 #include "Components/TerrainRenderer.h"
 #include "CharacterController.h"
 #include "Components/Camera.h"
@@ -58,12 +59,34 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
             wasd[0] = true;
             idleAnim->skeleton.PlayAnimation(Anim_Test_Idle,true,false);
             SoundLibrary::playWalk();
+			if (dust == nullptr) {
+				dust = EntityFactory::createParticleSystem(world, "Dust", 50, 2.0f, 0.5f, 0.5f, 0.1f, mainCharacter->transform->GetPosition());
+				ParticleRenderer *pr = (ParticleRenderer*)dust->GetComponent("ParticleRenderer");
+				pr->particleSystem->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.3f));
+				pr->particleSystem->setVelocityRange(glm::vec2(-0.5f, 0.5f), glm::vec2(0.0f, 0.3f), glm::vec2(-0.5f, 0.5f));
+			}
+			else {
+				ParticleRenderer *pr = (ParticleRenderer*)dust->GetComponent("ParticleRenderer");
+				pr->particleSystem->setPosition(mainCharacter->transform->GetPosition());
+				pr->particleSystem->systemLife = 0.5f;
+			}
 		}
 		else if (key == GLFW_KEY_S) {
 			character->vel[2] = -5.f;
             wasd[2] = true;
             idleAnim->skeleton.PlayAnimation(Anim_Test_Idle,true,false);
             SoundLibrary::playWalk();
+			if (dust == nullptr) {
+				dust = EntityFactory::createParticleSystem(world, "Dust", 50, 2.0f, 0.5f, 0.5f, 0.1f, mainCharacter->transform->GetPosition());
+				ParticleRenderer *pr = (ParticleRenderer*)dust->GetComponent("ParticleRenderer");
+				pr->particleSystem->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.3f));
+				pr->particleSystem->setVelocityRange(glm::vec2(-0.5f, 0.5f), glm::vec2(0.0f, 0.3f), glm::vec2(-0.5f, 0.5f));
+			}
+			else {
+				ParticleRenderer *pr = (ParticleRenderer*)dust->GetComponent("ParticleRenderer");
+				pr->particleSystem->setPosition(mainCharacter->transform->GetPosition());
+				pr->particleSystem->systemLife = 0.5f;
+			}
 		}
 		else if (key == GLFW_KEY_A) {
 			//	character->currentTurnSpeed = 30;
@@ -71,6 +94,17 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
             wasd[1] = true;
             idleAnim->skeleton.PlayAnimation(Anim_Test_Idle,true,false);
             SoundLibrary::playWalk();
+			if (dust == nullptr) {
+				dust = EntityFactory::createParticleSystem(world, "Dust", 50, 2.0f, 0.5f, 0.5f, 0.1f, mainCharacter->transform->GetPosition());
+				ParticleRenderer *pr = (ParticleRenderer*)dust->GetComponent("ParticleRenderer");
+				pr->particleSystem->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.3f));
+				pr->particleSystem->setVelocityRange(glm::vec2(-0.5f, 0.5f), glm::vec2(0.0f, 0.3f), glm::vec2(-0.5f, 0.5f));
+			}
+			else {
+				ParticleRenderer *pr = (ParticleRenderer*)dust->GetComponent("ParticleRenderer");
+				pr->particleSystem->setPosition(mainCharacter->transform->GetPosition());
+				pr->particleSystem->systemLife = 0.5f;
+			}
 		}
 		else if (key == GLFW_KEY_D) {
 			//	character->currentTurnSpeed = -30;
@@ -78,6 +112,17 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
             wasd[3] = true;
             idleAnim->skeleton.PlayAnimation(Anim_Test_Idle,true,false);
             SoundLibrary::playWalk();
+			if (dust == nullptr) {
+				dust = EntityFactory::createParticleSystem(world, "Dust", 50, 2.0f, 0.5f, 0.5f, 0.1f, mainCharacter->transform->GetPosition());
+				ParticleRenderer *pr = (ParticleRenderer*)dust->GetComponent("ParticleRenderer");
+				pr->particleSystem->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.3f));
+				pr->particleSystem->setVelocityRange(glm::vec2(-0.5f, 0.5f), glm::vec2(0.0f, 0.3f), glm::vec2(-0.5f, 0.5f));
+			}
+			else {
+				ParticleRenderer *pr = (ParticleRenderer*)dust->GetComponent("ParticleRenderer");
+				pr->particleSystem->setPosition(mainCharacter->transform->GetPosition());
+				pr->particleSystem->systemLife = 0.5f;
+			}
 		}
 		else if (key == GLFW_KEY_SPACE) {
             
@@ -95,6 +140,17 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
                 
                 ((RigidBody*)mainCharacter->GetComponent("RigidBody"))->bulletRigidBody->setLinearVelocity(btVector3(0,60,0));
             }
+			if (dust == nullptr) {
+				dust = EntityFactory::createParticleSystem(world, "Dust", 30, 2.50f, 0.5f, 0.5f, 0.1f, mainCharacter->transform->GetPosition());
+				ParticleRenderer *pr = (ParticleRenderer*)dust->GetComponent("ParticleRenderer");
+				pr->particleSystem->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.3f));
+				pr->particleSystem->setVelocityRange(glm::vec2(-0.5f, 0.5f), glm::vec2(0.0f, 0.3f), glm::vec2(-0.5f, 0.5f));
+			}
+			else {
+				ParticleRenderer *pr = (ParticleRenderer*)dust->GetComponent("ParticleRenderer");
+				pr->particleSystem->setPosition(mainCharacter->transform->GetPosition());
+				pr->particleSystem->systemLife = 0.5f;
+			}
 		}
 	}
 	else if (action == GLFW_RELEASE) {
@@ -109,6 +165,8 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
             {
                 idleAnim->skeleton.StopAnimating();
                 SoundLibrary::stopWalk();
+				ParticleRenderer *pr = (ParticleRenderer*)dust->GetComponent("ParticleRenderer");
+				pr->particleSystem->systemLife = 0.3f;
             }
 		}
 		else if (key == GLFW_KEY_S) {
@@ -118,6 +176,8 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
             {
                 idleAnim->skeleton.StopAnimating();
                 SoundLibrary::stopWalk();
+				ParticleRenderer *pr = (ParticleRenderer*)dust->GetComponent("ParticleRenderer");
+				pr->particleSystem->systemLife = 0.3f;
             }
 		}
 		else if (key == GLFW_KEY_A) {
@@ -127,7 +187,10 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
             {
                 idleAnim->skeleton.StopAnimating();
                 SoundLibrary::stopWalk();
-            }		}
+				ParticleRenderer *pr = (ParticleRenderer*)dust->GetComponent("ParticleRenderer");
+				pr->particleSystem->systemLife = 0.3f;
+            }		
+		}
 		else if (key == GLFW_KEY_D) {
 			character->vel[0] = 0.f;
             wasd[3] = false;
@@ -135,6 +198,8 @@ void CharacterController::KeyPressed(World *world, int windowWidth, int windowHe
             {
                 idleAnim->skeleton.StopAnimating();
                 SoundLibrary::stopWalk();
+				ParticleRenderer *pr = (ParticleRenderer*)dust->GetComponent("ParticleRenderer");
+				pr->particleSystem->systemLife = 0.3f;
             }
 		}
 	}

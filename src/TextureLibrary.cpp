@@ -18,6 +18,7 @@ Texture *TextureLibrary::hair = nullptr;
 Texture *TextureLibrary::circle = nullptr;
 Texture *TextureLibrary::snowflake = nullptr;
 Texture *TextureLibrary::blood = nullptr;
+Texture *TextureLibrary::dust = nullptr;
 Texture *TextureLibrary::normalMap = nullptr;
 Texture *TextureLibrary::dudvMap = nullptr;
 
@@ -48,6 +49,9 @@ void TextureLibrary::LoadTextures(std::string resourceDir) {
 
 	blood = new Texture("Blood");
 	blood->Load(resourceDir + "blood.png");
+
+	dust = new Texture("Dust");
+	dust->Load(resourceDir + "dust.png");
 
 	normalMap = new Texture("NormalMap");
 	normalMap->Load(resourceDir + "normalMap.bmp");
