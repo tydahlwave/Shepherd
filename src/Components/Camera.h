@@ -10,6 +10,7 @@
 #define Camera_h
 
 #include "Component.h"
+#include "../Keyframe.h"
 
 enum ProjectionType {
     Orthographic,
@@ -95,6 +96,7 @@ public:
 	float yaw = 0;
 	float roll = 0;
 	bool stat = true;
+	Keyframes kfs;
 	glm::vec3 pos = glm::vec3(0, 0, 0);
     
     void Serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) {
