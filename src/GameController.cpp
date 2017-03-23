@@ -189,7 +189,7 @@ void GameController::ImGuiShowHelp(World *world) {
 }
 
 void GameController::ImGuiShowStats(World *world) {
-    ImGui::SetNextWindowPos(ImVec2(100, 100));
+    ImGui::SetNextWindowPos(ImVec2(250, 0));
 
     ImGui::Begin("Stats Stuff", nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs);
     ImGui::Text("Sheep At End: %lu  ", bunnySpawnSystem->bunniesAtEnd.size());
@@ -545,6 +545,7 @@ void GameController::LoadState() {
 		characterController = new CharacterController();
 		physicsController = new PhysicsController();
 		terrainController = new TerrainController();
+        minimapController = new MinimapController();
 		bunnySpawnSystem = new BunnySpawnSystem();
         bunnySpawnSystem->startPosition = glm::vec3(-500, 4, -350);
         bunnySpawnSystem->endPosition = glm::vec3(185,241,362);
@@ -561,6 +562,7 @@ void GameController::LoadState() {
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)terrainController, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)bunnySpawnSystem, 1);
 		Window::AddWindowCallbackDelegate((WindowCallbackDelegate*)characterController, 1);
+        Window::AddImguiUpdateDelegate((ImguiUpdateDelegate*)minimapController);
         Window::AddImguiUpdateDelegate(this);
 
 
@@ -595,6 +597,8 @@ void GameController::LoadState() {
 		// Create terrain
 		terrain = EntityFactory::createTerrain(&world, resourceDir, SIMPLEX_TERRAIN, 541, glm::vec3(0, 0, 0));
 		terrain->transform->SetScale(glm::vec3(5, 5, 5));
+        minimapController->SetTerrain((TerrainRenderer*)terrain->GetComponent("TerrainRenderer"));
+        minimapController->SetWindow(&window);
 		
 		//create skybox
 		skybox = EntityFactory::createSkybox(&world, resourceDir);

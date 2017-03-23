@@ -28,6 +28,7 @@
 #include "Time.h"
 #include "AnimationSystem.h"
 #include "ImguiUpdateDelegate.h"
+#include "MinimapController.h"
 
 
 enum State {
@@ -69,6 +70,7 @@ private:
 	CharacterController *characterController = nullptr;
 	PhysicsController *physicsController = nullptr;
 	TerrainController *terrainController = nullptr;
+    MinimapController *minimapController = nullptr;
 	BunnySpawnSystem *bunnySpawnSystem = nullptr;
 	WolfSystem *wolfSystem = nullptr;
 	TreeSystem *treeSystem = nullptr;
