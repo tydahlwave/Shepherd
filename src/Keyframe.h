@@ -32,6 +32,9 @@ public:
 	//returns true if empy
 	bool Keyframes::next();
 
+	//holds last keyframe for x seconds
+	void Keyframes::hold(float time);
+
 };
 
 #endif

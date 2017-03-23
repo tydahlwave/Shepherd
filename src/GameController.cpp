@@ -619,11 +619,8 @@ void GameController::LoadState() {
 		ks.aap = 120.f;
 		ks.time = 5000.f;
 		c->kfs.add(ks);
-		ks.pos = glm::vec3(-628.876, 500.95, 518.358);
-		ks.pitch = -50.f;
-		ks.aap = 120.f;
 		ks.time = 1000.f;
-		c->kfs.add(ks);
+		c->kfs.hold(1000);
 
 	}
 	case Level2:

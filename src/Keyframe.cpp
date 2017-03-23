@@ -52,3 +52,10 @@ bool Keyframes::next() {
 	}
 	return false;
 }
+
+void Keyframes::hold(float dt) {
+	Keyframe k = kfs.back();
+	k.time = dt;
+	kfs.push(k);	
+	return;
+}
