@@ -28,7 +28,7 @@ int Keyframes::update(Camera * c, float dt) {
 	time += dt;
 	if (time > kf.time) {
 		next();
-		time -= kf.time;
+        time = 0;
 		ret = 1;
 		c->pos = last.pos;
 		c->aap = last.aap;
