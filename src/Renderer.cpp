@@ -403,7 +403,7 @@ void Renderer::Render(World &world) {
         
         MeshRenderer *meshRenderer = (MeshRenderer*)gameObject->GetComponent("MeshRenderer");
         if (meshRenderer && meshRenderer->draw == false) continue;
-        if (meshRenderer && (gameObject->name.compare("HUD") == 0 || gameObject->name.compare("ChargeBar") == 0 || gameObject->name.compare("HUD2"))) {
+        if (meshRenderer && (gameObject->name.compare("HUD") == 0 || gameObject->name.compare("ChargeBar") == 0)) {
             //glEnable (GL_BLEND); glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             auto shader = meshRenderer->shader->program;
             auto model = meshRenderer->model;
